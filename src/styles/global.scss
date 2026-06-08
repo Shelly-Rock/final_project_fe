@@ -1,0 +1,56 @@
+// style toàn cục (reset CSS, font...)
+
+// src/styles/global.scss
+@use "variables" as *;
+@use "mixins" as *;
+
+// Reset CSS
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: $font-family-sans;
+  font-size: $font-size-base;
+  color: $color-text;
+  background-color: $color-background;
+  line-height: $line-height-normal;
+}
+
+// Container
+.container {
+  @include container;
+}
+
+// Typography
+h1 {
+  @include heading-1;
+}
+
+h2 {
+  @include heading-2;
+}
+
+p {
+  @include body-text;
+}
+
+// Utility classes
+.flex-center {
+  @include flex-center;
+}
+
+.grid-responsive {
+  @include grid-responsive(300px, $spacing-6);
+}
+
+// Responsive
+.sidebar {
+  display: none;
+
+  @include respond-to(md) {
+    display: block;
+  }
+}

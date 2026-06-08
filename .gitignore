@@ -39,3 +39,69 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+# Dependencies
+/node_modules
+/.pnp
+.pnp.js
+.pnp.cjs
+.yarn/install-state.gz
+
+# Next.js build output
+/.next
+/out
+
+# Production build
+/build
+/dist
+
+# TypeScript cache
+*.tsbuildinfo
+next-env.d.ts
+
+# Environment files
+.env
+.env*.local
+.env*.development
+.env*.production
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea
+*.swp
+*.swo
+*~
+.project
+.classpath
+
+# Coverage directory used by tools like istanbul
+coverage
+*.lcov
+
+# Miscellaneous
+.vercel
+*.pem
+
+# Debug files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Optional: Keep lock files (recommended for team consistency)
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
