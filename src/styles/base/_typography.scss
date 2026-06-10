@@ -1,0 +1,122 @@
+// ============================================================
+// TYPOGRAPHY BASE STYLES
+// Depends on: abstracts (variables, placeholders)
+// ============================================================
+
+body {
+  font-family: $font-sans;
+  font-size: $font-size-base;
+  font-weight: $font-weight-normal;
+  line-height: $line-height-normal;
+  color: $gray-900;
+}
+
+// ---------- Headings ----------
+h1,
+.h1 {
+  @extend %heading-1;
+}
+h2,
+.h2 {
+  @extend %heading-2;
+}
+h3,
+.h3 {
+  @extend %heading-3;
+}
+h4,
+.h4 {
+  @extend %heading-4;
+}
+
+// ---------- Body ----------
+p {
+  @extend %body-text;
+}
+small,
+.text-sm {
+  font-size: $font-size-sm;
+}
+.text-xs {
+  font-size: $font-size-xs;
+}
+.text-lg {
+  font-size: $font-size-lg;
+}
+.text-xl {
+  font-size: $font-size-xl;
+}
+.text-2xl {
+  font-size: $font-size-2xl;
+}
+.text-3xl {
+  font-size: $font-size-3xl;
+}
+.text-4xl {
+  font-size: $font-size-4xl;
+}
+
+// ---------- Font weights ----------
+.font-light {
+  font-weight: $font-weight-light;
+}
+.font-normal {
+  font-weight: $font-weight-normal;
+}
+.font-medium {
+  font-weight: $font-weight-medium;
+}
+.font-semibold {
+  font-weight: $font-weight-semibold;
+}
+.font-bold {
+  font-weight: $font-weight-bold;
+}
+
+// ---------- Colors ----------
+.text-primary {
+  color: $color-primary;
+}
+.text-secondary {
+  color: $color-secondary;
+}
+.text-accent {
+  color: $color-accent;
+}
+.text-warm {
+  color: $color-warm;
+}
+.text-success {
+  color: $color-success;
+}
+.text-error {
+  color: $color-error;
+}
+.text-warning {
+  color: $color-warning;
+}
+.text-info {
+  color: $color-info;
+}
+.text-muted {
+  color: $gray-500;
+}
+.text-white {
+  color: $white;
+}
+
+// ---------- Links ----------
+a {
+  color: $primary-400;
+  transition: color $transition-fast;
+
+  &:hover {
+    color: $primary-500;
+  }
+}
+
+// ---------- Selection ----------
+::selection {
+  background: rgba($primary-400, 0.25);
+  color: $gray-900;
+}

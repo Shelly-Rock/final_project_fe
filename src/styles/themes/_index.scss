@@ -1,0 +1,22 @@
+:root,
+[data-theme="light"] {
+  --bg-page: #{$gray-50};
+  --bg-surface: #{$white};
+  --bg-hover: #{$gray-100};
+  --text-primary: #{$gray-900};
+  --text-muted: #{$gray-500};
+  --border-color: #{$gray-200};
+}
+
+[data-theme="dark"] {
+  --bg-page: #{$primary-900};
+  --bg-surface: #{$primary-800};
+  --bg-hover: #{$primary-700};
+  --text-primary: #{$gray-100};
+  --text-muted: #{$gray-400};
+  --border-color: #{$gray-700};
+
+  body {
+    color-scheme: dark;
+  }
+}

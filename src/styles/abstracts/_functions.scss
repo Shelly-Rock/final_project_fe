@@ -1,0 +1,53 @@
+// ============================================================
+// COLOR FUNCTIONS
+// ============================================================
+
+/// Lighten a color by a percentage (0–100)
+@function tint($color, $percentage) {
+  @return mix(#ffffff, $color, $percentage);
+}
+
+/// Darken a color by a percentage (0–100)
+@function shade($color, $percentage) {
+  @return mix(#000000, $color, $percentage);
+}
+
+/// Get a shade one level lighter than given shade token
+@function color-level($base, $shade: 500) {
+  @return map-get(
+    (
+      50: tint($base, 90%),
+      100: tint($base, 80%),
+      200: tint($base, 60%),
+      300: tint($base, 40%),
+      400: tint($base, 20%),
+      500: $base,
+      600: shade($base, 10%),
+      700: shade($base, 20%),
+      800: shade($base, 30%),
+      900: shade($base, 40%),
+    ),
+    $shade
+  );
+}
+
+// ============================================================
+// SPACING / SIZE FUNCTIONS
+// ============================================================
+
+/// rem() converter — converts px to rem
+@function rem($px) {
+  @return calc($px / 16) * 1rem;
+}
+
+// ============================================================
+// MAP HELPERS
+// ============================================================
+
+/// Deep get a nested map value
+@function map-deep-get($map, $keys...) {
+  @each $key in $keys {
+    $map: map-get($map, $key);
+  }
+  @return $map;
+}

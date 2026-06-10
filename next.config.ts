@@ -1,7 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // Support both Tailwind CSS and SCSS
+  experimental: {
+    // Allow CSS imports in server components if needed
+  },
 };
 
 export default nextConfig;

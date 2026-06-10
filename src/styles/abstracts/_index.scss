@@ -1,0 +1,12 @@
+// ============================================================
+// ABSTRACTS INDEX — forward all design tokens
+// Files that @use "styles/abstracts" will get:
+//   - variables  ($color-primary, $spacing-4, $breakpoint-lg, etc.)
+//   - functions (tint(), shade(), rem(), etc.)
+//   - mixins    (@include flex-center, @include respond-to, etc.)
+//   - placeholders (%heading-1, %container, %surface-*, etc.)
+// ============================================================
+@forward "variables";
+@forward "functions";
+@forward "mixins";
+@forward "placeholders";
