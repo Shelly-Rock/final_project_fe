@@ -1,8 +1,3 @@
-// ============================================================
-// COLOR FUNCTIONS
-// ============================================================
-
-/// Lighten a color by a percentage (0–100)
 @function tint($color, $percentage) {
   @return mix(#ffffff, $color, $percentage);
 }

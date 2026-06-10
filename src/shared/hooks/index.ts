@@ -1,5 +1,6 @@
 export { useAsync } from "./useAsync";
 export { useBoolean } from "./useBoolean";
+export { useCan } from "./useCan";
 export { useClickOutside } from "./useClickOutside";
 export { useClipboard } from "./useClipboard";
 export { useCountdown } from "./useCountdown";
@@ -21,6 +22,7 @@ export { useNetworkStatus } from "./useNetworkStatus";
 export { useOnlineStatus } from "./useOnlineStatus";
 export { usePageVisibility } from "./usePageVisibility";
 export { usePagination } from "./usePagination";
+export { usePermission } from "./usePermission";
 export { usePrevious } from "./usePrevious";
 export { useQueryParams } from "./useQueryParams";
 export { useScrollPosition } from "./useScrollPosition";
