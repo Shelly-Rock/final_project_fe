@@ -92,3 +92,7 @@
 ├── 📁 styles/ # (đã có)
 │
 └── 📁 TS index.ts # (các file index.ts tổng hợp) xây dựng permission cho dự án với 4 role admin,secretary,teachers,student
+
+<!-- Cần thêm NEXTAUTH_SECRET vào .env (chạy openssl rand -base64 32)
+Mock credentials trong auth.config.ts để test (admin@qnq.edu.vn / admin123)
+bootstrap-icons đã được cài -->

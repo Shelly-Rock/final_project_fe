@@ -1,22 +1,12 @@
 // ============================================================
-// ROOT LAYOUT — Only <html>/<body> wrapper; no sidebar here.
-// Auth routes: (auth)/layout.tsx (no sidebar)
-// Main routes:  (main)/layout.tsx (with sidebar)
+// AUTH LAYOUT — Standalone layout without sidebar (login, register, etc.)
+// NOTE: Only root layout.tsx contains <html>/<body>. Route group layouts
+//       must only return a fragment or a div fragment — no <html> or <body>.
 // ============================================================
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "@/styles/main.scss";
 import "bootstrap-icons/font/bootstrap-icons.css";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+import { AppProviders, AuthProvider } from "@/core/providers";
 
 export const metadata: Metadata = {
   title: "QNQ - Hệ thống quản lý đồ án sinh viên",
@@ -24,17 +14,16 @@ export const metadata: Metadata = {
     "Nền tảng hỗ trợ quản lý đồ án sinh viên, phân công giảng viên hướng dẫn, đăng ký đề tài, theo dõi tiến độ thực hiện, đánh giá kết quả và quản lý toàn bộ quy trình đồ án một cách hiệu quả.",
 };
 
-export default function RootLayout({
+export default function AuthLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="vi"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
-      <body className="min-h-full">{children}</body>
-    </html>
+    <AuthProvider session={null}>
+      <AppProviders initialRole={null}>
+        <main className="auth-main">{children}</main>
+      </AppProviders>
+    </AuthProvider>
   );
 }

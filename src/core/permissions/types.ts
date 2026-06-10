@@ -14,6 +14,16 @@ export const ROLE_LABELS: Record<Role, string> = {
   [ROLE.STUDENT]: "Sinh viên",
 };
 
+export const ROLE_COLORS: Record<
+  Role,
+  { bg: string; color: string; border: string }
+> = {
+  [ROLE.ADMIN]: { bg: "#fee2e2", color: "#dc2626", border: "#fecaca" },
+  [ROLE.SECRETARY]: { bg: "#dbeafe", color: "#2563eb", border: "#bfdbfe" },
+  [ROLE.TEACHER]: { bg: "#dcfce7", color: "#16a34a", border: "#bbf7d0" },
+  [ROLE.STUDENT]: { bg: "#f3e8ff", color: "#9333ea", border: "#e9d5ff" },
+};
+
 export const ROLE_HIERARCHY: Record<Role, number> = {
   [ROLE.ADMIN]: 100,
   [ROLE.SECRETARY]: 75,

@@ -1,5 +1,778 @@
 // ============================================================
-// LAYOUT-SPECIFIC STYLES
-// Add styles for header, sidebar, footer, dashboard shell, etc.
-// Usage: @use "@/styles/layouts" (loaded via main.scss)
+// LAYOUT — Sidebar, Header, Footer, App Shell
 // ============================================================
+@import "../abstracts/variables";
+@import "../abstracts/mixins";
+
+// ---------- Sidebar ----------
+$sidebar-bg: $primary-800;
+$sidebar-text: rgba(255, 255, 255, 0.85);
+$sidebar-text-muted: rgba(255, 255, 255, 0.5);
+$sidebar-active-bg: rgba($primary-400, 0.25);
+$sidebar-active-text: #ffffff;
+$sidebar-hover-bg: rgba(255, 255, 255, 0.08);
+$sidebar-border: rgba(255, 255, 255, 0.1);
+$sidebar-section-color: rgba(255, 255, 255, 0.4);
+$sidebar-width: 260px;
+$sidebar-collapsed-width: 72px;
+
+.sidebar-wrapper {
+  width: $sidebar-width;
+  flex-shrink: 0;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+  z-index: $z-fixed;
+  transition: width $transition-base;
+
+  &.collapsed {
+    width: $sidebar-collapsed-width;
+  }
+
+  @media (max-width: 1024px) {
+    position: fixed;
+    left: -$sidebar-width;
+    top: 0;
+    height: 100vh;
+    z-index: $z-modal;
+    transition: left $transition-base;
+
+    &.mobile-open {
+      left: 0;
+    }
+  }
+}
+
+.sidebar-overlay {
+  display: none;
+
+  @media (max-width: 1024px) {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: $z-modal-back;
+  }
+}
+
+.sidebar {
+  width: 100%;
+  height: 100%;
+  background: $sidebar-bg;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+// ---------- Sidebar Header ----------
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-4 $spacing-5;
+  border-bottom: 1px solid $sidebar-border;
+  height: $header-height;
+}
+
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: $spacing-3;
+  text-decoration: none;
+  color: $sidebar-active-text;
+  flex: 1;
+  overflow: hidden;
+}
+
+.sidebar-brand-logo-wrap {
+  position: relative;
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: -4px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.1);
+    opacity: 0;
+    transition: opacity $transition-normal;
+  }
+}
+
+.sidebar-brand:hover .sidebar-brand-logo-wrap::after {
+  opacity: 1;
+}
+
+.sidebar-brand-logo {
+  width: 42px;
+  height: 42px;
+  border-radius: $radius-lg;
+  object-fit: contain;
+  flex-shrink: 0;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+  transition:
+    transform $transition-normal,
+    filter $transition-normal;
+}
+
+.sidebar-brand:hover .sidebar-brand-logo {
+  transform: scale(1.05);
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+}
+
+.sidebar-brand-text {
+  font-size: $font-size-base;
+  font-weight: $font-weight-semibold;
+  color: $white;
+  white-space: nowrap;
+  opacity: 0.9;
+  letter-spacing: 0.02em;
+}
+
+.sidebar-toggle-btn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: $radius-md;
+  color: $sidebar-text;
+  transition:
+    background $transition-fast,
+    color $transition-fast;
+  flex-shrink: 0;
+  position: absolute;
+  right: -40px;
+  top: 60px;
+  z-index: 1001;
+  background: $sidebar-bg;
+  border: 1px solid $sidebar-border;
+
+  &:hover {
+    background: $sidebar-hover-bg;
+    color: $sidebar-active-text;
+  }
+
+  @media (max-width: 1024px) {
+    display: none;
+  }
+}
+
+.sidebar-toggle-icon {
+  font-size: $font-size-lg;
+  line-height: 1;
+}
+
+// ---------- Sidebar User ----------
+.sidebar-user {
+  display: flex;
+  align-items: center;
+  gap: $spacing-3;
+  padding: $spacing-4 $spacing-5;
+  border-bottom: 1px solid $sidebar-border;
+}
+
+.sidebar-user-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: $radius-full;
+  background: $primary-600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: $font-size-xl;
+}
+
+.sidebar-user-info {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-width: 0;
+}
+
+.sidebar-user-name {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $sidebar-active-text;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sidebar-user-role {
+  font-size: $font-size-xs;
+  color: $sidebar-text-muted;
+}
+
+// ---------- Sidebar Navigation ----------
+.sidebar-nav {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: $spacing-3 0;
+
+  @include custom-scrollbar(
+    $thumb-color: rgba(255, 255, 255, 0.15),
+    $track-color: transparent
+  );
+}
+
+// ---------- Sidebar Sections ----------
+.sidebar-section {
+  margin-bottom: $spacing-4;
+}
+
+.sidebar-section-title {
+  padding: $spacing-2 $spacing-5;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: $sidebar-section-color;
+}
+
+// ---------- Sidebar Menu ----------
+.sidebar-menu {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.sidebar-menu-item {
+  position: relative;
+  list-style: none;
+
+  &.has-children > .sidebar-menu-btn {
+    cursor: pointer;
+  }
+}
+
+.sidebar-menu-link,
+.sidebar-menu-btn {
+  display: flex;
+  align-items: center;
+  gap: $spacing-3;
+  padding: $spacing-2-5 $spacing-5;
+  color: $sidebar-text;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  text-decoration: none;
+  width: 100%;
+  text-align: left;
+  transition:
+    background $transition-fast,
+    color $transition-fast;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+
+  &:hover {
+    background: $sidebar-hover-bg;
+    color: $sidebar-active-text;
+  }
+}
+
+.sidebar-menu-item.active > .sidebar-menu-link,
+.sidebar-menu-item.active > .sidebar-menu-btn {
+  background: $sidebar-active-bg;
+  color: $sidebar-active-text;
+  font-weight: $font-weight-semibold;
+
+  &::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 60%;
+    background: $primary-200;
+    border-radius: 0 $radius-full $radius-full 0;
+  }
+}
+
+// ---------- Sidebar Icons ----------
+.sidebar-menu-icon {
+  font-size: $font-size-base;
+  flex-shrink: 0;
+  width: 20px;
+  text-align: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sidebar-menu-label {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sidebar-menu-arrow {
+  font-size: $font-size-xs;
+  flex-shrink: 0;
+  opacity: 0.6;
+  transition: transform $transition-fast;
+}
+
+// ---------- Submenu ----------
+.sidebar-submenu {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  background: rgba(0, 0, 0, 0.1);
+
+  .sidebar-menu-link,
+  .sidebar-menu-btn {
+    padding-left: $spacing-8;
+    font-size: $font-size-sm;
+    color: $sidebar-text-muted;
+  }
+
+  .sidebar-menu-item.active > .sidebar-menu-link,
+  .sidebar-menu-item.active > .sidebar-menu-btn {
+    color: $sidebar-active-text;
+  }
+}
+
+// ---------- Sidebar Footer ----------
+.sidebar-footer {
+  padding: $spacing-4 $spacing-5;
+  border-top: 1px solid $sidebar-border;
+}
+
+.sidebar-logout-btn {
+  display: flex;
+  align-items: center;
+  gap: $spacing-3;
+  width: 100%;
+  padding: $spacing-2-5 $spacing-3;
+  border-radius: $radius-md;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  transition:
+    background $transition-fast,
+    color $transition-fast;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+
+  &:hover {
+    background: rgba($error-500, 0.15);
+    color: $error-300;
+  }
+}
+
+.sidebar-logout-icon {
+  font-size: $font-size-base;
+  flex-shrink: 0;
+}
+
+// ---------- Mobile Toggle ----------
+.sidebar-mobile-toggle {
+  display: none;
+  position: fixed;
+  top: $spacing-4;
+  left: $spacing-4;
+  z-index: $z-sticky;
+  width: 40px;
+  height: 40px;
+  background: $primary-500;
+  color: $white;
+  border: none;
+  border-radius: $radius-lg;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: $font-size-xl;
+  box-shadow: $shadow-md;
+
+  @media (max-width: 1024px) {
+    display: flex;
+  }
+}
+
+// ---------- Collapsed Sidebar ----------
+.sidebar--collapsed {
+  .sidebar-header {
+    padding: $spacing-4 $spacing-3;
+    justify-content: center;
+  }
+
+  .sidebar-brand {
+    justify-content: center;
+  }
+
+  .sidebar-user {
+    justify-content: center;
+    padding: $spacing-4 $spacing-3;
+  }
+
+  .sidebar-menu-link,
+  .sidebar-menu-btn {
+    padding: $spacing-2-5 $spacing-3;
+    justify-content: center;
+  }
+
+  .sidebar-section-title {
+    padding: $spacing-2 $spacing-3;
+    text-align: center;
+  }
+
+  .sidebar-footer {
+    padding: $spacing-4 $spacing-3;
+  }
+
+  .sidebar-logout-btn {
+    justify-content: center;
+    padding: $spacing-2-5 $spacing-3;
+  }
+
+  .sidebar-toggle-btn {
+    right: -40px;
+    top: 60px;
+    border-radius: 0 $radius-md $radius-md 0;
+  }
+}
+
+// ---------- App Shell ----------
+.app-shell {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+}
+
+.app-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-page, $gray-50);
+  transition: margin-left $transition-base;
+
+  &.sidebar-collapsed {
+    margin-left: 0;
+  }
+}
+
+// ---------- App Header ----------
+.app-header {
+  height: $header-height;
+  background: $white;
+  border-bottom: 1px solid $gray-200;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 $spacing-6;
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  z-index: $z-sticky;
+  box-shadow: $shadow-sm;
+}
+
+.app-header-left {
+  display: flex;
+  align-items: center;
+  gap: $spacing-4;
+}
+
+.app-header-breadcrumb {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $gray-500;
+}
+
+.app-header-right {
+  display: flex;
+  align-items: center;
+  gap: $spacing-4;
+}
+
+// ---------- Role Switcher ----------
+.role-switcher {
+  position: relative;
+}
+
+.role-switcher-btn {
+  display: flex;
+  align-items: center;
+  gap: $spacing-2;
+  padding: $spacing-2 $spacing-3;
+  border-radius: $radius-lg;
+  border: 1px solid $gray-200;
+  background: $white;
+  color: $gray-700;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  cursor: pointer;
+  transition:
+    background $transition-fast,
+    border-color $transition-fast,
+    box-shadow $transition-fast;
+
+  &:hover {
+    background: $gray-50;
+    border-color: $gray-300;
+    box-shadow: $shadow-sm;
+  }
+}
+
+.role-switcher-icon {
+  font-size: $font-size-lg;
+}
+
+.role-switcher-label {
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.role-switcher-arrow {
+  font-size: $font-size-xs;
+  transition: transform $transition-fast;
+  color: $gray-400;
+
+  &.open {
+    transform: rotate(180deg);
+  }
+}
+
+.role-switcher-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: $z-dropdown;
+}
+
+.role-switcher-dropdown {
+  position: absolute;
+  top: calc(100% + $spacing-2);
+  right: 0;
+  min-width: 220px;
+  background: $white;
+  border: 1px solid $gray-200;
+  border-radius: $radius-xl;
+  box-shadow: $shadow-lg;
+  z-index: $z-dropdown + 1;
+  overflow: hidden;
+  animation: dropdownFadeIn 150ms ease;
+}
+
+@keyframes dropdownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-$spacing-2);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.role-switcher-dropdown-header {
+  padding: $spacing-3 $spacing-4;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+  color: $gray-400;
+  border-bottom: 1px solid $gray-100;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.role-switcher-item {
+  display: flex;
+  align-items: center;
+  gap: $spacing-3;
+  width: 100%;
+  padding: $spacing-3 $spacing-4;
+  background: transparent;
+  border: none;
+  font-size: $font-size-sm;
+  color: $gray-700;
+  cursor: pointer;
+  transition: background $transition-fast;
+  text-align: left;
+
+  &:hover {
+    background: $gray-50;
+  }
+
+  &.active {
+    background: $primary-50;
+    color: $primary-500;
+    font-weight: $font-weight-semibold;
+  }
+}
+
+.role-switcher-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: $radius-full;
+  flex-shrink: 0;
+}
+
+.role-switcher-check {
+  margin-left: auto;
+  color: $primary-500;
+  font-size: $font-size-sm;
+}
+
+// ---------- Unauthorized Page ----------
+.unauthorized-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, $primary-900 0%, $primary-600 100%);
+  padding: $spacing-6;
+}
+
+.unauthorized-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  max-width: 480px;
+  width: 100%;
+  background: $white;
+  border-radius: $radius-3xl;
+  padding: $spacing-12 $spacing-10;
+  box-shadow: $shadow-2xl;
+}
+
+.unauthorized-logo {
+  margin-bottom: $spacing-4;
+}
+
+.unauthorized-logo-img {
+  width: 80px;
+  height: 80px;
+  border-radius: $radius-xl;
+  object-fit: cover;
+}
+
+.unauthorized-icon {
+  width: 80px;
+  height: 80px;
+  border-radius: $radius-full;
+  background: rgba($error-500, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: $spacing-6;
+
+  .bi-shield-lock {
+    font-size: 2.5rem;
+    color: $error-500;
+  }
+}
+
+.unauthorized-code {
+  font-size: 6rem;
+  font-weight: $font-weight-extrabold;
+  line-height: 1;
+  color: $error-500;
+  margin-bottom: $spacing-4;
+  letter-spacing: -0.05em;
+}
+
+.unauthorized-title {
+  font-size: $font-size-2xl;
+  font-weight: $font-weight-bold;
+  color: $gray-900;
+  margin-bottom: $spacing-3;
+  line-height: $line-height-tight;
+}
+
+.unauthorized-desc {
+  font-size: $font-size-base;
+  color: $gray-500;
+  line-height: $line-height-relaxed;
+  margin-bottom: $spacing-8;
+}
+
+.unauthorized-actions {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-3;
+  width: 100%;
+  margin-bottom: $spacing-6;
+}
+
+.unauthorized-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-2;
+  padding: $spacing-3 $spacing-6;
+  border-radius: $radius-lg;
+  font-size: $font-size-base;
+  font-weight: $font-weight-semibold;
+  text-decoration: none;
+  transition:
+    background $transition-fast,
+    transform $transition-fast,
+    box-shadow $transition-fast;
+  cursor: pointer;
+
+  .bi {
+    font-size: $font-size-lg;
+  }
+
+  &:active {
+    transform: translateY(1px);
+  }
+}
+
+.unauthorized-btn--primary {
+  background: $primary-400;
+  color: $white;
+  box-shadow: 0 4px 14px rgba($primary-400, 0.4);
+
+  &:hover {
+    background: $primary-500;
+    box-shadow: 0 6px 20px rgba($primary-400, 0.5);
+    color: $white;
+  }
+}
+
+.unauthorized-btn--secondary {
+  background: $gray-100;
+  color: $gray-700;
+  border: 1px solid $gray-200;
+
+  &:hover {
+    background: $gray-200;
+    color: $gray-900;
+  }
+}
+
+.unauthorized-help {
+  display: flex;
+  align-items: center;
+  gap: $spacing-2;
+  font-size: $font-size-sm;
+  color: $gray-500;
+
+  .bi {
+    font-size: $font-size-base;
+  }
+}
+
+.unauthorized-link {
+  color: $primary-400;
+  text-decoration: none;
+  font-weight: $font-weight-medium;
+
+  &:hover {
+    color: $primary-500;
+    text-decoration: underline;
+  }
+}

@@ -1,7 +1,3 @@
-// ============================================================
-// SERVER-SIDE PERMISSION GUARDS
-// Use these in Server Components and API Routes
-// ============================================================
 import { redirect } from "next/navigation";
 import type { Action, Resource, Role } from "../types";
 import { can, cannot } from "../ability";
@@ -15,20 +11,9 @@ export interface RequirePermissionOptions {
 export interface RequireRoleOptions {
   roles: Role[];
   redirectTo?: string;
-  requireAll?: boolean; // all roles must match (AND), default: any role (OR)
+  requireAll?: boolean;
 }
 
-/**
- * Server-side guard: redirect if user does NOT have permission.
- * Use in Server Components or Route Handlers.
- *
- * @example
- * // In a Server Component:
- * export default async function ThesisPage() {
- *   requirePermission({ action: "read", resource: "thesis", redirectTo: "/" });
- *   return <ThesisList />;
- * }
- */
 export function requirePermission(
   role: Role,
   options: RequirePermissionOptions,
@@ -40,9 +25,6 @@ export function requirePermission(
   }
 }
 
-/**
- * Server-side guard: redirect if user role is not in allowed list.
- */
 export function requireRole(role: Role, options: RequireRoleOptions): void {
   const { roles, redirectTo = "/", requireAll = false } = options;
 
@@ -55,9 +37,6 @@ export function requireRole(role: Role, options: RequireRoleOptions): void {
   }
 }
 
-/**
- * Server-side guard: redirect if user is NOT authenticated.
- */
 export function requireAuth(
   role: Role | null | undefined,
   redirectTo = "/login",
@@ -67,15 +46,6 @@ export function requireAuth(
   }
 }
 
-/**
- * Check permission server-side without redirecting.
- * Returns true if allowed, false otherwise.
- *
- * @example
- * if (!checkPermission(role, { action: "delete", resource: "thesis" })) {
- *   throw new Error("Not authorized");
- * }
- */
 export function checkPermission(
   role: Role | null | undefined,
   options: RequirePermissionOptions,
@@ -84,9 +54,6 @@ export function checkPermission(
   return can(role, options.action, options.resource);
 }
 
-/**
- * Server component wrapper: renders children only if permission is granted.
- */
 export function PermissionGate({
   role,
   action,
