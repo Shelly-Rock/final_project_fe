@@ -1,7 +1,6 @@
-// ============================================================
-// GLOBAL BASE STYLES
-// Depends on: abstracts (variables, mixins, placeholders)
-// ============================================================
+@import "../abstracts/variables";
+@import "../abstracts/mixins";
+@import "../abstracts/placeholders";
 
 body {
   background-color: $gray-50;
@@ -15,14 +14,12 @@ main {
   min-height: 100vh;
 }
 
-// ---------- App wrapper ----------
 .app-wrapper {
   display: flex;
   flex: 1;
   min-height: 100vh;
 }
 
-// ---------- Utility containers ----------
 .page-wrapper {
   @extend %page-content;
   flex: 1;
@@ -32,12 +29,10 @@ main {
   @extend %container;
 }
 
-// ---------- Divider ----------
 .divider {
   @include divider;
 }
 
-// ---------- Visually hidden (accessibility) ----------
 .sr-only {
   position: absolute;
   width: 1px;

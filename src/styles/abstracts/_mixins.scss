@@ -1,8 +1,4 @@
-// ============================================================
-// MIXINS — reusable @include rules
-// All fixed-style counterparts live in _placeholders.scss
-// Use mixins when you need parameters; use @extend %placeholder when styles are static
-// ============================================================
+@use "variables";
 
 // ---------- Responsive ----------
 @mixin respond-to($breakpoint) {

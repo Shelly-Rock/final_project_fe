@@ -1,9 +1,10 @@
 import type { NextConfig } from "next";
+import path from "path";
 
 const nextConfig: NextConfig = {
-  // Support both Tailwind CSS and SCSS
-  experimental: {
-    // Allow CSS imports in server components if needed
+  experimental: {},
+  sassOptions: {
+    loadPaths: [path.resolve(__dirname, "src/styles")],
   },
 };
 

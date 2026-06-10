@@ -1,29 +1,3 @@
-// ============================================================
-// MAIN ENTRY POINT
-// Import order (7-1 pattern):
-//   1. abstracts  — variables, functions, mixins
-//   2. base       — reset, typography, global
-//   3. components— shared UI components
-//   4. layouts   — header, sidebar, footer, dashboard shell
-//   5. pages     — page-specific overrides
-//   6. themes    — light/dark mode tokens
-// ============================================================
-
-// abstracts — @use so variables/functions/mixins are available globally
-//            via _index.scss forward (no "as *" to keep namespace clean)
-@use "abstracts";
-
-// base — core styles that must load before anything else
-@use "base";
-
-// components — shared UI components (uncomment when files are added)
-// @use "components";
-
-// layouts — layout shells (uncomment when files are added)
-// @use "layouts";
-
-// pages — page-specific styles (uncomment when files are added)
-// @use "pages";
-
-// themes — must be last so CSS custom properties override everything
-@use "themes";
+@import "abstracts";
+@import "base";
+@import "themes";

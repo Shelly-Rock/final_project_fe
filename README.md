@@ -1,189 +1,240 @@
-1. Core (đã có)
-   next
-   react
-   react-dom
-   typescript
-   eslint
-   tailwindcss
+# final_project_fe
 
-2. HTTP Client
-   pnpm add axios
+> Hệ thống Frontend quản lý đề tài sinh viên — được xây dựng với Next.js 16, React 19 và Tailwind CSS v4.
 
-Dùng gọi API.
+---
 
-<!-- Lodash -->
+## 1. Môi trường & Ngôn ngữ
 
-3. Form + Validation
-   pnpm add react-hook-form
-   pnpm add zod
-   pnpm add @hookform/resolvers
+| Package        | Version | Vai trò                                 |
+| -------------- | ------- | --------------------------------------- |
+| **Next.js**    | 16.2.6  | Framework React SSR/SSG, routing, build |
+| **React**      | 19.2.4  | Thư viện UI                             |
+| **React DOM**  | 19.2.4  | DOM rendering                           |
+| **TypeScript** | ^5      | Type-safe JavaScript                    |
+| **Sass**       | 1.100.0 | CSS preprocessor (SCSS)                 |
 
-Dùng cho:
+---
 
-Login
-Register
-CRUD Form
-Upload Form 4. Server State Management
-pnpm add @tanstack/react-query
+## 2. Giao diện & Styling
 
-Dùng cho:
+| Package                  | Version | Vai trò                                              |
+| ------------------------ | ------- | ---------------------------------------------------- |
+| **Tailwind CSS**         | ^4      | Utility-first CSS framework                          |
+| **@tailwindcss/postcss** | ^4      | PostCSS plugin cho Tailwind v4                       |
+| **Ant Design**           | 6.4.3   | UI component library (table, form, modal, menu...)   |
+| **clsx**                 | ^2.1.1  | Tạo className động từ điều kiện                      |
+| **tailwind-merge**       | ^3.6.0  | Merge Tailwind classes không bị đè (dùng với `cn()`) |
 
-Cache API
-Pagination
-Refetch
-Mutation 5. Client State Management
-Khuyến nghị
-pnpm add zustand
+```ts
+// Ví dụ: cn() utility
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
 
-Quản lý:
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}
+```
 
-User
-Permission
-Theme
-Sidebar
-Nếu dự án rất lớn
-pnpm add @reduxjs/toolkit react-redux 6. UI Helper
-pnpm add clsx
-pnpm add tailwind-merge
+---
 
-Tạo class động.
+## 3. HTTP Client & API
 
-Ví dụ:
+| Package   | Version | Vai trò                                                 |
+| --------- | ------- | ------------------------------------------------------- |
+| **axios** | ^1.17.0 | Gọi HTTP REST API (GET, POST, PUT, DELETE)              |
+| **qs**    | ^6.15.2 | Serialize/deserialize query string (`?page=1&limit=10`) |
 
-twMerge(clsx(...)) 7. Icons
-pnpm add lucide-react
+---
 
-Hoặc:
+## 4. Form & Validation
 
-pnpm add react-icons 8. Date & Time
-pnpm add dayjs
+| Package                 | Version | Vai trò                                        |
+| ----------------------- | ------- | ---------------------------------------------- |
+| **react-hook-form**     | ^7.78.0 | Quản lý form state (đăng nhập, register, CRUD) |
+| **zod**                 | ^4.4.3  | Schema validation phía client                  |
+| **@hookform/resolvers** | ^5.4.0  | Kết nối Zod với react-hook-form                |
 
-Hoặc:
+---
 
-pnpm add date-fns
+## 5. Server State Management
 
-Dùng cho:
+| Package                   | Version  | Vai trò                                  |
+| ------------------------- | -------- | ---------------------------------------- |
+| **@tanstack/react-query** | ^5.101.0 | Cache API, pagination, refetch, mutation |
 
-Deadline
-Schedule
-Calendar 9. Table
-pnpm add @tanstack/react-table
+---
 
-Cho:
+## 6. Client State Management
 
-Danh sách sinh viên
-Danh sách đề tài
-Dashboard 10. Toast Notification
-pnpm add sonner
+| Package     | Version | Vai trò                                                     |
+| ----------- | ------- | ----------------------------------------------------------- |
+| **zustand** | ^5.0.14 | Lightweight global store (user, theme, sidebar, permission) |
 
-Hoặc:
+---
 
-pnpm add react-toastify 11. Upload File
-pnpm add react-dropzone
+## 7. Routing & Navigation
 
-Cho:
+| Package              | Version | Vai trò                                        |
+| -------------------- | ------- | ---------------------------------------------- |
+| **react-router-dom** | ^7.17.0 | Client-side routing, URL params, query strings |
 
-Upload Excel
-Upload PDF
-Upload DOCX 12. JWT Decode
-pnpm add jwt-decode 13. Query String
-pnpm add qs
+---
 
-Cho:
+## 8. UI Components & Icons
 
-?page=1&limit=10 14. Cookies
-pnpm add js-cookie
+| Package                    | Version | Vai trò                                        |
+| -------------------------- | ------- | ---------------------------------------------- |
+| **lucide-react**           | ^1.17.0 | Bộ icon SVG minimal, đẹp                       |
+| **sonner**                 | ^2.0.7  | Toast notification (thông báo, success, error) |
+| **react-loading-skeleton** | ^3.5.0  | Skeleton loading placeholder                   |
 
-Lưu:
+---
 
-Access Token
-Refresh Token 15. Environment Validation
-pnpm add @t3-oss/env-nextjs 16. Loading Skeleton
-pnpm add react-loading-skeleton 17. Charts
-pnpm add recharts
+## 9. Table & Grid
 
-Hoặc:
+| Package                   | Version | Vai trò                                             |
+| ------------------------- | ------- | --------------------------------------------------- |
+| **@tanstack/react-table** | ^8.21.3 | Headless table (sort, filter, pagination, grouping) |
 
-pnpm add chart.js react-chartjs-2 18. Rich Text Editor
-pnpm add @tiptap/react
+---
 
-Hoặc:
+## 10. Rich Text Editor
 
-pnpm add react-quill 19. Excel
-pnpm add xlsx
+| Package           | Version | Vai trò                                |
+| ----------------- | ------- | -------------------------------------- |
+| **@tiptap/react** | ^3.26.0 | WYSIWYG editor (mô tả đề tài, báo cáo) |
 
-Cho:
+---
 
-Import Excel
-Export Excel 20. PDF
-pnpm add jspdf
-pnpm add html2canvas 21. Drag & Drop
-pnpm add @dnd-kit/core
-pnpm add @dnd-kit/sortable 22. Permission
+## 11. Charts & Visualization
 
-Thường tự viết.
+| Package       | Version | Vai trò                                        |
+| ------------- | ------- | ---------------------------------------------- |
+| **recharts**  | ^3.8.1  | Chart library React (bar, line, pie, area...)  |
+| **chroma-js** | ^3.2.0  | Thao tác màu sắc (scale, interpolate, convert) |
 
-Không cần package riêng.
+---
 
-23. UI Component Library
-    Ant Design
-    pnpm add antd
+## 12. File Upload & Processing
 
-hoặc
+| Package            | Version | Vai trò                                |
+| ------------------ | ------- | -------------------------------------- |
+| **react-dropzone** | ^15.0.0 | Kéo-thả file upload (Excel, PDF, DOCX) |
+| **xlsx**           | ^0.18.5 | Đọc & ghi file Excel (.xlsx, .xls)     |
+| **jspdf**          | ^4.2.1  | Tạo file PDF từ HTML/canvas            |
+| **html2canvas**    | ^1.4.1  | Chụp ảnh DOM → ảnh (dùng với jsPDF)    |
 
-Shadcn UI
-pnpm dlx shadcn@latest init
-Bộ package mình thường dùng cho CRM/Quản lý đề tài
-pnpm add axios
-pnpm add zustand
-pnpm add @tanstack/react-query
+---
 
-pnpm add react-hook-form
-pnpm add zod
-pnpm add @hookform/resolvers
+## 13. Authentication & Security
 
-pnpm add dayjs
-pnpm add qs
-pnpm add js-cookie
+| Package                | Version  | Vai trò                                           |
+| ---------------------- | -------- | ------------------------------------------------- |
+| **jwt-decode**         | ^4.0.0   | Giải mã JWT token (lấy user info từ access token) |
+| **js-cookie**          | ^3.0.8   | Đọc/ghi cookie (lưu access token, refresh token)  |
+| **@t3-oss/env-nextjs** | ^0.13.11 | Validate biến môi trường `.env`                   |
 
-pnpm add clsx
-pnpm add tailwind-merge
+---
 
-pnpm add lucide-react
-pnpm add sonner
+## 14. Drag & Drop
 
-pnpm add @tanstack/react-table
+| Package               | Version | Vai trò                                         |
+| --------------------- | ------- | ----------------------------------------------- |
+| **@dnd-kit/core**     | ^6.3.1  | Drag and drop primitive (sortable list, kanban) |
+| **@dnd-kit/sortable** | ^10.0.0 | DnD helpers cho sortable items                  |
 
-pnpm add react-dropzone
-pnpm add xlsx
+---
 
-pnpm add jwt-decode
+## 15. Date & Time
 
-Đây là bộ package đủ để xây dựng hệ thống quản lý đề tài sinh viên có:
+| Package   | Version  | Vai trò                                   |
+| --------- | -------- | ----------------------------------------- |
+| **dayjs** | ^1.11.21 | Thao tác ngày tháng (format, diff, parse) |
 
-Đăng nhập
-Phân quyền Admin / Thư ký / Giảng viên / Sinh viên
-CRUD
-Upload Excel
-Export Excel
-Dashboard
-Bảng dữ liệu lớn
-Phân trang
-Thông báo
-Quản lý trạng thái người dùng.
+---
 
-<!-- bảo mật cao -->
+## 16. Code Quality & Tooling
 
-Nếu cần bảo mật cao (bcrypt, sha256), nên dùng thư viện có sẵn (Web Crypto API).
+| Package                    | Version | Vai trò                                      |
+| -------------------------- | ------- | -------------------------------------------- |
+| **eslint**                 | ^9      | Linter JavaScript/TypeScript                 |
+| **eslint-config-next**     | 16.2.6  | ESLint config Next.js                        |
+| **eslint-config-prettier** | ^10.1.8 | Tắt eslint rules xung đột với Prettier       |
+| **prettier**               | ^3.8.3  | Code formatter (tab, semicolon, quote style) |
+| **husky**                  | ^9.1.7  | Git hooks (pre-commit, pre-push...)          |
+| **lint-staged**            | ^17.0.7 | Chạy linter chỉ trên file staged             |
+| **@types/node**            | ^20     | TypeScript types cho Node.js                 |
+| **@types/react**           | ^19     | TypeScript types cho React                   |
+| **@types/react-dom**       | ^19     | TypeScript types cho React DOM               |
+| **@types/chroma-js**       | ^3.1.2  | TypeScript types cho chroma-js               |
+| **@types/js-cookie**       | ^3.0.6  | TypeScript types cho js-cookie               |
 
-<!-- logger  -->
+---
 
-File này thường dùng cho debug lúc dev. Ở môi trường production, nên dùng các tool như Sentry hoặc Datadog, còn log console thì nên tắt hẳn qua plugin build.
+## 17. Package Manager
 
-chroma-js
-npm install chroma-js
-npm install @types/chroma-js --save-dev
+|          |         |
+| -------- | ------- |
+| **pnpm** | v11.5.2 |
 
--> (date-fns, zod, chroma)
+### Các lệnh thường dùng
 
-Testing (Vitest/Jest)
+```bash
+# Cài đặt dependencies
+pnpm install
+
+# Chạy development server
+pnpm dev
+
+# Build production
+pnpm build
+
+# Chạy production server
+pnpm start
+
+# Format code
+pnpm format
+
+# Kiểm tra lỗi ESLint
+pnpm lint
+```
+
+---
+
+## Tổng quan kiến trúc
+
+```
+┌─────────────────────────────────────────────────┐
+│                    UI Layer                      │
+│  Ant Design  ·  Lucide Icons  ·  Recharts       │
+│  TipTap Editor  ·  Sonner Toasts                 │
+├─────────────────────────────────────────────────┤
+│               State Management                   │
+│  Zustand (client)  ·  React Query (server)       │
+├─────────────────────────────────────────────────┤
+│                  Forms                           │
+│  React Hook Form  +  Zod Validation              │
+├─────────────────────────────────────────────────┤
+│               HTTP & Auth                        │
+│  Axios  ·  JWT Decode  ·  Cookies               │
+├─────────────────────────────────────────────────┤
+│          Framework & Language                    │
+│  Next.js 16  ·  React 19  ·  TypeScript 5       │
+└─────────────────────────────────────────────────┘
+```
+
+---
+
+## Tính năng chính được hỗ trợ
+
+- **Authentication** — JWT decode, cookie-based token management
+- **Authorization** — Phân quyền Admin / Thư ký / Giảng viên / Sinh viên
+- **CRUD** — Full form validation với react-hook-form + zod
+- **Upload / Export** — Excel (xlsx), PDF (jsPDF + html2canvas)
+- **Table** — Sort, filter, pagination với @tanstack/react-table
+- **Dashboard** — Charts với recharts
+- **Drag & Drop** — Sắp xếp, kanban với @dnd-kit
+- **Rich Text** — Soạn thảo nội dung với TipTap
+- **Notification** — Toast với sonner
+- **Skeleton Loading** — Placeholder đẹp khi chờ data

@@ -1,8 +1,5 @@
-// ============================================================
-// SELECTOR PLACEHOLDERS
-// Reusable class selectors — extend these in components/layouts/pages.
-// Only defines things that DO NOT exist as mixins to avoid duplication.
-// ============================================================
+@use "variables";
+@use "mixins";
 
 // ---------- Layout ----------
 %container {
