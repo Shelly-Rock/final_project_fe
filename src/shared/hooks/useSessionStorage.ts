@@ -1,7 +1,7 @@
-// Làm việc với localStorage: get, set, remove. Tự động sync với state, đồng bộ cross-tab
+// Làm việc với sessionStorage: get, set, remove. Tự động sync với state, đồng bộ cross-tab
 import { useCallback, useEffect, useState } from "react";
 
-export function useLocalStorage<T>(
+export function useSessionStorage<T>(
   key: string,
   initialValue: T,
 ): [T, (value: T | ((prev: T) => T)) => void, () => void] {
@@ -9,7 +9,7 @@ export function useLocalStorage<T>(
     if (typeof window === "undefined") return initialValue;
 
     try {
-      const item = window.localStorage.getItem(key);
+      const item = window.sessionStorage.getItem(key);
       return item !== null ? (JSON.parse(item) as T) : initialValue;
     } catch {
       return initialValue;
@@ -24,10 +24,10 @@ export function useLocalStorage<T>(
         setStoredValue(valueToStore);
 
         if (typeof window !== "undefined") {
-          window.localStorage.setItem(key, JSON.stringify(valueToStore));
+          window.sessionStorage.setItem(key, JSON.stringify(valueToStore));
         }
       } catch (error) {
-        console.warn(`useLocalStorage: failed to set key "${key}"`, error);
+        console.warn(`useSessionStorage: failed to set key "${key}"`, error);
       }
     },
     [key, storedValue],
@@ -37,10 +37,10 @@ export function useLocalStorage<T>(
     try {
       setStoredValue(initialValue);
       if (typeof window !== "undefined") {
-        window.localStorage.removeItem(key);
+        window.sessionStorage.removeItem(key);
       }
     } catch (error) {
-      console.warn(`useLocalStorage: failed to remove key "${key}"`, error);
+      console.warn(`useSessionStorage: failed to remove key "${key}"`, error);
     }
   }, [key, initialValue]);
 

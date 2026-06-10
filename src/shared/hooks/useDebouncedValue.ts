@@ -1,7 +1,7 @@
 // Trả về giá trị đã debounce sau delay. Dùng cho search input, auto-save
 import { useEffect, useState } from "react";
 
-export function useDebounce<T>(value: T, delay: number): T {
+export function useDebouncedValue<T>(value: T, delay: number): T {
   const [debouncedValue, setDebouncedValue] = useState<T>(value);
 
   useEffect(() => {

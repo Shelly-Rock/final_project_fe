@@ -1,27 +1,29 @@
 1. Core (đã có)
-next
-react
-react-dom
-typescript
-eslint
-tailwindcss
+   next
+   react
+   react-dom
+   typescript
+   eslint
+   tailwindcss
+
 2. HTTP Client
-pnpm add axios
+   pnpm add axios
 
 Dùng gọi API.
 
+<!-- Lodash -->
+
 3. Form + Validation
-pnpm add react-hook-form
-pnpm add zod
-pnpm add @hookform/resolvers
+   pnpm add react-hook-form
+   pnpm add zod
+   pnpm add @hookform/resolvers
 
 Dùng cho:
 
 Login
 Register
 CRUD Form
-Upload Form
-4. Server State Management
+Upload Form 4. Server State Management
 pnpm add @tanstack/react-query
 
 Dùng cho:
@@ -29,8 +31,7 @@ Dùng cho:
 Cache API
 Pagination
 Refetch
-Mutation
-5. Client State Management
+Mutation 5. Client State Management
 Khuyến nghị
 pnpm add zustand
 
@@ -41,8 +42,7 @@ Permission
 Theme
 Sidebar
 Nếu dự án rất lớn
-pnpm add @reduxjs/toolkit react-redux
-6. UI Helper
+pnpm add @reduxjs/toolkit react-redux 6. UI Helper
 pnpm add clsx
 pnpm add tailwind-merge
 
@@ -50,14 +50,12 @@ Tạo class động.
 
 Ví dụ:
 
-twMerge(clsx(...))
-7. Icons
+twMerge(clsx(...)) 7. Icons
 pnpm add lucide-react
 
 Hoặc:
 
-pnpm add react-icons
-8. Date & Time
+pnpm add react-icons 8. Date & Time
 pnpm add dayjs
 
 Hoặc:
@@ -68,82 +66,68 @@ Dùng cho:
 
 Deadline
 Schedule
-Calendar
-9. Table
+Calendar 9. Table
 pnpm add @tanstack/react-table
 
 Cho:
 
 Danh sách sinh viên
 Danh sách đề tài
-Dashboard
-10. Toast Notification
+Dashboard 10. Toast Notification
 pnpm add sonner
 
 Hoặc:
 
-pnpm add react-toastify
-11. Upload File
+pnpm add react-toastify 11. Upload File
 pnpm add react-dropzone
 
 Cho:
 
 Upload Excel
 Upload PDF
-Upload DOCX
-12. JWT Decode
-pnpm add jwt-decode
-13. Query String
+Upload DOCX 12. JWT Decode
+pnpm add jwt-decode 13. Query String
 pnpm add qs
 
 Cho:
 
-?page=1&limit=10
-14. Cookies
+?page=1&limit=10 14. Cookies
 pnpm add js-cookie
 
 Lưu:
 
 Access Token
-Refresh Token
-15. Environment Validation
-pnpm add @t3-oss/env-nextjs
-16. Loading Skeleton
-pnpm add react-loading-skeleton
-17. Charts
+Refresh Token 15. Environment Validation
+pnpm add @t3-oss/env-nextjs 16. Loading Skeleton
+pnpm add react-loading-skeleton 17. Charts
 pnpm add recharts
 
 Hoặc:
 
-pnpm add chart.js react-chartjs-2
-18. Rich Text Editor
+pnpm add chart.js react-chartjs-2 18. Rich Text Editor
 pnpm add @tiptap/react
 
 Hoặc:
 
-pnpm add react-quill
-19. Excel
+pnpm add react-quill 19. Excel
 pnpm add xlsx
 
 Cho:
 
 Import Excel
-Export Excel
-20. PDF
+Export Excel 20. PDF
 pnpm add jspdf
-pnpm add html2canvas
-21. Drag & Drop
+pnpm add html2canvas 21. Drag & Drop
 pnpm add @dnd-kit/core
-pnpm add @dnd-kit/sortable
-22. Permission
+pnpm add @dnd-kit/sortable 22. Permission
 
 Thường tự viết.
 
 Không cần package riêng.
 
 23. UI Component Library
-Ant Design
-pnpm add antd
+    Ant Design
+    pnpm add antd
 
 hoặc
 
@@ -187,3 +171,19 @@ Bảng dữ liệu lớn
 Phân trang
 Thông báo
 Quản lý trạng thái người dùng.
+
+<!-- bảo mật cao -->
+
+Nếu cần bảo mật cao (bcrypt, sha256), nên dùng thư viện có sẵn (Web Crypto API).
+
+<!-- logger  -->
+
+File này thường dùng cho debug lúc dev. Ở môi trường production, nên dùng các tool như Sentry hoặc Datadog, còn log console thì nên tắt hẳn qua plugin build.
+
+chroma-js
+npm install chroma-js
+npm install @types/chroma-js --save-dev
+
+-> (date-fns, zod, chroma)
+
+Testing (Vitest/Jest)
