@@ -9,8 +9,11 @@ import { OVERLOADED_LECTURERS } from "../data";
 
 export function OverloadedLecturers() {
   return (
-    <Card className="dashboard-card overloaded-lecturers-card">
-      <Box className="dashboard-card-header">
+    <Card
+      className="dashboard-card overloaded-lecturers-card"
+      sx={{ p: 2, mb: 4 }}
+    >
+      <Box className="dashboard-card-header" sx={{ px: 1, pt: 0.5, pb: 1.5 }}>
         <Typography className="dashboard-card-title">
           <i
             className="bi bi-person-exclamation"
@@ -19,7 +22,7 @@ export function OverloadedLecturers() {
           Giảng viên quá tải
         </Typography>
       </Box>
-      <Box className="dashboard-card-body">
+      <Box className="dashboard-card-body" sx={{ px: 1 }}>
         <Box className="lecturers-list">
           {OVERLOADED_LECTURERS.map((lecturer) => {
             const isOverloaded = lecturer.thesisCount > lecturer.maxThreshold;

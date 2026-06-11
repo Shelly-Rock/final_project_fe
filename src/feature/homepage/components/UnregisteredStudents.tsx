@@ -13,8 +13,11 @@ export function UnregisteredStudents() {
   const unregisteredPercent = Math.round((unregistered / total) * 100);
 
   return (
-    <Card className="dashboard-card unregistered-students-card">
-      <Box className="dashboard-card-header">
+    <Card
+      className="dashboard-card unregistered-students-card"
+      sx={{ p: 2, mb: 4 }}
+    >
+      <Box className="dashboard-card-header" sx={{ px: 1, pt: 0.5, pb: 1.5 }}>
         <Typography className="dashboard-card-title">
           <i
             className="bi bi-people"
@@ -23,7 +26,7 @@ export function UnregisteredStudents() {
           Sinh viên chưa đăng ký
         </Typography>
       </Box>
-      <Box className="dashboard-card-body">
+      <Box className="dashboard-card-body" sx={{ px: 1 }}>
         <Box className="registration-stats">
           <Box className="registration-stat-item">
             <Box className="registration-stat-header">

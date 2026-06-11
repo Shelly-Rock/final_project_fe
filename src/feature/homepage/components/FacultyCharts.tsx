@@ -2,7 +2,6 @@
 
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
-import Grid from "@mui/material/Grid2";
 import Card from "@mui/material/Card";
 import Button from "@mui/material/Button";
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
@@ -12,7 +11,7 @@ export function FacultyCharts() {
   const displayData = FACULTY_PROGRESS_DATA.slice(0, 4);
 
   return (
-    <Box className="dashboard-section">
+    <Card sx={{ p: 2, mb: 4 }}>
       <Box
         sx={{
           display: "flex",
@@ -28,25 +27,26 @@ export function FacultyCharts() {
           Xem tất cả
         </Button>
       </Box>
-      <Grid container spacing={3}>
-        {displayData.map((f) => {
-          const total =
-            f.HoànThành + f["Đang thực hiện"] + f["Chờ duyệt"] + f["Từ chối"];
-          const completed = f.HoànThành;
-          const percent = total > 0 ? Math.round((completed / total) * 100) : 0;
+      <Box className="faculty-charts-scroll">
+        <Box className="faculty-charts-grid">
+          {displayData.map((f) => {
+            const total =
+              f.HoànThành + f["Đang thực hiện"] + f["Chờ duyệt"] + f["Từ chối"];
+            const completed = f.HoànThành;
+            const percent =
+              total > 0 ? Math.round((completed / total) * 100) : 0;
 
-          const chartData = [
-            { name: "completed", value: completed },
-            { name: "remaining", value: total - completed },
-          ];
+            const chartData = [
+              { name: "completed", value: completed },
+              { name: "remaining", value: total - completed },
+            ];
 
-          return (
-            <Grid key={f.code} size={{ xs: 12, sm: 6, md: 3 }}>
+            return (
               <Card
+                key={f.code}
                 className="circle-chart-card"
                 sx={{ borderTop: `3px solid ${f.color}` }}
               >
-                {/* Header */}
                 <Box className="circle-chart-header">
                   <Box
                     className="circle-chart-badge"
@@ -59,7 +59,6 @@ export function FacultyCharts() {
                   </Typography>
                 </Box>
 
-                {/* Donut Chart */}
                 <Box className="circle-chart-wrapper">
                   <ResponsiveContainer width="100%" height={180}>
                     <PieChart>
@@ -81,7 +80,6 @@ export function FacultyCharts() {
                     </PieChart>
                   </ResponsiveContainer>
 
-                  {/* Center text */}
                   <Box className="circle-chart-center">
                     <Typography
                       className="circle-chart-total"
@@ -95,7 +93,6 @@ export function FacultyCharts() {
                   </Box>
                 </Box>
 
-                {/* Progress */}
                 <Box className="circle-chart-progress">
                   <Box className="circle-chart-progress-bar">
                     <Box
@@ -114,10 +111,10 @@ export function FacultyCharts() {
                   </Typography>
                 </Box>
               </Card>
-            </Grid>
-          );
-        })}
-      </Grid>
-    </Box>
+            );
+          })}
+        </Box>
+      </Box>
+    </Card>
   );
 }

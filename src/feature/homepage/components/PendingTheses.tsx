@@ -13,8 +13,8 @@ function getStatusColors(status: string) {
 
 export function PendingTheses() {
   return (
-    <Card className="dashboard-card pending-theses-card">
-      <Box className="dashboard-card-header">
+    <Card className="dashboard-card pending-theses-card" sx={{ p: 2, mb: 4 }}>
+      <Box className="dashboard-card-header" sx={{ px: 1, pt: 0.5, pb: 1.5 }}>
         <Typography className="dashboard-card-title">
           <i
             className="bi bi-exclamation-triangle"
@@ -33,7 +33,7 @@ export function PendingTheses() {
           }}
         />
       </Box>
-      <Box className="dashboard-card-body dashboard-table-wrap">
+      <Box className="dashboard-card-body dashboard-table-wrap" sx={{ px: 1 }}>
         <table className="dashboard-table">
           <thead>
             <tr>

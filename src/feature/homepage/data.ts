@@ -385,4 +385,289 @@ export const STATUS_COLORS: Record<string, { bg: string; color: string }> = {
   "Chờ duyệt": { bg: "#ffebeb", color: "#d13b3b" },
   "Hoàn thành": { bg: "#e8fff5", color: "#1dab60" },
   "Chờ phân công": { bg: "#e8f3ff", color: "#2a5bc0" },
+  "Đã duyệt": { bg: "#e8fff5", color: "#1dab60" },
+  "Từ chối": { bg: "#ffebeb", color: "#d13b3b" },
+  "Đã chọn": { bg: "#e8efff", color: "#2a5bc0" },
 };
+
+// ============ THESIS PROPOSAL / TOPIC MANAGEMENT ============
+
+export type ThesisProposalStatus =
+  | "Chờ duyệt"
+  | "Đã duyệt"
+  | "Từ chối"
+  | "Đã chọn";
+
+export interface ThesisProposal {
+  id: number;
+  title: string;
+  description: string;
+  requirements: string;
+  expectedOutcome: string;
+  teacherId: number;
+  teacherName: string;
+  department: string;
+  maxStudents: number;
+  currentStudents: number;
+  status: ThesisProposalStatus;
+  createdAt: string;
+  rejectionReason?: string;
+}
+
+export const THESIS_PROPOSALS: ThesisProposal[] = [
+  {
+    id: 1,
+    title: "Xây dựng hệ thống quản lý đồ án sinh viên",
+    description:
+      "Phát triển ứng dụng web để quản lý quy trình đồ án tốt nghiệp",
+    requirements: "React, Node.js, MongoDB",
+    expectedOutcome: "Hệ thống hoàn chỉnh triển khai thực tế",
+    teacherId: 1,
+    teacherName: "TS. Trần Minh",
+    department: "CNTT",
+    maxStudents: 2,
+    currentStudents: 1,
+    status: "Đã duyệt",
+    createdAt: "01/03/2026",
+  },
+  {
+    id: 2,
+    title: "Ứng dụng AI trong phát hiện gian lận thi cử",
+    description:
+      "Sử dụng machine learning để phát hiện gian lận trong thi cử trực tuyến",
+    requirements: "Python, TensorFlow, OpenCV",
+    expectedOutcome: "Demo AI với độ chính xác > 85%",
+    teacherId: 2,
+    teacherName: "PGS. Lê Hoàng",
+    department: "CNTT",
+    maxStudents: 2,
+    currentStudents: 0,
+    status: "Đã duyệt",
+    createdAt: "05/03/2026",
+  },
+  {
+    id: 3,
+    title: "Hệ thống giám sát chất lượng không khí IoT",
+    description: "Xây dựng hệ thống cảm biến IoT giám sát chất lượng không khí",
+    requirements: "Arduino, ESP32, MQTT",
+    expectedOutcome: "Hệ thống cảm biến thực tế + Dashboard",
+    teacherId: 3,
+    teacherName: "TS. Nguyễn Đức",
+    department: "IoT",
+    maxStudents: 3,
+    currentStudents: 2,
+    status: "Đã duyệt",
+    createdAt: "10/03/2026",
+  },
+  {
+    id: 4,
+    title: "Nền tảng thương mại điện tử cho sản phẩm OCOP",
+    description: "Xây dựng marketplace cho sản phẩm OCOP địa phương",
+    requirements: "Next.js, PostgreSQL, Stripe",
+    expectedOutcome: "Website thương mại điện tử hoàn chỉnh",
+    teacherId: 1,
+    teacherName: "TS. Trần Minh",
+    department: "Marketing",
+    maxStudents: 2,
+    currentStudents: 0,
+    status: "Chờ duyệt",
+    createdAt: "15/03/2026",
+  },
+  {
+    id: 5,
+    title: "Phát triển ứng dụng học tiếng Anh trên di động",
+    description: "App mobile hỗ trợ học từ vựng tiếng Anh",
+    requirements: "React Native, Firebase",
+    expectedOutcome: "Ứng dụng di động trên Android/iOS",
+    teacherId: 4,
+    teacherName: "TS. Phạm Lan",
+    department: "CNTT",
+    maxStudents: 2,
+    currentStudents: 1,
+    status: "Đã duyệt",
+    createdAt: "20/03/2026",
+  },
+  {
+    id: 6,
+    title: "Hệ thống blockchain cho quản lý bằng cấp",
+    description: "Ứng dụng blockchain để xác thực bằng cấp",
+    requirements: "Solidity, Ethereum, Web3",
+    expectedOutcome: "Smart contract + ứng dụng web",
+    teacherId: 2,
+    teacherName: "PGS. Lê Hoàng",
+    department: "CNTT",
+    maxStudents: 1,
+    currentStudents: 0,
+    status: "Từ chối",
+    createdAt: "25/03/2026",
+    rejectionReason: "Yêu cầu không phù hợp với chương trình đào tạo",
+  },
+];
+
+// Student's own thesis (for student role)
+export interface StudentThesis {
+  id: number;
+  proposalId: number;
+  title: string;
+  teacher: string;
+  teacherId: number;
+  progress: number;
+  status: ThesisProposalStatus;
+  startDate: string;
+  deadline: string;
+  milestones: Milestone[];
+  performance: PerformanceRating;
+}
+
+export interface Milestone {
+  id: number;
+  name: string;
+  completed: boolean;
+  date?: string;
+  progress: number;
+}
+
+export interface PerformanceRating {
+  overall: number;
+  communication: number;
+  technical: number;
+  punctuality: number;
+  quality: number;
+}
+
+export const STUDENT_THESIS: StudentThesis = {
+  id: 1,
+  proposalId: 1,
+  title: "Xây dựng hệ thống quản lý đồ án sinh viên",
+  teacher: "TS. Trần Minh",
+  teacherId: 1,
+  progress: 65,
+  status: "Đã chọn",
+  startDate: "01/03/2026",
+  deadline: "15/07/2026",
+  milestones: [
+    {
+      id: 1,
+      name: "Đề cương",
+      completed: true,
+      date: "15/03/2026",
+      progress: 100,
+    },
+    {
+      id: 2,
+      name: "Thiết kế DB",
+      completed: true,
+      date: "01/04/2026",
+      progress: 100,
+    },
+    {
+      id: 3,
+      name: "Prototype",
+      completed: true,
+      date: "15/04/2026",
+      progress: 100,
+    },
+    {
+      id: 4,
+      name: "Báo cáo GK",
+      completed: true,
+      date: "01/05/2026",
+      progress: 100,
+    },
+    { id: 5, name: "Code Backend", completed: false, progress: 80 },
+    { id: 6, name: "Code Frontend", completed: false, progress: 60 },
+    { id: 7, name: "Viết báo cáo", completed: false, progress: 30 },
+    { id: 8, name: "Bảo vệ", completed: false, progress: 0 },
+  ],
+  performance: {
+    overall: 4,
+    communication: 5,
+    technical: 4,
+    punctuality: 4,
+    quality: 4,
+  },
+};
+
+// Teacher's submitted proposals (for teacher role)
+export interface TeacherProposal {
+  id: number;
+  title: string;
+  status: ThesisProposalStatus;
+  submittedAt: string;
+  reviewedBy?: string;
+  rejectionReason?: string;
+}
+
+export const TEACHER_PROPOSALS: TeacherProposal[] = [
+  {
+    id: 1,
+    title: "Xây dựng hệ thống quản lý đồ án sinh viên",
+    status: "Đã duyệt",
+    submittedAt: "01/03/2026",
+  },
+  {
+    id: 2,
+    title: "Nền tảng thương mại điện tử cho sản phẩm OCOP",
+    status: "Chờ duyệt",
+    submittedAt: "15/03/2026",
+  },
+];
+
+// Student grades/reviews for performance visualization
+export interface StudentReview {
+  id: number;
+  studentId: number;
+  studentName: string;
+  thesisTitle: string;
+  rating: PerformanceRating;
+  feedback: string;
+  date: string;
+}
+
+export const STUDENT_REVIEWS: StudentReview[] = [
+  {
+    id: 1,
+    studentId: 1,
+    studentName: "Nguyễn Văn A",
+    thesisTitle: "Hệ thống LMS",
+    rating: {
+      overall: 5,
+      communication: 5,
+      technical: 5,
+      punctuality: 5,
+      quality: 5,
+    },
+    feedback: "Sinh viên làm việc rất tốt, nộp đúng hạn",
+    date: "15/05/2026",
+  },
+  {
+    id: 2,
+    studentId: 2,
+    studentName: "Trần Thị B",
+    thesisTitle: "AI Chatbot",
+    rating: {
+      overall: 4,
+      communication: 4,
+      technical: 4,
+      punctuality: 3,
+      quality: 4,
+    },
+    feedback: "Cần cải thiện về tiến độ",
+    date: "15/05/2026",
+  },
+  {
+    id: 3,
+    studentId: 3,
+    studentName: "Lê Văn C",
+    thesisTitle: "Website TMĐT",
+    rating: {
+      overall: 4,
+      communication: 4,
+      technical: 5,
+      punctuality: 4,
+      quality: 4,
+    },
+    feedback: "Kỹ năng kỹ thuật tốt",
+    date: "15/05/2026",
+  },
+];

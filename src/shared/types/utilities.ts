@@ -68,6 +68,9 @@ export type IsTuple<T extends unknown[]> = number extends T["length"]
   ? false
   : true;
 
+// ---------- Sort ----------
+export type Order = "asc" | "desc";
+
 // ---------- Safe object access ----------
 export type PathValue<T, P extends string> = P extends `${infer K}.${infer R}`
   ? K extends keyof T

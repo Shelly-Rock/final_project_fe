@@ -3,13 +3,26 @@
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Grid from "@mui/material/Grid2";
-import { OVERVIEW_STATS } from "../data";
+import { ROLE } from "@/core/permissions/types";
+import { ROLE_STATS } from "../roleData";
 
-export function OverviewStats() {
+interface OverviewStatsProps {
+  role?:
+    | typeof ROLE.ADMIN
+    | typeof ROLE.SECRETARY
+    | typeof ROLE.TEACHER
+    | typeof ROLE.STUDENT;
+}
+
+const DEFAULT_ROLE = ROLE.ADMIN;
+
+export function OverviewStats({ role = DEFAULT_ROLE }: OverviewStatsProps) {
+  const stats = ROLE_STATS[role]?.stats ?? ROLE_STATS[DEFAULT_ROLE].stats;
+
   return (
     <Box className="overview-stats-section">
       <Grid container spacing={3}>
-        {OVERVIEW_STATS.map((stat) => (
+        {stats.map((stat) => (
           <Grid key={stat.label} size={{ xs: 12, sm: 6, lg: 3 }}>
             <Box
               className="stat-card"
@@ -20,15 +33,9 @@ export function OverviewStats() {
                 } as React.CSSProperties
               }
             >
-              {/* Background pattern */}
               <Box className="stat-card-pattern" />
-
-              {/* Gradient accent line */}
               <Box className="stat-card-accent" />
-
-              {/* Content wrapper */}
               <Box className="stat-card-content">
-                {/* Top: Icon + Trend */}
                 <Box className="stat-card-header">
                   <Box className="stat-icon">
                     <span className={`bi ${stat.icon}`} />
@@ -38,13 +45,9 @@ export function OverviewStats() {
                     <span>{stat.sub}</span>
                   </Box>
                 </Box>
-
-                {/* Middle: Value */}
                 <Box className="stat-value-wrap">
                   <Typography className="stat-value">{stat.value}</Typography>
                 </Box>
-
-                {/* Bottom: Label */}
                 <Box className="stat-label-wrap">
                   <Typography className="stat-label">{stat.label}</Typography>
                 </Box>

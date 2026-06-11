@@ -9,7 +9,7 @@ export function ThesisTrendChart() {
   const maxCount = Math.max(...THESIS_TREND.map((t) => t.count));
 
   return (
-    <Card className="dashboard-card thesis-trend-card" sx={{ p: 2 }}>
+    <Card className="dashboard-card thesis-trend-card" sx={{ p: 2, mb: 4 }}>
       <Box className="dashboard-card-header">
         <Typography className="dashboard-card-title">
           <i

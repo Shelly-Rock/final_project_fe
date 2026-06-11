@@ -7,6 +7,7 @@ import { AppProviders } from "@/core/providers";
 import { AuthProvider } from "@/core/providers/AuthProvider";
 import { Sidebar } from "@/layout/Sidebar";
 import { Header } from "@/layout/Header";
+import { ChatbotButton } from "@/shared/components/ChatbotButton";
 import { MOCK_SESSION } from "@/core/auth/auth.config";
 
 // Main shell: always authenticated in FE test mode
@@ -29,6 +30,7 @@ export default function MainLayout({
           >
             <Header />
             {children}
+            <ChatbotButton />
           </div>
         </div>
       </AppProviders>

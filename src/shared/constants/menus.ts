@@ -169,19 +169,11 @@ export const MENU_ITEMS: MenuItem[] = [
   },
   {
     key: "thesis",
-    label: "Đồ án",
+    label: "Đồ án & Đề tài",
     icon: Icon.mortarboard,
     path: "/thesis",
     roles: ["admin", "secretary", "teacher", "student"],
     permission: { action: "read", resource: "thesis" },
-  },
-  {
-    key: "topic",
-    label: "Đề tài",
-    icon: Icon.bookmarkStar,
-    path: "/thesis/topic",
-    roles: ["admin", "secretary", "teacher", "student"],
-    permission: { action: "read", resource: "thesis_topic" },
   },
   {
     key: "submission",
@@ -214,6 +206,14 @@ export const MENU_ITEMS: MenuItem[] = [
     path: "/thesis/defense",
     roles: ["admin", "secretary", "teacher", "student"],
     permission: { action: "read", resource: "thesis_defense" },
+  },
+  {
+    key: "student",
+    label: "Sinh viên",
+    icon: Icon.personBadge,
+    path: "/students",
+    roles: ["admin", "secretary"],
+    permission: { action: "read", resource: "student" },
   },
   {
     key: "department",
@@ -340,19 +340,11 @@ export const MENU_SECTIONS: MenuSection[] = [
     items: [
       {
         key: "thesis",
-        label: "Đồ án",
+        label: "Đồ án & Đề tài",
         icon: Icon.mortarboard,
         path: "/thesis",
         roles: ["admin", "secretary", "teacher", "student"],
         permission: { action: "read", resource: "thesis" },
-      },
-      {
-        key: "topic",
-        label: "Đề tài",
-        icon: Icon.bookmarkStar,
-        path: "/thesis/topic",
-        roles: ["admin", "secretary", "teacher", "student"],
-        permission: { action: "read", resource: "thesis_topic" },
       },
       {
         key: "submission",
@@ -391,6 +383,14 @@ export const MENU_SECTIONS: MenuSection[] = [
   {
     section: "Quản lý học tập",
     items: [
+      {
+        key: "student",
+        label: "Sinh viên",
+        icon: Icon.personBadge,
+        path: "/students",
+        roles: ["admin", "secretary"],
+        permission: { action: "read", resource: "student" },
+      },
       {
         key: "department",
         label: "Khoa",

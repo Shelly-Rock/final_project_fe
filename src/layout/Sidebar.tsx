@@ -1,14 +1,15 @@
 // ============================================================
-// SIDEBAR COMPONENT — Brand, user info, logout (navigation TBD)
+// SIDEBAR COMPONENT — Brand, user info, logout, navigation
 // ============================================================
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useMemo } from "react";
 import { usePermissionContext } from "@/core/providers/PermissionProvider";
 import { ROLE_LABELS } from "@/core/permissions/types";
+import { getMenuSectionsForRole } from "@/shared/constants/menus";
 import { default as Logo } from "@/assets/image/png/logo.png";
 import Image from "next/image";
 
@@ -19,11 +20,16 @@ interface SidebarProps {
 
 export function Sidebar({ collapsed = false, onToggle }: SidebarProps) {
   const router = useRouter();
+  const pathname = usePathname();
   const { role } = usePermissionContext();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
 
-  // Check screen size
+  const menuSections = useMemo(() => {
+    if (!role) return [];
+    return getMenuSectionsForRole(role);
+  }, [role]);
+
   useEffect(() => {
     const checkDesktop = () => setIsDesktop(window.innerWidth >= 1024);
     checkDesktop();
@@ -37,10 +43,8 @@ export function Sidebar({ collapsed = false, onToggle }: SidebarProps) {
 
   const handleToggle = useCallback(() => {
     if (isDesktop) {
-      // Desktop: use the collapse toggle
       onToggle?.();
     } else {
-      // Mobile: toggle mobile menu
       setMobileOpen((prev) => !prev);
     }
   }, [isDesktop, onToggle]);
@@ -49,6 +53,11 @@ export function Sidebar({ collapsed = false, onToggle }: SidebarProps) {
     await signOut({ redirect: false, callbackUrl: "/login" });
     router.push("/login");
   }, [router]);
+
+  const isActive = (path?: string) => {
+    if (!path) return false;
+    return pathname === path || pathname.startsWith(path + "/");
+  };
 
   return (
     <>
@@ -104,18 +113,38 @@ export function Sidebar({ collapsed = false, onToggle }: SidebarProps) {
             </button>
           </div>
 
-          {/* Navigation — Dashboard */}
+          {/* Navigation */}
           <nav className="sidebar-nav" aria-label="Main navigation">
-            <ul className="sidebar-menu">
-              <li className="sidebar-menu-item active">
-                <Link href="/" className="sidebar-menu-link" title="Dashboard">
-                  <span className="sidebar-menu-icon bi bi-house-fill" />
-                  {!collapsed && (
-                    <span className="sidebar-menu-label">Dashboard</span>
-                  )}
-                </Link>
-              </li>
-            </ul>
+            {menuSections.map((section) => (
+              <div key={section.section} className="sidebar-section">
+                {!collapsed && (
+                  <div className="sidebar-section-title">{section.section}</div>
+                )}
+                <ul className="sidebar-menu">
+                  {section.items.map((item) => (
+                    <li
+                      key={item.key}
+                      className={`sidebar-menu-item ${isActive(item.path) ? "active" : ""}`}
+                    >
+                      <Link
+                        href={item.path || "#"}
+                        className="sidebar-menu-link"
+                        title={item.label}
+                      >
+                        <span
+                          className={`sidebar-menu-icon bi ${item.icon || "bi-circle"}`}
+                        />
+                        {!collapsed && (
+                          <span className="sidebar-menu-label">
+                            {item.label}
+                          </span>
+                        )}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
           </nav>
 
           {/* User info */}

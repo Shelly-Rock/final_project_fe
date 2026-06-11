@@ -67,6 +67,7 @@ export const RESOURCE = {
   MAJOR: "major",
   CLASS: "class",
   COURSE: "course",
+  STUDENT: "student",
 
   // Communication
   ANNOUNCEMENT: "announcement",
