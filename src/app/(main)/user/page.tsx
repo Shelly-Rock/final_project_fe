@@ -1,178 +1,178 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
+import { Card, Button, Typography, Row, Col, Table, Tag, Space, Input, Avatar, Empty } from "antd";
 import {
-  Box,
-  Typography,
-  Card,
-  CardContent,
-  Grid,
-  Chip,
-  Button,
-  TextField,
-  InputAdornment,
-  Avatar,
-} from "@mui/material";
-import {
-  Add as AddIcon,
-  Edit as EditIcon,
-  Delete as DeleteIcon,
-  Search as SearchIcon,
-} from "@mui/icons-material";
-import { PageHeader, FilterBar } from "@/shared/components";
-import { DataTable } from "@/shared/components/DataTable";
-import type { Column, Action } from "@/shared/components";
-import { mockUsers, roleColors } from "@/feature/user/constants";
-import { ROLE_LABELS } from "@/core/permissions/types";
+  PlusOutlined,
+  EditOutlined,
+  DeleteOutlined,
+  SearchOutlined,
+  UserOutlined,
+} from "@ant-design/icons";
+import type { ColumnsType } from "antd/es/table";
+
+const { Title, Text } = Typography;
+
+interface User {
+  id: number;
+  name: string;
+  email: string;
+  role: "admin" | "teacher" | "student";
+  department: string;
+  status: "active" | "inactive";
+}
+
+const mockUsers: User[] = [
+  { id: 1, name: "Nguyễn Văn A", email: "nguyenvana@example.com", role: "admin", department: "Khoa CNTT", status: "active" },
+  { id: 2, name: "Trần Thị B", email: "tranthib@example.com", role: "teacher", department: "Khoa CNTT", status: "active" },
+  { id: 3, name: "Lê Văn C", email: "levanc@example.com", role: "student", department: "Khoa CNTT", status: "active" },
+  { id: 4, name: "Phạm Thị D", email: "phamthid@example.com", role: "teacher", department: "Khoa KHMT", status: "active" },
+  { id: 5, name: "Hoàng Văn E", email: "hoangvane@example.com", role: "student", department: "Khoa CNTT", status: "inactive" },
+];
+
+const roleConfig = {
+  admin: { color: "purple", label: "Quản trị viên" },
+  teacher: { color: "blue", label: "Giảng viên" },
+  student: { color: "green", label: "Sinh viên" },
+};
+
+const statusConfig = {
+  active: { color: "success", label: "Hoạt động" },
+  inactive: { color: "default", label: "Khóa" },
+};
 
 export default function UserPage() {
   const [search, setSearch] = useState("");
+  const [data, setData] = useState(mockUsers);
 
-  const columns: Column<(typeof mockUsers)[0]>[] = [
+  const filteredUsers = data.filter(
+    (u) =>
+      u.name.toLowerCase().includes(search.toLowerCase()) ||
+      u.email.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const columns: ColumnsType<User> = [
     {
-      id: "name",
-      label: "Người dùng",
+      title: "Người dùng",
+      key: "user",
       minWidth: 200,
-      format: (_, row) => (
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-          <Avatar sx={{ width: 32, height: 32, fontSize: "0.875rem" }}>
-            {row.name.charAt(0)}
+      render: (_, record) => (
+        <Space>
+          <Avatar style={{ backgroundColor: "#1677ff" }}>
+            {record.name.charAt(0)}
           </Avatar>
-          <Box>
-            <Typography variant="body2" sx={{ fontWeight: 500 }}>
-              {row.name}
-            </Typography>
-            <Typography variant="caption" color="text.secondary">
-              {row.email}
-            </Typography>
-          </Box>
-        </Box>
+          <Space direction="vertical" size={0}>
+            <Text strong>{record.name}</Text>
+            <Text type="secondary" style={{ fontSize: 12 }}>{record.email}</Text>
+          </Space>
+        </Space>
       ),
     },
     {
-      id: "role",
-      label: "Vai trò",
-      minWidth: 120,
-      format: (v) => (
-        <Chip
-          label={ROLE_LABELS[v as keyof typeof ROLE_LABELS]}
-          color={roleColors[v as string]}
-          size="small"
-        />
-      ),
+      title: "Vai trò",
+      dataIndex: "role",
+      key: "role",
+      width: 120,
+      render: (role) => {
+        const config = roleConfig[role as keyof typeof roleConfig];
+        return <Tag color={config.color}>{config.label}</Tag>;
+      },
     },
-    { id: "department", label: "Khoa", minWidth: 120 },
     {
-      id: "status",
-      label: "Trạng thái",
-      minWidth: 120,
-      format: (v) => (
-        <Chip
-          label={v === "active" ? "Hoạt động" : "Khóa"}
-          color={v === "active" ? "success" : "default"}
-          size="small"
-        />
-      ),
+      title: "Khoa",
+      dataIndex: "department",
+      key: "department",
+      width: 120,
     },
-  ];
-
-  const actions: Action<(typeof mockUsers)[0]>[] = [
-    { id: "edit", icon: <EditIcon />, label: "Sửa", onClick: () => {} },
     {
-      id: "delete",
-      icon: <DeleteIcon />,
-      label: "Xóa",
-      onClick: () => {},
-      color: "error",
+      title: "Trạng thái",
+      dataIndex: "status",
+      key: "status",
+      width: 120,
+      render: (status) => {
+        const config = statusConfig[status as keyof typeof statusConfig];
+        return <Tag color={config.color}>{config.label}</Tag>;
+      },
+    },
+    {
+      title: "",
+      key: "action",
+      width: 100,
+      align: "center",
+      render: () => (
+        <Space>
+          <Button type="text" size="small" icon={<EditOutlined />} />
+          <Button type="text" size="small" danger icon={<DeleteOutlined />} />
+        </Space>
+      ),
     },
   ];
 
   return (
-    <Box sx={{ p: 3 }}>
-      <PageHeader
-        title="Người dùng"
-        subtitle="Quản lý tài khoản người dùng"
-        actions={
-          <Button variant="contained" startIcon={<AddIcon />}>
+    <div style={{ padding: "24px" }}>
+      {/* Page Header */}
+      <Row justify="space-between" align="middle" style={{ marginBottom: 24 }}>
+        <Col>
+          <Title level={2} style={{ margin: 0 }}>Người dùng</Title>
+          <Text type="secondary">Quản lý tài khoản người dùng</Text>
+        </Col>
+        <Col>
+          <Button type="primary" icon={<PlusOutlined />}>
             Thêm người dùng
           </Button>
-        }
-      />
+        </Col>
+      </Row>
 
-      <FilterBar totalCount={mockUsers.length}>
-        <TextField
-          size="small"
-          placeholder="Tìm kiếm..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          sx={{ minWidth: 250 }}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon />
-              </InputAdornment>
-            ),
-          }}
+      {/* Search */}
+      <Row style={{ marginBottom: 24 }}>
+        <Col span={24}>
+          <Input
+            placeholder="Tìm kiếm..."
+            prefix={<SearchOutlined style={{ color: "#999" }} />}
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            style={{ width: 250 }}
+          />
+        </Col>
+      </Row>
+
+      {/* Stats Cards */}
+      <Row gutter={16} style={{ marginBottom: 24 }}>
+        <Col xs={24} md={6}>
+          <Card>
+            <Title level={2} style={{ margin: 0 }}>{mockUsers.length}</Title>
+            <Text type="secondary">Tổng người dùng</Text>
+          </Card>
+        </Col>
+        <Col xs={24} md={6}>
+          <Card>
+            <Title level={2} style={{ margin: 0 }}>{mockUsers.filter((u) => u.role === "admin").length}</Title>
+            <Text type="secondary">Quản trị viên</Text>
+          </Card>
+        </Col>
+        <Col xs={24} md={6}>
+          <Card>
+            <Title level={2} style={{ margin: 0 }}>{mockUsers.filter((u) => u.role === "teacher").length}</Title>
+            <Text type="secondary">Giảng viên</Text>
+          </Card>
+        </Col>
+        <Col xs={24} md={6}>
+          <Card>
+            <Title level={2} style={{ margin: 0 }}>{mockUsers.filter((u) => u.role === "student").length}</Title>
+            <Text type="secondary">Sinh viên</Text>
+          </Card>
+        </Col>
+      </Row>
+
+      {/* User Table */}
+      <Card>
+        <Table
+          columns={columns}
+          dataSource={filteredUsers}
+          rowKey="id"
+          pagination={{ pageSize: 10 }}
         />
-      </FilterBar>
-
-      <Grid container spacing={3} sx={{ mb: 3 }}>
-        <Grid item xs={12} md={3}>
-          <Card>
-            <CardContent>
-              <Typography variant="h4" sx={{ fontWeight: 700 }}>
-                {mockUsers.length}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Tổng người dùng
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-        <Grid item xs={12} md={3}>
-          <Card>
-            <CardContent>
-              <Typography variant="h4" sx={{ fontWeight: 700 }}>
-                {mockUsers.filter((u) => u.role === "admin").length}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Quản trị viên
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-        <Grid item xs={12} md={3}>
-          <Card>
-            <CardContent>
-              <Typography variant="h4" sx={{ fontWeight: 700 }}>
-                {mockUsers.filter((u) => u.role === "teacher").length}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Giảng viên
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-        <Grid item xs={12} md={3}>
-          <Card>
-            <CardContent>
-              <Typography variant="h4" sx={{ fontWeight: 700 }}>
-                {mockUsers.filter((u) => u.role === "student").length}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Sinh viên
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-      </Grid>
-
-      <DataTable
-        columns={columns}
-        rows={mockUsers}
-        rowKey="id"
-        actions={actions}
-      />
-    </Box>
+      </Card>
+    </div>
   );
 }

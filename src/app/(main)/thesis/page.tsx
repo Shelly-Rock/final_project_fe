@@ -1,138 +1,129 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
+import { Card, Button, Typography, Row, Col, Tag, Segmented, Empty, Space } from "antd";
 import {
-  Box,
-  Typography,
-  Chip,
-  ToggleButton,
-  ToggleButtonGroup,
-  Tabs,
-  Tab,
-} from "@mui/material";
-import {
-  Visibility as ViewIcon,
-  Edit as EditIcon,
-  Delete as DeleteIcon,
-} from "@mui/icons-material";
-import { PageHeader, FilterBar } from "@/shared/components";
-import { DataTable } from "@/shared/components/DataTable";
-import type { Column, Action } from "@/shared/components";
-import {
-  mockTheses,
-  mockTopics,
-  statusConfig,
-  type ThesisStatus,
-} from "@/feature/thesis/constants";
-import { ThesisTopicList } from "@/feature/thesis/components/ThesisTopicList";
-import { usePermissionContext } from "@/core/providers/PermissionProvider";
-import { ROLE } from "@/core/permissions/types";
+  BookOutlined,
+  ClockCircleOutlined,
+  CheckCircleOutlined,
+  TeamOutlined,
+  FileTextOutlined,
+} from "@ant-design/icons";
 
-export default function ThesisPage() {
-  const { role } = usePermissionContext();
-  const [tab, setTab] = useState(0);
-  const [thesisStatus, setThesisStatus] = useState<ThesisStatus>("all");
+const { Title, Text } = Typography;
 
-  const canManageTheses = role === ROLE.ADMIN || role === ROLE.SECRETARY;
+interface Thesis {
+  id: number;
+  title: string;
+  description: string;
+  lecturer: string;
+  major: string;
+  status: "available" | "pending" | "registered";
+  registeredCount: number;
+  maxStudents: number;
+}
 
-  const filteredTheses =
-    thesisStatus === "all"
-      ? mockTheses
-      : mockTheses.filter((t) => t.status === thesisStatus);
+const mockTheses: Thesis[] = [
+  {
+    id: 1,
+    title: "Xây dựng hệ thống quản lý thư viện sử dụng React và Node.js",
+    description: "Nghiên cứu và xây dựng ứng dụng quản lý thư viện với React, Node.js và MongoDB",
+    lecturer: "TS. Nguyễn Văn A",
+    major: "Công nghệ thông tin",
+    status: "available",
+    registeredCount: 0,
+    maxStudents: 2,
+  },
+  {
+    id: 2,
+    title: "Ứng dụng AI trong nhận diện hình ảnh y tế",
+    description: "Phát triển mô hình deep learning để hỗ trợ chẩn đoán hình ảnh y tế",
+    lecturer: "PGS.TS. Trần Thị B",
+    major: "Khoa học máy tính",
+    status: "available",
+    registeredCount: 1,
+    maxStudents: 2,
+  },
+];
 
-  const columns: Column<(typeof mockTheses)[0]>[] = [
-    { id: "id", label: "ID", minWidth: 60 },
-    { id: "title", label: "Tên đề tài", minWidth: 250, sortable: true },
-    { id: "student", label: "Sinh viên", minWidth: 150 },
-    { id: "mssv", label: "MSSV", minWidth: 100 },
-    {
-      id: "status",
-      label: "Trạng thái",
-      minWidth: 120,
-      format: (value) => {
-        const config = statusConfig[value as string];
-        return <Chip label={config.label} color={config.color} size="small" />;
-      },
-    },
-    { id: "submittedAt", label: "Ngày nộp", minWidth: 120 },
-  ];
+const statusConfig = {
+  available: { color: "green", label: "Còn nhận", icon: <CheckCircleOutlined /> },
+  pending: { color: "gold", label: "Chờ duyệt", icon: <ClockCircleOutlined /> },
+  registered: { color: "blue", label: "Đã đăng ký", icon: <FileTextOutlined /> },
+};
 
-  const actions: Action<(typeof mockTheses)[0]>[] = [
-    { id: "view", icon: <ViewIcon />, label: "Xem", onClick: () => {} },
-    ...(canManageTheses
-      ? [
-          { id: "edit", icon: <EditIcon />, label: "Sửa", onClick: () => {} },
-          {
-            id: "delete",
-            icon: <DeleteIcon />,
-            label: "Xóa",
-            onClick: () => {},
-            color: "error" as const,
-          },
-        ]
-      : []),
+export default function ThesisListPage() {
+  const [filter, setFilter] = useState<"all" | "available" | "pending" | "registered">("all");
+
+  const filteredTheses = mockTheses.filter((t) => {
+    if (filter === "all") return true;
+    return t.status === filter;
+  });
+
+  const filterOptions = [
+    { label: "Tất cả", value: "all" },
+    { label: "Còn nhận", value: "available" },
+    { label: "Chờ duyệt", value: "pending" },
+    { label: "Đã đăng ký", value: "registered" },
   ];
 
   return (
-    <Box sx={{ p: 3 }}>
-      <PageHeader
-        title="Đồ án & Đề tài"
-        subtitle="Quản lý đồ án và đề tài tốt nghiệp"
-      />
+    <div style={{ padding: "24px" }}>
+      {/* Page Header */}
+      <Title level={2} style={{ marginBottom: 8 }}>Danh sách đề tài</Title>
+      <Text type="secondary">Xem và đăng ký đề tài khóa luận</Text>
 
-      <Tabs value={tab} onChange={(_, v) => setTab(v)} sx={{ mb: 3 }}>
-        <Tab label={`Đề tài (${mockTopics.length})`} />
-        <Tab label={`Đồ án (${mockTheses.length})`} />
-      </Tabs>
+      {/* Filter Segmented */}
+      <Row style={{ marginTop: 24, marginBottom: 24 }}>
+        <Col span={24}>
+          <Segmented
+            options={filterOptions}
+            value={filter}
+            onChange={(value) => setFilter(value as typeof filter)}
+          />
+        </Col>
+      </Row>
 
-      {tab === 0 && (
-        <>
-          <FilterBar totalCount={mockTopics.length}>
-            <Typography variant="body2" color="text.secondary">
-              Hiển thị <strong>{mockTopics.length}</strong> đề tài
-            </Typography>
-          </FilterBar>
-          <ThesisTopicList topics={mockTopics} />
-        </>
-      )}
-
-      {tab === 1 && (
-        <>
-          <PageHeader
-            title=""
-            subtitle=""
-            actions={
-              <ToggleButtonGroup
-                size="small"
-                value={thesisStatus}
-                exclusive
-                onChange={(_, v) => v && setThesisStatus(v)}
+      {/* Thesis List */}
+      <Row gutter={[16, 16]}>
+        {filteredTheses.map((thesis) => {
+          const status = statusConfig[thesis.status];
+          return (
+            <Col key={thesis.id} xs={24} md={12} lg={8}>
+              <Card
+                hoverable
+                style={{ height: "100%" }}
+                cover={
+                  <div style={{ padding: "12px 16px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <Tag color="default">{thesis.major}</Tag>
+                    <Tag icon={status.icon} color={status.color}>{status.label}</Tag>
+                  </div>
+                }
               >
-                <ToggleButton value="all">Tất cả</ToggleButton>
-                <ToggleButton value="pending">Chờ duyệt</ToggleButton>
-                <ToggleButton value="in_progress">Đang thực hiện</ToggleButton>
-                <ToggleButton value="completed">Hoàn thành</ToggleButton>
-              </ToggleButtonGroup>
-            }
-          />
+                <Space direction="vertical" size="small" style={{ width: "100%" }}>
+                  <Title level={5} style={{ margin: 0 }}>{thesis.title}</Title>
+                  <Text type="secondary" ellipsis={{ tooltip: thesis.description }}>{thesis.description}</Text>
+                  <Space>
+                    <TeamOutlined style={{ color: "#999" }} />
+                    <Text type="secondary">{thesis.lecturer}</Text>
+                  </Space>
+                  <Space>
+                    <BookOutlined style={{ color: "#999" }} />
+                    <Text type="secondary">{thesis.registeredCount} / {thesis.maxStudents} sinh viên</Text>
+                  </Space>
+                </Space>
+              </Card>
+            </Col>
+          );
+        })}
+      </Row>
 
-          <FilterBar
-            totalCount={mockTheses.length}
-            filteredCount={filteredTheses.length}
-          >
-            <Typography variant="body2" color="text.secondary">
-              Hiển thị <strong>{filteredTheses.length}</strong> đồ án
-            </Typography>
-          </FilterBar>
-
-          <DataTable
-            columns={columns}
-            rows={filteredTheses}
-            rowKey="id"
-            actions={actions}
-          />
-        </>
+      {filteredTheses.length === 0 && (
+        <Empty
+          description="Không có đề tài nào"
+          style={{ marginTop: 48 }}
+        />
       )}
-    </Box>
+    </div>
   );
 }

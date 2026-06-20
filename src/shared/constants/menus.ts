@@ -1,5 +1,5 @@
 // ============================================================
-// MENU CONSTANTS — Sidebar navigation items
+// MENU CONSTANTS - Sidebar navigation (Simplified)
 // ============================================================
 import type { Role } from "@/core/permissions/types";
 
@@ -7,7 +7,7 @@ import type { Role } from "@/core/permissions/types";
 export interface MenuItem {
   key: string;
   label: string;
-  icon?: string; // bootstrap icon class (e.g., "bi bi-house")
+  icon?: string;
   path?: string;
   children?: MenuItem[];
   roles?: Role[];
@@ -24,481 +24,397 @@ export interface MenuSection {
 
 // ---------- Icon helper (Bootstrap Icons) ----------
 export const Icon = {
-  house: "bi-house",
   houseFill: "bi-house-fill",
-  personCircle: "bi-person-circle",
+  house: "bi-house",
   person: "bi-person",
+  personCircle: "bi-person-circle",
   people: "bi-people",
+  peopleFill: "bi-people-fill",
   briefcase: "bi-briefcase",
   award: "bi-award",
   fileText: "bi-file-text",
   fileEarmark: "bi-file-earmark-text",
-  folder: "bi-folder",
-  folder2open: "bi-folder2-open",
+  bookmark: "bi-bookmark",
+  bookmarkStar: "bi-bookmark-star",
   chartLine: "bi-chart-line",
   barChart: "bi-bar-chart",
   pieChart: "bi-pie-chart",
   bell: "bi-bell",
   bellFill: "bi-bell-fill",
-  envelope: "bi-envelope",
-  gear: "bi-gear",
-  lock: "bi-lock",
-  unlock: "bi-unlock",
-  shieldLock: "bi-shield-lock",
+  megaphone: "bi-megaphone",
   shieldCheck: "bi-shield-check",
-  bookmarkStar: "bi-bookmark-star",
-  trash: "bi-trash",
-  pen: "bi-pen",
-  plusCircle: "bi-plus-circle",
-  dashCircle: "bi-dash-circle",
-  xCircle: "bi-x-circle",
-  checkCircle: "bi-check-circle",
-  exclamationCircle: "bi-exclamation-circle",
-  questionCircle: "bi-question-circle",
-  info: "bi-info-circle",
   clipboard: "bi-clipboard",
   clipboardCheck: "bi-clipboard-check",
+  clipboardData: "bi-clipboard-data",
   calendar: "bi-calendar",
   calendarEvent: "bi-calendar-event",
   calendarCheck: "bi-calendar-check",
+  calendarWeek: "bi-calendar-week",
+  calendarRange: "bi-calendar-range",
   clock: "bi-clock",
   clockHistory: "bi-clock-history",
-  doorClosed: "bi-door-closed",
-  doorOpen: "bi-door-open",
-  boxArrowRight: "bi-box-arrow-right",
-  boxArrowInRight: "bi-box-arrow-in-right",
-  boxArrowInLeft: "bi-box-arrow-in-left",
-  arrowLeftRight: "bi-arrow-left-right",
-  arrowRightCircle: "bi-arrow-right-circle",
-  chevronDown: "bi-chevron-down",
-  chevronUp: "bi-chevron-up",
-  chevronLeft: "bi-chevron-left",
-  chevronRight: "bi-chevron-right",
-  grid: "bi-grid",
-  list: "bi-list",
   listTask: "bi-list-task",
   layoutSidebar: "bi-layout-sidebar",
   mortarboard: "bi-mortarboard",
-  graduationCap: "bi-mortarboard",
   building: "bi-building",
-  buildingGear: "bi-building-gear",
-  bank: "bi-bank",
-  journal: "bi-journal",
-  journalArrowUp: "bi-journal-arrow-up",
-  personBadge: "bi-person-badge",
-  idCard: "bi-id-card",
-  send: "bi-send",
-  eye: "bi-eye",
-  eyeSlash: "bi-eye-slash",
+  folder2open: "bi-folder2-open",
+  plusCircle: "bi-plus-circle",
+  checkCircle: "bi-check-circle",
+  xCircle: "bi-x-circle",
+  folder: "bi-folder",
+  grid: "bi-grid",
+  list: "bi-list",
+  upload: "bi-upload",
+  download: "bi-download",
   star: "bi-star",
   starFill: "bi-star-fill",
-  heart: "bi-heart",
-  heartFill: "bi-heart-fill",
-  bookmark: "bi-bookmark",
-  bookmarkFill: "bi-bookmark-fill",
-  tags: "bi-tags",
-  tag: "bi-tag",
-  flag: "bi-flag",
-  flagFill: "bi-flag-fill",
-  megaphone: "bi-megaphone",
-  loudpeaker: "bi-loudspeaker",
-  download: "bi-download",
-  upload: "bi-upload",
-  paperclip: "bi-paperclip",
-  link45deg: "bi-link-45deg",
-  link: "bi-link",
-  codeSlash: "bi-code-slash",
-  terminal: "bi-terminal",
-  cpu: "bi-cpu",
-  server: "bi-server",
-  router: "bi-router",
-  wifi: "bi-wifi",
-  globe: "bi-globe",
-  globeAmericas: "bi-globe-americas",
-  wrench: "bi-wrench",
-  tools: "bi-tools",
-  shield: "bi-shield",
-  shieldPlus: "bi-shield-plus",
-  exclamationTriangle: "bi-exclamation-triangle",
-  xOctagon: "bi-x-octagon",
-  check2All: "bi-check2-all",
+  graphUp: "bi-graph-up",
+  pencilSquare: "bi-pencil-square",
+  chatSquare: "bi-chat-square",
   chatLeftText: "bi-chat-left-text",
-  clipboardData: "bi-clipboard-data",
-  collection: "bi-collection",
+  lightbulb: "bi-lightbulb",
+  exclamationTriangle: "bi-exclamation-triangle",
+  hourglass: "bi-hourglass",
+  filePdf: "bi-file-earmark-pdf",
+  fileExcel: "bi-file-earmark-excel",
+  fileWord: "bi-file-earmark-word",
+  personPlus: "bi-person-plus",
+  personCheck: "bi-person-check",
+  personBadge: "bi-person-badge",
+  doorOpen: "bi-door-open",
+  gear: "bi-gear",
+  archive: "bi-archive",
   diagram3: "bi-diagram-3",
-  funnel: "bi-funnel",
-  funnelLeft: "bi-funnel-left",
-  sortDown: "bi-sort-down",
-  sortUp: "bi-sort-up",
-  filter: "bi-filter",
-  search: "bi-search",
-  zoomIn: "bi-zoom-in",
-  zoomOut: "bi-zoom-out",
-  fullscreen: "bi-fullscreen",
-  fullscreenExit: "bi-fullscreen-exit",
-  threeDots: "bi-three-dots",
-  threeDotsVertical: "bi-three-dots-vertical",
-  arrowUpCircle: "bi-arrow-up-circle",
-  arrowDownCircle: "bi-arrow-down-circle",
-  plusLg: "bi-plus-lg",
-  dashLg: "bi-dash-lg",
-  xLg: "bi-x-lg",
-  checkLg: "bi-check-lg",
-  arrowLeftLg: "bi-arrow-left-lg",
-  arrowRightLg: "bi-arrow-right-lg",
-  arrowUp: "bi-arrow-up",
-  arrowDown: "bi-arrow-down",
-  arrowLeft: "bi-arrow-left",
-  arrowRight: "bi-arrow-right",
-  caretDown: "bi-caret-down",
-  caretUp: "bi-caret-up",
-  caretLeft: "bi-caret-left",
-  caretRight: "bi-caret-right",
-  caretDownFill: "bi-caret-down-fill",
-  caretUpFill: "bi-caret-up-fill",
+  activity: "bi-activity",
+  journal: "bi-journal",
+  book: "bi-book",
+  clipboardPlus: "bi-clipboard-plus",
+  clipboardMinus: "bi-clipboard-minus",
+  toggleOn: "bi-toggle-on",
+  envelope: "bi-envelope",
+  check2Square: "bi-check2-square",
+  fileArrowUp: "bi-file-arrow-up",
 } as const;
 
-// ---------- Menu Items ----------
-export const MENU_ITEMS: MenuItem[] = [
+// ============================================================
+// MENU SECTIONS BY ROLE - Simplified
+// ============================================================
+
+// ---------- ADMIN MENU ----------
+const ADMIN_ITEMS: MenuItem[] = [
   {
     key: "dashboard",
     label: "Tổng quan",
     icon: Icon.houseFill,
-    path: "/dashboard",
-    roles: ["admin", "secretary", "teacher", "student"],
+    path: "/admin/dashboard",
   },
   {
-    key: "thesis",
-    label: "Đồ án & Đề tài",
-    icon: Icon.mortarboard,
-    path: "/thesis",
-    roles: ["admin", "secretary", "teacher", "student"],
-    permission: { action: "read", resource: "thesis" },
-  },
-  {
-    key: "submission",
-    label: "Nộp bài",
-    icon: Icon.upload,
-    path: "/thesis/submission",
-    roles: ["student"],
-    permission: { action: "read", resource: "thesis_submission" },
-  },
-  {
-    key: "review",
-    label: "Phản biện",
-    icon: Icon.chatLeftText,
-    path: "/thesis/review",
-    roles: ["admin", "secretary", "teacher"],
-    permission: { action: "read", resource: "thesis_review" },
-  },
-  {
-    key: "score",
-    label: "Chấm điểm",
-    icon: Icon.clipboardData,
-    path: "/thesis/score",
-    roles: ["admin", "secretary", "teacher"],
-    permission: { action: "read", resource: "thesis_score" },
-  },
-  {
-    key: "defense",
-    label: "Bảo vệ",
-    icon: Icon.shieldCheck,
-    path: "/thesis/defense",
-    roles: ["admin", "secretary", "teacher", "student"],
-    permission: { action: "read", resource: "thesis_defense" },
-  },
-  {
-    key: "student",
-    label: "Sinh viên",
-    icon: Icon.personBadge,
-    path: "/students",
-    roles: ["admin", "secretary"],
-    permission: { action: "read", resource: "student" },
-  },
-  {
-    key: "department",
-    label: "Khoa",
-    icon: Icon.building,
-    path: "/department",
-    roles: ["admin", "secretary"],
-    permission: { action: "read", resource: "department" },
-  },
-  {
-    key: "major",
-    label: "Ngành",
-    icon: Icon.journal,
-    path: "/major",
-    roles: ["admin", "secretary"],
-    permission: { action: "read", resource: "major" },
-  },
-  {
-    key: "class",
-    label: "Lớp học",
-    icon: Icon.people,
-    path: "/class",
-    roles: ["admin", "secretary", "teacher"],
-    permission: { action: "read", resource: "class" },
-  },
-  {
-    key: "course",
-    label: "Học phần",
-    icon: Icon.journal,
-    path: "/course",
-    roles: ["admin", "secretary"],
-    permission: { action: "read", resource: "course" },
+    key: "semester",
+    label: "Kỳ khóa luận",
+    icon: Icon.calendarRange,
+    path: "/admin/semester",
   },
   {
     key: "user",
     label: "Người dùng",
     icon: Icon.people,
-    path: "/user",
-    roles: ["admin"],
-    permission: { action: "read", resource: "user" },
+    path: "/admin/user",
   },
   {
-    key: "role",
-    label: "Vai trò",
-    icon: Icon.shieldLock,
-    path: "/role",
-    roles: ["admin"],
-    permission: { action: "read", resource: "role" },
+    key: "council",
+    label: "Hội đồng",
+    icon: Icon.personBadge,
+    path: "/admin/council",
+  },
+  {
+    key: "thesis",
+    label: "Khóa luận",
+    icon: Icon.book,
+    path: "/admin/thesis",
+  },
+  {
+    key: "statistics",
+    label: "Thống kê",
+    icon: Icon.barChart,
+    path: "/admin/statistics",
+  },
+  {
+    key: "report",
+    label: "Báo cáo",
+    icon: Icon.filePdf,
+    path: "/admin/report",
+  },
+];
+
+// ---------- SECRETARY MENU ----------
+const SECRETARY_ITEMS: MenuItem[] = [
+  {
+    key: "dashboard",
+    label: "Tổng quan",
+    icon: Icon.houseFill,
+    path: "/secretary/dashboard",
+  },
+  {
+    key: "topic-approval",
+    label: "Duyệt đề tài",
+    icon: Icon.shieldCheck,
+    path: "/secretary/topic-approval",
+  },
+  {
+    key: "registration",
+    label: "Đăng ký",
+    icon: Icon.bookmark,
+    path: "/secretary/registration",
+  },
+  {
+    key: "review-assign",
+    label: "Phân công phản biện",
+    icon: Icon.personPlus,
+    path: "/secretary/review-assign",
+  },
+  {
+    key: "defense",
+    label: "Lịch bảo vệ",
+    icon: Icon.calendarEvent,
+    path: "/secretary/defense",
+  },
+  {
+    key: "score-summary",
+    label: "Tổng hợp điểm",
+    icon: Icon.barChart,
+    path: "/secretary/score-summary",
   },
   {
     key: "announcement",
     label: "Thông báo",
     icon: Icon.megaphone,
-    path: "/announcement",
-    roles: ["admin", "secretary", "teacher", "student"],
-    permission: { action: "read", resource: "announcement" },
+    path: "/secretary/announcement",
   },
   {
-    key: "document",
-    label: "Tài liệu",
-    icon: Icon.folder2open,
-    path: "/document",
-    roles: ["admin", "secretary", "teacher", "student"],
-    permission: { action: "read", resource: "document" },
-  },
-  {
-    key: "report",
-    label: "Báo cáo",
-    icon: Icon.barChart,
-    path: "/report",
-    roles: ["admin", "secretary", "teacher"],
-    permission: { action: "read", resource: "report" },
-  },
-  {
-    key: "statistic",
+    key: "statistics",
     label: "Thống kê",
     icon: Icon.pieChart,
-    path: "/statistic",
-    roles: ["admin", "secretary"],
-    permission: { action: "read", resource: "statistic" },
-  },
-  {
-    key: "audit",
-    label: "Nhật ký hệ thống",
-    icon: Icon.clockHistory,
-    path: "/audit",
-    roles: ["admin"],
-    permission: { action: "read", resource: "audit_log" },
-  },
-  {
-    key: "setting",
-    label: "Cài đặt",
-    icon: Icon.gear,
-    path: "/setting",
-    roles: ["admin"],
-    permission: { action: "read", resource: "setting" },
+    path: "/secretary/statistics",
   },
 ];
 
-// ---------- Menu Sections ----------
-export const MENU_SECTIONS: MenuSection[] = [
+// ---------- TEACHER MENU ----------
+const TEACHER_ITEMS: MenuItem[] = [
   {
-    section: "Tổng quan",
-    items: [
-      {
-        key: "dashboard",
-        label: "Tổng quan",
-        icon: Icon.houseFill,
-        path: "/dashboard",
-        roles: ["admin", "secretary", "teacher", "student"],
-      },
-      {
-        key: "announcement",
-        label: "Thông báo",
-        icon: Icon.megaphone,
-        path: "/announcement",
-        roles: ["admin", "secretary", "teacher", "student"],
-        permission: { action: "read", resource: "announcement" },
-      },
-    ],
+    key: "dashboard",
+    label: "Tổng quan",
+    icon: Icon.houseFill,
+    path: "/teacher/dashboard",
   },
   {
-    section: "Quản lý đồ án",
-    items: [
-      {
-        key: "thesis",
-        label: "Đồ án & Đề tài",
-        icon: Icon.mortarboard,
-        path: "/thesis",
-        roles: ["admin", "secretary", "teacher", "student"],
-        permission: { action: "read", resource: "thesis" },
-      },
-      {
-        key: "submission",
-        label: "Nộp bài",
-        icon: Icon.upload,
-        path: "/thesis/submission",
-        roles: ["student"],
-        permission: { action: "read", resource: "thesis_submission" },
-      },
-      {
-        key: "review",
-        label: "Phản biện",
-        icon: Icon.chatLeftText,
-        path: "/thesis/review",
-        roles: ["admin", "secretary", "teacher"],
-        permission: { action: "read", resource: "thesis_review" },
-      },
-      {
-        key: "score",
-        label: "Chấm điểm",
-        icon: Icon.clipboardData,
-        path: "/thesis/score",
-        roles: ["admin", "secretary", "teacher"],
-        permission: { action: "read", resource: "thesis_score" },
-      },
-      {
-        key: "defense",
-        label: "Bảo vệ",
-        icon: Icon.shieldCheck,
-        path: "/thesis/defense",
-        roles: ["admin", "secretary", "teacher", "student"],
-        permission: { action: "read", resource: "thesis_defense" },
-      },
-    ],
+    key: "supervision",
+    label: "Hướng dẫn",
+    icon: Icon.lightbulb,
+    path: "/teacher/supervision",
   },
   {
-    section: "Quản lý học tập",
-    items: [
-      {
-        key: "student",
-        label: "Sinh viên",
-        icon: Icon.personBadge,
-        path: "/students",
-        roles: ["admin", "secretary"],
-        permission: { action: "read", resource: "student" },
-      },
-      {
-        key: "department",
-        label: "Khoa",
-        icon: Icon.building,
-        path: "/department",
-        roles: ["admin", "secretary"],
-        permission: { action: "read", resource: "department" },
-      },
-      {
-        key: "major",
-        label: "Ngành",
-        icon: Icon.journal,
-        path: "/major",
-        roles: ["admin", "secretary"],
-        permission: { action: "read", resource: "major" },
-      },
-      {
-        key: "class",
-        label: "Lớp học",
-        icon: Icon.people,
-        path: "/class",
-        roles: ["admin", "secretary", "teacher"],
-        permission: { action: "read", resource: "class" },
-      },
-      {
-        key: "course",
-        label: "Học phần",
-        icon: Icon.journal,
-        path: "/course",
-        roles: ["admin", "secretary"],
-        permission: { action: "read", resource: "course" },
-      },
-    ],
+    key: "review",
+    label: "Phản biện",
+    icon: Icon.clipboardCheck,
+    path: "/teacher/review",
   },
   {
-    section: "Quản trị hệ thống",
-    items: [
-      {
-        key: "user",
-        label: "Người dùng",
-        icon: Icon.people,
-        path: "/user",
-        roles: ["admin"],
-        permission: { action: "read", resource: "user" },
-      },
-      {
-        key: "role",
-        label: "Vai trò",
-        icon: Icon.shieldLock,
-        path: "/role",
-        roles: ["admin"],
-        permission: { action: "read", resource: "role" },
-      },
-      {
-        key: "audit",
-        label: "Nhật ký",
-        icon: Icon.clockHistory,
-        path: "/audit",
-        roles: ["admin"],
-        permission: { action: "read", resource: "audit_log" },
-      },
-      {
-        key: "setting",
-        label: "Cài đặt",
-        icon: Icon.gear,
-        path: "/setting",
-        roles: ["admin"],
-        permission: { action: "read", resource: "setting" },
-      },
-    ],
+    key: "defense",
+    label: "Bảo vệ",
+    icon: Icon.calendarEvent,
+    path: "/teacher/defense",
   },
   {
-    section: "Báo cáo",
-    items: [
-      {
-        key: "report",
-        label: "Báo cáo",
-        icon: Icon.barChart,
-        path: "/report",
-        roles: ["admin", "secretary", "teacher"],
-        permission: { action: "read", resource: "report" },
-      },
-      {
-        key: "statistic",
-        label: "Thống kê",
-        icon: Icon.pieChart,
-        path: "/statistic",
-        roles: ["admin", "secretary"],
-        permission: { action: "read", resource: "statistic" },
-      },
-    ],
+    key: "scoring",
+    label: "Chấm điểm",
+    icon: Icon.pencilSquare,
+    path: "/teacher/scoring",
+  },
+  {
+    key: "notifications",
+    label: "Thông báo",
+    icon: Icon.bell,
+    path: "/teacher/notifications",
+  },
+  {
+    key: "statistics",
+    label: "Thống kê",
+    icon: Icon.barChart,
+    path: "/teacher/statistics",
   },
 ];
 
-// ---------- Utility ----------
-export function getMenuItemsForRole(role: Role): MenuItem[] {
-  return MENU_ITEMS.filter((item) => {
-    if (item.roles && !item.roles.includes(role)) return false;
-    return true;
-  });
-}
+// ---------- STUDENT MENU ----------
+const STUDENT_ITEMS: MenuItem[] = [
+  {
+    key: "dashboard",
+    label: "Tổng quan",
+    icon: Icon.houseFill,
+    path: "/student/dashboard",
+  },
+  {
+    key: "topic",
+    label: "Đăng ký đề tài",
+    icon: Icon.book,
+    path: "/student/topic",
+  },
+  {
+    key: "work",
+    label: "Thực hiện",
+    icon: Icon.listTask,
+    path: "/student/work",
+  },
+  {
+    key: "submission",
+    label: "Nộp bài",
+    icon: Icon.upload,
+    path: "/student/submission",
+  },
+  {
+    key: "defense",
+    label: "Lịch bảo vệ",
+    icon: Icon.calendarEvent,
+    path: "/student/defense",
+  },
+  {
+    key: "result",
+    label: "Kết quả",
+    icon: Icon.award,
+    path: "/student/result",
+  },
+  {
+    key: "request",
+    label: "Yêu cầu",
+    icon: Icon.chatSquare,
+    path: "/student/request",
+  },
+  {
+    key: "profile",
+    label: "Hồ sơ",
+    icon: Icon.personCircle,
+    path: "/student/profile",
+  },
+  {
+    key: "notifications",
+    label: "Thông báo",
+    icon: Icon.bell,
+    path: "/student/notifications",
+  },
+];
+
+// ---------- MENU SECTIONS ----------
+export const MENU_SECTIONS_BY_ROLE: Record<Role, MenuSection[]> = {
+  admin: [
+    {
+      section: "Quản trị",
+      items: ADMIN_ITEMS,
+    },
+  ],
+  secretary: [
+    {
+      section: "Quản lý",
+      items: SECRETARY_ITEMS,
+    },
+  ],
+  teacher: [
+    {
+      section: "Giảng viên",
+      items: TEACHER_ITEMS,
+    },
+  ],
+  student: [
+    {
+      section: "Sinh viên",
+      items: STUDENT_ITEMS,
+    },
+  ],
+};
+
+// ============================================================
+// UTILITY FUNCTIONS
+// ============================================================
 
 export function getMenuSectionsForRole(role: Role): MenuSection[] {
-  return MENU_SECTIONS.map((section) => ({
-    ...section,
-    items: section.items.filter((item) => {
-      if (item.roles && !item.roles.includes(role)) return false;
-      return true;
-    }),
-  })).filter((section) => section.items.length > 0);
+  return MENU_SECTIONS_BY_ROLE[role] || [];
 }
+
+export function getMenuItemsForRole(role: Role): MenuItem[] {
+  const sections = getMenuSectionsForRole(role);
+  return sections.flatMap((section) => section.items);
+}
+
+export function getMenuItemByKey(key: string, role: Role): MenuItem | undefined {
+  const items = getMenuItemsForRole(role);
+  return items.find((item) => item.key === key);
+}
+
+export function hasPermission(
+  role: Role,
+  action: string,
+  resource: string
+): boolean {
+  const items = getMenuItemsForRole(role);
+  return items.some(
+    (item) =>
+      item.permission &&
+      (item.permission.action === action || item.permission.action === "manage") &&
+      item.permission.resource === resource
+  );
+}
+
+// ============================================================
+// ROLE PERMISSIONS MATRIX
+// ============================================================
+
+export const ROLE_PERMISSIONS: Record<
+  Role,
+  {
+    description: string;
+    features: string[];
+  }
+> = {
+  admin: {
+    description: "Quản trị viên - Toàn quyền",
+    features: [
+      "Quản lý kỳ khóa luận",
+      "Quản lý người dùng",
+      "Quản lý hội đồng",
+      "Quản lý khóa luận",
+      "Xem thống kê",
+      "Xuất báo cáo",
+    ],
+  },
+  secretary: {
+    description: "Thư ký khoa - Quản lý quy trình",
+    features: [
+      "Duyệt đề tài",
+      "Quản lý đăng ký",
+      "Phân công phản biện",
+      "Lên lịch bảo vệ",
+      "Tổng hợp điểm",
+      "Quản lý thông báo",
+      "Xem thống kê",
+    ],
+  },
+  teacher: {
+    description: "Giảng viên - Hướng dẫn & Phản biện",
+    features: [
+      "Hướng dẫn sinh viên",
+      "Phản biện đồ án",
+      "Tham gia bảo vệ",
+      "Chấm điểm",
+      "Xem thống kê",
+    ],
+  },
+  student: {
+    description: "Sinh viên - Thực hiện đồ án",
+    features: [
+      "Xem đăng ký đề tài",
+      "Thực hiện khóa luận",
+      "Nộp bài và báo cáo",
+      "Xem lịch bảo vệ",
+      "Xem kết quả",
+      "Gửi yêu cầu",
+    ],
+  },
+};

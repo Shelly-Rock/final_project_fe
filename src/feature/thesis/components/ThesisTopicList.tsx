@@ -10,13 +10,16 @@ import {
   Button,
 } from "@mui/material";
 import { BookmarkAdd as BookmarkIcon } from "@mui/icons-material";
-import type { ThesisTopic } from "../constants";
+import type { ThesisTopic } from "../types";
 
 interface ThesisTopicListProps {
   topics: ThesisTopic[];
 }
 
 export function ThesisTopicList({ topics }: ThesisTopicListProps) {
+  const registeredCount = (topic: ThesisTopic) =>
+    topic.registeredStudents?.length || 0;
+
   return (
     <Grid container spacing={3}>
       {topics.map((topic) => (
@@ -34,9 +37,9 @@ export function ThesisTopicList({ topics }: ThesisTopicListProps) {
                   variant="outlined"
                 />
                 <Chip
-                  label={`${topic.registered}/${topic.slots} SV`}
+                  label={`${registeredCount(topic)}/${topic.maxStudents} SV`}
                   size="small"
-                  color={topic.registered >= topic.slots ? "error" : "success"}
+                  color={registeredCount(topic) >= topic.maxStudents ? "error" : "success"}
                 />
               </Box>
               <Typography
@@ -52,9 +55,9 @@ export function ThesisTopicList({ topics }: ThesisTopicListProps) {
                 size="small"
                 variant="outlined"
                 startIcon={<BookmarkIcon />}
-                disabled={topic.registered >= topic.slots}
+                disabled={registeredCount(topic) >= topic.maxStudents}
               >
-                {topic.registered >= topic.slots ? "Đã đầy" : "Đăng ký"}
+                {registeredCount(topic) >= topic.maxStudents ? "Đã đầy" : "Đăng ký"}
               </Button>
             </CardContent>
           </Card>
