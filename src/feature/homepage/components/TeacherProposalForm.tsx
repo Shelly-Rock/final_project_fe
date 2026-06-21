@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback, useMemo } from "react";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Card from "@mui/material/Card";
@@ -18,6 +18,7 @@ import {
   ThesisProposalStatus,
   STATUS_COLORS,
 } from "../data";
+import { useBoolean, useDisclosure } from "@/shared/hooks";
 
 const DEPARTMENTS = [
   "Công nghệ thông tin",
@@ -28,17 +29,21 @@ const DEPARTMENTS = [
   "Khoa học dữ liệu",
 ];
 
+const DEFAULT_FORM_DATA = {
+  title: "",
+  description: "",
+  requirements: "",
+  expectedOutcome: "",
+  department: DEPARTMENTS[0],
+  maxStudents: 2,
+};
+
+type ProposalFormData = typeof DEFAULT_FORM_DATA;
+
 interface TeacherProposalFormProps {
   open: boolean;
   onClose: () => void;
-  onSubmit: (proposal: {
-    title: string;
-    description: string;
-    requirements: string;
-    expectedOutcome: string;
-    department: string;
-    maxStudents: number;
-  }) => void;
+  onSubmit: (proposal: ProposalFormData) => void;
 }
 
 export function TeacherProposalForm({
@@ -46,50 +51,47 @@ export function TeacherProposalForm({
   onClose,
   onSubmit,
 }: TeacherProposalFormProps) {
-  const [formData, setFormData] = useState({
-    title: "",
-    description: "",
-    requirements: "",
-    expectedOutcome: "",
-    department: DEPARTMENTS[0],
-    maxStudents: 2,
-  });
+  const [formData, setFormData] = useState<ProposalFormData>(DEFAULT_FORM_DATA);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const { value: isSubmitting, setTrue: startSubmitting, setFalse: stopSubmitting } =
+    useBoolean(false);
 
-  const validate = () => {
+  const validate = useCallback((data: ProposalFormData): Record<string, string> => {
     const newErrors: Record<string, string> = {};
-    if (!formData.title.trim()) newErrors.title = "Vui lòng nhập tên đề tài";
-    if (!formData.description.trim())
-      newErrors.description = "Vui lòng nhập mô tả";
-    if (!formData.requirements.trim())
-      newErrors.requirements = "Vui lòng nhập yêu cầu";
-    if (!formData.expectedOutcome.trim())
+    if (!data.title.trim()) newErrors.title = "Vui lòng nhập tên đề tài";
+    if (!data.description.trim()) newErrors.description = "Vui lòng nhập mô tả";
+    if (!data.requirements.trim()) newErrors.requirements = "Vui lòng nhập yêu cầu";
+    if (!data.expectedOutcome.trim())
       newErrors.expectedOutcome = "Vui lòng nhập kết quả mong đợi";
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
+    return newErrors;
+  }, []);
 
-  const handleSubmit = () => {
-    if (validate()) {
-      onSubmit(formData);
-      setFormData({
-        title: "",
-        description: "",
-        requirements: "",
-        expectedOutcome: "",
-        department: DEPARTMENTS[0],
-        maxStudents: 2,
-      });
-      onClose();
+  const handleSubmit = useCallback(() => {
+    const validationErrors = validate(formData);
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
     }
-  };
+    startSubmitting();
+    onSubmit(formData);
+    stopSubmitting();
+    setFormData(DEFAULT_FORM_DATA);
+    onClose();
+  }, [formData, onSubmit, onClose, validate, startSubmitting, stopSubmitting]);
 
-  const handleChange = (field: string, value: string | number) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-    if (errors[field]) {
-      setErrors((prev) => ({ ...prev, [field]: "" }));
-    }
-  };
+  const handleChange = useCallback(
+    (field: keyof ProposalFormData, value: string | number) => {
+      setFormData((prev) => ({ ...prev, [field]: value }));
+      if (errors[field]) {
+        setErrors((prev) => {
+          const next = { ...prev };
+          delete next[field];
+          return next;
+        });
+      }
+    },
+    [errors]
+  );
 
   return (
     <Dialog
@@ -194,16 +196,17 @@ export function TeacherProposalForm({
         </Box>
       </DialogContent>
       <DialogActions sx={{ px: 3, pb: 2 }}>
-        <Button onClick={onClose} color="inherit">
+        <Button onClick={onClose} color="inherit" disabled={isSubmitting}>
           Hủy
         </Button>
         <Button
           variant="contained"
           color="primary"
           onClick={handleSubmit}
+          disabled={isSubmitting}
           startIcon={<i className="bi bi-send" />}
         >
-          Gửi duyệt
+          {isSubmitting ? "Đang gửi..." : "Gửi duyệt"}
         </Button>
       </DialogActions>
     </Dialog>
@@ -218,10 +221,9 @@ interface TeacherProposalsListProps {
 export function TeacherProposalsList({
   onCreateNew,
 }: TeacherProposalsListProps) {
-  const getStatusColor = (status: ThesisProposalStatus) => {
-    const colors = STATUS_COLORS[status] ?? { bg: "#f3f4f6", color: "#6b7280" };
-    return colors;
-  };
+  const getStatusColor = useCallback((status: ThesisProposalStatus) => {
+    return STATUS_COLORS[status] ?? { bg: "#f3f4f6", color: "#6b7280" };
+  }, []);
 
   return (
     <Card sx={{ p: 2, mb: 4 }}>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Card from "@mui/material/Card";
@@ -14,6 +14,7 @@ import TextField from "@mui/material/TextField";
 import MenuItem from "@mui/material/MenuItem";
 import Grid from "@mui/material/Grid2";
 import { THESIS_PROPOSALS, ThesisProposal, STATUS_COLORS } from "../data";
+import { useDisclosure } from "@/shared/hooks";
 
 const DEPARTMENTS = [
   "Công nghệ thông tin",
@@ -40,28 +41,33 @@ export function SecretaryThesisApproval({
   onReject,
   onEdit,
 }: SecretaryThesisApprovalProps) {
-  const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
+  const { isOpen: rejectDialogOpen, open: openRejectDialog, close: closeRejectDialog } =
+    useDisclosure();
   const [selectedProposal, setSelectedProposal] =
     useState<ThesisProposal | null>(null);
   const [rejectionReason, setRejectionReason] = useState("");
 
-  const pendingProposals = THESIS_PROPOSALS.filter(
-    (p) => p.status === "Chờ duyệt",
+  const pendingProposals = useMemo(
+    () => THESIS_PROPOSALS.filter((p) => p.status === "Chờ duyệt"),
+    []
   );
 
-  const handleReject = () => {
+  const handleReject = useCallback(() => {
     if (selectedProposal && rejectionReason.trim()) {
       onReject(selectedProposal.id, rejectionReason);
-      setRejectDialogOpen(false);
+      closeRejectDialog();
       setSelectedProposal(null);
       setRejectionReason("");
     }
-  };
+  }, [selectedProposal, rejectionReason, onReject, closeRejectDialog]);
 
-  const openRejectDialog = (proposal: ThesisProposal) => {
-    setSelectedProposal(proposal);
-    setRejectDialogOpen(true);
-  };
+  const handleOpenReject = useCallback(
+    (proposal: ThesisProposal) => {
+      setSelectedProposal(proposal);
+      openRejectDialog();
+    },
+    [openRejectDialog]
+  );
 
   return (
     <>
@@ -212,7 +218,7 @@ export function SecretaryThesisApproval({
                         size="small"
                         color="error"
                         startIcon={<i className="bi bi-x-circle" />}
-                        onClick={() => openRejectDialog(proposal)}
+                        onClick={() => handleOpenReject(proposal)}
                       >
                         Từ chối
                       </Button>
@@ -273,7 +279,7 @@ export function SecretaryThesisApproval({
       {/* Reject Dialog */}
       <Dialog
         open={rejectDialogOpen}
-        onClose={() => setRejectDialogOpen(false)}
+        onClose={closeRejectDialog}
         maxWidth="sm"
         fullWidth
       >
@@ -308,7 +314,7 @@ export function SecretaryThesisApproval({
           )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setRejectDialogOpen(false)} color="inherit">
+          <Button onClick={closeRejectDialog} color="inherit">
             Hủy
           </Button>
           <Button

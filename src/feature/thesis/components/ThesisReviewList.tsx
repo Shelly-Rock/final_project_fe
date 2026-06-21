@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import {
   Box,
   Typography,
@@ -19,6 +19,7 @@ import {
   RateReview as ReviewIcon,
   Send as SendIcon,
 } from "@mui/icons-material";
+import { useBoolean } from "@/shared/hooks";
 import type { ThesisReview } from "../constants";
 
 interface ThesisReviewListProps {
@@ -26,13 +27,15 @@ interface ThesisReviewListProps {
 }
 
 export function ThesisReviewList({
-  reviews: initialReviews,
+  reviews,
 }: ThesisReviewListProps) {
-  const [reviews] = useState(initialReviews);
   const [filter, setFilter] = useState("all");
+  const { value: isSubmitting } = useBoolean(false);
 
-  const filteredReviews =
-    filter === "all" ? reviews : reviews.filter((r) => r.status === filter);
+  const filteredReviews = useMemo(
+    () => (filter === "all" ? reviews : reviews.filter((r) => r.status === filter)),
+    [filter, reviews]
+  );
 
   return (
     <>

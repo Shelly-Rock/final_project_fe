@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo, useCallback } from "react";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Card from "@mui/material/Card";
@@ -12,6 +12,7 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
 import TextField from "@mui/material/TextField";
 import { THESIS_PROPOSALS, ThesisProposal } from "../data";
+import { useDisclosure, useDebounce } from "@/shared/hooks";
 
 interface TopicSelectionFormProps {
   open: boolean;
@@ -27,27 +28,43 @@ export function TopicSelectionForm({
   const [selectedProposal, setSelectedProposal] =
     useState<ThesisProposal | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [confirmOpen, setConfirmOpen] = useState(false);
+  const debouncedSearch = useDebounce(searchTerm, 300);
 
-  const approvedProposals = THESIS_PROPOSALS.filter(
-    (p) => p.status === "Đã duyệt" && p.currentStudents < p.maxStudents,
+  const { isOpen: confirmOpen, open: openConfirm, close: closeConfirm } =
+    useDisclosure();
+
+  const approvedProposals = useMemo(
+    () =>
+      THESIS_PROPOSALS.filter(
+        (p) => p.status === "Đã duyệt" && p.currentStudents < p.maxStudents
+      ),
+    []
   );
 
-  const filteredProposals = approvedProposals.filter(
-    (p) =>
-      p.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      p.teacherName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      p.department.toLowerCase().includes(searchTerm.toLowerCase()),
+  const filteredProposals = useMemo(
+    () =>
+      approvedProposals.filter(
+        (p) =>
+          p.title.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+          p.teacherName.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+          p.department.toLowerCase().includes(debouncedSearch.toLowerCase())
+      ),
+    [approvedProposals, debouncedSearch]
   );
 
-  const handleConfirm = () => {
+  const handleConfirm = useCallback(() => {
     if (selectedProposal) {
       onSelect(selectedProposal);
-      setConfirmOpen(false);
+      closeConfirm();
       setSelectedProposal(null);
       onClose();
     }
-  };
+  }, [selectedProposal, onSelect, closeConfirm, onClose]);
+
+  const handleReset = useCallback(() => {
+    setSelectedProposal(null);
+    setSearchTerm("");
+  }, []);
 
   return (
     <>
@@ -208,7 +225,7 @@ export function TopicSelectionForm({
           <Button
             variant="contained"
             disabled={!selectedProposal}
-            onClick={() => setConfirmOpen(true)}
+            onClick={openConfirm}
           >
             Chọn đề tài
           </Button>
@@ -218,7 +235,7 @@ export function TopicSelectionForm({
       {/* Confirmation Dialog */}
       <Dialog
         open={confirmOpen}
-        onClose={() => setConfirmOpen(false)}
+        onClose={closeConfirm}
         maxWidth="sm"
         fullWidth
       >
@@ -252,7 +269,7 @@ export function TopicSelectionForm({
           )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setConfirmOpen(false)} color="inherit">
+          <Button onClick={closeConfirm} color="inherit">
             Hủy
           </Button>
           <Button variant="contained" color="primary" onClick={handleConfirm}>
