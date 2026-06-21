@@ -208,6 +208,13 @@ export const MENU_ITEMS: MenuItem[] = [
     permission: { action: "read", resource: "thesis_defense" },
   },
   {
+    key: "templates",
+    label: "Biểu mẫu",
+    icon: Icon.fileText,
+    path: "/templates",
+    roles: ["admin", "secretary", "teacher", "student"],
+  },
+  {
     key: "student",
     label: "Sinh viên",
     icon: Icon.personBadge,
@@ -262,6 +269,13 @@ export const MENU_ITEMS: MenuItem[] = [
     path: "/role",
     roles: ["admin"],
     permission: { action: "read", resource: "role" },
+  },
+  {
+    key: "manage-templates",
+    label: "Quản lý biểu mẫu",
+    icon: Icon.fileText,
+    path: "/admin/templates",
+    roles: ["admin"],
   },
   {
     key: "announcement",
@@ -378,6 +392,13 @@ export const MENU_SECTIONS: MenuSection[] = [
         roles: ["admin", "secretary", "teacher", "student"],
         permission: { action: "read", resource: "thesis_defense" },
       },
+      {
+        key: "templates",
+        label: "Biểu mẫu",
+        icon: Icon.fileText,
+        path: "/templates",
+        roles: ["admin", "secretary", "teacher", "student"],
+      },
     ],
   },
   {
@@ -443,6 +464,13 @@ export const MENU_SECTIONS: MenuSection[] = [
         path: "/role",
         roles: ["admin"],
         permission: { action: "read", resource: "role" },
+      },
+      {
+        key: "manage-templates",
+        label: "Quản lý biểu mẫu",
+        icon: Icon.fileText,
+        path: "/admin/templates",
+        roles: ["admin"],
       },
       {
         key: "audit",
