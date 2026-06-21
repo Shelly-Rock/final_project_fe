@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo } from "react";
 import {
   Typography,
   Paper,
@@ -28,13 +28,13 @@ interface ThesisScoreTableProps {
 }
 
 export function ThesisScoreTable({
-  scores: initialScores,
+  scores,
 }: ThesisScoreTableProps) {
-  const [scores] = useState(initialScores);
+  const totalCount = useMemo(() => scores.length, [scores]);
 
   return (
     <>
-      <FilterBar totalCount={scores.length}>
+      <FilterBar totalCount={totalCount}>
         <FormControl size="small" sx={{ minWidth: 150 }}>
           <InputLabel>Trạng thái</InputLabel>
           <Select value="all" label="Trạng thái">

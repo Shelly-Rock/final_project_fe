@@ -238,3 +238,5 @@ pnpm lint
 - **Rich Text** — Soạn thảo nội dung với TipTap
 - **Notification** — Toast với sonner
 - **Skeleton Loading** — Placeholder đẹp khi chờ data
+
+  1234567890

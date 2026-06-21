@@ -21,10 +21,12 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "QNQ - Hệ thống quản lý đồ án sinh viên",
   description:
-    "Nền tảng hỗ trợ quản lý đồ án sinh viên, phân công giảng viên hướng dẫn, đăng ký đề tài, theo dõi tiến độ thực hiện, đánh giá kết quả và quản lý toàn bộ quy trình đồ án một cách hiệu quả.",
+    "Hệ thống quản lý đồ án sinh viên, phân công giảng viên hướng dẫn, đăng ký đề tài, theo dõi tiến độ thực hiện, đánh giá kết quả và quản lý toàn bộ quy trình đồ án một cách hiệu quả.",
 };
 
 export default function RootLayout({
+
+  
   children,
 }: Readonly<{
   children: React.ReactNode;

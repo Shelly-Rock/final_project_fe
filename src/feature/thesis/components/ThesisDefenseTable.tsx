@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import {
   Box,
   Typography,
@@ -34,18 +34,31 @@ interface ThesisDefenseTableProps {
 }
 
 export function ThesisDefenseTable({
-  defenses: initialDefenses,
+  defenses,
 }: ThesisDefenseTableProps) {
-  const [defenses] = useState(initialDefenses);
   const [filter, setFilter] = useState("all");
 
-  const filteredDefenses =
-    filter === "all" ? defenses : defenses.filter((d) => d.status === filter);
+  const totalCount = useMemo(() => defenses.length, [defenses]);
 
-  const completedCount = defenses.filter(
-    (d) => d.status === "completed",
-  ).length;
-  const progress = (completedCount / defenses.length) * 100;
+  const filteredDefenses = useMemo(
+    () => (filter === "all" ? defenses : defenses.filter((d) => d.status === filter)),
+    [filter, defenses]
+  );
+
+  const completedCount = useMemo(
+    () => defenses.filter((d) => d.status === "completed").length,
+    [defenses]
+  );
+
+  const pendingCount = useMemo(
+    () => defenses.length - completedCount,
+    [defenses, completedCount]
+  );
+
+  const progress = useMemo(
+    () => (defenses.length > 0 ? (completedCount / defenses.length) * 100 : 0),
+    [defenses.length, completedCount]
+  );
 
   return (
     <>
@@ -92,7 +105,7 @@ export function ThesisDefenseTable({
                 <Typography variant="h6">Chờ bảo vệ</Typography>
               </Box>
               <Typography variant="h4" sx={{ my: 1 }}>
-                {defenses.length - completedCount}
+                {pendingCount}
               </Typography>
               <Typography variant="body2" color="text.secondary">
                 Sắp tới
@@ -103,7 +116,7 @@ export function ThesisDefenseTable({
       </Grid>
 
       <FilterBar
-        totalCount={initialDefenses.length}
+        totalCount={totalCount}
         filteredCount={filteredDefenses.length}
       >
         <FormControl size="small" sx={{ minWidth: 150 }}>

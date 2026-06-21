@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -29,7 +29,19 @@ import {
   Add as AddIcon,
   CheckCircle as CheckIcon,
 } from "@mui/icons-material";
+import { useBoolean } from "@/shared/hooks";
 import type { StudentImportRow } from "../types";
+
+const DEFAULT_ROW: StudentImportRow = {
+  stt: 1,
+  mssv: "",
+  hoTen: "",
+  khoa: "",
+  khoaHoc: "",
+  gmail: "",
+};
+
+const REQUIRED_COLUMNS = ["stt", "mssv", "hoTen", "khoa", "khoaHoc", "gmail"];
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -51,21 +63,36 @@ interface StudentImportDialogProps {
   onImport: (data: StudentImportRow[]) => Promise<void>;
 }
 
-const REQUIRED_COLUMNS = ["stt", "mssv", "hoTen", "khoa", "khoaHoc", "gmail"];
-
 export function StudentImportDialog({
   open,
   onClose,
   onImport,
 }: StudentImportDialogProps) {
   const [tab, setTab] = useState(0);
-  const [manualRows, setManualRows] = useState<StudentImportRow[]>([
-    { stt: 1, mssv: "", hoTen: "", khoa: "", khoaHoc: "", gmail: "" },
-  ]);
+  const [manualRows, setManualRows] = useState<StudentImportRow[]>([DEFAULT_ROW]);
   const [excelData, setExcelData] = useState<StudentImportRow[]>([]);
   const [excelHeaders, setExcelHeaders] = useState<string[]>([]);
-  const [importing, setImporting] = useState(false);
+  const { value: importing, setTrue: startImporting, setFalse: stopImporting } =
+    useBoolean(false);
   const [error, setError] = useState<string | null>(null);
+
+  const hasData = useMemo(
+    () => (tab === 0 ? excelData.length > 0 : manualRows.length > 0),
+    [tab, excelData, manualRows]
+  );
+
+  const currentRows = useMemo(
+    () => (tab === 0 ? excelData : manualRows),
+    [tab, excelData, manualRows]
+  );
+
+  const resetForm = useCallback(() => {
+    setTab(0);
+    setManualRows([DEFAULT_ROW]);
+    setExcelData([]);
+    setExcelHeaders([]);
+    setError(null);
+  }, []);
 
   const handleFileUpload = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -83,13 +110,11 @@ export function StudentImportDialog({
             return;
           }
 
-          const headers = lines[0]
-            .split(",")
-            .map((h) => h.trim().toLowerCase());
+          const headers = lines[0].split(",").map((h) => h.trim().toLowerCase());
           setExcelHeaders(headers);
 
           const missingCols = REQUIRED_COLUMNS.filter(
-            (col) => !headers.includes(col),
+            (col) => !headers.includes(col)
           );
           if (missingCols.length > 0) {
             setError(`Thiếu cột bắt buộc: ${missingCols.join(", ")}`);
@@ -117,40 +142,36 @@ export function StudentImportDialog({
       reader.readAsText(file);
       event.target.value = "";
     },
-    [],
+    []
   );
 
-  const addManualRow = () => {
-    setManualRows([
-      ...manualRows,
-      {
-        stt: manualRows.length + 1,
-        mssv: "",
-        hoTen: "",
-        khoa: "",
-        khoaHoc: "",
-        gmail: "",
-      },
+  const addManualRow = useCallback(() => {
+    setManualRows((prev) => [
+      ...prev,
+      { ...DEFAULT_ROW, stt: prev.length + 1 },
     ]);
-  };
+  }, []);
 
-  const removeManualRow = (index: number) => {
-    if (manualRows.length === 1) return;
-    setManualRows(manualRows.filter((_, i) => i !== index));
-  };
+  const removeManualRow = useCallback((index: number) => {
+    setManualRows((prev) => {
+      if (prev.length === 1) return prev;
+      return prev.filter((_, i) => i !== index);
+    });
+  }, []);
 
-  const updateManualRow = (
-    index: number,
-    field: keyof StudentImportRow,
-    value: string | number,
-  ) => {
-    const updated = [...manualRows];
-    updated[index] = { ...updated[index], [field]: value };
-    setManualRows(updated);
-  };
+  const updateManualRow = useCallback(
+    (index: number, field: keyof StudentImportRow, value: string | number) => {
+      setManualRows((prev) => {
+        const updated = [...prev];
+        updated[index] = { ...updated[index], [field]: value };
+        return updated;
+      });
+    },
+    []
+  );
 
-  const handleImport = async () => {
-    setImporting(true);
+  const handleImport = useCallback(async () => {
+    startImporting();
     setError(null);
     try {
       const dataToImport = tab === 0 ? excelData : manualRows;
@@ -159,27 +180,19 @@ export function StudentImportDialog({
         return;
       }
       await onImport(dataToImport);
-      handleClose();
+      resetForm();
+      onClose();
     } catch {
       setError("Import thất bại");
     } finally {
-      setImporting(false);
+      stopImporting();
     }
-  };
+  }, [excelData, manualRows, onImport, resetForm, onClose, tab, startImporting, stopImporting]);
 
-  const handleClose = () => {
-    setTab(0);
-    setManualRows([
-      { stt: 1, mssv: "", hoTen: "", khoa: "", khoaHoc: "", gmail: "" },
-    ]);
-    setExcelData([]);
-    setExcelHeaders([]);
-    setError(null);
+  const handleClose = useCallback(() => {
+    resetForm();
     onClose();
-  };
-
-  const currentRows = tab === 0 ? excelData : manualRows;
-  const hasData = currentRows.length > 0;
+  }, [resetForm, onClose]);
 
   return (
     <Dialog open={open} onClose={handleClose} maxWidth="lg" fullWidth>

@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import {
   Box,
   Card,
@@ -13,7 +14,7 @@ import {
   ExpandMore as ExpandIcon,
   ExpandLess as CollapseIcon,
 } from "@mui/icons-material";
-import { useState } from "react";
+import { formatDateLocale } from "@/shared/utils";
 import type { Announcement } from "@/feature/announcement/constants";
 
 interface AnnouncementListProps {
@@ -93,7 +94,7 @@ export function AnnouncementList({ announcements }: AnnouncementListProps) {
                   />
                   <Typography variant="caption" color="text.secondary">
                     {announcement.author} •{" "}
-                    {new Date(announcement.date).toLocaleDateString("vi-VN")}
+                    {formatDateLocale(announcement.date, "VN")}
                   </Typography>
                 </Box>
 

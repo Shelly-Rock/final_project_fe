@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Select from "@mui/material/Select";
@@ -11,6 +11,7 @@ import OutlinedInput from "@mui/material/OutlinedInput";
 import { usePermissionContext } from "@/core/providers/PermissionProvider";
 import { ROLE_LABELS, ROLE_COLORS, ROLE } from "@/core/permissions/types";
 import { ROLE_PAGE_TITLES } from "@/feature/homepage/roleData";
+import { useDebounce } from "@/shared/hooks";
 
 const ACADEMIC_YEARS = [2026, 2025, 2024, 2023, 2022];
 
@@ -21,15 +22,33 @@ interface PageHeaderProps {
 export function PageHeader({ customTitle }: PageHeaderProps) {
   const { role } = usePermissionContext();
   const [year, setYear] = useState<number>(2026);
-  const [faculty, setFaculty] = useState<string>("Tất cả khoa");
+  const [facultyInput, setFacultyInput] = useState<string>("");
+  const debouncedFaculty = useDebounce(facultyInput, 300);
 
-  const roleLabel = role ? ROLE_LABELS[role] : "Người dùng";
-  const roleColor = role
-    ? ROLE_COLORS[role]
-    : { bg: "#f3f4f6", color: "#6b7280", border: "#e5e7eb" };
+  const roleLabel = useMemo(
+    () => (role ? ROLE_LABELS[role] : "Người dùng"),
+    [role]
+  );
 
-  const pageInfo = role ? ROLE_PAGE_TITLES[role] : ROLE_PAGE_TITLES[ROLE.ADMIN];
-  const title = customTitle ?? pageInfo.title;
+  const roleColor = useMemo(
+    () =>
+      role
+        ? ROLE_COLORS[role]
+        : { bg: "#f3f4f6", color: "#6b7280", border: "#e5e7eb" },
+    [role]
+  );
+
+  const pageInfo = useMemo(
+    () => (role ? ROLE_PAGE_TITLES[role] : ROLE_PAGE_TITLES[ROLE.ADMIN]),
+    [role]
+  );
+
+  const title = useMemo(
+    () => customTitle ?? pageInfo.title,
+    [customTitle, pageInfo]
+  );
+
+  const faculty = debouncedFaculty || "Tất cả khoa";
 
   return (
     <Box className="dashboard-header">
@@ -84,8 +103,8 @@ export function PageHeader({ customTitle }: PageHeaderProps) {
         <FormControl size="small" className="filter-search">
           <OutlinedInput
             placeholder="Tìm kiếm theo khoa..."
-            value={faculty === "Tất cả khoa" ? "" : faculty}
-            onChange={(e) => setFaculty(e.target.value || "Tất cả khoa")}
+            value={facultyInput}
+            onChange={(e) => setFacultyInput(e.target.value)}
             startAdornment={
               <InputAdornment position="start">
                 <i
