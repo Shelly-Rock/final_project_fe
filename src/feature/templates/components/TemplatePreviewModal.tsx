@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import {
   Box,
   Dialog,
@@ -10,7 +10,6 @@ import {
   Typography,
   Chip,
   Stack,
-  Grid,
   IconButton,
   Button,
   Divider,
@@ -30,7 +29,7 @@ import {
   Edit as EditIcon,
   CalendarMonth as CalendarIcon,
 } from "@mui/icons-material";
-import type { TemplateItem, CategoryType, StageType } from "../types";
+import type { TemplateItem } from "../types";
 import { categoryConfig, stageConfig } from "../types";
 
 const iconMap: Record<string, React.ReactNode> = {
@@ -64,8 +63,16 @@ export function TemplatePreviewModal({
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <Typography variant="h6">Xem trước biểu mẫu</Typography>
+      <DialogTitle
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
+        <Typography variant="h6" component="span">
+          Xem trước biểu mẫu
+        </Typography>
         <IconButton onClick={onClose} size="small">
           <CloseIcon />
         </IconButton>
@@ -113,12 +120,12 @@ export function TemplatePreviewModal({
           <Stack direction="row" spacing={1} alignItems="center">
             <Chip
               label={categoryConfig[template.category].label}
-              color={categoryConfig[template.category].color as any}
+              color={categoryConfig[template.category].color}
               size="small"
             />
             <Chip
               label={stageConfig[template.stage].label}
-              color={stageConfig[template.stage].color as any}
+              color={stageConfig[template.stage].color}
               size="small"
             />
             <Chip
@@ -136,27 +143,41 @@ export function TemplatePreviewModal({
           </Typography>
           <Stack spacing={1}>
             <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-              <Typography variant="body2" color="text.secondary">Mã biểu mẫu</Typography>
-              <Typography variant="body2" sx={{ fontFamily: "monospace" }}>{template.code}</Typography>
+              <Typography variant="body2" color="text.secondary">
+                Mã biểu mẫu
+              </Typography>
+              <Typography variant="body2" sx={{ fontFamily: "monospace" }}>
+                {template.code}
+              </Typography>
             </Box>
             <Divider />
             <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-              <Typography variant="body2" color="text.secondary">Giai đoạn</Typography>
+              <Typography variant="body2" color="text.secondary">
+                Giai đoạn
+              </Typography>
               <Chip
                 label={stageConfig[template.stage].label}
-                color={stageConfig[template.stage].color as any}
+                color={stageConfig[template.stage].color}
                 size="small"
               />
             </Box>
             <Divider />
-            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <Typography variant="body2" color="text.secondary">Dành cho vai trò</Typography>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
+              <Typography variant="body2" color="text.secondary">
+                Dành cho vai trò
+              </Typography>
               <Stack direction="row" spacing={0.5}>
                 {template.forRoles.map((role) => (
                   <Chip
                     key={role}
                     label={categoryConfig[role].label}
-                    color={categoryConfig[role].color as any}
+                    color={categoryConfig[role].color}
                     size="small"
                   />
                 ))}
@@ -164,8 +185,12 @@ export function TemplatePreviewModal({
             </Box>
             <Divider />
             <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-              <Typography variant="body2" color="text.secondary">Định dạng file</Typography>
-              <Typography variant="body2">{template.fileType.toUpperCase()}</Typography>
+              <Typography variant="body2" color="text.secondary">
+                Định dạng file
+              </Typography>
+              <Typography variant="body2">
+                {template.fileType.toUpperCase()}
+              </Typography>
             </Box>
           </Stack>
         </Box>
