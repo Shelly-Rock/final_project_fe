@@ -6,22 +6,22 @@ import type { Student } from "../types";
 
 export function exportStudentsToExcel(students: Student[]): void {
   const headers = [
-    "STT",
-    "Khoa",
-    "Khóa",
-    "MSSV",
-    "Họ và tên",
-    "Gmail",
-    "Đề tài",
-    "GVHD",
+    "stt",
+    "mssv",
+    "hoTen",
+    "khoa",
+    "khoaHoc",
+    "gmail",
+    "deTai",
+    "giaoVienHuongDan",
   ];
 
   const rows = students.map((s) => [
     s.stt,
-    s.khoa,
-    s.khoaHoc,
     s.mssv,
     s.hoTen,
+    s.khoa,
+    s.khoaHoc,
     s.gmail,
     s.deTai ?? "",
     s.giaoVienHuongDan ?? "",
