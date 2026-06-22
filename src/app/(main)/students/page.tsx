@@ -22,19 +22,20 @@ import {
   Search as SearchIcon,
   FileDownload as ExportIcon,
   FileUpload as ImportIcon,
-  Refresh as RefreshIcon,
 } from "@mui/icons-material";
 import {
   StudentTable,
-  StudentImportDialog,
+  StudentDetailModal,
+  StudentFormModal,
   exportStudentsToExcel,
+  importStudentsFromFile,
 } from "@/feature/student-management/components";
 import { studentService } from "@/feature/student-management/services";
 import type {
   Student,
   StudentFilters,
-  StudentImportRow,
   StudentStatus,
+  StudentFormData,
 } from "@/feature/student-management/types";
 
 const INITIAL_FILTERS: StudentFilters = {
@@ -48,7 +49,10 @@ export default function StudentManagementPage() {
   const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState<StudentFilters>(INITIAL_FILTERS);
-  const [importDialogOpen, setImportDialogOpen] = useState(false);
+  const [formModalOpen, setFormModalOpen] = useState(false);
+  const [editingStudent, setEditingStudent] = useState<Student | null>(null);
+  const [detailModalOpen, setDetailModalOpen] = useState(false);
+  const [viewingStudent, setViewingStudent] = useState<Student | null>(null);
   const [snackbar, setSnackbar] = useState<{
     open: boolean;
     message: string;
@@ -101,14 +105,21 @@ export default function StudentManagementPage() {
     return true;
   });
 
-  const handleImport = async (data: StudentImportRow[]) => {
-    try {
-      await studentService.createMany(data);
-      await fetchStudents();
-      showSnackbar(`Đã import ${data.length} sinh viên thành công`);
-    } catch {
-      showSnackbar("Import thất bại", "error");
-    }
+  const handleImport = () => {
+    importStudentsFromFile(
+      async (data) => {
+        try {
+          await studentService.createMany(data);
+          await fetchStudents();
+          showSnackbar(`Đã import ${data.length} sinh viên thành công`);
+        } catch {
+          showSnackbar("Import thất bại", "error");
+        }
+      },
+      (error) => {
+        showSnackbar(error, "error");
+      },
+    );
   };
 
   const handleExport = () => {
@@ -127,13 +138,51 @@ export default function StudentManagementPage() {
   };
 
   const handleView = (student: Student) => {
-    console.log("View student:", student);
-    showSnackbar(`Xem thông tin: ${student.hoTen}`);
+    setViewingStudent(student);
+    setDetailModalOpen(true);
   };
 
   const handleEdit = (student: Student) => {
-    console.log("Edit student:", student);
-    showSnackbar(`Chỉnh sửa: ${student.hoTen}`);
+    setEditingStudent(student);
+    setFormModalOpen(true);
+  };
+
+  const handleOpenAddForm = () => {
+    setEditingStudent(null);
+    setFormModalOpen(true);
+  };
+
+  const handleCloseForm = () => {
+    setFormModalOpen(false);
+    setEditingStudent(null);
+  };
+
+  const handleCloseDetail = () => {
+    setDetailModalOpen(false);
+    setViewingStudent(null);
+  };
+
+  const handleEditFromDetail = (student: Student) => {
+    setViewingStudent(null);
+    setDetailModalOpen(false);
+    setEditingStudent(student);
+    setFormModalOpen(true);
+  };
+
+  const handleSubmitForm = async (data: StudentFormData) => {
+    try {
+      if (editingStudent?.id) {
+        await studentService.update(editingStudent.id, data);
+        showSnackbar("Cập nhật sinh viên thành công");
+      } else {
+        await studentService.create(data);
+        showSnackbar("Thêm sinh viên mới thành công");
+      }
+      await fetchStudents();
+      handleCloseForm();
+    } catch {
+      showSnackbar("Đã xảy ra lỗi", "error");
+    }
   };
 
   const khoaOptions = studentService.getKhoaOptions();
@@ -152,32 +201,6 @@ export default function StudentManagementPage() {
         <Typography variant="h4" sx={{ fontWeight: 600 }}>
           Quản lý sinh viên
         </Typography>
-        <Box sx={{ display: "flex", gap: 1 }}>
-          <Button
-            variant="outlined"
-            startIcon={<ImportIcon />}
-            onClick={() => setImportDialogOpen(true)}
-          >
-            Import
-          </Button>
-          <Button
-            variant="outlined"
-            startIcon={<ExportIcon />}
-            onClick={handleExport}
-            disabled={filteredStudents.length === 0}
-          >
-            Xuất Excel
-          </Button>
-          <Button
-            variant="contained"
-            startIcon={<AddIcon />}
-            onClick={() =>
-              showSnackbar("Chức năng thêm sinh viên đang phát triển")
-            }
-          >
-            Thêm sinh viên
-          </Button>
-        </Box>
       </Box>
 
       <Paper sx={{ p: 2, mb: 3 }}>
@@ -230,48 +253,52 @@ export default function StudentManagementPage() {
               ))}
             </Select>
           </FormControl>
-
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            <Typography variant="body2" color="text.secondary">
-              Trạng thái:
-            </Typography>
-            <ToggleButtonGroup
-              size="small"
-              value={filters.status}
-              exclusive
-              onChange={(_, v) => {
-                if (v !== null)
-                  setFilters({ ...filters, status: v as StudentStatus });
-              }}
-            >
-              <ToggleButton value="all">Tất cả</ToggleButton>
-              <ToggleButton value="has_topic">Đã chọn đề tài</ToggleButton>
-              <ToggleButton value="no_topic">Chưa chọn đề tài</ToggleButton>
-            </ToggleButtonGroup>
-          </Box>
-
-          <Box sx={{ flex: 1 }} />
-
-          <Button
-            size="small"
-            startIcon={<RefreshIcon />}
-            onClick={fetchStudents}
-          >
-            Làm mới
-          </Button>
-        </Box>
-
-        <Box sx={{ mt: 2, display: "flex", gap: 2 }}>
-          <Typography variant="body2" color="text.secondary">
-            Tổng: <strong>{filteredStudents.length}</strong> sinh viên
-          </Typography>
-          {filteredStudents.length !== students.length && (
-            <Typography variant="body2" color="text.secondary">
-              (đã lọc từ {students.length})
-            </Typography>
-          )}
         </Box>
       </Paper>
+
+      <Box sx={{ mb: 1, display: "flex", alignItems: "center", gap: 1 }}>
+        <Typography variant="body2" color="text.secondary">
+          Trạng thái:
+        </Typography>
+        <ToggleButtonGroup
+          size="small"
+          value={filters.status}
+          exclusive
+          onChange={(_, v) => {
+            if (v !== null)
+              setFilters({ ...filters, status: v as StudentStatus });
+          }}
+        >
+          <ToggleButton value="all">Tất cả</ToggleButton>
+          <ToggleButton value="has_topic">Đã chọn đề tài</ToggleButton>
+          <ToggleButton value="no_topic">Chưa chọn đề tài</ToggleButton>
+        </ToggleButtonGroup>
+      </Box>
+
+      <Box sx={{ mb: 2, display: "flex", gap: 1, justifyContent: "flex-end" }}>
+        <Button
+          variant="outlined"
+          startIcon={<ImportIcon />}
+          onClick={handleImport}
+        >
+          Import Excel
+        </Button>
+        <Button
+          variant="outlined"
+          startIcon={<ExportIcon />}
+          onClick={handleExport}
+          disabled={filteredStudents.length === 0}
+        >
+          Xuất Excel
+        </Button>
+        <Button
+          variant="contained"
+          startIcon={<AddIcon />}
+          onClick={handleOpenAddForm}
+        >
+          Thêm sinh viên
+        </Button>
+      </Box>
 
       <StudentTable
         students={filteredStudents}
@@ -281,10 +308,18 @@ export default function StudentManagementPage() {
         onView={handleView}
       />
 
-      <StudentImportDialog
-        open={importDialogOpen}
-        onClose={() => setImportDialogOpen(false)}
-        onImport={handleImport}
+      <StudentFormModal
+        open={formModalOpen}
+        student={editingStudent}
+        onClose={handleCloseForm}
+        onSubmit={handleSubmitForm}
+      />
+
+      <StudentDetailModal
+        open={detailModalOpen}
+        student={viewingStudent}
+        onClose={handleCloseDetail}
+        onEdit={handleEditFromDetail}
       />
 
       <Snackbar
