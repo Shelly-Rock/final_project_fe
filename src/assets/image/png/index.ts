@@ -1,2 +1,2 @@
-import { default as Logo } from "./logo.png";
-export { Logo };
+export { default as LogoFull } from "./logo.png";
+export { default as LogoCollapsed } from "./logo02.png";
