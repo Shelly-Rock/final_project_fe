@@ -174,7 +174,7 @@ export function TemplateFormModal({
           alignItems: "center",
         }}
       >
-        <Typography variant="h6">
+        <Typography variant="h6" component="span">
           {isEditing ? "Sửa biểu mẫu" : "Thêm biểu mẫu mới"}
         </Typography>
         <IconButton onClick={onClose} size="small">

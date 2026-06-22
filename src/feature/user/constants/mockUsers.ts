@@ -5,6 +5,9 @@ export interface User {
   role: "admin" | "secretary" | "teacher" | "student";
   department: string;
   status: "active" | "inactive";
+  avatar?: string;
+  phone?: string;
+  createdAt?: string;
 }
 
 export const roleColors: Record<
@@ -25,6 +28,8 @@ export const mockUsers: User[] = [
     role: "admin",
     department: "CNTT",
     status: "active",
+    phone: "0912345678",
+    createdAt: "2024-01-15",
   },
   {
     id: "2",
@@ -33,6 +38,8 @@ export const mockUsers: User[] = [
     role: "secretary",
     department: "CNTT",
     status: "active",
+    phone: "0912345679",
+    createdAt: "2024-02-01",
   },
   {
     id: "3",
@@ -41,6 +48,8 @@ export const mockUsers: User[] = [
     role: "teacher",
     department: "CNTT",
     status: "active",
+    phone: "0912345680",
+    createdAt: "2024-01-20",
   },
   {
     id: "4",
@@ -49,6 +58,8 @@ export const mockUsers: User[] = [
     role: "teacher",
     department: "KHMT",
     status: "active",
+    phone: "0912345681",
+    createdAt: "2024-01-22",
   },
   {
     id: "5",
@@ -57,5 +68,26 @@ export const mockUsers: User[] = [
     role: "student",
     department: "CNTT",
     status: "inactive",
+    phone: "0912345682",
+    createdAt: "2024-03-01",
   },
+  {
+    id: "6",
+    name: "Mai Thị Nữ",
+    email: "student2@hcmus.edu.vn",
+    role: "student",
+    department: "KHMT",
+    status: "active",
+    phone: "0912345683",
+    createdAt: "2024-03-05",
+  },
+];
+
+export const departments = [
+  "Công nghệ thông tin",
+  "Kỹ thuật phần mềm",
+  "Khoa học máy tính",
+  "Hệ thống thông tin",
+  "An toàn thông tin",
+  "Mạng máy tính",
 ];
