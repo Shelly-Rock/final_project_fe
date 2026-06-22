@@ -10,8 +10,7 @@ import { useState, useCallback, useEffect, useMemo } from "react";
 import { usePermissionContext } from "@/core/providers/PermissionProvider";
 import { ROLE_LABELS } from "@/core/permissions/types";
 import { getMenuSectionsForRole } from "@/shared/constants/menus";
-import { default as Logo } from "@/assets/image/png/logo.png";
-import { default as LogoCollapsed } from "@/assets/image/png/logo02.png";
+import { LogoFull, LogoCollapsed } from "@/assets";
 import Image from "next/image";
 
 interface SidebarProps {
@@ -108,7 +107,7 @@ export function Sidebar({ collapsed = false, onToggle }: SidebarProps) {
                   />
                 ) : (
                   <Image
-                    src={Logo}
+                    src={LogoFull}
                     alt="Logo"
                     className="sidebar-brand-logo object-contain object-center drop-shadow-[0_0_8px_rgba(255,255,255,0.4)]"
                     style={{
