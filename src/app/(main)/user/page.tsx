@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import {
   Box,
   Typography,
@@ -65,10 +65,25 @@ export default function UserPage() {
     }
   }, []);
 
-  // Initial load
-  useState(() => {
-    loadUsers();
-  });
+  // Initial load — inline to avoid setState cascade via callback
+  useEffect(() => {
+    const run = async () => {
+      setLoading(true);
+      try {
+        const data = await UserService.getAll();
+        setUsers(data);
+      } catch {
+        setSnackbar({
+          open: true,
+          message: "Không thể tải danh sách người dùng",
+          severity: "error",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+    run();
+  }, []);
 
   const filteredUsers = useMemo(() => {
     if (!search) return users;
@@ -329,6 +344,7 @@ export default function UserPage() {
 
       {/* User Form Modal */}
       <UserFormModal
+        key={editingUser?.id ?? "add"}
         open={formModalOpen}
         user={editingUser}
         onClose={handleCloseForm}

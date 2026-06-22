@@ -309,6 +309,7 @@ export default function StudentManagementPage() {
       />
 
       <StudentFormModal
+        key={editingStudent?.id ?? "add"}
         open={formModalOpen}
         student={editingStudent}
         onClose={handleCloseForm}

@@ -42,18 +42,19 @@ export function UserFormModal({
   onClose,
   onSubmit,
 }: UserFormModalProps) {
-  const initialData = user
-    ? { ...user }
-    : {
-        name: "",
-        email: "",
-        phone: "",
-        role: "student" as const,
-        department: "",
-        status: "active" as const,
-      };
+  const buildInitialData = (): Partial<User> =>
+    user
+      ? { ...user }
+      : {
+          name: "",
+          email: "",
+          phone: "",
+          role: "student" as const,
+          department: "",
+          status: "active" as const,
+        };
 
-  const [formData, setFormData] = useState<Partial<User>>(initialData);
+  const [formData, setFormData] = useState<Partial<User>>(buildInitialData);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const isEditing = Boolean(user?.id);
@@ -82,7 +83,6 @@ export function UserFormModal({
   const handleSubmit = () => {
     if (!validate()) return;
     onSubmit(formData);
-    onClose();
   };
 
   const handleChange = (field: keyof User, value: unknown) => {
