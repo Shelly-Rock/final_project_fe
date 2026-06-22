@@ -52,29 +52,30 @@ export function StudentFormModal({
   onClose,
   onSubmit,
 }: StudentFormModalProps) {
-  const initialData: StudentFormData = student
-    ? {
-        stt: student.stt,
-        mssv: student.mssv,
-        hoTen: student.hoTen,
-        khoa: student.khoa,
-        khoaHoc: student.khoaHoc,
-        gmail: student.gmail,
-        deTai: student.deTai || undefined,
-        giaoVienHuongDan: student.giaoVienHuongDan || undefined,
-      }
-    : {
-        stt: 0,
-        mssv: "",
-        hoTen: "",
-        khoa: "",
-        khoaHoc: "",
-        gmail: "",
-        deTai: undefined,
-        giaoVienHuongDan: undefined,
-      };
+  const buildInitialData = (): StudentFormData =>
+    student
+      ? {
+          stt: student.stt,
+          mssv: student.mssv,
+          hoTen: student.hoTen,
+          khoa: student.khoa,
+          khoaHoc: student.khoaHoc,
+          gmail: student.gmail,
+          deTai: student.deTai || undefined,
+          giaoVienHuongDan: student.giaoVienHuongDan || undefined,
+        }
+      : {
+          stt: 0,
+          mssv: "",
+          hoTen: "",
+          khoa: "",
+          khoaHoc: "",
+          gmail: "",
+          deTai: undefined,
+          giaoVienHuongDan: undefined,
+        };
 
-  const [formData, setFormData] = useState<StudentFormData>(initialData);
+  const [formData, setFormData] = useState<StudentFormData>(buildInitialData);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const isEditing = Boolean(student?.id);
@@ -113,7 +114,6 @@ export function StudentFormModal({
   const handleSubmit = () => {
     if (!validate()) return;
     onSubmit(formData);
-    onClose();
   };
 
   const handleChange = (field: keyof StudentFormData, value: string) => {
