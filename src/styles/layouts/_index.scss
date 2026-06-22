@@ -61,7 +61,7 @@ $sidebar-collapsed-width: 72px;
   background: $sidebar-bg;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  // overflow: hidden;
 }
 
 // ---------- Sidebar Header ----------
@@ -72,6 +72,7 @@ $sidebar-collapsed-width: 72px;
   padding: $spacing-4 $spacing-5;
   border-bottom: 1px solid $sidebar-border;
   height: $header-height;
+  position: relative;
 }
 
 .sidebar-brand {
@@ -86,9 +87,10 @@ $sidebar-collapsed-width: 72px;
 
 .sidebar-brand-logo-wrap {
   position: relative;
-  width: 42px;
-  height: 42px;
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
   &::after {
     content: "";
@@ -106,20 +108,14 @@ $sidebar-collapsed-width: 72px;
 }
 
 .sidebar-brand-logo {
-  width: 42px;
-  height: 42px;
-  border-radius: $radius-lg;
   object-fit: contain;
   flex-shrink: 0;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
-  transition:
-    transform $transition-normal,
-    filter $transition-normal;
+  background: transparent !important;
+  transition: transform $transition-normal;
 }
 
 .sidebar-brand:hover .sidebar-brand-logo {
   transform: scale(1.05);
-  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
 }
 
 .sidebar-brand-text {
@@ -137,22 +133,22 @@ $sidebar-collapsed-width: 72px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: $radius-md;
-  color: $sidebar-text;
-  transition:
-    background $transition-fast,
-    color $transition-fast;
   flex-shrink: 0;
+  border-radius: 4px;
+  background: #1470e0;
+  color: #ffffff;
+  border: 1px solid transparent;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease-in-out;
+  cursor: pointer;
   position: absolute;
-  right: -40px;
-  top: 60px;
+  right: -16px;
+  top: 50%;
+  transform: translateY(-50%);
   z-index: 1001;
-  background: $sidebar-bg;
-  border: 1px solid $sidebar-border;
-
   &:hover {
-    background: $sidebar-hover-bg;
-    color: $sidebar-active-text;
+    background: #3b82f6;
+    border-color: #ffffff;
   }
 
   @media (max-width: 1024px) {
@@ -432,12 +428,6 @@ $sidebar-collapsed-width: 72px;
   .sidebar-logout-btn {
     justify-content: center;
     padding: $spacing-2-5 $spacing-3;
-  }
-
-  .sidebar-toggle-btn {
-    right: -40px;
-    top: 60px;
-    border-radius: 0 $radius-md $radius-md 0;
   }
 }
 

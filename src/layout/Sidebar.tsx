@@ -11,6 +11,7 @@ import { usePermissionContext } from "@/core/providers/PermissionProvider";
 import { ROLE_LABELS } from "@/core/permissions/types";
 import { getMenuSectionsForRole } from "@/shared/constants/menus";
 import { default as Logo } from "@/assets/image/png/logo.png";
+import { default as LogoCollapsed } from "@/assets/image/png/logo02.png";
 import Image from "next/image";
 
 interface SidebarProps {
@@ -86,21 +87,42 @@ export function Sidebar({ collapsed = false, onToggle }: SidebarProps) {
       >
         <div className={`sidebar ${collapsed ? "sidebar--collapsed" : ""}`}>
           {/* Brand */}
-          <div className="sidebar-header">
-            <Link href="/" className="sidebar-brand">
-              <div className="sidebar-brand-logo-wrap">
-                <Image
-                  src={Logo}
-                  alt="Logo"
-                  width={42}
-                  height={42}
-                  className="sidebar-brand-logo"
-                />
+          <div className="sidebar-header flex items-center w-full">
+            <Link
+              href="/"
+              className="sidebar-brand"
+              style={{
+                width: "100%",
+                display: "flex",
+                justifyContent: "center",
+              }}
+            >
+              <div className="sidebar-brand-logo-wrap flex items-center justify-center mx-auto">
+                {collapsed ? (
+                  <Image
+                    src={LogoCollapsed}
+                    alt="Logo"
+                    width={55}
+                    height={55}
+                    className="sidebar-brand-logo object-contain"
+                  />
+                ) : (
+                  <Image
+                    src={Logo}
+                    alt="Logo"
+                    className="sidebar-brand-logo object-contain object-center drop-shadow-[0_0_8px_rgba(255,255,255,0.4)]"
+                    style={{
+                      height: "50px",
+                      width: "auto",
+                      maxWidth: "100%",
+                      margin: "0 auto",
+                    }}
+                    priority
+                  />
+                )}
               </div>
-              {!collapsed && (
-                <span className="sidebar-brand-text">Thesis Manager</span>
-              )}
             </Link>
+
             <button
               type="button"
               className="sidebar-toggle-btn"
@@ -108,11 +130,10 @@ export function Sidebar({ collapsed = false, onToggle }: SidebarProps) {
               aria-label="Toggle sidebar"
             >
               <span
-                className={`bi ${collapsed ? "bi-chevron-double-right" : "bi-chevron-double-left"} sidebar-toggle-icon`}
+                className={`bi ${collapsed ? "bi-chevron-double-right" : "bi-chevron-double-left"}`}
               />
             </button>
           </div>
-
           {/* Navigation */}
           <nav className="sidebar-nav" aria-label="Main navigation">
             {menuSections.map((section) => (
