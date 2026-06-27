@@ -11,7 +11,8 @@ interface OverviewStatsProps {
     | typeof ROLE.ADMIN
     | typeof ROLE.SECRETARY
     | typeof ROLE.TEACHER
-    | typeof ROLE.STUDENT;
+    | typeof ROLE.STUDENT
+    | typeof ROLE.COUNCIL;
 }
 
 const DEFAULT_ROLE = ROLE.ADMIN;

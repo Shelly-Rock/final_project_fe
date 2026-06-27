@@ -158,6 +158,42 @@ export const ROLE_STATS: Record<Role, RoleStats> = {
       },
     ],
   },
+  [ROLE.COUNCIL]: {
+    stats: [
+      {
+        label: "Đề tài chấm",
+        value: "18",
+        sub: "Được phân công",
+        icon: "bi-shield-check",
+        color: "#2a5bc0",
+        bg: "#e8efff",
+      },
+      {
+        label: "Chờ họp HĐ",
+        value: "5",
+        sub: "Cần xếp lịch",
+        icon: "bi-calendar-event",
+        color: "#e89b33",
+        bg: "#fff8e8",
+      },
+      {
+        label: "Đã chốt điểm",
+        value: "12",
+        sub: "Hoàn thành",
+        icon: "bi-check-circle",
+        color: "#1dab60",
+        bg: "#e8fff5",
+      },
+      {
+        label: "Deadline gần",
+        value: "2",
+        sub: "Trong 7 ngày",
+        icon: "bi-hourglass-split",
+        color: "#d13b3b",
+        bg: "#ffebeb",
+      },
+    ],
+  },
 };
 
 // ============ ROLE-SPECIFIC WIDGETS ============
@@ -230,5 +266,9 @@ export const ROLE_PAGE_TITLES: Record<
   [ROLE.STUDENT]: {
     title: "Trang sinh viên",
     subtitle: "Quản lý đồ án cá nhân",
+  },
+  [ROLE.COUNCIL]: {
+    title: "Hội đồng bảo vệ",
+    subtitle: "Quản lý phân công & chấm điểm",
   },
 };
