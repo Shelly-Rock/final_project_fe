@@ -120,8 +120,20 @@ const studentThesisBasic: Permission[] = [
   { action: ACTION.READ, resource: RESOURCE.COMMENT },
   { action: ACTION.UPDATE, resource: RESOURCE.COMMENT },
   { action: ACTION.DELETE, resource: RESOURCE.COMMENT },
+  { action: ACTION.DELETE, resource: RESOURCE.COMMENT },
   { action: ACTION.READ, resource: RESOURCE.CLASS },
   { action: ACTION.READ, resource: RESOURCE.COURSE },
+];
+
+const councilThesisGrade: Permission[] = [
+  { action: ACTION.READ, resource: RESOURCE.THESIS_DEFENSE },
+  { action: ACTION.GRADE, resource: RESOURCE.THESIS },
+  { action: ACTION.READ, resource: RESOURCE.THESIS },
+  { action: ACTION.CREATE, resource: RESOURCE.THESIS_SCORE },
+  { action: ACTION.READ, resource: RESOURCE.THESIS_SCORE },
+  { action: ACTION.UPDATE, resource: RESOURCE.THESIS_SCORE },
+  { action: ACTION.READ, resource: RESOURCE.ANNOUNCEMENT },
+  { action: ACTION.READ, resource: RESOURCE.DOCUMENT },
 ];
 
 // ---------- Role → Permissions map ----------
@@ -130,6 +142,7 @@ export const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
   [ROLE.SECRETARY]: adminThesisFull,
   [ROLE.TEACHER]: teacherThesisManage,
   [ROLE.STUDENT]: studentThesisBasic,
+  [ROLE.COUNCIL]: councilThesisGrade,
 };
 
 // ---------- Helpers ----------

@@ -8,18 +8,25 @@ import { AuthProvider } from "@/core/providers/AuthProvider";
 import { Sidebar } from "@/layout/Sidebar";
 import { Header } from "@/layout/Header";
 import { ChatbotButton } from "@/shared/components/ChatbotButton";
+import { DemoPanel } from "@/shared/components/DemoPanel";
 import { MOCK_SESSION } from "@/core/auth/auth.config";
 
-// Main shell: always authenticated in FE test mode
+/**
+ * Main authenticated shell.
+ * Role is managed by `useAuthStore` (Zustand + localStorage persistence).
+ * AuthProvider is still used for NextAuth session compatibility.
+ * Falls back to MOCK_SESSION admin role only when auth store is not yet hydrated.
+ */
 export default function MainLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+
   return (
     <AuthProvider session={MOCK_SESSION}>
-      <AppProviders initialRole={MOCK_SESSION.user.role}>
+      <AppProviders>
         <div className="app-shell">
           <Sidebar
             collapsed={sidebarCollapsed}
@@ -30,6 +37,7 @@ export default function MainLayout({
           >
             <Header />
             {children}
+            <DemoPanel />
             <ChatbotButton />
           </div>
         </div>
