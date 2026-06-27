@@ -44,7 +44,7 @@ export function OverloadedLecturers() {
                   <Typography className="lecturer-name">
                     {lecturer.name}
                   </Typography>
-                  <Typography className="lecturer-count">
+                  <Box className="lecturer-count" sx={{ display: "flex", alignItems: "center" }}>
                     {lecturer.thesisCount} đồ án
                     {isOverloaded && (
                       <Chip
@@ -60,7 +60,7 @@ export function OverloadedLecturers() {
                         }}
                       />
                     )}
-                  </Typography>
+                  </Box>
                 </Box>
                 <Box
                   className="lecturer-progress"

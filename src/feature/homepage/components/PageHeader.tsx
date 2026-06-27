@@ -39,12 +39,12 @@ export function PageHeader({ customTitle }: PageHeaderProps) {
   );
 
   const pageInfo = useMemo(
-    () => (role ? ROLE_PAGE_TITLES[role] : ROLE_PAGE_TITLES[ROLE.ADMIN]),
+    () => (role ? ROLE_PAGE_TITLES[role] : undefined),
     [role]
   );
 
   const title = useMemo(
-    () => customTitle ?? pageInfo.title,
+    () => customTitle ?? pageInfo?.title ?? "Trang chủ",
     [customTitle, pageInfo]
   );
 
