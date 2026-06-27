@@ -33,7 +33,7 @@ export function Header() {
     <header className="app-header">
       <div className="app-header-left">
         <span className="app-header-breadcrumb">
-          QTQ - Hệ Thống Quản Lý Đồ Án Sinh Viên
+          Hệ Thống Quản Lý Đồ Án Sinh Viên
         </span>
       </div>
 

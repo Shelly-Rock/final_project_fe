@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import type { ReactNode } from "react";
 import {
   Box,
   Dialog,
@@ -32,7 +32,7 @@ import {
 import type { TemplateItem } from "../types";
 import { categoryConfig, stageConfig } from "../types";
 
-const iconMap: Record<string, React.ReactNode> = {
+const iconMap: Record<string, ReactNode> = {
   folder: <FolderIcon sx={{ fontSize: 32 }} />,
   check: <CheckIcon sx={{ fontSize: 32 }} />,
   swap: <SwapIcon sx={{ fontSize: 32 }} />,
