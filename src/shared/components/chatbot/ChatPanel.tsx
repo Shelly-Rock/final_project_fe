@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useRef, useEffect, useId } from "react";
-import { flushSync } from "react-dom";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import IconButton from "@mui/material/IconButton";
@@ -70,21 +69,20 @@ export function ChatPanel({ onClose }: ChatPanelProps) {
     error: sttError,
   } = useSpeechRecognition({ lang: "vi-VN" });
 
+  // Derive display value: show live transcript while listening, otherwise show typed input
+  const displayInput = isListening ? transcript : input;
+
   useEffect(() => {
     inputRef.current = input;
   }, [input]);
 
-  useEffect(() => {
-    if (transcript) {
-      flushSync(() => setInput(transcript));
-    }
-  }, [transcript]);
-
+  // When speech recognition stops, grab the final transcript and submit it as a message
   useEffect(() => {
     if (!isListening && transcript.trim()) {
+      const finalTranscript = transcript;
       resetTranscript();
       const timer = setTimeout(() => {
-        const inputText = inputRef.current.trim();
+        const inputText = finalTranscript.trim();
         if (!inputText) return;
 
         const userMsg: ChatMessage = {
@@ -125,7 +123,7 @@ export function ChatPanel({ onClose }: ChatPanelProps) {
   }, []);
 
   const handleSend = (overrideText?: string) => {
-    const text = (overrideText ?? input).trim();
+    const text = (overrideText ?? (isListening ? transcript : input)).trim();
     if (!text) return;
 
     stop();
@@ -707,7 +705,7 @@ export function ChatPanel({ onClose }: ChatPanelProps) {
           }
           multiline
           maxRows={3}
-          value={input}
+          value={displayInput}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
           sx={{
@@ -775,7 +773,7 @@ export function ChatPanel({ onClose }: ChatPanelProps) {
 
         <IconButton
           onClick={() => handleSend()}
-          disabled={!input.trim() || isListening}
+          disabled={!displayInput.trim() || isListening}
           sx={{
             bgcolor: "#2a5bc0",
             color: "#fff",
