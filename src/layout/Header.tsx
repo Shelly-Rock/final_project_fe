@@ -3,10 +3,12 @@
 // ============================================================
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
+import { useRouter } from "next/navigation";
 import type { Role } from "@/core/permissions/types";
 import { ROLE, ROLE_LABELS } from "@/core/permissions/types";
 import { usePermissionContext } from "@/core/providers/PermissionProvider";
+import { useClickOutside } from "@/shared/hooks";
 
 const ALL_ROLES: Role[] = [
   ROLE.ADMIN,
@@ -24,10 +26,25 @@ const ROLE_COLORS: Record<Role, string> = {
 
 export function Header() {
   const { role, setRole } = usePermissionContext();
+  const router = useRouter();
   const [switcherOpen, setSwitcherOpen] = useState(false);
+  const switcherRef = useRef<HTMLDivElement>(null);
 
   const currentRoleLabel = role ? ROLE_LABELS[role] : "Không xác định";
   const currentRoleColor = role ? ROLE_COLORS[role] : "#999";
+
+  useClickOutside(
+    switcherRef as React.RefObject<HTMLElement>,
+    () => setSwitcherOpen(false),
+    switcherOpen,
+  );
+
+  const handleRoleChange = (newRole: Role) => {
+    setRole(newRole);
+    setSwitcherOpen(false);
+    // Navigate to dashboard when role changes
+    router.push("/dashboard");
+  };
 
   return (
     <header className="app-header">
@@ -39,7 +56,7 @@ export function Header() {
 
       <div className="app-header-right">
         {/* Role switcher */}
-        <div className="role-switcher">
+        <div className="role-switcher" ref={switcherRef}>
           <button
             type="button"
             className="role-switcher-btn"
@@ -58,11 +75,6 @@ export function Header() {
 
           {switcherOpen && (
             <>
-              <div
-                className="role-switcher-overlay"
-                onClick={() => setSwitcherOpen(false)}
-                aria-hidden="true"
-              />
               <div className="role-switcher-dropdown">
                 <div className="role-switcher-dropdown-header">
                   <span className="bi bi-tools" />
@@ -75,10 +87,7 @@ export function Header() {
                       key={r}
                       type="button"
                       className={`role-switcher-item ${isActive ? "active" : ""}`}
-                      onClick={() => {
-                        setRole(r);
-                        setSwitcherOpen(false);
-                      }}
+                      onClick={() => handleRoleChange(r)}
                     >
                       <span
                         className="role-switcher-dot"

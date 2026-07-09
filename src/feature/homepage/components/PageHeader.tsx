@@ -11,7 +11,7 @@ import OutlinedInput from "@mui/material/OutlinedInput";
 import { usePermissionContext } from "@/core/providers/PermissionProvider";
 import { ROLE_LABELS, ROLE_COLORS, ROLE } from "@/core/permissions/types";
 import { ROLE_PAGE_TITLES } from "@/feature/homepage/roleData";
-import { useDebounce } from "@/shared/hooks";
+import { useLocalStorage } from "@/shared/hooks";
 
 const ACADEMIC_YEARS = [2026, 2025, 2024, 2023, 2022];
 
@@ -21,13 +21,12 @@ interface PageHeaderProps {
 
 export function PageHeader({ customTitle }: PageHeaderProps) {
   const { role } = usePermissionContext();
-  const [year, setYear] = useState<number>(2026);
+  const [year, setYear] = useLocalStorage<number>("pageHeader_year", 2026);
   const [facultyInput, setFacultyInput] = useState<string>("");
-  const debouncedFaculty = useDebounce(facultyInput, 300);
 
   const roleLabel = useMemo(
     () => (role ? ROLE_LABELS[role] : "Người dùng"),
-    [role]
+    [role],
   );
 
   const roleColor = useMemo(
@@ -35,20 +34,18 @@ export function PageHeader({ customTitle }: PageHeaderProps) {
       role
         ? ROLE_COLORS[role]
         : { bg: "#f3f4f6", color: "#6b7280", border: "#e5e7eb" },
-    [role]
+    [role],
   );
 
   const pageInfo = useMemo(
     () => (role ? ROLE_PAGE_TITLES[role] : ROLE_PAGE_TITLES[ROLE.ADMIN]),
-    [role]
+    [role],
   );
 
   const title = useMemo(
     () => customTitle ?? pageInfo.title,
-    [customTitle, pageInfo]
+    [customTitle, pageInfo],
   );
-
-  const faculty = debouncedFaculty || "Tất cả khoa";
 
   return (
     <Box className="dashboard-header">

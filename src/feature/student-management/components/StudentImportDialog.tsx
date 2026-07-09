@@ -30,6 +30,7 @@ import {
   CheckCircle as CheckIcon,
 } from "@mui/icons-material";
 import { useBoolean } from "@/shared/hooks";
+import { isValidEmail } from "@/shared/utils";
 import type { StudentImportRow } from "../types";
 
 const DEFAULT_ROW: StudentImportRow = {
@@ -69,21 +70,27 @@ export function StudentImportDialog({
   onImport,
 }: StudentImportDialogProps) {
   const [tab, setTab] = useState(0);
-  const [manualRows, setManualRows] = useState<StudentImportRow[]>([DEFAULT_ROW]);
+  const [manualRows, setManualRows] = useState<StudentImportRow[]>([
+    DEFAULT_ROW,
+  ]);
   const [excelData, setExcelData] = useState<StudentImportRow[]>([]);
   const [excelHeaders, setExcelHeaders] = useState<string[]>([]);
-  const { value: importing, setTrue: startImporting, setFalse: stopImporting } =
-    useBoolean(false);
+  const {
+    value: importing,
+    setTrue: startImporting,
+    setFalse: stopImporting,
+  } = useBoolean(false);
   const [error, setError] = useState<string | null>(null);
+  const [rowErrors, setRowErrors] = useState<Record<number, string>>({});
 
   const hasData = useMemo(
     () => (tab === 0 ? excelData.length > 0 : manualRows.length > 0),
-    [tab, excelData, manualRows]
+    [tab, excelData, manualRows],
   );
 
   const currentRows = useMemo(
     () => (tab === 0 ? excelData : manualRows),
-    [tab, excelData, manualRows]
+    [tab, excelData, manualRows],
   );
 
   const resetForm = useCallback(() => {
@@ -92,6 +99,7 @@ export function StudentImportDialog({
     setExcelData([]);
     setExcelHeaders([]);
     setError(null);
+    setRowErrors({});
   }, []);
 
   const handleFileUpload = useCallback(
@@ -110,11 +118,13 @@ export function StudentImportDialog({
             return;
           }
 
-          const headers = lines[0].split(",").map((h) => h.trim().toLowerCase());
+          const headers = lines[0]
+            .split(",")
+            .map((h) => h.trim().toLowerCase());
           setExcelHeaders(headers);
 
           const missingCols = REQUIRED_COLUMNS.filter(
-            (col) => !headers.includes(col)
+            (col) => !headers.includes(col),
           );
           if (missingCols.length > 0) {
             setError(`Thiếu cột bắt buộc: ${missingCols.join(", ")}`);
@@ -142,7 +152,7 @@ export function StudentImportDialog({
       reader.readAsText(file);
       event.target.value = "";
     },
-    []
+    [],
   );
 
   const addManualRow = useCallback(() => {
@@ -164,10 +174,24 @@ export function StudentImportDialog({
       setManualRows((prev) => {
         const updated = [...prev];
         updated[index] = { ...updated[index], [field]: value };
+
+        // Validate email field
+        if (field === "gmail" && typeof value === "string") {
+          setRowErrors((prevErrors) => {
+            const newErrors = { ...prevErrors };
+            if (value && !isValidEmail(value)) {
+              newErrors[index] = "Email không hợp lệ";
+            } else {
+              delete newErrors[index];
+            }
+            return newErrors;
+          });
+        }
+
         return updated;
       });
     },
-    []
+    [],
   );
 
   const handleImport = useCallback(async () => {
@@ -187,7 +211,16 @@ export function StudentImportDialog({
     } finally {
       stopImporting();
     }
-  }, [excelData, manualRows, onImport, resetForm, onClose, tab, startImporting, stopImporting]);
+  }, [
+    excelData,
+    manualRows,
+    onImport,
+    resetForm,
+    onClose,
+    tab,
+    startImporting,
+    stopImporting,
+  ]);
 
   const handleClose = useCallback(() => {
     resetForm();
@@ -328,6 +361,8 @@ export function StudentImportDialog({
                         onChange={(e) =>
                           updateManualRow(index, "gmail", e.target.value)
                         }
+                        error={!!rowErrors[index]}
+                        helperText={rowErrors[index] || ""}
                       />
                     </TableCell>
                     <TableCell>

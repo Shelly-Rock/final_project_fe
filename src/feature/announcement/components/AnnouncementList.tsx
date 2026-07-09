@@ -14,7 +14,7 @@ import {
   ExpandMore as ExpandIcon,
   ExpandLess as CollapseIcon,
 } from "@mui/icons-material";
-import { formatDateLocale } from "@/shared/utils";
+import { formatDateLocale, truncateString } from "@/shared/utils";
 import type { Announcement } from "@/feature/announcement/constants";
 
 interface AnnouncementListProps {
@@ -104,7 +104,7 @@ export function AnnouncementList({ announcements }: AnnouncementListProps) {
                     color="text.secondary"
                     sx={{ mb: 1 }}
                   >
-                    {announcement.content}
+                    {truncateString(announcement.content, 500)}
                   </Typography>
                 </Collapse>
 

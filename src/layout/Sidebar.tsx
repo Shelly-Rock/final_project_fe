@@ -1,15 +1,13 @@
-// ============================================================
-// SIDEBAR COMPONENT — Brand, user info, logout, navigation
-// ============================================================
 "use client";
 
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
-import { useState, useCallback, useEffect, useMemo } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { usePermissionContext } from "@/core/providers/PermissionProvider";
 import { ROLE_LABELS } from "@/core/permissions/types";
 import { getMenuSectionsForRole } from "@/shared/constants/menus";
+import { useMediaQuery } from "@/shared/hooks";
 import { default as Logo } from "@/assets/image/png/logo.png";
 import { default as LogoCollapsed } from "@/assets/image/png/logo02.png";
 import Image from "next/image";
@@ -24,19 +22,12 @@ export function Sidebar({ collapsed = false, onToggle }: SidebarProps) {
   const pathname = usePathname();
   const { role } = usePermissionContext();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [isDesktop, setIsDesktop] = useState(false);
+  const isDesktop = useMediaQuery("(min-width: 1024px)");
 
   const menuSections = useMemo(() => {
     if (!role) return [];
     return getMenuSectionsForRole(role);
   }, [role]);
-
-  useEffect(() => {
-    const checkDesktop = () => setIsDesktop(window.innerWidth >= 1024);
-    checkDesktop();
-    window.addEventListener("resize", checkDesktop);
-    return () => window.removeEventListener("resize", checkDesktop);
-  }, []);
 
   const toggleMobile = useCallback(() => {
     setMobileOpen((prev) => !prev);
