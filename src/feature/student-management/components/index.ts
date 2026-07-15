@@ -1,3 +1,5 @@
-export { StudentTable } from "./StudentTable";
-export { StudentImportDialog } from "./StudentImportDialog";
-export { exportStudentsToExcel, downloadExcelTemplate } from "./export.utils";
+export * from "./StudentDetailDialog";
+export * from "./StudentFormDialog";
+export * from "./StudentImportDialog";
+export * from "./StudentTable";
+export * from "./exportToExcel";

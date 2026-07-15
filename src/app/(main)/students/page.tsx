@@ -27,6 +27,8 @@ import {
 import {
   StudentTable,
   StudentImportDialog,
+  StudentFormDialog,
+  StudentDetailDialog,
   exportStudentsToExcel,
 } from "@/feature/student-management/components";
 import { studentService } from "@/feature/student-management/services";
@@ -49,6 +51,9 @@ export default function StudentManagementPage() {
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState<StudentFilters>(INITIAL_FILTERS);
   const [importDialogOpen, setImportDialogOpen] = useState(false);
+  const [formDialogOpen, setFormDialogOpen] = useState(false);
+  const [detailDialogOpen, setDetailDialogOpen] = useState(false);
+  const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
   const [snackbar, setSnackbar] = useState<{
     open: boolean;
     message: string;
@@ -66,24 +71,19 @@ export default function StudentManagementPage() {
     setSnackbar({ open: true, message, severity });
   };
 
-  const fetchStudents = useCallback(async () => {
+  const refreshStudents = useCallback(() => {
     setLoading(true);
-    try {
-      const data = await studentService.getAll();
-      setStudents(data);
-    } catch {
-      showSnackbar("Không thể tải danh sách sinh viên", "error");
-    } finally {
-      setLoading(false);
-    }
+    studentService
+      .getAll()
+      .then((data) => setStudents(data))
+      .catch(() => showSnackbar("Không thể tải danh sách sinh viên", "error"))
+      .finally(() => setLoading(false));
   }, []);
 
   useEffect(() => {
-    const load = () => {
-      fetchStudents();
-    };
-    load();
-  }, [fetchStudents]);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    refreshStudents();
+  }, [refreshStudents]);
 
   const filteredStudents = students.filter((student) => {
     if (filters.search) {
@@ -103,9 +103,11 @@ export default function StudentManagementPage() {
 
   const handleImport = async (data: StudentImportRow[]) => {
     try {
-      await studentService.createMany(data);
-      await fetchStudents();
-      showSnackbar(`Đã import ${data.length} sinh viên thành công`);
+      const result = await studentService.createMany(data);
+      refreshStudents();
+      showSnackbar(
+        `Đã import ${result.success} sinh viên thành công${result.failed > 0 ? `, ${result.failed} thất bại` : ""}`,
+      );
     } catch {
       showSnackbar("Import thất bại", "error");
     }
@@ -117,9 +119,14 @@ export default function StudentManagementPage() {
   };
 
   const handleDelete = async (student: Student) => {
+    const confirmed = window.confirm(
+      `Bạn có chắc muốn xóa sinh viên "${student.hoTen}" (${student.mssv})?`,
+    );
+    if (!confirmed) return;
+
     try {
       await studentService.delete(student.id);
-      await fetchStudents();
+      refreshStudents();
       showSnackbar("Đã xóa sinh viên");
     } catch {
       showSnackbar("Xóa thất bại", "error");
@@ -127,13 +134,18 @@ export default function StudentManagementPage() {
   };
 
   const handleView = (student: Student) => {
-    console.log("View student:", student);
-    showSnackbar(`Xem thông tin: ${student.hoTen}`);
+    setSelectedStudent(student);
+    setDetailDialogOpen(true);
   };
 
   const handleEdit = (student: Student) => {
-    console.log("Edit student:", student);
-    showSnackbar(`Chỉnh sửa: ${student.hoTen}`);
+    setSelectedStudent(student);
+    setFormDialogOpen(true);
+  };
+
+  const handleAdd = () => {
+    setSelectedStudent(null);
+    setFormDialogOpen(true);
   };
 
   const khoaOptions = studentService.getKhoaOptions();
@@ -149,9 +161,14 @@ export default function StudentManagementPage() {
           mb: 3,
         }}
       >
-        <Typography variant="h4" sx={{ fontWeight: 600 }}>
-          Quản lý sinh viên
-        </Typography>
+        <Box>
+          <Typography variant="h4" sx={{ fontWeight: 600 }}>
+            Quản lý sinh viên
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            Quản lý thông tin sinh viên và đề tài khóa luận
+          </Typography>
+        </Box>
         <Box sx={{ display: "flex", gap: 1 }}>
           <Button
             variant="outlined"
@@ -171,9 +188,7 @@ export default function StudentManagementPage() {
           <Button
             variant="contained"
             startIcon={<AddIcon />}
-            onClick={() =>
-              showSnackbar("Chức năng thêm sinh viên đang phát triển")
-            }
+            onClick={handleAdd}
           >
             Thêm sinh viên
           </Button>
@@ -255,7 +270,7 @@ export default function StudentManagementPage() {
           <Button
             size="small"
             startIcon={<RefreshIcon />}
-            onClick={fetchStudents}
+            onClick={refreshStudents}
           >
             Làm mới
           </Button>
@@ -285,6 +300,18 @@ export default function StudentManagementPage() {
         open={importDialogOpen}
         onClose={() => setImportDialogOpen(false)}
         onImport={handleImport}
+      />
+
+      <StudentFormDialog
+        open={formDialogOpen}
+        onClose={() => setFormDialogOpen(false)}
+        student={selectedStudent}
+      />
+
+      <StudentDetailDialog
+        open={detailDialogOpen}
+        onClose={() => setDetailDialogOpen(false)}
+        student={selectedStudent}
       />
 
       <Snackbar
