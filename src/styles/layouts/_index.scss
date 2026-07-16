@@ -5,7 +5,7 @@
 @import "../abstracts/mixins";
 
 // ---------- Sidebar ----------
-$sidebar-bg: $primary-800;
+$sidebar-bg: #024282;
 $sidebar-text: rgba(255, 255, 255, 0.85);
 $sidebar-text-muted: rgba(255, 255, 255, 0.5);
 $sidebar-active-bg: rgba($primary-400, 0.25);
@@ -44,15 +44,11 @@ $sidebar-collapsed-width: 72px;
 }
 
 .sidebar-overlay {
-  display: none;
-
-  @media (max-width: 1024px) {
-    display: block;
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: $z-modal-back;
-  }
+  display: block;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 9;
 }
 
 .sidebar {
@@ -372,10 +368,10 @@ $sidebar-collapsed-width: 72px;
 
 // ---------- Mobile Toggle ----------
 .sidebar-mobile-toggle {
-  display: none;
+  display: flex;
   position: fixed;
-  top: $spacing-4;
-  left: $spacing-4;
+  top: 12px;
+  left: 12px;
   z-index: $z-sticky;
   width: 40px;
   height: 40px;
@@ -389,8 +385,8 @@ $sidebar-collapsed-width: 72px;
   font-size: $font-size-xl;
   box-shadow: $shadow-md;
 
-  @media (max-width: 1024px) {
-    display: flex;
+  @media (min-width: 1025px) {
+    display: none;
   }
 }
 

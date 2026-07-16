@@ -86,14 +86,15 @@ export function Header({ onMenuClick, showMenuButton = true }: HeaderProps) {
 
   return (
     <AppBar
-      position="fixed"
       elevation={0}
       sx={{
         bgcolor: "background.paper",
         borderBottom: "1px solid",
         borderColor: "divider",
         color: "text.primary",
-        zIndex: (theme) => theme.zIndex.drawer + 1,
+        position: "sticky",
+        top: 0,
+        zIndex: 10,
       }}
     >
       <Toolbar sx={{ minHeight: 64 }}>
@@ -106,21 +107,6 @@ export function Header({ onMenuClick, showMenuButton = true }: HeaderProps) {
             <MenuIcon size={22} />
           </IconButton>
         )}
-
-        <Typography
-          variant="h6"
-          noWrap
-          sx={{
-            fontWeight: 700,
-            fontSize: "1.1rem",
-            background: "linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-            mr: 3,
-          }}
-        >
-          QTQ - Hệ Thống Quản Lý Đồ Án
-        </Typography>
 
         <Box sx={{ flexGrow: 1 }} />
 
