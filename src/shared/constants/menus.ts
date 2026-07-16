@@ -1,13 +1,9 @@
-// ============================================================
-// MENU CONSTANTS — Sidebar navigation items
-// ============================================================
-import type { Role } from "@/core/permissions/types";
 
-// ---------- Menu Item Types ----------
+import type { Role } from "@/core/permissions/types";
 export interface MenuItem {
   key: string;
   label: string;
-  icon?: string; // bootstrap icon class (e.g., "bi bi-house")
+  icon?: string; 
   path?: string;
   children?: MenuItem[];
   roles?: Role[];
@@ -22,7 +18,6 @@ export interface MenuSection {
   items: MenuItem[];
 }
 
-// ---------- Icon helper (Bootstrap Icons) ----------
 export const Icon = {
   house: "bi-house",
   houseFill: "bi-house-fill",
@@ -32,7 +27,6 @@ export const Icon = {
   people: "bi-people",
 } as const;
 
-// ---------- Menu Items ----------
 export const MENU_ITEMS: MenuItem[] = [
   {
     key: "students",
@@ -43,7 +37,6 @@ export const MENU_ITEMS: MenuItem[] = [
   },
 ];
 
-// ---------- Menu Sections ----------
 export const MENU_SECTIONS: MenuSection[] = [
   {
     section: "Quản lý",
@@ -59,7 +52,6 @@ export const MENU_SECTIONS: MenuSection[] = [
   },
 ];
 
-// ---------- Utility ----------
 export function getMenuItemsForRole(role: Role): MenuItem[] {
   return MENU_ITEMS.filter((item) => {
     if (item.roles && !item.roles.includes(role)) return false;

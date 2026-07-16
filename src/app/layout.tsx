@@ -1,8 +1,3 @@
-// ============================================================
-// ROOT LAYOUT — Only <html>/<body> wrapper; no sidebar here.
-// Auth routes: (auth)/layout.tsx (no sidebar)
-// Main routes:  (main)/layout.tsx (with sidebar)
-// ============================================================
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "@/styles/main.scss";
@@ -25,8 +20,6 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({
-
-  
   children,
 }: Readonly<{
   children: React.ReactNode;

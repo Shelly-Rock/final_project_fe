@@ -1,6 +1,3 @@
-// ============================================================
-// SHARED - Page Template Component
-// ============================================================
 "use client";
 
 import { Box, Typography, Paper, Button } from "@mui/material";

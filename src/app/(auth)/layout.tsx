@@ -1,8 +1,3 @@
-// ============================================================
-// AUTH LAYOUT — Standalone layout without sidebar (login, register, etc.)
-// NOTE: Only root layout.tsx contains <html>/<body>. Route group layouts
-//       must only return a fragment or a div fragment — no <html> or <body>.
-// ============================================================
 import type { Metadata } from "next";
 import "@/styles/main.scss";
 import "bootstrap-icons/font/bootstrap-icons.css";

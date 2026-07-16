@@ -225,13 +225,13 @@
 .login-form-title {
   font-size: $font-size-3xl !important;
   font-weight: 700 !important;
-  color: $gray-900 !important;
+  color: $neutral-900 !important;
   letter-spacing: -0.025em !important;
 }
 
 .login-form-subtitle {
   font-size: $font-size-sm !important;
-  color: $gray-500 !important;
+  color: $neutral-500 !important;
   line-height: $line-height-relaxed !important;
 }
 
@@ -282,7 +282,7 @@
 
 // ---------- Password Toggle ----------
 .login-password-toggle {
-  color: $gray-500;
+  color: $neutral-500;
 
   &:hover {
     color: $primary-400;
@@ -294,12 +294,12 @@
 .login-footer {
   text-align: center;
   padding-top: $spacing-4;
-  border-top: 1px solid $gray-100;
+  border-top: 1px solid $neutral-100;
 }
 
 .login-footer-text {
   font-size: $font-size-xs !important;
-  color: $gray-400 !important;
+  color: $neutral-400 !important;
 }
 
 // ---------- Responsive: Mobile stack ----------
@@ -355,13 +355,13 @@
   gap: $spacing-4;
   margin-bottom: $spacing-8;
   padding-bottom: $spacing-6;
-  border-bottom: 1px solid $gray-100;
+  border-bottom: 1px solid $neutral-100;
 }
 
 .home-greeting {
   font-size: $font-size-2xl !important;
   font-weight: 700 !important;
-  color: $gray-900 !important;
+  color: $neutral-900 !important;
   margin-bottom: $spacing-2 !important;
 
   strong {
@@ -374,7 +374,7 @@
   align-items: center;
   gap: $spacing-2;
   font-size: $font-size-sm !important;
-  color: $gray-500 !important;
+  color: $neutral-500 !important;
 }
 
 .home-role-chip {
@@ -390,7 +390,7 @@
   align-items: center;
   gap: $spacing-2;
   font-size: $font-size-sm !important;
-  color: $gray-500 !important;
+  color: $neutral-500 !important;
   padding-top: $spacing-1;
 
   .bi {
@@ -406,7 +406,7 @@
 .home-section-title {
   font-size: $font-size-lg !important;
   font-weight: 700 !important;
-  color: $gray-900 !important;
+  color: $neutral-900 !important;
   margin-bottom: $spacing-5 !important;
 }
 
@@ -447,12 +447,12 @@
 .home-action-label {
   font-size: $font-size-base !important;
   font-weight: 700 !important;
-  color: $gray-900 !important;
+  color: $neutral-900 !important;
 }
 
 .home-action-desc {
   font-size: $font-size-sm !important;
-  color: $gray-500 !important;
+  color: $neutral-500 !important;
   line-height: $line-height-relaxed !important;
 }
 
@@ -483,13 +483,13 @@
 .dashboard-title {
   font-size: $font-size-2xl !important;
   font-weight: 700 !important;
-  color: $gray-900 !important;
+  color: $neutral-900 !important;
   line-height: $line-height-tight !important;
 }
 
 .dashboard-subtitle {
   font-size: $font-size-sm !important;
-  color: $gray-500 !important;
+  color: $neutral-500 !important;
   margin-top: $spacing-1 !important;
 }
 
@@ -721,7 +721,7 @@
   font-size: $font-size-sm;
 
   thead tr {
-    border-bottom: 1px solid $gray-100;
+    border-bottom: 1px solid $neutral-100;
   }
 
   th {
@@ -729,14 +729,14 @@
     text-align: left;
     font-size: $font-size-xs;
     font-weight: 600;
-    color: $gray-500;
+    color: $neutral-500;
     text-transform: uppercase;
     letter-spacing: 0.05em;
     white-space: nowrap;
   }
 
   tbody tr {
-    border-bottom: 1px solid $gray-50;
+    border-bottom: 1px solid $neutral-50;
     transition: background $transition-fast;
 
     &:last-child {
@@ -744,7 +744,7 @@
     }
 
     &:hover {
-      background: $gray-50;
+      background: $neutral-50;
     }
   }
 
@@ -763,7 +763,7 @@
 
 .dashboard-thesis-title {
   font-weight: 600 !important;
-  color: $gray-900 !important;
+  color: $neutral-900 !important;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -772,7 +772,7 @@
 
 .dashboard-thesis-meta {
   font-size: $font-size-xs !important;
-  color: $gray-400 !important;
+  color: $neutral-400 !important;
   display: flex;
   align-items: center;
   gap: $spacing-1;
@@ -784,7 +784,7 @@
 
 .dashboard-table-text {
   font-size: $font-size-sm !important;
-  color: $gray-700 !important;
+  color: $neutral-700 !important;
   white-space: nowrap;
 }
 
@@ -797,7 +797,7 @@
 
 .dashboard-progress-label {
   font-size: $font-size-xs !important;
-  color: $gray-500 !important;
+  color: $neutral-500 !important;
   white-space: nowrap;
   min-width: 32px;
 }
@@ -814,7 +814,7 @@
   align-items: flex-start;
   gap: $spacing-3;
   padding: $spacing-3 0;
-  border-bottom: 1px solid $gray-50;
+  border-bottom: 1px solid $neutral-50;
 
   &:last-child {
     border-bottom: none;
@@ -828,18 +828,18 @@
 
 .dashboard-activity-text {
   font-size: $font-size-sm !important;
-  color: $gray-700 !important;
+  color: $neutral-700 !important;
   line-height: $line-height-relaxed !important;
 
   strong {
     font-weight: 600;
-    color: $gray-900;
+    color: $neutral-900;
   }
 }
 
 .dashboard-activity-time {
   font-size: $font-size-xs !important;
-  color: $gray-400 !important;
+  color: $neutral-400 !important;
   margin-top: $spacing-0-5 !important;
 }
 
@@ -849,7 +849,7 @@
   align-items: center;
   justify-content: space-between;
   padding: $spacing-3 0;
-  border-bottom: 1px solid $gray-50;
+  border-bottom: 1px solid $neutral-50;
 
   &:last-child {
     border-bottom: none;
@@ -864,18 +864,18 @@
 
 .dashboard-role-label {
   font-size: $font-size-sm !important;
-  color: $gray-700 !important;
+  color: $neutral-700 !important;
 }
 
 .dashboard-role-count {
   font-size: $font-size-sm !important;
   font-weight: 700 !important;
-  color: $gray-900 !important;
+  color: $neutral-900 !important;
 }
 
 // ---------- Card ----------
 .dashboard-card {
-  border: 1px solid $gray-100;
+  border: 1px solid $neutral-100;
   box-shadow: $shadow-sm;
   height: 100%;
 }

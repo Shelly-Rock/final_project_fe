@@ -7,7 +7,7 @@ import { AppProviders } from "@/core/providers";
 import { AuthProvider } from "@/core/providers/AuthProvider";
 import { Sidebar } from "@/layout/Sidebar";
 import { Header } from "@/layout/Header";
-import { ChatbotButton } from "@/shared/components/ChatbotButton";
+import { ChatbotButton } from "@/shared/components/ChatbotButton/ChatbotButton";
 import { MOCK_SESSION } from "@/core/auth/auth.config";
 
 export default function MainLayout({
