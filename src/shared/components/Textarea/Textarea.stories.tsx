@@ -52,11 +52,7 @@ export const TextareaWithCharCount: StoryObj = {
 
 export const TextareaDisabled: StoryObj = {
   render: () => (
-    <Textarea
-      label="Nội dung"
-      value="Nội dung không thể chỉnh sửa"
-      disabled
-    />
+    <Textarea label="Nội dung" value="Nội dung không thể chỉnh sửa" disabled />
   ),
 };
 
@@ -73,7 +69,9 @@ export const TextareaWithError: StoryObj = {
 
 export const TextareaVariants: StoryObj = {
   render: () => (
-    <Box sx={{ display: "flex", flexDirection: "column", gap: 3, maxWidth: 500 }}>
+    <Box
+      sx={{ display: "flex", flexDirection: "column", gap: 3, maxWidth: 500 }}
+    >
       <Textarea label="Outlined (mặc định)" variant="outlined" />
       <Textarea label="Filled" variant="filled" />
       <Textarea label="Standard" variant="standard" />
@@ -98,8 +96,12 @@ export const TextareaInteractive: StoryObj = {
         />
         {value && (
           <Box sx={{ mt: 2, p: 2, bgcolor: "action.hover", borderRadius: 1 }}>
-            <Box sx={{ fontSize: "0.875rem", fontWeight: 500, mb: 0.5 }}>Preview:</Box>
-            <Box sx={{ fontSize: "0.875rem", whiteSpace: "pre-wrap" }}>{value}</Box>
+            <Box sx={{ fontSize: "0.875rem", fontWeight: 500, mb: 0.5 }}>
+              Preview:
+            </Box>
+            <Box sx={{ fontSize: "0.875rem", whiteSpace: "pre-wrap" }}>
+              {value}
+            </Box>
           </Box>
         )}
       </Box>

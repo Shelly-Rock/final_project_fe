@@ -3,7 +3,10 @@
 import { forwardRef } from "react";
 import { TextField, TextFieldProps } from "@mui/material";
 
-export interface TextareaProps extends Omit<TextFieldProps, "variant" | "multiline"> {
+export interface TextareaProps extends Omit<
+  TextFieldProps,
+  "variant" | "multiline"
+> {
   minRows?: number;
   maxRows?: number;
   autoResize?: boolean;
@@ -27,7 +30,7 @@ export const Textarea = forwardRef<HTMLDivElement, TextareaProps>(
       sx,
       ...props
     },
-    ref
+    ref,
   ) => {
     const charCount = typeof value === "string" ? value.length : 0;
     const mergedMaxLength = maxLength ?? inputProps?.maxLength;
@@ -45,8 +48,8 @@ export const Textarea = forwardRef<HTMLDivElement, TextareaProps>(
           showCharCount && mergedMaxLength
             ? `${charCount}/${mergedMaxLength}`
             : error
-            ? helperText
-            : helperText
+              ? helperText
+              : helperText
         }
         sx={{
           "& .MuiInputBase-root": {
@@ -61,7 +64,7 @@ export const Textarea = forwardRef<HTMLDivElement, TextareaProps>(
         {...props}
       />
     );
-  }
+  },
 );
 
 Textarea.displayName = "Textarea";

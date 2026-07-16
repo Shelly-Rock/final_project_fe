@@ -1,17 +1,25 @@
-import type { Meta } from '@storybook/react';
-import { useState, useRef } from 'react';
-import { Box, Button, Typography, Paper, Chip, TextField, Alert } from '@mui/material';
-import AddIcon from '@mui/icons-material/Add';
-import CloseIcon from '@mui/icons-material/Close';
+import type { Meta } from "@storybook/react";
+import { useState, useRef } from "react";
+import {
+  Box,
+  Button,
+  Typography,
+  Paper,
+  Chip,
+  TextField,
+  Alert,
+} from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
+import CloseIcon from "@mui/icons-material/Close";
 
 // Import hooks directly
-import { useDisclosure } from '@/shared/hooks/useDisclosure';
-import { useBoolean } from '@/shared/hooks/useBoolean';
+import { useDisclosure } from "@/shared/hooks/useDisclosure";
+import { useBoolean } from "@/shared/hooks/useBoolean";
 
 const meta = {
-  title: 'Shared/Hooks/useDisclosure',
+  title: "Shared/Hooks/useDisclosure",
   parameters: {
-    layout: 'padded',
+    layout: "padded",
   },
 } satisfies Meta;
 
@@ -23,16 +31,22 @@ export const UseDisclosureBasic: React.FC = () => {
   const { isOpen, open, close, toggle } = useDisclosure();
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, maxWidth: 400 }}>
+    <Box
+      sx={{ display: "flex", flexDirection: "column", gap: 2, maxWidth: 400 }}
+    >
       <Typography variant="h6">useDisclosure - Basic</Typography>
 
-      <Paper sx={{ p: 2, bgcolor: '#f5f5f5' }}>
+      <Paper sx={{ p: 2, bgcolor: "#f5f5f5" }}>
         <Typography variant="body2">
-          Trạng thái hiện tại: <Chip label={isOpen ? 'Mở' : 'Đóng'} color={isOpen ? 'success' : 'default'} />
+          Trạng thái hiện tại:{" "}
+          <Chip
+            label={isOpen ? "Mở" : "Đóng"}
+            color={isOpen ? "success" : "default"}
+          />
         </Typography>
       </Paper>
 
-      <Box sx={{ display: 'flex', gap: 1 }}>
+      <Box sx={{ display: "flex", gap: 1 }}>
         <Button variant="contained" onClick={open} disabled={isOpen}>
           Mở
         </Button>
@@ -57,10 +71,12 @@ export const UseDisclosureModal: React.FC = () => {
   const { isOpen, open, close, toggle } = useDisclosure(false);
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, maxWidth: 500 }}>
+    <Box
+      sx={{ display: "flex", flexDirection: "column", gap: 2, maxWidth: 500 }}
+    >
       <Typography variant="h6">useDisclosure - Modal Demo</Typography>
 
-      <Box sx={{ display: 'flex', gap: 1 }}>
+      <Box sx={{ display: "flex", gap: 1 }}>
         <Button variant="contained" startIcon={<AddIcon />} onClick={open}>
           Mở Modal
         </Button>
@@ -74,21 +90,28 @@ export const UseDisclosureModal: React.FC = () => {
           elevation={8}
           sx={{
             p: 3,
-            position: 'relative',
-            bgcolor: 'background.paper',
-            border: '1px solid',
-            borderColor: 'divider',
+            position: "relative",
+            bgcolor: "background.paper",
+            border: "1px solid",
+            borderColor: "divider",
           }}
         >
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              mb: 2,
+            }}
+          >
             <Typography variant="h6">Modal Header</Typography>
             <Button size="small" onClick={close} startIcon={<CloseIcon />}>
               Đóng
             </Button>
           </Box>
           <Typography variant="body2" color="text.secondary">
-            Đây là nội dung modal được điều khiển bởi useDisclosure hook.
-            Trạng thái: {isOpen ? 'Mở' : 'Đóng'}
+            Đây là nội dung modal được điều khiển bởi useDisclosure hook. Trạng
+            thái: {isOpen ? "Mở" : "Đóng"}
           </Typography>
         </Paper>
       )}
@@ -108,38 +131,46 @@ export const UseDisclosureMultiple: React.FC = () => {
   const drawer = useDisclosure();
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, maxWidth: 600 }}>
+    <Box
+      sx={{ display: "flex", flexDirection: "column", gap: 3, maxWidth: 600 }}
+    >
       <Typography variant="h6">useDisclosure - Multiple Instances</Typography>
 
-      <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+      <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
         <Button variant="outlined" onClick={modal1.toggle}>
-          Modal 1: {modal1.isOpen ? 'Mở' : 'Đóng'}
+          Modal 1: {modal1.isOpen ? "Mở" : "Đóng"}
         </Button>
         <Button variant="outlined" onClick={modal2.toggle}>
-          Modal 2: {modal2.isOpen ? 'Mở' : 'Đóng'}
+          Modal 2: {modal2.isOpen ? "Mở" : "Đóng"}
         </Button>
         <Button variant="outlined" onClick={drawer.toggle}>
-          Drawer: {drawer.isOpen ? 'Mở' : 'Đóng'}
+          Drawer: {drawer.isOpen ? "Mở" : "Đóng"}
         </Button>
       </Box>
 
-      <Box sx={{ display: 'flex', gap: 2 }}>
+      <Box sx={{ display: "flex", gap: 2 }}>
         {modal1.isOpen && (
-          <Paper sx={{ p: 2, bgcolor: '#e3f2fd' }}>
+          <Paper sx={{ p: 2, bgcolor: "#e3f2fd" }}>
             <Typography variant="subtitle2">Modal 1</Typography>
-            <Button size="small" onClick={modal1.close}>Đóng</Button>
+            <Button size="small" onClick={modal1.close}>
+              Đóng
+            </Button>
           </Paper>
         )}
         {modal2.isOpen && (
-          <Paper sx={{ p: 2, bgcolor: '#e8f5e9' }}>
+          <Paper sx={{ p: 2, bgcolor: "#e8f5e9" }}>
             <Typography variant="subtitle2">Modal 2</Typography>
-            <Button size="small" onClick={modal2.close}>Đóng</Button>
+            <Button size="small" onClick={modal2.close}>
+              Đóng
+            </Button>
           </Paper>
         )}
         {drawer.isOpen && (
-          <Paper sx={{ p: 2, bgcolor: '#fff3e0' }}>
+          <Paper sx={{ p: 2, bgcolor: "#fff3e0" }}>
             <Typography variant="subtitle2">Drawer</Typography>
-            <Button size="small" onClick={drawer.close}>Đóng</Button>
+            <Button size="small" onClick={drawer.close}>
+              Đóng
+            </Button>
           </Paper>
         )}
       </Box>
@@ -153,16 +184,22 @@ export const UseBooleanBasic: React.FC = () => {
   const { value, setValue, setTrue, setFalse, toggle } = useBoolean(false);
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, maxWidth: 400 }}>
+    <Box
+      sx={{ display: "flex", flexDirection: "column", gap: 2, maxWidth: 400 }}
+    >
       <Typography variant="h6">useBoolean - Basic</Typography>
 
-      <Paper sx={{ p: 2, bgcolor: '#f5f5f5' }}>
+      <Paper sx={{ p: 2, bgcolor: "#f5f5f5" }}>
         <Typography variant="body2">
-          Giá trị: <Chip label={value ? 'TRUE' : 'FALSE'} color={value ? 'success' : 'default'} />
+          Giá trị:{" "}
+          <Chip
+            label={value ? "TRUE" : "FALSE"}
+            color={value ? "success" : "default"}
+          />
         </Typography>
       </Paper>
 
-      <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+      <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
         <Button variant="contained" onClick={setTrue} disabled={value}>
           setTrue
         </Button>
@@ -174,10 +211,14 @@ export const UseBooleanBasic: React.FC = () => {
         </Button>
       </Box>
 
-      <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+      <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
         <Typography variant="body2">setValue:</Typography>
-        <Button size="small" variant="outlined" onClick={() => setValue(true)}>true</Button>
-        <Button size="small" variant="outlined" onClick={() => setValue(false)}>false</Button>
+        <Button size="small" variant="outlined" onClick={() => setValue(true)}>
+          true
+        </Button>
+        <Button size="small" variant="outlined" onClick={() => setValue(false)}>
+          false
+        </Button>
       </Box>
     </Box>
   );
@@ -187,12 +228,18 @@ export const UseBooleanLoading: React.FC = () => {
   const { value: isLoading, setTrue, setFalse, toggle } = useBoolean(false);
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, maxWidth: 400 }}>
+    <Box
+      sx={{ display: "flex", flexDirection: "column", gap: 2, maxWidth: 400 }}
+    >
       <Typography variant="h6">useBoolean - Loading State Demo</Typography>
 
-      <Paper sx={{ p: 2, bgcolor: '#f5f5f5' }}>
+      <Paper sx={{ p: 2, bgcolor: "#f5f5f5" }}>
         <Typography variant="body2">
-          Loading: <Chip label={isLoading ? 'Đang tải...' : 'Hoàn tất'} color={isLoading ? 'warning' : 'success'} />
+          Loading:{" "}
+          <Chip
+            label={isLoading ? "Đang tải..." : "Hoàn tất"}
+            color={isLoading ? "warning" : "success"}
+          />
         </Typography>
       </Paper>
 
@@ -205,7 +252,7 @@ export const UseBooleanLoading: React.FC = () => {
         }}
         disabled={isLoading}
       >
-        {isLoading ? 'Đang xử lý...' : 'Bắt đầu (2 giây)'}
+        {isLoading ? "Đang xử lý..." : "Bắt đầu (2 giây)"}
       </Button>
 
       <Button variant="text" onClick={toggle} disabled={isLoading}>
@@ -221,14 +268,14 @@ export const UseBooleanToggle: React.FC = () => {
   return (
     <Box
       sx={{
-        display: 'flex',
-        flexDirection: 'column',
+        display: "flex",
+        flexDirection: "column",
         gap: 2,
         p: 3,
         borderRadius: 2,
-        bgcolor: darkMode ? '#1e1e1e' : '#ffffff',
-        color: darkMode ? '#fff' : '#000',
-        transition: 'all 0.3s',
+        bgcolor: darkMode ? "#1e1e1e" : "#ffffff",
+        color: darkMode ? "#fff" : "#000",
+        transition: "all 0.3s",
         maxWidth: 400,
       }}
     >
@@ -237,15 +284,22 @@ export const UseBooleanToggle: React.FC = () => {
       <Paper
         sx={{
           p: 2,
-          bgcolor: darkMode ? '#2d2d2d' : '#f5f5f5',
+          bgcolor: darkMode ? "#2d2d2d" : "#f5f5f5",
         }}
       >
         <Typography variant="body2">
-          Chế độ: <Chip label={darkMode ? 'Dark Mode' : 'Light Mode'} />
+          Chế độ: <Chip label={darkMode ? "Dark Mode" : "Light Mode"} />
         </Typography>
       </Paper>
 
-      <Button variant="outlined" onClick={toggle} sx={{ color: darkMode ? '#fff' : '#000', borderColor: darkMode ? '#fff' : '#000' }}>
+      <Button
+        variant="outlined"
+        onClick={toggle}
+        sx={{
+          color: darkMode ? "#fff" : "#000",
+          borderColor: darkMode ? "#fff" : "#000",
+        }}
+      >
         Toggle Theme
       </Button>
 

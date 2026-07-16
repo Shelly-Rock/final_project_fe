@@ -1,6 +1,14 @@
 "use client";
 
-import { IconButton, Tooltip, Menu, MenuItem, Box, Typography, ListItemIcon } from "@mui/material";
+import {
+  IconButton,
+  Tooltip,
+  Menu,
+  MenuItem,
+  Box,
+  Typography,
+  ListItemIcon,
+} from "@mui/material";
 import { Sun, Moon, Monitor, Check } from "lucide-react";
 import { useState } from "react";
 import { useTheme, ThemeMode } from "./ThemeProvider";
@@ -11,11 +19,12 @@ export interface ThemeSwitcherProps {
   size?: "small" | "medium";
 }
 
-const themeModes: { value: ThemeMode; label: string; icon: React.ReactNode }[] = [
-  { value: "light", label: "Sáng", icon: <Sun size={18} /> },
-  { value: "dark", label: "Tối", icon: <Moon size={18} /> },
-  { value: "system", label: "Hệ thống", icon: <Monitor size={18} /> },
-];
+const themeModes: { value: ThemeMode; label: string; icon: React.ReactNode }[] =
+  [
+    { value: "light", label: "Sáng", icon: <Sun size={18} /> },
+    { value: "dark", label: "Tối", icon: <Moon size={18} /> },
+    { value: "system", label: "Hệ thống", icon: <Monitor size={18} /> },
+  ];
 
 export function ThemeSwitcher({
   variant = "icon",
@@ -38,9 +47,14 @@ export function ThemeSwitcher({
     handleMenuClose();
   };
 
-  const currentIcon = mode === "dark" ? <Moon size={size === "small" ? 18 : 22} /> 
-    : mode === "light" ? <Sun size={size === "small" ? 18 : 22} />
-    : <Monitor size={size === "small" ? 18 : 22} />;
+  const currentIcon =
+    mode === "dark" ? (
+      <Moon size={size === "small" ? 18 : 22} />
+    ) : mode === "light" ? (
+      <Sun size={size === "small" ? 18 : 22} />
+    ) : (
+      <Monitor size={size === "small" ? 18 : 22} />
+    );
 
   if (variant === "menu") {
     return (
@@ -88,7 +102,9 @@ export function ThemeSwitcher({
               }}
             >
               <ListItemIcon sx={{ minWidth: 36 }}>{item.icon}</ListItemIcon>
-              <Typography variant="body2" sx={{ flex: 1 }}>{item.label}</Typography>
+              <Typography variant="body2" sx={{ flex: 1 }}>
+                {item.label}
+              </Typography>
               {mode === item.value && <Check size={16} />}
             </MenuItem>
           ))}
@@ -99,7 +115,15 @@ export function ThemeSwitcher({
 
   return (
     <>
-      <Tooltip title={mode === "dark" ? "Chế độ tối" : mode === "light" ? "Chế độ sáng" : "Theo hệ thống"}>
+      <Tooltip
+        title={
+          mode === "dark"
+            ? "Chế độ tối"
+            : mode === "light"
+              ? "Chế độ sáng"
+              : "Theo hệ thống"
+        }
+      >
         <IconButton
           onClick={handleMenuOpen}
           size={size}

@@ -1,22 +1,33 @@
-import type { Meta } from '@storybook/react';
-import { useState } from 'react';
-import { Box, TextField, Typography, Paper, Chip, Grid, Button, Divider } from '@mui/material';
-import * as TextUtils from '@/shared/utils/text.utils';
+import type { Meta } from "@storybook/react";
+import { useState } from "react";
+import {
+  Box,
+  TextField,
+  Typography,
+  Paper,
+  Chip,
+  Grid,
+  Button,
+  Divider,
+} from "@mui/material";
+import * as TextUtils from "@/shared/utils/text.utils";
 
 const meta = {
-  title: 'Shared/Utils/Text Utils',
+  title: "Shared/Utils/Text Utils",
   parameters: {
-    layout: 'padded',
+    layout: "padded",
   },
 } satisfies Meta;
 
 export default meta;
 
 export const CaseConversion: React.FC = () => {
-  const [input, setInput] = useState('Hello World Example');
+  const [input, setInput] = useState("Hello World Example");
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, maxWidth: 600 }}>
+    <Box
+      sx={{ display: "flex", flexDirection: "column", gap: 3, maxWidth: 600 }}
+    >
       <Typography variant="h5">Case Conversion</Typography>
 
       <TextField
@@ -30,56 +41,70 @@ export const CaseConversion: React.FC = () => {
       <Grid container spacing={2}>
         <Grid item xs={6} sm={4}>
           <Paper sx={{ p: 2 }}>
-            <Typography variant="caption" color="text.secondary">toCamelCase</Typography>
-            <Typography variant="body2" sx={{ fontFamily: 'monospace' }}>
+            <Typography variant="caption" color="text.secondary">
+              toCamelCase
+            </Typography>
+            <Typography variant="body2" sx={{ fontFamily: "monospace" }}>
               {TextUtils.toCamelCase(input)}
             </Typography>
           </Paper>
         </Grid>
         <Grid item xs={6} sm={4}>
           <Paper sx={{ p: 2 }}>
-            <Typography variant="caption" color="text.secondary">toPascalCase</Typography>
-            <Typography variant="body2" sx={{ fontFamily: 'monospace' }}>
+            <Typography variant="caption" color="text.secondary">
+              toPascalCase
+            </Typography>
+            <Typography variant="body2" sx={{ fontFamily: "monospace" }}>
               {TextUtils.toPascalCase(input)}
             </Typography>
           </Paper>
         </Grid>
         <Grid item xs={6} sm={4}>
           <Paper sx={{ p: 2 }}>
-            <Typography variant="caption" color="text.secondary">toSnakeCase</Typography>
-            <Typography variant="body2" sx={{ fontFamily: 'monospace' }}>
+            <Typography variant="caption" color="text.secondary">
+              toSnakeCase
+            </Typography>
+            <Typography variant="body2" sx={{ fontFamily: "monospace" }}>
               {TextUtils.toSnakeCase(input)}
             </Typography>
           </Paper>
         </Grid>
         <Grid item xs={6} sm={4}>
           <Paper sx={{ p: 2 }}>
-            <Typography variant="caption" color="text.secondary">toKebabCase</Typography>
-            <Typography variant="body2" sx={{ fontFamily: 'monospace' }}>
+            <Typography variant="caption" color="text.secondary">
+              toKebabCase
+            </Typography>
+            <Typography variant="body2" sx={{ fontFamily: "monospace" }}>
               {TextUtils.toKebabCase(input)}
             </Typography>
           </Paper>
         </Grid>
         <Grid item xs={6} sm={4}>
           <Paper sx={{ p: 2 }}>
-            <Typography variant="caption" color="text.secondary">toConstantCase</Typography>
-            <Typography variant="body2" sx={{ fontFamily: 'monospace' }}>
+            <Typography variant="caption" color="text.secondary">
+              toConstantCase
+            </Typography>
+            <Typography variant="body2" sx={{ fontFamily: "monospace" }}>
               {TextUtils.toConstantCase(input)}
             </Typography>
           </Paper>
         </Grid>
         <Grid item xs={6} sm={4}>
           <Paper sx={{ p: 2 }}>
-            <Typography variant="caption" color="text.secondary">capitalize</Typography>
-            <Typography variant="body2" sx={{ fontFamily: 'monospace' }}>
+            <Typography variant="caption" color="text.secondary">
+              capitalize
+            </Typography>
+            <Typography variant="body2" sx={{ fontFamily: "monospace" }}>
               {TextUtils.capitalize(input)}
             </Typography>
           </Paper>
         </Grid>
         <Grid item xs={6} sm={4}>
           <Paper sx={{ p: 2 }}>
-            <Typography variant="caption" color="text.secondary">capitalizeWords</Typography>
-            <Typography variant="body2" sx={{ fontFamily: 'monospace' }}>
+            <Typography variant="caption" color="text.secondary">
+              capitalizeWords
+            </Typography>
+            <Typography variant="body2" sx={{ fontFamily: "monospace" }}>
               {TextUtils.capitalizeWords(input)}
             </Typography>
           </Paper>
@@ -90,10 +115,14 @@ export const CaseConversion: React.FC = () => {
 };
 
 export const Truncation: React.FC = () => {
-  const [input, setInput] = useState('Đây là một đoạn văn bản dài cần được cắt ngắn lại');
+  const [input, setInput] = useState(
+    "Đây là một đoạn văn bản dài cần được cắt ngắn lại",
+  );
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, maxWidth: 600 }}>
+    <Box
+      sx={{ display: "flex", flexDirection: "column", gap: 3, maxWidth: 600 }}
+    >
       <Typography variant="h5">Truncation</Typography>
 
       <TextField
@@ -109,7 +138,9 @@ export const Truncation: React.FC = () => {
       <Grid container spacing={2}>
         <Grid item xs={12} sm={6}>
           <Paper sx={{ p: 2 }}>
-            <Typography variant="caption" color="text.secondary">truncate (20 chars)</Typography>
+            <Typography variant="caption" color="text.secondary">
+              truncate (20 chars)
+            </Typography>
             <Typography variant="body2">
               "{TextUtils.truncate(input, 20)}"
             </Typography>
@@ -117,7 +148,9 @@ export const Truncation: React.FC = () => {
         </Grid>
         <Grid item xs={12} sm={6}>
           <Paper sx={{ p: 2 }}>
-            <Typography variant="caption" color="text.secondary">truncateMiddle (20 chars)</Typography>
+            <Typography variant="caption" color="text.secondary">
+              truncateMiddle (20 chars)
+            </Typography>
             <Typography variant="body2">
               "{TextUtils.truncateMiddle(input, 20)}"
             </Typography>
@@ -125,7 +158,9 @@ export const Truncation: React.FC = () => {
         </Grid>
         <Grid item xs={12} sm={6}>
           <Paper sx={{ p: 2 }}>
-            <Typography variant="caption" color="text.secondary">truncateWords (5 words)</Typography>
+            <Typography variant="caption" color="text.secondary">
+              truncateWords (5 words)
+            </Typography>
             <Typography variant="body2">
               "{TextUtils.truncateWords(input, 5)}"
             </Typography>
@@ -133,8 +168,10 @@ export const Truncation: React.FC = () => {
         </Grid>
         <Grid item xs={12} sm={6}>
           <Paper sx={{ p: 2 }}>
-            <Typography variant="caption" color="text.secondary">removeWhitespace</Typography>
-            <Typography variant="body2" sx={{ fontFamily: 'monospace' }}>
+            <Typography variant="caption" color="text.secondary">
+              removeWhitespace
+            </Typography>
+            <Typography variant="body2" sx={{ fontFamily: "monospace" }}>
               "{TextUtils.removeWhitespace(input)}"
             </Typography>
           </Paper>
@@ -145,21 +182,23 @@ export const Truncation: React.FC = () => {
 };
 
 export const Validation: React.FC = () => {
-  const [input, setInput] = useState('');
+  const [input, setInput] = useState("");
 
   const testCases = [
-    { label: 'isEmpty', fn: () => TextUtils.isEmpty(input) },
-    { label: 'isEmail', fn: () => TextUtils.isEmail(input) },
-    { label: 'isUrl', fn: () => TextUtils.isUrl(input) },
-    { label: 'isNumeric', fn: () => TextUtils.isNumeric(input) },
-    { label: 'isAlpha', fn: () => TextUtils.isAlpha(input) },
-    { label: 'isAlphanumeric', fn: () => TextUtils.isAlphanumeric(input) },
-    { label: 'isHexColor', fn: () => TextUtils.isHexColor(input) },
-    { label: 'isWhitespace', fn: () => TextUtils.isWhitespace(input) },
+    { label: "isEmpty", fn: () => TextUtils.isEmpty(input) },
+    { label: "isEmail", fn: () => TextUtils.isEmail(input) },
+    { label: "isUrl", fn: () => TextUtils.isUrl(input) },
+    { label: "isNumeric", fn: () => TextUtils.isNumeric(input) },
+    { label: "isAlpha", fn: () => TextUtils.isAlpha(input) },
+    { label: "isAlphanumeric", fn: () => TextUtils.isAlphanumeric(input) },
+    { label: "isHexColor", fn: () => TextUtils.isHexColor(input) },
+    { label: "isWhitespace", fn: () => TextUtils.isWhitespace(input) },
   ];
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, maxWidth: 600 }}>
+    <Box
+      sx={{ display: "flex", flexDirection: "column", gap: 3, maxWidth: 600 }}
+    >
       <Typography variant="h5">Text Validation</Typography>
 
       <TextField
@@ -171,27 +210,55 @@ export const Validation: React.FC = () => {
         placeholder="Test various inputs..."
       />
 
-      <Paper sx={{ p: 2, bgcolor: '#f5f5f5' }}>
-        <Typography variant="caption" color="text.secondary">Quick tests:</Typography>
+      <Paper sx={{ p: 2, bgcolor: "#f5f5f5" }}>
+        <Typography variant="caption" color="text.secondary">
+          Quick tests:
+        </Typography>
         <Box sx={{ mt: 1 }}>
-          <Chip label="test@example.com" size="small" sx={{ mr: 1 }} onClick={() => setInput('test@example.com')} />
-          <Chip label="https://google.com" size="small" sx={{ mr: 1 }} onClick={() => setInput('https://google.com')} />
-          <Chip label="12345" size="small" sx={{ mr: 1 }} onClick={() => setInput('12345')} />
-          <Chip label="#FF5733" size="small" sx={{ mr: 1 }} onClick={() => setInput('#FF5733')} />
-          <Chip label="HelloWorld" size="small" onClick={() => setInput('HelloWorld')} />
+          <Chip
+            label="test@example.com"
+            size="small"
+            sx={{ mr: 1 }}
+            onClick={() => setInput("test@example.com")}
+          />
+          <Chip
+            label="https://google.com"
+            size="small"
+            sx={{ mr: 1 }}
+            onClick={() => setInput("https://google.com")}
+          />
+          <Chip
+            label="12345"
+            size="small"
+            sx={{ mr: 1 }}
+            onClick={() => setInput("12345")}
+          />
+          <Chip
+            label="#FF5733"
+            size="small"
+            sx={{ mr: 1 }}
+            onClick={() => setInput("#FF5733")}
+          />
+          <Chip
+            label="HelloWorld"
+            size="small"
+            onClick={() => setInput("HelloWorld")}
+          />
         </Box>
       </Paper>
 
       <Grid container spacing={1}>
         {testCases.map(({ label, fn }) => (
           <Grid item xs={4} sm={3} key={label}>
-            <Paper sx={{ p: 1.5, textAlign: 'center' }}>
-              <Typography variant="caption" color="text.secondary">{label}</Typography>
+            <Paper sx={{ p: 1.5, textAlign: "center" }}>
+              <Typography variant="caption" color="text.secondary">
+                {label}
+              </Typography>
               <Box>
                 <Chip
-                  label={fn() ? 'true' : 'false'}
+                  label={fn() ? "true" : "false"}
                   size="small"
-                  color={fn() ? 'success' : 'default'}
+                  color={fn() ? "success" : "default"}
                 />
               </Box>
             </Paper>
@@ -203,12 +270,14 @@ export const Validation: React.FC = () => {
 };
 
 export const Masking: React.FC = () => {
-  const [email, setEmail] = useState('nguyen.van.an@example.com');
-  const [phone, setPhone] = useState('0987654321');
-  const [cccd, setCccd] = useState('079199123456');
+  const [email, setEmail] = useState("nguyen.van.an@example.com");
+  const [phone, setPhone] = useState("0987654321");
+  const [cccd, setCccd] = useState("079199123456");
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, maxWidth: 600 }}>
+    <Box
+      sx={{ display: "flex", flexDirection: "column", gap: 3, maxWidth: 600 }}
+    >
       <Typography variant="h5">Masking</Typography>
 
       <Grid container spacing={2}>
@@ -220,9 +289,13 @@ export const Masking: React.FC = () => {
             fullWidth
             size="small"
           />
-          <Paper sx={{ p: 1.5, mt: 1, bgcolor: '#f5f5f5' }}>
-            <Typography variant="caption" color="text.secondary">maskEmail</Typography>
-            <Typography variant="body2">{TextUtils.maskEmail(email)}</Typography>
+          <Paper sx={{ p: 1.5, mt: 1, bgcolor: "#f5f5f5" }}>
+            <Typography variant="caption" color="text.secondary">
+              maskEmail
+            </Typography>
+            <Typography variant="body2">
+              {TextUtils.maskEmail(email)}
+            </Typography>
           </Paper>
         </Grid>
         <Grid item xs={12} sm={4}>
@@ -233,9 +306,13 @@ export const Masking: React.FC = () => {
             fullWidth
             size="small"
           />
-          <Paper sx={{ p: 1.5, mt: 1, bgcolor: '#f5f5f5' }}>
-            <Typography variant="caption" color="text.secondary">maskPhone</Typography>
-            <Typography variant="body2">{TextUtils.maskPhone(phone)}</Typography>
+          <Paper sx={{ p: 1.5, mt: 1, bgcolor: "#f5f5f5" }}>
+            <Typography variant="caption" color="text.secondary">
+              maskPhone
+            </Typography>
+            <Typography variant="body2">
+              {TextUtils.maskPhone(phone)}
+            </Typography>
           </Paper>
         </Grid>
         <Grid item xs={12} sm={4}>
@@ -246,8 +323,10 @@ export const Masking: React.FC = () => {
             fullWidth
             size="small"
           />
-          <Paper sx={{ p: 1.5, mt: 1, bgcolor: '#f5f5f5' }}>
-            <Typography variant="caption" color="text.secondary">maskCCCD</Typography>
+          <Paper sx={{ p: 1.5, mt: 1, bgcolor: "#f5f5f5" }}>
+            <Typography variant="caption" color="text.secondary">
+              maskCCCD
+            </Typography>
             <Typography variant="body2">{TextUtils.maskCCCD(cccd)}</Typography>
           </Paper>
         </Grid>
@@ -256,15 +335,19 @@ export const Masking: React.FC = () => {
       <Divider />
 
       <Box>
-        <Typography variant="subtitle2" gutterBottom>maskString (visibleStart=2, visibleEnd=3)</Typography>
+        <Typography variant="subtitle2" gutterBottom>
+          maskString (visibleStart=2, visibleEnd=3)
+        </Typography>
         <TextField
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           fullWidth
           size="small"
         />
-        <Paper sx={{ p: 1.5, mt: 1, bgcolor: '#f5f5f5' }}>
-          <Typography variant="body2">{TextUtils.maskString(email, 2, 3)}</Typography>
+        <Paper sx={{ p: 1.5, mt: 1, bgcolor: "#f5f5f5" }}>
+          <Typography variant="body2">
+            {TextUtils.maskString(email, 2, 3)}
+          </Typography>
         </Paper>
       </Box>
     </Box>

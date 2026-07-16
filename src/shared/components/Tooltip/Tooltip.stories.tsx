@@ -24,24 +24,43 @@ export const BasicTooltip: StoryObj = {
 
 export const TooltipPlacements: StoryObj = {
   render: () => (
-    <Box sx={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 4, p: 8 }}>
+    <Box
+      sx={{
+        display: "grid",
+        gridTemplateColumns: "repeat(3, 1fr)",
+        gap: 4,
+        p: 8,
+      }}
+    >
       <Box />
       <Tooltip title="Tooltip ở trên" placement="top">
-        <Button variant="outlined" size="small">Top</Button>
+        <Button variant="outlined" size="small">
+          Top
+        </Button>
       </Tooltip>
       <Box />
       <Tooltip title="Tooltip bên trái" placement="left">
-        <Button variant="outlined" size="small">Left</Button>
+        <Button variant="outlined" size="small">
+          Left
+        </Button>
       </Tooltip>
-      <Box sx={{ bgcolor: "grey.200", p: 4, borderRadius: 1, textAlign: "center" }}>
-        <Typography variant="caption" color="text.secondary">Tooltip placements</Typography>
+      <Box
+        sx={{ bgcolor: "grey.200", p: 4, borderRadius: 1, textAlign: "center" }}
+      >
+        <Typography variant="caption" color="text.secondary">
+          Tooltip placements
+        </Typography>
       </Box>
       <Tooltip title="Tooltip bên phải" placement="right">
-        <Button variant="outlined" size="small">Right</Button>
+        <Button variant="outlined" size="small">
+          Right
+        </Button>
       </Tooltip>
       <Box />
       <Tooltip title="Tooltip ở dưới" placement="bottom">
-        <Button variant="outlined" size="small">Bottom</Button>
+        <Button variant="outlined" size="small">
+          Bottom
+        </Button>
       </Tooltip>
       <Box />
     </Box>
@@ -52,16 +71,24 @@ export const TooltipWithIcons: StoryObj = {
   render: () => (
     <Box sx={{ display: "flex", gap: 1 }}>
       <Tooltip title="Chỉnh sửa">
-        <IconButton><Edit size={20} /></IconButton>
+        <IconButton>
+          <Edit size={20} />
+        </IconButton>
       </Tooltip>
       <Tooltip title="Sao chép">
-        <IconButton><Copy size={20} /></IconButton>
+        <IconButton>
+          <Copy size={20} />
+        </IconButton>
       </Tooltip>
       <Tooltip title="Xóa">
-        <IconButton color="error"><Trash2 size={20} /></IconButton>
+        <IconButton color="error">
+          <Trash2 size={20} />
+        </IconButton>
       </Tooltip>
       <Tooltip title="Cài đặt">
-        <IconButton><Settings size={20} /></IconButton>
+        <IconButton>
+          <Settings size={20} />
+        </IconButton>
       </Tooltip>
     </Box>
   ),
@@ -73,7 +100,9 @@ export const TooltipWithRichContent: StoryObj = {
       title={
         <Box>
           <Typography variant="subtitle2">Thông tin chi tiết</Typography>
-          <Typography variant="caption">Đây là nội dung tooltip với nhiều thông tin hơn.</Typography>
+          <Typography variant="caption">
+            Đây là nội dung tooltip với nhiều thông tin hơn.
+          </Typography>
         </Box>
       }
     >
@@ -87,7 +116,9 @@ export const TooltipWithRichContent: StoryObj = {
 export const TooltipDisabled: StoryObj = {
   render: () => (
     <Tooltip title="Tooltip không hiển thị" disabled>
-      <Button variant="contained" disabled>Button Disabled</Button>
+      <Button variant="contained" disabled>
+        Button Disabled
+      </Button>
     </Tooltip>
   ),
 };
@@ -110,7 +141,9 @@ export const TooltipWithoutArrow: StoryObj = {
 
 export const TooltipGrid: StoryObj = {
   render: () => (
-    <Box sx={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 2 }}>
+    <Box
+      sx={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 2 }}
+    >
       {[
         { placement: "top-start", label: "Top Start" },
         { placement: "top", label: "Top" },
@@ -125,8 +158,14 @@ export const TooltipGrid: StoryObj = {
         { placement: "bottom", label: "Bottom" },
         { placement: "bottom-end", label: "Bottom End" },
       ].map((item) => (
-        <Tooltip key={item.placement} title={`Placement: ${item.placement}`} placement={item.placement as any}>
-          <Button variant="outlined" size="small">{item.label}</Button>
+        <Tooltip
+          key={item.placement}
+          title={`Placement: ${item.placement}`}
+          placement={item.placement as any}
+        >
+          <Button variant="outlined" size="small">
+            {item.label}
+          </Button>
         </Tooltip>
       ))}
     </Box>

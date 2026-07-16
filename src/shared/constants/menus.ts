@@ -1,9 +1,8 @@
-
 import type { Role } from "@/core/permissions/types";
 export interface MenuItem {
   key: string;
   label: string;
-  icon?: string; 
+  icon?: string;
   path?: string;
   children?: MenuItem[];
   roles?: Role[];

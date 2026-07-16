@@ -1,11 +1,26 @@
 "use client";
 
-import { Tooltip as MuiTooltip, TooltipProps as MuiTooltipProps } from "@mui/material";
+import {
+  Tooltip as MuiTooltip,
+  TooltipProps as MuiTooltipProps,
+} from "@mui/material";
 
 export interface TooltipProps {
   title: string | React.ReactNode;
   children: React.ReactElement;
-  placement?: "top" | "bottom" | "left" | "right" | "top-start" | "top-end" | "bottom-start" | "bottom-end" | "left-start" | "left-end" | "right-start" | "right-end";
+  placement?:
+    | "top"
+    | "bottom"
+    | "left"
+    | "right"
+    | "top-start"
+    | "top-end"
+    | "bottom-start"
+    | "bottom-end"
+    | "left-start"
+    | "left-end"
+    | "right-start"
+    | "right-end";
   arrow?: boolean;
   enterDelay?: number;
   leaveDelay?: number;

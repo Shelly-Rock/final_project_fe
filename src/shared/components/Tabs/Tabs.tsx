@@ -1,7 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { Tab as MuiTab, Tabs as MuiTabs, TabProps, Box, Typography } from "@mui/material";
+import {
+  Tab as MuiTab,
+  Tabs as MuiTabs,
+  TabProps,
+  Box,
+  Typography,
+} from "@mui/material";
 import { clsx } from "clsx";
 
 export interface TabItem {
@@ -73,18 +79,18 @@ export function Tabs({
           <MuiTab
             key={index}
             label={item.label}
-            icon={item.icon ? <Box sx={{ mr: 0.5 }}>{item.icon}</Box> : undefined}
+            icon={
+              item.icon ? <Box sx={{ mr: 0.5 }}>{item.icon}</Box> : undefined
+            }
             iconPosition="start"
             disabled={item.disabled}
-            sx={{ flexDirection: orientation === "vertical" ? "row" : "column" }}
+            sx={{
+              flexDirection: orientation === "vertical" ? "row" : "column",
+            }}
           />
         ))}
       </MuiTabs>
-      {showContent && (
-        <Box sx={{ mt: 2 }}>
-          {items[currentValue]?.content}
-        </Box>
-      )}
+      {showContent && <Box sx={{ mt: 2 }}>{items[currentValue]?.content}</Box>}
     </Box>
   );
 }

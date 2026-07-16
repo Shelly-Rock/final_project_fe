@@ -1,7 +1,18 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from "react";
-import { createTheme, ThemeProvider as MuiThemeProvider, CssBaseline } from "@mui/material";
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+  useCallback,
+} from "react";
+import {
+  createTheme,
+  ThemeProvider as MuiThemeProvider,
+  CssBaseline,
+} from "@mui/material";
 
 export type ThemeMode = "light" | "dark" | "system";
 
@@ -121,7 +132,8 @@ const createAppTheme = (mode: "light" | "dark") => {
         styleOverrides: {
           body: {
             scrollbarWidth: "thin",
-            scrollbarColor: mode === "dark" ? "#475569 #1e293b" : "#cbd5e1 #f1f5f9",
+            scrollbarColor:
+              mode === "dark" ? "#475569 #1e293b" : "#cbd5e1 #f1f5f9",
           },
         },
       },
@@ -171,9 +183,10 @@ const createAppTheme = (mode: "light" | "dark") => {
         styleOverrides: {
           root: {
             borderRadius: 12,
-            boxShadow: mode === "dark"
-              ? "0 1px 3px 0 rgb(0 0 0 / 0.3)"
-              : "0 1px 3px 0 rgb(0 0 0 / 0.1)",
+            boxShadow:
+              mode === "dark"
+                ? "0 1px 3px 0 rgb(0 0 0 / 0.3)"
+                : "0 1px 3px 0 rgb(0 0 0 / 0.1)",
           },
         },
       },
@@ -204,9 +217,10 @@ const createAppTheme = (mode: "light" | "dark") => {
           root: {
             borderRadius: 8,
             "&:hover": {
-              backgroundColor: mode === "dark"
-                ? "rgba(59, 130, 246, 0.1)"
-                : "rgba(37, 99, 235, 0.08)",
+              backgroundColor:
+                mode === "dark"
+                  ? "rgba(59, 130, 246, 0.1)"
+                  : "rgba(37, 99, 235, 0.08)",
             },
           },
         },
@@ -224,16 +238,18 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const [resolvedMode, setResolvedMode] = useState<"light" | "dark">("light");
   const [mounted, setMounted] = useState(false);
 
-  // eslint-disable-next-line react-hooks/set-state-in-effect -- Initialization from localStorage requires setState in effect for SSR compatibility
   useEffect(() => {
     const stored = localStorage.getItem(STORAGE_KEY) as ThemeMode | null;
     const initialMode = stored || "system";
-    
+
     const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-    const resolved = initialMode === "system"
-      ? (mediaQuery.matches ? "dark" : "light")
-      : initialMode;
-    
+    const resolved =
+      initialMode === "system"
+        ? mediaQuery.matches
+          ? "dark"
+          : "light"
+        : initialMode;
+
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setModeState(initialMode);
     setResolvedMode(resolved);
@@ -246,9 +262,8 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
 
     const updateResolvedMode = () => {
-      const resolved = mode === "system"
-        ? (mediaQuery.matches ? "dark" : "light")
-        : mode;
+      const resolved =
+        mode === "system" ? (mediaQuery.matches ? "dark" : "light") : mode;
       setResolvedMode(resolved);
 
       document.documentElement.setAttribute("data-theme", resolved);
