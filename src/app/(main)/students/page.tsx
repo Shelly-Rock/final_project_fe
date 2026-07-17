@@ -1,43 +1,23 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import {
-  Box,
-  Typography,
-  Button,
-  TextField,
-  InputAdornment,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  Snackbar,
-  Alert,
-  Paper,
-  ToggleButton,
-  ToggleButtonGroup,
-} from "@mui/material";
-import {
-  Add as AddIcon,
-  Search as SearchIcon,
-  FileDownload as ExportIcon,
-  FileUpload as ImportIcon,
-  Refresh as RefreshIcon,
-} from "@mui/icons-material";
+import { Box, Snackbar, Alert, useTheme } from "@mui/material";
 import {
   StudentTable,
   StudentImportDialog,
   StudentFormDialog,
   StudentDetailDialog,
   exportStudentsToExcel,
-} from "@/feature/student-management/components";
-import { studentService } from "@/feature/student-management/services";
+} from "@/feature/student/components";
+import { Input, Select, PageHeader } from "@/shared/components";
+import { studentService } from "@/feature/student/services";
 import type {
   Student,
   StudentFilters,
   StudentImportRow,
   StudentStatus,
-} from "@/feature/student-management/types";
+} from "@/feature/student/types";
+import { List, CheckSquare, Square, Users } from "lucide-react";
 
 const INITIAL_FILTERS: StudentFilters = {
   search: "",
@@ -81,9 +61,9 @@ export default function StudentManagementPage() {
   }, []);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    refreshStudents();
-  }, [refreshStudents]);
+    const timer = setTimeout(refreshStudents, 0);
+    return () => clearTimeout(timer);
+  }, []);
 
   const filteredStudents = students.filter((student) => {
     if (filters.search) {
@@ -151,142 +131,22 @@ export default function StudentManagementPage() {
   const khoaOptions = studentService.getKhoaOptions();
   const khoaHocOptions = studentService.getKhoaHocOptions();
 
+  // Status filter options
+  const statusOptions = [
+    { value: "all", label: "Tất cả" },
+    { value: "has_topic", label: "Đã chọn đề tài" },
+    { value: "no_topic", label: "Chưa chọn đề tài" },
+  ] as const;
+
   return (
-    <Box sx={{ p: 3 }}>
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          mb: 3,
-        }}
-      >
-        <Box>
-          <Typography variant="h4" sx={{ fontWeight: 600 }}>
-            Quản lý sinh viên
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            Quản lý thông tin sinh viên và đề tài khóa luận
-          </Typography>
-        </Box>
-        <Box sx={{ display: "flex", gap: 1 }}>
-          <Button
-            variant="outlined"
-            startIcon={<ImportIcon />}
-            onClick={() => setImportDialogOpen(true)}
-          >
-            Import
-          </Button>
-          <Button
-            variant="outlined"
-            startIcon={<ExportIcon />}
-            onClick={handleExport}
-            disabled={filteredStudents.length === 0}
-          >
-            Xuất Excel
-          </Button>
-          <Button
-            variant="contained"
-            startIcon={<AddIcon />}
-            onClick={handleAdd}
-          >
-            Thêm sinh viên
-          </Button>
-        </Box>
-      </Box>
-
-      <Paper sx={{ p: 2, mb: 3 }}>
-        <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
-          <TextField
-            size="small"
-            placeholder="Tìm kiếm theo tên, MSSV, email..."
-            value={filters.search}
-            onChange={(e) => setFilters({ ...filters, search: e.target.value })}
-            sx={{ minWidth: 280 }}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon />
-                </InputAdornment>
-              ),
-            }}
-          />
-
-          <FormControl size="small" sx={{ minWidth: 180 }}>
-            <InputLabel>Khoa</InputLabel>
-            <Select
-              value={filters.khoa}
-              label="Khoa"
-              onChange={(e) => setFilters({ ...filters, khoa: e.target.value })}
-            >
-              <MenuItem value="">Tất cả</MenuItem>
-              {khoaOptions.map((khoa) => (
-                <MenuItem key={khoa} value={khoa}>
-                  {khoa}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-
-          <FormControl size="small" sx={{ minWidth: 120 }}>
-            <InputLabel>Khóa</InputLabel>
-            <Select
-              value={filters.khoaHoc}
-              label="Khóa"
-              onChange={(e) =>
-                setFilters({ ...filters, khoaHoc: e.target.value })
-              }
-            >
-              <MenuItem value="">Tất cả</MenuItem>
-              {khoaHocOptions.map((khoa) => (
-                <MenuItem key={khoa} value={khoa}>
-                  {khoa}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            <Typography variant="body2" color="text.secondary">
-              Trạng thái:
-            </Typography>
-            <ToggleButtonGroup
-              size="small"
-              value={filters.status}
-              exclusive
-              onChange={(_, v) => {
-                if (v !== null)
-                  setFilters({ ...filters, status: v as StudentStatus });
-              }}
-            >
-              <ToggleButton value="all">Tất cả</ToggleButton>
-              <ToggleButton value="has_topic">Đã chọn đề tài</ToggleButton>
-              <ToggleButton value="no_topic">Chưa chọn đề tài</ToggleButton>
-            </ToggleButtonGroup>
-          </Box>
-
-          <Box sx={{ flex: 1 }} />
-
-          <Button
-            size="small"
-            startIcon={<RefreshIcon />}
-            onClick={refreshStudents}
-          >
-            Làm mới
-          </Button>
-        </Box>
-
-        <Box sx={{ mt: 2, display: "flex", gap: 2 }}>
-          <Typography variant="body2" color="text.secondary">
-            Tổng: <strong>{filteredStudents.length}</strong> sinh viên
-          </Typography>
-          {filteredStudents.length !== students.length && (
-            <Typography variant="body2" color="text.secondary">
-              (đã lọc từ {students.length})
-            </Typography>
-          )}
-        </Box>
-      </Paper>
+    <Box sx={{ p: 3, maxWidth: 1400, mx: "auto" }}>
+      <PageHeader
+        badge="QUẢN LÝ"
+        badgeIcon={<List size={14} />}
+        title="Quản lý sinh viên"
+        illustration={<Users size={56} strokeWidth={1.5} />}
+        showBgImage={true}
+      />
 
       <StudentTable
         students={filteredStudents}
@@ -294,8 +154,26 @@ export default function StudentManagementPage() {
         onEdit={handleEdit}
         onDelete={handleDelete}
         onView={handleView}
+        filterOptions={[
+          { value: "all", label: "Tất cả", icon: <List size={16} /> },
+          {
+            value: "has_topic",
+            label: "Đã chọn đề tài",
+            icon: <CheckSquare size={16} />,
+          },
+          {
+            value: "no_topic",
+            label: "Chưa chọn đề tài",
+            icon: <Square size={16} />,
+          },
+        ]}
+        filterValue={filters.status}
+        onFilterChange={(value) =>
+          setFilters({ ...filters, status: value as StudentStatus })
+        }
+        onAdd={handleAdd}
+        onRefresh={refreshStudents}
       />
-
       <StudentImportDialog
         open={importDialogOpen}
         onClose={() => setImportDialogOpen(false)}
@@ -307,13 +185,11 @@ export default function StudentManagementPage() {
         onClose={() => setFormDialogOpen(false)}
         student={selectedStudent}
       />
-
       <StudentDetailDialog
         open={detailDialogOpen}
         onClose={() => setDetailDialogOpen(false)}
         student={selectedStudent}
       />
-
       <Snackbar
         open={snackbar.open}
         autoHideDuration={3000}

@@ -5,23 +5,13 @@
 
 import React, { useState, useCallback } from "react";
 import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
   DialogActions,
-  Button,
   Box,
   Typography,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  IconButton,
-  Alert,
   LinearProgress,
+  IconButton,
 } from "@mui/material";
+import { Dialog, Table, TableColumn, Button } from "@/shared/components";
 import {
   CloudUpload as UploadIcon,
   Delete as DeleteIcon,
@@ -160,95 +150,81 @@ export function StudentImportDialog({
     onClose();
   };
 
-  return (
-    <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
-      <DialogTitle>Import Sinh viên từ file</DialogTitle>
-      <DialogContent dividers>
-        <Box sx={{ mb: 3 }}>
-          <Button
-            component="label"
-            variant="outlined"
-            startIcon={<UploadIcon />}
-            sx={{ mb: 2 }}
-          >
-            Chọn file CSV
-            <input
-              type="file"
-              accept=".csv"
-              hidden
-              onChange={handleFileUpload}
-            />
-          </Button>
+  const columns: TableColumn<ImportRow>[] = [
+    { key: "mssv", title: "MSSV" },
+    { key: "hoTen", title: "Họ tên" },
+    { key: "gmail", title: "Email" },
+    { key: "khoa", title: "Khoa" },
+    { key: "khoaHoc", title: "Khóa" },
+    { key: "lop", title: "Lớp" },
+    {
+      key: "actions",
+      title: "Xóa",
+      align: "center",
+      width: 60,
+      render: (_, index) => (
+        <IconButton
+          size="small"
+          color="error"
+          onClick={() => handleRemoveRow(index)}
+        >
+          <DeleteIcon fontSize="small" />
+        </IconButton>
+      ),
+    },
+  ];
 
-          <Alert severity="info" sx={{ mt: 1 }}>
+  return (
+    <Dialog
+      open={open}
+      onClose={handleClose}
+      title="Import Sinh viên từ file"
+      size="lg"
+    >
+      <Box sx={{ mb: 3 }}>
+        <Button
+          component="label"
+          variant="outlined"
+          startIcon={<UploadIcon />}
+          sx={{ mb: 2 }}
+        >
+          Chọn file CSV
+          <input type="file" accept=".csv" hidden onChange={handleFileUpload} />
+        </Button>
+
+        <Box
+          sx={{
+            p: 2,
+            bgcolor: "info.light",
+            borderRadius: 1,
+            color: "info.dark",
+          }}
+        >
+          <Typography variant="body2">
             File CSV cần có các cột:{" "}
             <strong>mssv, hoten, gmail, khoa, khoahoc, lop</strong>
-          </Alert>
+          </Typography>
         </Box>
+      </Box>
 
-        {rows.length > 0 ? (
-          <TableContainer sx={{ maxHeight: 400 }}>
-            <Table size="small" stickyHeader>
-              <TableHead>
-                <TableRow>
-                  <TableCell sx={{ bgcolor: "grey.200", fontWeight: 600 }}>
-                    MSSV
-                  </TableCell>
-                  <TableCell sx={{ bgcolor: "grey.200", fontWeight: 600 }}>
-                    Họ tên
-                  </TableCell>
-                  <TableCell sx={{ bgcolor: "grey.200", fontWeight: 600 }}>
-                    Email
-                  </TableCell>
-                  <TableCell sx={{ bgcolor: "grey.200", fontWeight: 600 }}>
-                    Khoa
-                  </TableCell>
-                  <TableCell sx={{ bgcolor: "grey.200", fontWeight: 600 }}>
-                    Khóa
-                  </TableCell>
-                  <TableCell sx={{ bgcolor: "grey.200", fontWeight: 600 }}>
-                    Lớp
-                  </TableCell>
-                  <TableCell sx={{ bgcolor: "grey.200", fontWeight: 600 }}>
-                    Xóa
-                  </TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {rows.map((row, index) => (
-                  <TableRow key={index}>
-                    <TableCell>{row.mssv}</TableCell>
-                    <TableCell>{row.hoTen}</TableCell>
-                    <TableCell>{row.gmail}</TableCell>
-                    <TableCell>{row.khoa}</TableCell>
-                    <TableCell>{row.khoaHoc}</TableCell>
-                    <TableCell>{row.lop}</TableCell>
-                    <TableCell>
-                      <IconButton
-                        size="small"
-                        color="error"
-                        onClick={() => handleRemoveRow(index)}
-                      >
-                        <DeleteIcon fontSize="small" />
-                      </IconButton>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        ) : (
-          <Box sx={{ textAlign: "center", py: 4 }}>
-            <Typography color="text.secondary">
-              Chưa có dữ liệu. Vui lòng upload file CSV.
-            </Typography>
-          </Box>
-        )}
+      {rows.length > 0 ? (
+        <Box sx={{ maxHeight: 400, overflow: "auto" }}>
+          <Table columns={columns} data={rows} variant="bordered" />
+        </Box>
+      ) : (
+        <Box sx={{ textAlign: "center", py: 4 }}>
+          <Typography color="text.secondary">
+            Chưa có dữ liệu. Vui lòng upload file CSV.
+          </Typography>
+        </Box>
+      )}
 
-        {importing && <LinearProgress sx={{ mt: 2 }} />}
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={handleClose}>Hủy</Button>
+      {importing && <LinearProgress sx={{ mt: 2 }} />}
+
+      <DialogActions sx={{ px: 3, pb: 3 }}>
+        <Button variant="text" onClick={handleClose}>
+          Hủy
+        </Button>
         <Button
           variant="contained"
           onClick={handleImport}

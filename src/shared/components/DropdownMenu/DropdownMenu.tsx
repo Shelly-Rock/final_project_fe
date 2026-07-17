@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import {
   Box,
   Paper,
@@ -10,7 +10,6 @@ import {
   ListItemIcon,
   ListItemText,
   Divider,
-  Typography,
 } from "@mui/material";
 import { ChevronRight } from "lucide-react";
 
@@ -41,6 +40,10 @@ export function DropdownMenu({
 }: DropdownMenuProps & { controlledOpen?: boolean }) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [activeSubmenu, setActiveSubmenu] = useState<string | null>(null);
+  const [triggerElement, setTriggerElement] = useState<HTMLElement | null>(
+    null,
+  );
+  const triggerRef = useRef<HTMLDivElement>(null);
   const isControlled = controlledOpen !== undefined;
   const open = isControlled ? controlledOpen : anchorEl !== null;
 
@@ -88,17 +91,23 @@ export function DropdownMenu({
             bgcolor: item.danger ? "error.main" : "transparent",
             color: item.danger ? "error.contrastText" : "inherit",
             "&:hover": {
-              bgcolor: item.danger ? "error.dark" : "action.hover",
+              bgcolor: "rgba(37, 99, 235, 0.08)",
+            },
+            "&.Mui-selected": {
+              bgcolor: "rgba(37, 99, 235, 0.12)",
+              "&:hover": {
+                bgcolor: "rgba(37, 99, 235, 0.18)",
+              },
             },
             py: 1,
           }}
         >
           {item.icon && (
-            <ListItemIcon sx={{ minWidth: 32, mr: 1 }}>
+            <ListItemIcon sx={{ minWidth: 32, mr: 1, color: "#2563eb" }}>
               {item.icon}
             </ListItemIcon>
           )}
-          <ListItemText primary={item.label} />
+          <ListItemText primary={item.label} sx={{ color: "#1e293b" }} />
           {hasChildren && <ChevronRight size={16} style={{ marginLeft: 8 }} />}
           {hasChildren && activeSubmenu === item.id && (
             <Paper
@@ -125,13 +134,24 @@ export function DropdownMenu({
     );
   };
 
+  const menuAnchorEl = isControlled ? triggerElement : anchorEl;
+
+  const setTriggerRef: React.RefCallback<HTMLDivElement> = (node) => {
+    triggerRef.current = node;
+    setTriggerElement(node);
+  };
+
   return (
     <>
-      <Box onClick={handleOpen} style={{ cursor: "pointer" }}>
+      <Box
+        ref={setTriggerRef}
+        onClick={handleOpen}
+        style={{ cursor: "pointer", display: "inline-flex" }}
+      >
         {trigger}
       </Box>
       <Menu
-        anchorEl={isControlled ? (open ? document.body : null) : anchorEl}
+        anchorEl={menuAnchorEl}
         open={open}
         onClose={handleClose}
         anchorOrigin={{

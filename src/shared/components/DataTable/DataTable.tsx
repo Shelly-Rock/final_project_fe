@@ -16,7 +16,18 @@ import {
   Skeleton,
   IconButton,
   Tooltip,
+  Button,
 } from "@mui/material";
+import {
+  Search,
+  Filter,
+  Download,
+  Upload,
+  RefreshCw,
+  Plus,
+  X,
+} from "lucide-react";
+import { DropdownMenu } from "@/shared/components";
 import type { Order } from "@/shared/types";
 
 export interface Column<T> {
@@ -28,6 +39,12 @@ export interface Column<T> {
   sortable?: boolean;
 }
 
+export interface FilterOption {
+  value: string;
+  label: string;
+  icon?: React.ReactNode;
+}
+
 export interface Action<T> {
   id: string;
   icon: React.ReactNode;
@@ -36,11 +53,25 @@ export interface Action<T> {
   color?: "primary" | "secondary" | "error" | "inherit";
 }
 
+export interface HeaderAction {
+  id: string;
+  icon?: React.ReactNode;
+  label: string;
+  onClick: () => void;
+  variant?: "text" | "outlined" | "contained";
+  color?: "primary" | "secondary" | "error" | "inherit";
+}
+
 export interface DataTableProps<T> {
   columns: Column<T>[];
   rows: T[];
   rowKey: keyof T;
   actions?: Action<T>[];
+  headerActions?: HeaderAction[];
+  filterOptions?: FilterOption[];
+  filterValue?: string;
+  onFilterChange?: (value: string) => void;
+  showFilterButton?: boolean;
   loading?: boolean;
   emptyMessage?: string;
   totalCount?: number;
@@ -72,11 +103,26 @@ function SkeletonRows<T>({
   );
 }
 
+const DEFAULT_HEADER_ACTIONS: HeaderAction[] = [
+  {
+    id: "refresh",
+    icon: <RefreshCw size={18} />,
+    label: "Làm mới",
+    onClick: () => {},
+    variant: "outlined",
+  },
+];
+
 export function DataTable<T extends object>({
   columns,
   rows,
   rowKey,
   actions,
+  headerActions = DEFAULT_HEADER_ACTIONS,
+  filterOptions = [],
+  filterValue,
+  onFilterChange,
+  showFilterButton = false,
   loading = false,
   emptyMessage = "Không có dữ liệu",
   totalCount,
@@ -87,6 +133,7 @@ export function DataTable<T extends object>({
 }: DataTableProps<T>) {
   const [order, setOrder] = useState<Order>("asc");
   const [orderBy, setOrderBy] = useState<string | null>(null);
+  const [filterOpen, setFilterOpen] = useState(false);
 
   const handleSort = (colId: string) => {
     const isAsc = orderBy === colId && order === "asc";
@@ -104,11 +151,187 @@ export function DataTable<T extends object>({
     onRowsPerPageChange?.(parseInt(event.target.value, 10));
   };
 
+  const handleFilterSelect = (value: string) => {
+    onFilterChange?.(value);
+    setFilterOpen(false);
+  };
+
+  const filterMenuItems = filterOptions.map((option) => ({
+    id: option.value,
+    label: option.label,
+    icon: option.icon,
+    onClick: () => handleFilterSelect(option.value),
+  }));
+
   const isSelectable = false;
   const count = totalCount ?? rows.length;
 
+  const getButtonSx = (
+    variant: "text" | "outlined" | "contained" | undefined,
+  ) => {
+    if (variant === "contained") {
+      return {
+        backgroundColor: "#2563eb",
+        color: "#fff",
+        border: "1px solid #2563eb",
+        borderRadius: "6px",
+        px: 2,
+        py: 0.75,
+        fontSize: "0.8125rem",
+        fontWeight: 600,
+        textTransform: "none",
+        "&:hover": {
+          backgroundColor: "#1d4ed8",
+          borderColor: "#1d4ed8",
+          boxShadow: "0 0 0 3px rgba(37, 99, 235, 0.2)",
+        },
+      };
+    }
+    return {
+      color: "#2563eb",
+      border: "1px solid #2563eb",
+      borderRadius: "6px",
+      px: 2,
+      py: 0.75,
+      fontSize: "0.8125rem",
+      fontWeight: 600,
+      textTransform: "none",
+      "&:hover": {
+        backgroundColor: "rgba(37, 99, 235, 0.08)",
+        boxShadow: "0 0 0 3px rgba(37, 99, 235, 0.15)",
+      },
+    };
+  };
+
   return (
-    <Paper sx={{ width: "100%", overflow: "hidden" }}>
+    <Paper sx={{ width: "100%", overflow: "hidden", borderRadius: 2 }}>
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: 1.5,
+          px: 2,
+          py: 1.5,
+          borderBottom: "1px solid",
+          borderColor: "divider",
+          flexWrap: "wrap",
+        }}
+      >
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          <Search size={18} color="#2563eb" />
+          <Box
+            component="input"
+            placeholder="Tìm kiếm..."
+            sx={{
+              border: "none",
+              outline: "none",
+              background: "transparent",
+              fontSize: "0.875rem",
+              color: "#2563eb",
+              fontWeight: 500,
+              "&::placeholder": {
+                color: "#2563eb",
+                opacity: 0.7,
+              },
+            }}
+          />
+        </Box>
+
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          {showFilterButton && filterOptions.length > 0 ? (
+            <DropdownMenu
+              trigger={
+                <Button
+                  size="small"
+                  startIcon={<Filter size={16} />}
+                  sx={getButtonSx("outlined")}
+                >
+                  Filter
+                </Button>
+              }
+              items={filterMenuItems}
+              controlledOpen={filterOpen}
+              onOpenChange={setFilterOpen}
+            />
+          ) : (
+            filterOptions.length > 0 && (
+              <Box sx={{ display: "flex", alignItems: "center" }}>
+                <Typography
+                  variant="caption"
+                  sx={{ color: "#64748b", fontWeight: 500, mr: 1 }}
+                >
+                  Trạng thái:
+                </Typography>
+                <Box sx={{ display: "flex" }}>
+                  {filterOptions.map((option, index) => (
+                    <Box
+                      key={option.value}
+                      onClick={() => onFilterChange?.(option.value)}
+                      sx={{
+                        px: 1.5,
+                        py: 0.5,
+                        fontSize: "0.75rem",
+                        fontWeight: filterValue === option.value ? 600 : 400,
+                        color:
+                          filterValue === option.value ? "#fff" : "#2563eb",
+                        backgroundColor:
+                          filterValue === option.value
+                            ? "#2563eb"
+                            : "transparent",
+                        border: "1px solid #2563eb",
+                        cursor: "pointer",
+                        borderRadius:
+                          index === 0
+                            ? "6px 0 0 6px"
+                            : index === filterOptions.length - 1
+                              ? "0 6px 6px 0"
+                              : "0",
+                        ml: index > 0 ? "-1px" : 0,
+                        "&:hover": {
+                          backgroundColor:
+                            filterValue === option.value
+                              ? "#1d4ed8"
+                              : "rgba(37, 99, 235, 0.08)",
+                        },
+                      }}
+                    >
+                      {option.label}
+                    </Box>
+                  ))}
+                </Box>
+              </Box>
+            )
+          )}
+
+          <Button
+            size="small"
+            startIcon={<Download size={16} />}
+            sx={getButtonSx("outlined")}
+          >
+            Export
+          </Button>
+          <Button
+            size="small"
+            startIcon={<Upload size={16} />}
+            sx={getButtonSx("outlined")}
+          >
+            Import
+          </Button>
+          {headerActions.map((action) => (
+            <Button
+              key={action.id}
+              size="small"
+              startIcon={action.icon}
+              onClick={action.onClick}
+              sx={getButtonSx(action.variant)}
+            >
+              {action.label}
+            </Button>
+          ))}
+        </Box>
+      </Box>
+
       <TableContainer sx={{ maxHeight: 640 }}>
         <Table stickyHeader size="medium">
           <TableHead>

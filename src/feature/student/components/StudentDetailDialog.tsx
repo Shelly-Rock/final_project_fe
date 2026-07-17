@@ -4,18 +4,8 @@
 "use client";
 
 import React from "react";
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
-  Box,
-  Typography,
-  Grid,
-  Divider,
-  Chip,
-} from "@mui/material";
+import { Dialog, Button, Avatar } from "@/shared/components";
+import { Box, Typography, Grid, Chip, Divider } from "@mui/material";
 import type { Student } from "../types";
 
 interface StudentDetailDialogProps {
@@ -24,6 +14,32 @@ interface StudentDetailDialogProps {
   student: Student | null;
 }
 
+const getStatusColor = (status: Student["trangThai"]) => {
+  switch (status) {
+    case "active":
+      return "success";
+    case "inactive":
+      return "default";
+    case "graduated":
+      return "info";
+    default:
+      return "default";
+  }
+};
+
+const getStatusLabel = (status: Student["trangThai"]) => {
+  switch (status) {
+    case "active":
+      return "Đang học";
+    case "inactive":
+      return "Nghỉ học";
+    case "graduated":
+      return "Đã tốt nghiệp";
+    default:
+      return status;
+  }
+};
+
 export function StudentDetailDialog({
   open,
   onClose,
@@ -31,77 +47,42 @@ export function StudentDetailDialog({
 }: StudentDetailDialogProps) {
   if (!student) return null;
 
-  const getStatusColor = (status: Student["trangThai"]) => {
-    switch (status) {
-      case "active":
-        return "success";
-      case "inactive":
-        return "default";
-      case "graduated":
-        return "info";
-      default:
-        return "default";
-    }
-  };
-
-  const getStatusLabel = (status: Student["trangThai"]) => {
-    switch (status) {
-      case "active":
-        return "Đang học";
-      case "inactive":
-        return "Nghỉ học";
-      case "graduated":
-        return "Đã tốt nghiệp";
-      default:
-        return status;
-    }
-  };
-
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-          <Typography variant="h6">Thông tin sinh viên</Typography>
-          <Chip
-            label={getStatusLabel(student.trangThai)}
-            color={getStatusColor(student.trangThai)}
-            size="small"
-          />
-        </Box>
-      </DialogTitle>
-      <DialogContent dividers>
-        <Grid container spacing={2}>
-          <Grid item xs={12}>
-            <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
-              <Box
-                sx={{
-                  width: 60,
-                  height: 60,
-                  borderRadius: "50%",
-                  bgcolor: "primary.main",
-                  color: "white",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: "1.5rem",
-                  fontWeight: 600,
-                }}
-              >
-                {student.hoTen.charAt(0)}
-              </Box>
-              <Box>
-                <Typography variant="h6">{student.hoTen}</Typography>
-                <Typography variant="body2" color="text.secondary">
-                  MSSV: {student.mssv}
-                </Typography>
-              </Box>
+    <Dialog open={open} onClose={onClose} title="Thông tin sinh viên" size="sm">
+      <Box sx={{ p: 2 }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
+          <Avatar
+            src=""
+            alt={student.hoTen}
+            sx={{
+              width: 60,
+              height: 60,
+              bgcolor: "primary.main",
+              color: "white",
+              fontSize: "1.5rem",
+              fontWeight: 600,
+            }}
+          >
+            {student.hoTen.charAt(0)}
+          </Avatar>
+          <Box>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+              <Typography variant="h6">{student.hoTen}</Typography>
+              <Chip
+                label={getStatusLabel(student.trangThai)}
+                color={getStatusColor(student.trangThai)}
+                size="small"
+              />
             </Box>
-          </Grid>
+            <Typography variant="body2" color="text.secondary">
+              MSSV: {student.mssv}
+            </Typography>
+          </Box>
+        </Box>
 
-          <Grid item xs={12}>
-            <Divider sx={{ my: 1 }} />
-          </Grid>
+        <Divider sx={{ my: 2 }} />
 
+        <Grid container spacing={2}>
           <Grid item xs={12} sm={6}>
             <Typography variant="caption" color="text.secondary">
               Email
@@ -175,10 +156,13 @@ export function StudentDetailDialog({
             </Typography>
           </Grid>
         </Grid>
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={onClose}>Đóng</Button>
-      </DialogActions>
+      </Box>
+
+      <Box sx={{ display: "flex", justifyContent: "flex-end", p: 2 }}>
+        <Button variant="text" onClick={onClose}>
+          Đóng
+        </Button>
+      </Box>
     </Dialog>
   );
 }

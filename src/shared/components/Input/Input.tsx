@@ -87,7 +87,22 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         sx={{
           "& .MuiInputBase-root": {
             "& .MuiInputAdornment-root": {
-              color: "text.secondary",
+              color: "#2563eb",
+            },
+            "& .MuiOutlinedInput-notchedOutline": {
+              border: "1px solid #2563eb",
+            },
+            "&:hover .MuiOutlinedInput-notchedOutline": {
+              borderColor: "#2563eb",
+              boxShadow: "0 0 0 3px rgba(37, 99, 235, 0.15)",
+            },
+            "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+              borderColor: "#2563eb",
+              boxShadow: "0 0 0 3px rgba(37, 99, 235, 0.2)",
+            },
+            "& .MuiInputBase-input::placeholder": {
+              color: "#2563eb",
+              opacity: 0.7,
             },
           },
           ...sx,
