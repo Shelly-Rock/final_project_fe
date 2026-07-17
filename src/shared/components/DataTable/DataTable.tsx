@@ -332,7 +332,18 @@ export function DataTable<T extends object>({
         </Box>
       </Box>
 
-      <TableContainer sx={{ maxHeight: 640 }}>
+      <TableContainer
+        sx={{
+          maxHeight: 640,
+          "& .MuiTableCell-stickyHeader": {
+            backgroundColor: "#1470e0 !important",
+            color: "#ffffff !important",
+            "& *": {
+              color: "#ffffff !important",
+            },
+          },
+        }}
+      >
         <Table stickyHeader size="medium">
           <TableHead>
             <TableRow>
@@ -412,6 +423,13 @@ export function DataTable<T extends object>({
                               size="small"
                               onClick={() => action.onClick(row)}
                               color={action.color ?? "default"}
+                              sx={{
+                                "& svg": {
+                                  fill: "none",
+                                  stroke: "currentColor",
+                                  strokeWidth: 2,
+                                },
+                              }}
                             >
                               {action.icon}
                             </IconButton>

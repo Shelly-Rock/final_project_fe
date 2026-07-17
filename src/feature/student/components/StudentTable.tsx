@@ -4,7 +4,8 @@
 "use client";
 
 import React from "react";
-import { Chip, Box, Typography, useTheme } from "@mui/material";
+import { Box, Typography, useTheme } from "@mui/material";
+import { Badge } from "@/shared/components";
 import {
   Edit as EditIcon,
   Delete as DeleteIcon,
@@ -115,13 +116,12 @@ export function StudentTable({
       minWidth: 150,
       format: (_: unknown, student: Student) =>
         student.deTai ? (
-          <Chip
+          <Badge
             label={
               student.deTai.length > 30
                 ? student.deTai.substring(0, 30) + "..."
                 : student.deTai
             }
-            size="small"
             variant="outlined"
             color="primary"
           />
@@ -136,10 +136,10 @@ export function StudentTable({
       label: "Trạng thái",
       minWidth: 100,
       format: (_: unknown, student: Student) => (
-        <Chip
+        <Badge
           label={getStatusLabel(student.trangThai)}
+          variant="soft"
           color={getStatusColor(student.trangThai)}
-          size="small"
         />
       ),
     },
