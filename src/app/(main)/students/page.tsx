@@ -141,8 +141,6 @@ export default function StudentManagementPage() {
   return (
     <Box sx={{ p: 3, maxWidth: 1400, mx: "auto" }}>
       <PageHeader
-        badge="QUẢN LÝ"
-        badgeIcon={<List size={14} />}
         title="Quản lý sinh viên"
         illustration={<Users size={56} strokeWidth={1.5} />}
         showBgImage={true}

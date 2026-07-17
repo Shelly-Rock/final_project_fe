@@ -715,77 +715,44 @@ export function PageHeader({
             </ShimmerBadge>
           )}
 
-          <Typography
-            variant="h3"
-            component="h1"
-            sx={{
-              fontWeight: 700,
-              color: "#2563EB",
-              fontSize: { xs: "1.875rem", md: "2.5rem" },
-              lineHeight: 1.15,
-              letterSpacing: "-0.025em",
-              animation:
-                "fadeInUp 0.6s ease-out, titleGlow 4s ease-in-out infinite",
-              ...titleSx,
-              "html[data-theme='dark'] &": {
-                color: "#FFFFFF",
-              },
-            }}
-          >
-            {title}
-          </Typography>
-
-          {subtitle && (
+          <Box sx={{ float: "left" }}>
             <Typography
-              variant="body1"
+              variant="h3"
+              component="h1"
               sx={{
+                m: 0,
+                p: 0,
+                fontWeight: 700,
                 color: "#2563EB",
-                fontSize: "1rem",
-                lineHeight: 1.6,
-                animation: "fadeInUp 0.7s ease-out",
-                ...subtitleSx,
+                fontSize: { xs: "1.875rem", md: "2.5rem" },
+                lineHeight: 1.15,
+                letterSpacing: "-0.025em",
+                animation:
+                  "fadeInUp 0.6s ease-out, titleGlow 4s ease-in-out infinite",
+                ...titleSx,
+                "html[data-theme='dark'] &": {
+                  color: "#FFFFFF",
+                },
               }}
             >
-              {subtitle}
+              {title}
             </Typography>
-          )}
 
-          {showDecorLine && (
-            <Box
-              sx={{
-                position: "relative",
-                mt: 1,
-                height: 4,
-                width: 80,
-                animation: "scaleIn 0.8s ease-out",
-                "&::before": {
-                  content: '""',
-                  position: "absolute",
-                  left: 0,
-                  top: 0,
-                  height: "100%",
-                  width: "65%",
-                  background:
-                    "linear-gradient(90deg, #6366F1 0%, #818CF8 100%)",
-                  borderRadius: 2,
-                  boxShadow: "0 0 10px rgba(16,185,129,0.5)",
-                },
-                "&::after": {
-                  content: '""',
-                  position: "absolute",
-                  left: "68%",
-                  top: "50%",
-                  transform: "translateY(-50%)",
-                  width: 6,
-                  height: 6,
-                  borderRadius: "50%",
-                  bgcolor: "#6366F1",
-                  boxShadow: "0 0 8px rgba(99,102,241,0.8)",
-                  animation: "pulseDot1 2s ease-in-out infinite",
-                },
-              }}
-            />
-          )}
+            {subtitle && (
+              <Typography
+                variant="body1"
+                sx={{
+                  color: "#2563EB",
+                  fontSize: "1rem",
+                  lineHeight: 1.6,
+                  animation: "fadeInUp 0.7s ease-out",
+                  ...subtitleSx,
+                }}
+              >
+                {subtitle}
+              </Typography>
+            )}
+          </Box>
         </Box>
 
         {actions && (
