@@ -1,15 +1,14 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Box, Snackbar, Alert, useTheme } from "@mui/material";
+import { Box, Snackbar, Alert } from "@mui/material";
 import {
   StudentTable,
   StudentImportDialog,
   StudentFormDialog,
   StudentDetailDialog,
-  exportStudentsToExcel,
 } from "@/feature/student/components";
-import { Input, Select, PageHeader } from "@/shared/components";
+import { PageHeader } from "@/shared/components";
 import { studentService } from "@/feature/student/services";
 import type {
   Student,
@@ -60,10 +59,11 @@ export default function StudentManagementPage() {
       .finally(() => setLoading(false));
   }, []);
 
+  // Initial load with refreshStudents dependency
   useEffect(() => {
     const timer = setTimeout(refreshStudents, 0);
     return () => clearTimeout(timer);
-  }, []);
+  }, [refreshStudents]);
 
   const filteredStudents = students.filter((student) => {
     if (filters.search) {
@@ -91,11 +91,6 @@ export default function StudentManagementPage() {
     } catch {
       showSnackbar("Import thất bại", "error");
     }
-  };
-
-  const handleExport = () => {
-    exportStudentsToExcel(filteredStudents);
-    showSnackbar("Đã xuất file Excel");
   };
 
   const handleDelete = async (student: Student) => {
@@ -128,18 +123,8 @@ export default function StudentManagementPage() {
     setFormDialogOpen(true);
   };
 
-  const khoaOptions = studentService.getKhoaOptions();
-  const khoaHocOptions = studentService.getKhoaHocOptions();
-
-  // Status filter options
-  const statusOptions = [
-    { value: "all", label: "Tất cả" },
-    { value: "has_topic", label: "Đã chọn đề tài" },
-    { value: "no_topic", label: "Chưa chọn đề tài" },
-  ] as const;
-
   return (
-    <Box sx={{ p: 3, maxWidth: 1400, mx: "auto" }}>
+    <Box sx={{ p: 3, width: "100%" }}>
       <PageHeader
         title="Quản lý sinh viên"
         illustration={<Users size={56} strokeWidth={1.5} />}

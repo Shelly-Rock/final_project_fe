@@ -89,7 +89,7 @@ export const TextareaInteractive: StoryObj = {
           label="Bio"
           placeholder="Viết giới thiệu về bản thân..."
           value={value}
-          onChange={(e) => setValue(e.target.value)}
+          onChange={(value) => setValue(value)}
           maxLength={200}
           showCharCount
           helperText="Giới thiệu ngắn gọn về bản thân bạn"

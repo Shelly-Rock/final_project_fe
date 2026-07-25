@@ -1,4 +1,4 @@
-@use "variables";
+@use "variables" as v;
 
 // ---------- Responsive ----------
 @mixin respond-to($breakpoint) {

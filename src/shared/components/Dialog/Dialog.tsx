@@ -72,6 +72,8 @@ export function Dialog({
         sx: {
           borderRadius: 2,
           maxWidth: sizeMap[size] || undefined,
+          bgcolor: "background.paper",
+          color: "text.primary",
         },
       }}
       TransitionComponent={Transition}
@@ -90,7 +92,7 @@ export function Dialog({
               <Typography
                 variant="h6"
                 component="span"
-                sx={{ fontWeight: 600 }}
+                sx={{ fontWeight: 600, color: "text.primary" }}
               >
                 {title}
               </Typography>

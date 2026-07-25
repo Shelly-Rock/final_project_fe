@@ -1,1 +1,2 @@
-import { default as PageHeader } from "./logo.png";
+import pageHeaderJpg from "./pageHeader.jpg";
+export { pageHeaderJpg as PageHeaderBg };

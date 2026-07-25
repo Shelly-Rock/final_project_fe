@@ -24,6 +24,10 @@ export const Icon = {
   person: "bi-person",
   personBadge: "bi-person-badge",
   people: "bi-people",
+  clipboard: "bi-clipboard",
+  clipboardCheck: "bi-clipboard-check",
+  personGear: "bi-person-gear",
+  bookmarkStar: "bi-bookmark-star",
 } as const;
 
 export const MENU_ITEMS: MenuItem[] = [
@@ -32,6 +36,13 @@ export const MENU_ITEMS: MenuItem[] = [
     label: "Quản lý sinh viên",
     icon: Icon.personBadge,
     path: "/students",
+    roles: ["admin", "secretary"],
+  },
+  {
+    key: "registration-periods",
+    label: "Đợt đăng ký",
+    icon: Icon.clipboard,
+    path: "/registration-periods",
     roles: ["admin", "secretary"],
   },
 ];
@@ -46,6 +57,44 @@ export const MENU_SECTIONS: MenuSection[] = [
         icon: Icon.personBadge,
         path: "/students",
         roles: ["admin", "secretary"],
+      },
+      {
+        key: "teachers",
+        label: "Quản lý giảng viên",
+        icon: Icon.personGear,
+        path: "/teachers",
+        roles: ["admin", "secretary"],
+      },
+      {
+        key: "registration-periods",
+        label: "Đợt đăng ký",
+        icon: Icon.clipboard,
+        path: "/registration-periods",
+        roles: ["admin", "secretary"],
+      },
+    ],
+  },
+  {
+    section: "Giảng viên",
+    items: [
+      {
+        key: "my-topics",
+        label: "Đề tài của tôi",
+        icon: Icon.clipboardCheck,
+        path: "/my-topics",
+        roles: ["admin", "teacher"],
+      },
+    ],
+  },
+  {
+    section: "Sinh viên",
+    items: [
+      {
+        key: "topic-registration",
+        label: "Đăng ký đề tài",
+        icon: Icon.bookmarkStar,
+        path: "/topic-registration",
+        roles: ["admin", "student"],
       },
     ],
   },

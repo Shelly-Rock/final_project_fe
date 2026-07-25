@@ -5,7 +5,7 @@ import { TextField, TextFieldProps } from "@mui/material";
 
 export interface TextareaProps extends Omit<
   TextFieldProps,
-  "variant" | "multiline"
+  "variant" | "multiline" | "onChange"
 > {
   minRows?: number;
   maxRows?: number;
@@ -13,6 +13,7 @@ export interface TextareaProps extends Omit<
   showCharCount?: boolean;
   maxLength?: number;
   variant?: "outlined" | "filled" | "standard";
+  onChange?: (value: string) => void;
 }
 
 export const Textarea = forwardRef<HTMLDivElement, TextareaProps>(
@@ -28,12 +29,17 @@ export const Textarea = forwardRef<HTMLDivElement, TextareaProps>(
       error,
       variant = "outlined",
       sx,
+      onChange,
       ...props
     },
     ref,
   ) => {
     const charCount = typeof value === "string" ? value.length : 0;
     const mergedMaxLength = maxLength ?? inputProps?.maxLength;
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      onChange?.(e.target.value);
+    };
 
     return (
       <TextField
@@ -44,6 +50,7 @@ export const Textarea = forwardRef<HTMLDivElement, TextareaProps>(
         value={value}
         error={error}
         variant={variant}
+        onChange={handleChange}
         helperText={
           showCharCount && mergedMaxLength
             ? `${charCount}/${mergedMaxLength}`
@@ -60,6 +67,7 @@ export const Textarea = forwardRef<HTMLDivElement, TextareaProps>(
         inputProps={{
           ...inputProps,
           maxLength: mergedMaxLength,
+          spellCheck: false,
         }}
         {...props}
       />

@@ -10,6 +10,7 @@ import {
   ListItemIcon,
   ListItemText,
   Divider,
+  useTheme,
 } from "@mui/material";
 import { ChevronRight } from "lucide-react";
 
@@ -38,6 +39,7 @@ export function DropdownMenu({
   onOpenChange,
   align = "start",
 }: DropdownMenuProps & { controlledOpen?: boolean }) {
+  const theme = useTheme();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [activeSubmenu, setActiveSubmenu] = useState<string | null>(null);
   const [triggerElement, setTriggerElement] = useState<HTMLElement | null>(
@@ -89,25 +91,37 @@ export function DropdownMenu({
             minWidth: 160,
             position: "relative",
             bgcolor: item.danger ? "error.main" : "transparent",
-            color: item.danger ? "error.contrastText" : "inherit",
+            color: item.danger ? "error.contrastText" : "text.primary",
             "&:hover": {
-              bgcolor: "rgba(37, 99, 235, 0.08)",
+              bgcolor:
+                theme.palette.mode === "dark"
+                  ? "rgba(37, 99, 235, 0.15)"
+                  : "rgba(37, 99, 235, 0.08)",
             },
             "&.Mui-selected": {
-              bgcolor: "rgba(37, 99, 235, 0.12)",
+              bgcolor:
+                theme.palette.mode === "dark"
+                  ? "rgba(37, 99, 235, 0.2)"
+                  : "rgba(37, 99, 235, 0.12)",
               "&:hover": {
-                bgcolor: "rgba(37, 99, 235, 0.18)",
+                bgcolor:
+                  theme.palette.mode === "dark"
+                    ? "rgba(37, 99, 235, 0.25)"
+                    : "rgba(37, 99, 235, 0.18)",
               },
             },
             py: 1,
           }}
         >
           {item.icon && (
-            <ListItemIcon sx={{ minWidth: 32, mr: 1, color: "#2563eb" }}>
+            <ListItemIcon sx={{ minWidth: 32, mr: 1, color: "primary.main" }}>
               {item.icon}
             </ListItemIcon>
           )}
-          <ListItemText primary={item.label} sx={{ color: "#1e293b" }} />
+          <ListItemText
+            primary={item.label}
+            primaryTypographyProps={{ color: "text.primary" }}
+          />
           {hasChildren && <ChevronRight size={16} style={{ marginLeft: 8 }} />}
           {hasChildren && activeSubmenu === item.id && (
             <Paper

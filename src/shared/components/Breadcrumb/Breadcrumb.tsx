@@ -1,12 +1,7 @@
 "use client";
 
-import {
-  Breadcrumbs as MuiBreadcrumbs,
-  Link,
-  Typography,
-  Box,
-} from "@mui/material";
-import { ChevronRight, Home, MoreHorizontal } from "lucide-react";
+import { Breadcrumbs as MuiBreadcrumbs, Link, Box } from "@mui/material";
+import { ChevronRight, MoreHorizontal } from "lucide-react";
 import NextLink from "next/link";
 import { useTheme } from "@/shared/theme";
 
@@ -20,7 +15,6 @@ export interface BreadcrumbProps {
   items: BreadcrumbItem[];
   separator?: React.ReactNode;
   maxItems?: number;
-  showHomeIcon?: boolean;
   onClick?: (item: BreadcrumbItem, index: number) => void;
   size?: "small" | "medium";
 }
@@ -29,7 +23,6 @@ export function Breadcrumb({
   items,
   separator,
   maxItems = 8,
-  showHomeIcon = true,
   onClick,
   size = "medium",
 }: BreadcrumbProps) {
@@ -45,9 +38,11 @@ export function Breadcrumb({
   const showEllipsis = items.length > maxItems;
 
   if (showEllipsis) {
-    const firstItems = processedItems.slice(0, 1);
-    const lastItems = processedItems.slice(-(maxItems - 1));
-    processedItems.splice(1, processedItems.length - maxItems, ...lastItems);
+    processedItems.splice(
+      1,
+      processedItems.length - maxItems,
+      ...processedItems.slice(-(maxItems - 1)),
+    );
   }
 
   return (
@@ -65,7 +60,6 @@ export function Breadcrumb({
     >
       {processedItems.map((item, index) => {
         const isLast = index === processedItems.length - 1;
-        const isFirst = index === 0;
         const isEllipsis = showEllipsis && index === 1;
 
         if (isEllipsis) {
@@ -86,15 +80,16 @@ export function Breadcrumb({
 
         if (isLast) {
           return (
-            <Typography
+            <Box
               key={index}
-              color={isDark ? "#f1f5f9" : "#0f172a"}
-              variant="body2"
               sx={{
-                fontWeight: 500,
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 0.5,
                 fontSize,
-                cursor: onClick ? "pointer" : "default",
+                fontWeight: 500,
                 color: isDark ? "#f1f5f9" : "#334155",
+                cursor: onClick ? "pointer" : "default",
               }}
               onClick={() => onClick?.(item, index)}
             >
@@ -102,16 +97,15 @@ export function Breadcrumb({
                 <Box
                   component="span"
                   sx={{
-                    mr: 0.5,
                     display: "inline-flex",
-                    verticalAlign: "middle",
+                    alignItems: "center",
                   }}
                 >
                   {item.icon}
                 </Box>
               )}
-              {item.label}
-            </Typography>
+              <span>{item.label}</span>
+            </Box>
           );
         }
 
@@ -136,11 +130,18 @@ export function Breadcrumb({
             }}
             onClick={() => onClick?.(item, index)}
           >
-            {isFirst && showHomeIcon && (
-              <Home size={size === "small" ? 14 : 16} />
+            {item.icon && (
+              <Box
+                component="span"
+                sx={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                }}
+              >
+                {item.icon}
+              </Box>
             )}
-            {item.icon && item.icon}
-            {item.label}
+            <span>{item.label}</span>
           </Box>
         );
 
@@ -168,11 +169,18 @@ export function Breadcrumb({
                 },
               }}
             >
-              {isFirst && showHomeIcon && (
-                <Home size={size === "small" ? 14 : 16} />
+              {item.icon && (
+                <Box
+                  component="span"
+                  sx={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                  }}
+                >
+                  {item.icon}
+                </Box>
               )}
-              {item.icon && item.icon}
-              {item.label}
+              <span>{item.label}</span>
             </Link>
           );
         }
@@ -198,11 +206,18 @@ export function Breadcrumb({
             }}
             onClick={() => onClick?.(item, index)}
           >
-            {isFirst && showHomeIcon && (
-              <Home size={size === "small" ? 14 : 16} />
+            {item.icon && (
+              <Box
+                component="span"
+                sx={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                }}
+              >
+                {item.icon}
+              </Box>
             )}
-            {item.icon && item.icon}
-            {item.label}
+            <span>{item.label}</span>
           </Box>
         );
       })}

@@ -44,7 +44,6 @@ export const BreadcrumbWithoutHomeIcon: Story = {
       { label: "Danh mục", href: "/category" },
       { label: "Sản phẩm" },
     ],
-    showHomeIcon: false,
   },
 };
 
@@ -118,6 +117,5 @@ export const BreadcrumbWithFolderIcons: Story = {
       { label: "Reports", href: "/files/documents/reports" },
       { label: "2024" },
     ],
-    showHomeIcon: false,
   },
 };

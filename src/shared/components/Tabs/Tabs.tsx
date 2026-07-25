@@ -1,17 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import {
-  Tab as MuiTab,
-  Tabs as MuiTabs,
-  TabProps,
-  Box,
-  Typography,
-} from "@mui/material";
-import { clsx } from "clsx";
+import { Tab as MuiTab, Tabs as MuiTabs, Box } from "@mui/material";
 
 export interface TabItem {
-  label: string;
+  label: string | React.ReactNode;
   content: React.ReactNode;
   icon?: React.ReactNode;
   disabled?: boolean;

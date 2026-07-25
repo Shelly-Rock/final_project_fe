@@ -18,15 +18,7 @@ import {
   Tooltip,
   Button,
 } from "@mui/material";
-import {
-  Search,
-  Filter,
-  Download,
-  Upload,
-  RefreshCw,
-  Plus,
-  X,
-} from "lucide-react";
+import { Search, Filter, Download, Upload, RefreshCw } from "lucide-react";
 import { DropdownMenu } from "@/shared/components";
 import type { Order } from "@/shared/types";
 
@@ -51,6 +43,7 @@ export interface Action<T> {
   label: string;
   onClick: (row: T) => void;
   color?: "primary" | "secondary" | "error" | "inherit";
+  disabled?: boolean;
 }
 
 export interface HeaderAction {
@@ -72,6 +65,11 @@ export interface DataTableProps<T> {
   filterValue?: string;
   onFilterChange?: (value: string) => void;
   showFilterButton?: boolean;
+  showSearchInput?: boolean;
+  searchValue?: string;
+  onSearchChange?: (value: string) => void;
+  showExportButton?: boolean;
+  showImportButton?: boolean;
   loading?: boolean;
   emptyMessage?: string;
   totalCount?: number;
@@ -123,6 +121,11 @@ export function DataTable<T extends object>({
   filterValue,
   onFilterChange,
   showFilterButton = false,
+  showSearchInput = true,
+  searchValue = "",
+  onSearchChange,
+  showExportButton = true,
+  showImportButton = true,
   loading = false,
   emptyMessage = "Không có dữ liệu",
   totalCount,
@@ -219,23 +222,32 @@ export function DataTable<T extends object>({
         }}
       >
         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-          <Search size={18} color="#2563eb" />
-          <Box
-            component="input"
-            placeholder="Tìm kiếm..."
-            sx={{
-              border: "none",
-              outline: "none",
-              background: "transparent",
-              fontSize: "0.875rem",
-              color: "#2563eb",
-              fontWeight: 500,
-              "&::placeholder": {
-                color: "#2563eb",
-                opacity: 0.7,
-              },
-            }}
-          />
+          {showSearchInput && (
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+              <Search size={18} color="#2563eb" />
+              <Box
+                component="input"
+                type="text"
+                placeholder="Tìm kiếm..."
+                value={searchValue}
+                onChange={(e) => onSearchChange?.(e.target.value)}
+                spellCheck={false}
+                sx={{
+                  border: "none",
+                  outline: "none",
+                  background: "transparent",
+                  fontSize: "0.875rem",
+                  color: "#2563eb",
+                  fontWeight: 500,
+                  width: 180,
+                  "&::placeholder": {
+                    color: "#2563eb",
+                    opacity: 0.7,
+                  },
+                }}
+              />
+            </Box>
+          )}
         </Box>
 
         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
@@ -304,20 +316,24 @@ export function DataTable<T extends object>({
             )
           )}
 
-          <Button
-            size="small"
-            startIcon={<Download size={16} />}
-            sx={getButtonSx("outlined")}
-          >
-            Export
-          </Button>
-          <Button
-            size="small"
-            startIcon={<Upload size={16} />}
-            sx={getButtonSx("outlined")}
-          >
-            Import
-          </Button>
+          {showExportButton && (
+            <Button
+              size="small"
+              startIcon={<Download size={16} />}
+              sx={getButtonSx("outlined")}
+            >
+              Export
+            </Button>
+          )}
+          {showImportButton && (
+            <Button
+              size="small"
+              startIcon={<Upload size={16} />}
+              sx={getButtonSx("outlined")}
+            >
+              Import
+            </Button>
+          )}
           {headerActions.map((action) => (
             <Button
               key={action.id}
@@ -423,6 +439,7 @@ export function DataTable<T extends object>({
                               size="small"
                               onClick={() => action.onClick(row)}
                               color={action.color ?? "default"}
+                              disabled={action.disabled}
                               sx={{
                                 "& svg": {
                                   fill: "none",

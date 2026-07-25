@@ -1,7 +1,13 @@
 "use client";
 
 import { forwardRef } from "react";
-import { Box, TextField, TextFieldProps, InputAdornment } from "@mui/material";
+import {
+  Box,
+  TextField,
+  TextFieldProps,
+  InputAdornment,
+  InputLabelProps,
+} from "@mui/material";
 
 export interface InputProps extends Omit<TextFieldProps, "variant"> {
   variant?: "outlined" | "filled" | "standard";
@@ -28,17 +34,24 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
       helperText,
       error,
       sx,
+      type,
       ...props
     },
     ref,
   ) => {
     const charCount = typeof value === "string" ? value.length : 0;
     const mergedMaxLength = maxLength ?? inputProps?.maxLength;
+    const isDateInput = type === "date";
+
+    const inputLabelProps: InputLabelProps = isDateInput
+      ? { shrink: true }
+      : {};
 
     return (
       <TextField
         ref={ref}
         variant={variant}
+        type={type}
         value={value}
         error={error}
         helperText={
@@ -48,6 +61,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
               ? helperText
               : helperText
         }
+        InputLabelProps={inputLabelProps}
         InputProps={{
           startAdornment: leftIcon ? (
             <InputAdornment position="start">
@@ -83,6 +97,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         inputProps={{
           ...inputProps,
           maxLength: mergedMaxLength,
+          spellCheck: false,
         }}
         sx={{
           "& .MuiInputBase-root": {

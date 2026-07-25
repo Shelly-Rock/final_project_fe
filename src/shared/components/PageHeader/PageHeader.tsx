@@ -1,6 +1,6 @@
 "use client";
 
-import { Box, Typography, SxProps, Theme } from "@mui/material";
+import { Box, Typography, SxProps, Theme, useTheme } from "@mui/material";
 import { ReactNode } from "react";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "../Button";
@@ -448,7 +448,6 @@ export function PageHeader({
   actions,
   showBackButton = false,
   onBack,
-  showDecorLine = true,
   showWave = true,
   showDotGrid = true,
   showBgImage = false,
@@ -456,6 +455,9 @@ export function PageHeader({
   titleSx,
   subtitleSx,
 }: PageHeaderProps) {
+  const theme = useTheme();
+  const isDark = theme.palette.mode === "dark";
+
   return (
     <Box
       sx={{
@@ -657,7 +659,7 @@ export function PageHeader({
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                color: "#2563EB",
+                color: isDark ? "#93C5FD" : "#2563EB",
                 filter: `drop-shadow(0 2px 4px rgba(79,70,229,0.2))`,
                 zIndex: 1,
               }}
@@ -685,11 +687,13 @@ export function PageHeader({
                 minWidth: "auto",
                 px: 1,
                 alignSelf: "flex-start",
-                color: "#2563EB",
+                color: isDark ? "#93C5FD" : "#2563EB",
                 animation: "fadeInUp 0.4s ease-out",
                 "&:hover": {
-                  color: "#2563EB",
-                  bgcolor: "rgba(59,130,246,0.1)",
+                  color: isDark ? "#93C5FD" : "#2563EB",
+                  bgcolor: isDark
+                    ? "rgba(147,197,253,0.1)"
+                    : "rgba(59,130,246,0.1)",
                 },
               }}
               aria-label="Quay lại"
@@ -723,16 +727,13 @@ export function PageHeader({
                 m: 0,
                 p: 0,
                 fontWeight: 700,
-                color: "#2563EB",
+                color: isDark ? "#FFFFFF" : "#2563EB",
                 fontSize: { xs: "1.875rem", md: "2.5rem" },
                 lineHeight: 1.15,
                 letterSpacing: "-0.025em",
                 animation:
                   "fadeInUp 0.6s ease-out, titleGlow 4s ease-in-out infinite",
                 ...titleSx,
-                "html[data-theme='dark'] &": {
-                  color: "#FFFFFF",
-                },
               }}
             >
               {title}
@@ -742,7 +743,7 @@ export function PageHeader({
               <Typography
                 variant="body1"
                 sx={{
-                  color: "#2563EB",
+                  color: isDark ? "#93C5FD" : "#2563EB",
                   fontSize: "1rem",
                   lineHeight: 1.6,
                   animation: "fadeInUp 0.7s ease-out",
