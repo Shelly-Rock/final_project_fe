@@ -53,7 +53,7 @@ import { NextResponse } from "next/server";
 // }
 
 // ---------- Main middleware ----------
-export function middleware() {
+export function proxy() {
   // const { pathname } = req.nextUrl;
 
   // TODO (BE): Uncomment when backend is ready
