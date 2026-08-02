@@ -47,6 +47,12 @@ export default function TeacherManagementPage() {
     return getDepartmentsByFaculty(filterFaculty);
   }, [filterFaculty]);
 
+  // Reset department filter when faculty changes
+  const handleFacultyChange = (facultyId: string) => {
+    setFilterFaculty(facultyId);
+    setFilterDepartment("all"); // Reset department when faculty changes
+  };
+
   // Refresh teachers list
   const refreshTeachers = useCallback(() => {
     setLoading(true);
@@ -69,16 +75,10 @@ export default function TeacherManagementPage() {
     }, 300);
   }, [filterFaculty, filterDepartment]);
 
-  // Initial load
+  // Initial load & re-filter when filter changes
   useEffect(() => {
     refreshTeachers();
   }, [refreshTeachers]);
-
-  // Reset department filter when faculty changes
-  const handleFacultyChange = (facultyId: string) => {
-    setFilterFaculty(facultyId);
-    setFilterDepartment("all"); // Reset department when faculty changes
-  };
 
   // ============================================================
   // TEACHER HANDLERS
@@ -215,66 +215,6 @@ export default function TeacherManagementPage() {
         illustration={<GraduationCap size={56} strokeWidth={1.5} />}
         showBgImage={true}
       />
-
-      {/* Filter Section */}
-      <Box
-        sx={{
-          display: "flex",
-          gap: 2,
-          mb: 2,
-          flexWrap: "wrap",
-        }}
-      >
-        {/* Faculty Filter */}
-        <Box sx={{ minWidth: 220 }}>
-          <select
-            value={filterFaculty}
-            onChange={(e) => handleFacultyChange(e.target.value)}
-            style={{
-              width: "100%",
-              padding: "8px 12px",
-              borderRadius: "6px",
-              border: "1px solid #e2e8f0",
-              fontSize: "14px",
-              backgroundColor: "white",
-              cursor: "pointer",
-            }}
-          >
-            <option value="all">Tất cả Khoa</option>
-            {mockFaculties.map((f) => (
-              <option key={f.id} value={f.id}>
-                {f.name}
-              </option>
-            ))}
-          </select>
-        </Box>
-
-        {/* Department Filter */}
-        <Box sx={{ minWidth: 220 }}>
-          <select
-            value={filterDepartment}
-            onChange={(e) => setFilterDepartment(e.target.value)}
-            disabled={filterFaculty === "all"}
-            style={{
-              width: "100%",
-              padding: "8px 12px",
-              borderRadius: "6px",
-              border: "1px solid #e2e8f0",
-              fontSize: "14px",
-              backgroundColor: filterFaculty === "all" ? "#f1f5f9" : "white",
-              cursor: filterFaculty === "all" ? "not-allowed" : "pointer",
-              opacity: filterFaculty === "all" ? 0.6 : 1,
-            }}
-          >
-            <option value="all">Tất cả Bộ môn</option>
-            {availableDepartments.map((d) => (
-              <option key={d.id} value={d.id}>
-                {d.name}
-              </option>
-            ))}
-          </select>
-        </Box>
-      </Box>
 
       <TeacherTable
         teachers={teachers}

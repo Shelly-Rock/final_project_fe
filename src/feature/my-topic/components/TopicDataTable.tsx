@@ -5,8 +5,6 @@ import { Edit as EditIcon, Delete as DeleteIcon } from "@mui/icons-material";
 import { RefreshCw, Plus, AlertTriangle, Lock, Unlock } from "lucide-react";
 import {
   Box,
-  IconButton,
-  Tooltip,
   Dialog,
   DialogTitle,
   DialogContent,

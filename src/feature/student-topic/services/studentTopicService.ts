@@ -13,7 +13,7 @@ const mockAvailableTopics: AvailableTopic[] = [
     maxStudents: 3,
     registeredCount: 1,
     status: "Approved",
-    registrationStatus: "OPEN", // 1/3 sinh viên - đang mở
+    registrationStatus: "OPEN",
     description:
       "Xây dựng một nền tảng LMS hoàn chỉnh với các tính năng quản lý khóa học, bài tập, và đánh giá. Hệ thống hỗ trợ nhiều người dùng với các vai trò khác nhau như giảng viên, sinh viên và quản trị viên.",
     objectives:

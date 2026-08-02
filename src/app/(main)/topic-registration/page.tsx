@@ -79,21 +79,6 @@ const MOCK_REGISTRATIONS: Record<
   ),
 };
 
-// Helper to get department for lecturer
-function getLecturerDepartment(lecturerId: number): string {
-  const lecturer = mockLecturers.find((l) => l.id === lecturerId);
-  if (!lecturer) return "";
-  return getDepartmentName(lecturer.departmentId);
-}
-
-// Helper to format lecturer display
-function formatLecturerDisplay(lecturerId: number): string {
-  const lecturer = mockLecturers.find((l) => l.id === lecturerId);
-  if (!lecturer) return "";
-  const department = getDepartmentName(lecturer.departmentId);
-  return `${lecturer.name} - [${department}]`;
-}
-
 // Convert mock topics to AvailableTopic format
 function convertToAvailableTopic(
   topic: (typeof mockTopics)[0],

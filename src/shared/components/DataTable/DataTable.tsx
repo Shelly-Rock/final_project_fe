@@ -80,6 +80,11 @@ export interface DataTableProps<T> {
   filterValue?: string;
   onFilterChange?: (value: string) => void;
   showFilterButton?: boolean;
+  // Cascading filter props
+  cascadingFilterOptions?: FilterOption[];
+  cascadingFilterValue?: string;
+  cascadingFilterLabel?: string;
+  onCascadingFilterChange?: (value: string) => void;
   showSearchInput?: boolean;
   searchValue?: string;
   onSearchChange?: (value: string) => void;
@@ -136,6 +141,11 @@ export function DataTable<T extends object>({
   filterValue,
   onFilterChange,
   showFilterButton = false,
+  // Cascading filter props
+  cascadingFilterOptions = [],
+  cascadingFilterValue,
+  cascadingFilterLabel = "Bộ môn",
+  onCascadingFilterChange,
   showSearchInput = true,
   searchValue = "",
   onSearchChange,
@@ -152,6 +162,7 @@ export function DataTable<T extends object>({
   const [order, setOrder] = useState<Order>("asc");
   const [orderBy, setOrderBy] = useState<string | null>(null);
   const [filterOpen, setFilterOpen] = useState(false);
+  const [cascadingFilterOpen, setCascadingFilterOpen] = useState(false);
 
   const handleSort = (colId: string) => {
     const isAsc = orderBy === colId && order === "asc";
@@ -174,11 +185,23 @@ export function DataTable<T extends object>({
     setFilterOpen(false);
   };
 
+  const handleCascadingFilterSelect = (value: string) => {
+    onCascadingFilterChange?.(value);
+    setCascadingFilterOpen(false);
+  };
+
   const filterMenuItems = filterOptions.map((option) => ({
     id: option.value,
     label: option.label,
     icon: option.icon,
     onClick: () => handleFilterSelect(option.value),
+  }));
+
+  const cascadingFilterMenuItems = cascadingFilterOptions.map((option) => ({
+    id: option.value,
+    label: option.label,
+    icon: option.icon,
+    onClick: () => handleCascadingFilterSelect(option.value),
   }));
 
   const isSelectable = false;
@@ -266,6 +289,7 @@ export function DataTable<T extends object>({
         </Box>
 
         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          {/* Primary Filter Button */}
           {showFilterButton && filterOptions.length > 0 ? (
             <DropdownMenu
               trigger={
@@ -273,8 +297,12 @@ export function DataTable<T extends object>({
                   size="small"
                   startIcon={<Filter size={16} />}
                   sx={getButtonSx("outlined")}
+                  variant="outlined"
                 >
-                  Filter
+                  {filterValue && filterValue !== "all"
+                    ? filterOptions.find((o) => o.value === filterValue)
+                        ?.label || "Lọc"
+                    : "Khoa"}
                 </Button>
               }
               items={filterMenuItems}
@@ -329,6 +357,45 @@ export function DataTable<T extends object>({
                 </Box>
               </Box>
             )
+          )}
+
+          {/* Cascading Filter Button (Department) */}
+          {cascadingFilterOptions.length > 0 && (
+            <DropdownMenu
+              trigger={
+                <Button
+                  size="small"
+                  startIcon={<Filter size={16} />}
+                  sx={{
+                    ...getButtonSx("outlined"),
+                    borderColor:
+                      cascadingFilterValue && cascadingFilterValue !== "all"
+                        ? "#10b981"
+                        : "#2563eb",
+                    color:
+                      cascadingFilterValue && cascadingFilterValue !== "all"
+                        ? "#10b981"
+                        : "#2563eb",
+                    "&:hover": {
+                      backgroundColor:
+                        cascadingFilterValue && cascadingFilterValue !== "all"
+                          ? "rgba(16, 185, 129, 0.08)"
+                          : "rgba(37, 99, 235, 0.08)",
+                    },
+                  }}
+                  variant="outlined"
+                >
+                  {cascadingFilterValue && cascadingFilterValue !== "all"
+                    ? cascadingFilterOptions.find(
+                        (o) => o.value === cascadingFilterValue,
+                      )?.label || cascadingFilterLabel
+                    : cascadingFilterLabel}
+                </Button>
+              }
+              items={cascadingFilterMenuItems}
+              controlledOpen={cascadingFilterOpen}
+              onOpenChange={setCascadingFilterOpen}
+            />
           )}
 
           {showExportButton && (

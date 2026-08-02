@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Box, Typography, useTheme } from "@mui/material";
+import { Typography, useTheme } from "@mui/material";
 import { Badge } from "@/shared/components";
 import { Edit as EditIcon, Block } from "@mui/icons-material";
 import { Plus, RefreshCw, Download, Upload } from "lucide-react";
@@ -56,13 +56,13 @@ export function TeacherTable({
   const textColor = isDarkMode ? "#cbd5e1" : "#0F172A";
   const secondaryTextColor = isDarkMode ? "#94a3b8" : "#64748b";
 
-  // Build filter options for Faculty
+  // Build filter options for Faculty (for DataTable dropdown)
   const facultyFilterOptions = [
     { value: "all", label: "Tất cả Khoa" },
     ...faculties.map((f) => ({ value: f.id, label: f.name })),
   ];
 
-  // Build filter options for Department (based on selected Faculty)
+  // Build filter options for Department (cascading)
   const departmentFilterOptions = [
     { value: "all", label: "Tất cả Bộ môn" },
     ...departments.map((d) => ({ value: d.id, label: d.name })),
@@ -228,10 +228,16 @@ export function TeacherTable({
       rowKey="id"
       actions={actions}
       headerActions={headerActions}
+      // Primary filter (Khoa)
       filterOptions={facultyFilterOptions}
       filterValue={filterFaculty}
       onFilterChange={onFilterFacultyChange}
       showFilterButton={true}
+      // Cascading filter (Bộ môn)
+      cascadingFilterOptions={departmentFilterOptions}
+      cascadingFilterValue={filterDepartment}
+      cascadingFilterLabel="Bộ môn"
+      onCascadingFilterChange={onFilterDepartmentChange}
       showExportButton={false}
       showImportButton={false}
       loading={loading}
