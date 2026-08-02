@@ -61,7 +61,13 @@ export function PeriodTable({
       label: "Học kỳ",
       minWidth: 80,
       align: "center",
-      format: (val) => semesterLabel[val as keyof typeof semesterLabel] || val,
+      format: (val) => {
+        const semesterVal = val as string;
+        return (
+          semesterLabel[semesterVal as keyof typeof semesterLabel] ||
+          semesterVal
+        );
+      },
     },
     {
       id: "schoolYear",

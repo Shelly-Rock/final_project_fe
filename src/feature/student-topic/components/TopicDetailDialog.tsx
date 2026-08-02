@@ -1,57 +1,41 @@
 "use client";
 
 import { useState } from "react";
-import { Box, Typography, Divider, Alert } from "@mui/material";
+import { Box, Typography, Divider, Alert, Tabs, Tab } from "@mui/material";
 import {
   User,
   Mail,
   Building2,
-  Target,
-  Wrench,
-  Award,
   Calendar,
   Clock,
   Printer,
+  Users,
+  BookOpen,
+  Target,
+  Monitor,
 } from "lucide-react";
 import { Dialog, Button, Badge } from "@/shared/components";
 import type { AvailableTopic, RegistrationRequest } from "../types";
 
-// InfoItem component - defined outside to avoid recreation during render
-function InfoItem({
-  icon,
-  label,
-  value,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  value: string;
-}) {
-  return (
-    <Box sx={{ display: "flex", alignItems: "flex-start", gap: 1.5, mb: 2 }}>
-      <Box sx={{ color: "#2563eb", mt: 0.25 }}>{icon}</Box>
-      <Box sx={{ flex: 1 }}>
-        <Typography
-          variant="caption"
-          sx={{ color: "text.secondary", display: "block", mb: 0.25 }}
-        >
-          {label}
-        </Typography>
-        <Typography variant="body2" sx={{ fontWeight: 500 }}>
-          {value}
-        </Typography>
-      </Box>
-    </Box>
-  );
+interface TabPanelProps {
+  children?: React.ReactNode;
+  index: number;
+  value: number;
 }
 
-interface TopicDetailDialogProps {
-  open: boolean;
-  onClose: () => void;
-  topic: AvailableTopic | null;
-  registration?: RegistrationRequest | null;
-  onRegister: (topicId: string) => Promise<void>;
-  onPrintConfirmation?: (registration: RegistrationRequest) => void;
-  isExpired?: boolean;
+function TabPanel(props: TabPanelProps) {
+  const { children, value, index, ...other } = props;
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`topic-detail-tabpanel-${index}`}
+      aria-labelledby={`topic-detail-tab-${index}`}
+      {...other}
+    >
+      {value === index && <Box sx={{ py: 2 }}>{children}</Box>}
+    </div>
+  );
 }
 
 const statusConfig = {
@@ -63,7 +47,7 @@ const statusConfig = {
   Approved: {
     label: "Đã duyệt",
     color: "success" as const,
-    icon: <Award size={16} />,
+    icon: <BookOpen size={16} />,
   },
   Rejected: {
     label: "Từ chối",
@@ -71,6 +55,38 @@ const statusConfig = {
     icon: <Clock size={16} />,
   },
 };
+
+// Trạng thái đăng ký cho sinh viên xem
+const registrationStatusConfig = {
+  OPEN: {
+    label: "Mở đăng ký",
+    color: "success" as const,
+    bgColor: "#dcfce7",
+    textColor: "#166534",
+  },
+  FULL: {
+    label: "Đã đầy",
+    color: "warning" as const,
+    bgColor: "#fef3c7",
+    textColor: "#92400e",
+  },
+  LOCKED: {
+    label: "Đã chốt danh sách",
+    color: "default" as const,
+    bgColor: "#f3f4f6",
+    textColor: "#6b7280",
+  },
+};
+
+interface TopicDetailDialogProps {
+  open: boolean;
+  onClose: () => void;
+  topic: AvailableTopic | null;
+  registration?: RegistrationRequest | null;
+  onRegister: (topicId: string) => Promise<void>;
+  onPrintConfirmation?: (registration: RegistrationRequest) => void;
+  isExpired?: boolean;
+}
 
 export function TopicDetailDialog({
   open,
@@ -82,6 +98,7 @@ export function TopicDetailDialog({
   isExpired = false,
 }: TopicDetailDialogProps) {
   const [loading, setLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState(0);
 
   if (!topic) return null;
 
@@ -116,7 +133,7 @@ export function TopicDetailDialog({
               : "warning"
         }
         sx={{
-          mb: 3,
+          mb: 2,
           borderRadius: 2,
           bgcolor: "background.default",
           color: "text.primary",
@@ -156,7 +173,11 @@ export function TopicDetailDialog({
       open={open}
       onClose={onClose}
       title={topic.name}
-      description="Thông tin chi tiết đề tài khóa luận"
+      description={
+        topic.englishName
+          ? `English: ${topic.englishName}`
+          : "Thông tin chi tiết đề tài khóa luận"
+      }
       size="lg"
       actions={
         <>
@@ -173,8 +194,27 @@ export function TopicDetailDialog({
             </Button>
           )}
           {!isExpired && !registration && (
-            <Button color="primary" onClick={handleRegister} loading={loading}>
-              Gửi yêu cầu đăng ký
+            <Button
+              color="primary"
+              onClick={handleRegister}
+              loading={loading}
+              disabled={
+                topic.registeredCount >= topic.maxStudents ||
+                topic.registrationStatus === "LOCKED"
+              }
+              sx={{
+                opacity: topic.registrationStatus === "LOCKED" ? 0.6 : 1,
+                cursor:
+                  topic.registrationStatus === "LOCKED"
+                    ? "not-allowed"
+                    : "pointer",
+              }}
+            >
+              {topic.registrationStatus === "LOCKED"
+                ? "Không thể đăng ký"
+                : topic.registeredCount >= topic.maxStudents
+                  ? "Đề tài đã đầy"
+                  : "Gửi yêu cầu đăng ký"}
             </Button>
           )}
         </>
@@ -183,85 +223,251 @@ export function TopicDetailDialog({
       <Box sx={{ px: 1 }}>
         {renderStatusSection()}
 
-        <InfoItem
-          icon={<User size={16} />}
-          label="Giảng viên hướng dẫn"
-          value={topic.teacherName}
-        />
-
-        <InfoItem
-          icon={<Mail size={16} />}
-          label="Email giảng viên"
-          value={topic.teacherEmail}
-        />
-
-        <InfoItem
-          icon={<Building2 size={16} />}
-          label="Khoa"
-          value={topic.department}
-        />
-
-        <InfoItem
-          icon={<Calendar size={16} />}
-          label="Sĩ số"
-          value={`${topic.registeredCount}/${topic.maxStudents} sinh viên`}
-        />
-
-        <Divider sx={{ my: 2 }} />
-
-        <Typography
-          variant="subtitle2"
+        {/* Tabs */}
+        <Tabs
+          value={activeTab}
+          onChange={(_event, newValue) => setActiveTab(newValue)}
           sx={{
-            color: "text.secondary",
-            mb: 1.5,
-            display: "flex",
-            alignItems: "center",
-            gap: 1,
+            minHeight: 36,
+            mb: 1,
+            "& .MuiTab-root": {
+              minHeight: 36,
+              textTransform: "none",
+              fontWeight: 500,
+            },
           }}
         >
-          <Target size={14} /> Mục tiêu
-        </Typography>
-        <Typography variant="body2" sx={{ mb: 2, lineHeight: 1.6 }}>
-          {topic.objectives}
-        </Typography>
+          <Tab label="Thông tin đề tài" />
+          <Tab
+            label={
+              <Box
+                component="span"
+                sx={{ display: "flex", alignItems: "center", gap: 0.5 }}
+              >
+                <Users size={14} />
+                Danh sách sinh viên ({topic.registeredStudents?.length || 0}/
+                {topic.maxStudents})
+              </Box>
+            }
+          />
+        </Tabs>
 
-        <Typography
-          variant="subtitle2"
-          sx={{
-            color: "text.secondary",
-            mb: 1.5,
-            display: "flex",
-            alignItems: "center",
-            gap: 1,
-          }}
-        >
-          <Wrench size={14} /> Yêu cầu kỹ thuật
-        </Typography>
-        <Typography variant="body2" sx={{ mb: 2, lineHeight: 1.6 }}>
-          {topic.technicalRequirements}
-        </Typography>
+        {/* Tab 1: Thông tin đề tài */}
+        <TabPanel value={activeTab} index={0}>
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 2.5 }}>
+            {/* Giảng viên */}
+            <Box>
+              <Box
+                sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}
+              >
+                <User size={14} style={{ color: "#2563eb" }} />
+                <Typography variant="caption" color="text.secondary">
+                  Giảng viên hướng dẫn
+                </Typography>
+              </Box>
+              <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                {topic.teacherName}
+              </Typography>
+            </Box>
 
-        <Typography
-          variant="subtitle2"
-          sx={{
-            color: "text.secondary",
-            mb: 1.5,
-            display: "flex",
-            alignItems: "center",
-            gap: 1,
-          }}
-        >
-          <Award size={14} /> Kết quả mong đợi
-        </Typography>
-        <Typography variant="body2" sx={{ mb: 2, lineHeight: 1.6 }}>
-          {topic.expectedOutcome}
-        </Typography>
+            {/* Email */}
+            <Box>
+              <Box
+                sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}
+              >
+                <Mail size={14} style={{ color: "#2563eb" }} />
+                <Typography variant="caption" color="text.secondary">
+                  Email giảng viên
+                </Typography>
+              </Box>
+              <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                {topic.teacherEmail}
+              </Typography>
+            </Box>
 
-        <Divider sx={{ my: 2 }} />
+            {/* Khoa */}
+            <Box>
+              <Box
+                sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}
+              >
+                <Building2 size={14} style={{ color: "#2563eb" }} />
+                <Typography variant="caption" color="text.secondary">
+                  Khoa
+                </Typography>
+              </Box>
+              <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                {topic.department}
+              </Typography>
+            </Box>
 
-        <Typography variant="body2" color="text.secondary">
-          {topic.description}
-        </Typography>
+            {/* Sĩ số */}
+            <Box>
+              <Box
+                sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}
+              >
+                <Calendar size={14} style={{ color: "#2563eb" }} />
+                <Typography variant="caption" color="text.secondary">
+                  Sĩ số
+                </Typography>
+              </Box>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                  {topic.registeredCount}/{topic.maxStudents} sinh viên
+                </Typography>
+                {/* Badge trạng thái đăng ký */}
+                <Box
+                  component="span"
+                  sx={{
+                    px: 1,
+                    py: 0.25,
+                    borderRadius: 1,
+                    fontSize: "0.7rem",
+                    fontWeight: 600,
+                    bgcolor:
+                      registrationStatusConfig[topic.registrationStatus]
+                        .bgColor,
+                    color:
+                      registrationStatusConfig[topic.registrationStatus]
+                        .textColor,
+                  }}
+                >
+                  {registrationStatusConfig[topic.registrationStatus].label}
+                </Box>
+              </Box>
+            </Box>
+
+            <Divider />
+
+            {/* Mô tả đề tài */}
+            <Box>
+              <Box
+                sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}
+              >
+                <BookOpen size={14} style={{ color: "#2563eb" }} />
+                <Typography variant="caption" color="text.secondary">
+                  Mô tả đề tài
+                </Typography>
+              </Box>
+              <Typography
+                variant="body2"
+                sx={{ lineHeight: 1.6, whiteSpace: "pre-wrap" }}
+              >
+                {topic.description || "Chưa có mô tả"}
+              </Typography>
+            </Box>
+
+            {/* Mục tiêu đề tài */}
+            {topic.objectives && (
+              <Box>
+                <Box
+                  sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}
+                >
+                  <Target size={14} style={{ color: "#2563eb" }} />
+                  <Typography variant="caption" color="text.secondary">
+                    Mục tiêu đề tài
+                  </Typography>
+                </Box>
+                <Typography
+                  variant="body2"
+                  sx={{ lineHeight: 1.6, whiteSpace: "pre-wrap" }}
+                >
+                  {topic.objectives}
+                </Typography>
+              </Box>
+            )}
+
+            {/* Công nghệ sử dụng */}
+            {topic.technologies && (
+              <Box>
+                <Box
+                  sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}
+                >
+                  <Monitor size={14} style={{ color: "#2563eb" }} />
+                  <Typography variant="caption" color="text.secondary">
+                    Công nghệ sử dụng
+                  </Typography>
+                </Box>
+                <Typography
+                  variant="body2"
+                  sx={{ lineHeight: 1.6, whiteSpace: "pre-wrap" }}
+                >
+                  {topic.technologies}
+                </Typography>
+              </Box>
+            )}
+          </Box>
+        </TabPanel>
+
+        {/* Tab 2: Danh sách sinh viên */}
+        <TabPanel value={activeTab} index={1}>
+          {topic.registeredStudents && topic.registeredStudents.length > 0 ? (
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
+              {topic.registeredStudents.map((student, index) => (
+                <Box
+                  key={student.id}
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 2,
+                    p: 1.5,
+                    borderRadius: 1,
+                    bgcolor: "action.hover",
+                    border: "1px solid",
+                    borderColor: "divider",
+                  }}
+                >
+                  <Box
+                    sx={{
+                      width: 28,
+                      height: 28,
+                      borderRadius: "50%",
+                      bgcolor: "primary.main",
+                      color: "primary.contrastText",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: "0.75rem",
+                      fontWeight: 600,
+                    }}
+                  >
+                    {student.order || index + 1}
+                  </Box>
+                  <Box sx={{ flex: 1 }}>
+                    <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                      {student.studentName}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      MSSV: {student.studentCode}
+                    </Typography>
+                  </Box>
+                  {student.registeredAt && (
+                    <Typography variant="caption" color="text.secondary">
+                      {new Date(student.registeredAt).toLocaleDateString(
+                        "vi-VN",
+                      )}
+                    </Typography>
+                  )}
+                </Box>
+              ))}
+            </Box>
+          ) : (
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                py: 4,
+                color: "text.secondary",
+              }}
+            >
+              <Users size={48} strokeWidth={1} />
+              <Typography variant="body2" sx={{ mt: 1 }}>
+                Chưa có sinh viên đăng ký
+              </Typography>
+            </Box>
+          )}
+        </TabPanel>
       </Box>
     </Dialog>
   );

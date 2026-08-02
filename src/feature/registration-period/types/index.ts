@@ -19,6 +19,14 @@ export type TeacherParticipationStatus = "assigned" | "accepted" | "declined";
 // ============================================================
 
 /**
+ * Cấu hình sĩ số tối đa theo ngành
+ */
+export interface DepartmentStudentLimit {
+  department: string; // Tên ngành/khoa
+  maxStudents: number; // Số sinh viên tối đa cho mỗi đề tài của ngành này
+}
+
+/**
  * Đợt đăng ký đề tài
  */
 export interface RegistrationPeriod {
@@ -32,6 +40,8 @@ export interface RegistrationPeriod {
   defaultQuota: number; // Chỉ tiêu mặc định cho mỗi GV (thường là 3)
   status: PeriodStatus;
   description?: string;
+  // Cấu hình sĩ số tối đa theo ngành - Thư ký cấu hình khi tạo đợt
+  departmentStudentLimits?: DepartmentStudentLimit[];
   createdAt: string;
   updatedAt: string;
 }
@@ -100,6 +110,7 @@ export interface CreatePeriodInput {
   studentDeadline: string;
   defaultQuota: number;
   description?: string;
+  departmentStudentLimits?: DepartmentStudentLimit[];
 }
 
 export interface UpdatePeriodInput extends Partial<CreatePeriodInput> {

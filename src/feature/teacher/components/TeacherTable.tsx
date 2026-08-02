@@ -6,21 +6,20 @@ import { Badge } from "@/shared/components";
 import { Edit as EditIcon, Block } from "@mui/icons-material";
 import { Plus, RefreshCw, Download, Upload } from "lucide-react";
 import { DataTable } from "@/shared/components";
-import type {
-  Column,
-  Action,
-  HeaderAction,
-  FilterOption,
-} from "@/shared/components";
-import type { Teacher } from "../types";
+import type { Column, Action, HeaderAction } from "@/shared/components";
+import type { Lecturer } from "@/feature/admin/types";
+import { getFacultyName, getDepartmentName } from "@/feature/admin/mockData";
 
 interface TeacherTableProps {
-  teachers: Teacher[];
+  teachers: Lecturer[];
   loading?: boolean;
+  filterFaculty?: string;
   filterDepartment?: string;
+  onFilterFacultyChange?: (value: string) => void;
   onFilterDepartmentChange?: (value: string) => void;
-  departments?: string[];
-  onEdit: (teacher: Teacher) => void;
+  faculties?: { id: string; name: string }[];
+  departments?: { id: string; name: string }[];
+  onEdit: (teacher: Lecturer) => void;
   onToggleStatus: (
     teacherId: number,
     currentStatus: "active" | "inactive",
@@ -39,8 +38,11 @@ const statusConfig = {
 export function TeacherTable({
   teachers,
   loading = false,
+  filterFaculty = "all",
   filterDepartment = "all",
+  onFilterFacultyChange,
   onFilterDepartmentChange,
+  faculties = [],
   departments = [],
   onEdit,
   onToggleStatus,
@@ -54,13 +56,19 @@ export function TeacherTable({
   const textColor = isDarkMode ? "#cbd5e1" : "#0F172A";
   const secondaryTextColor = isDarkMode ? "#94a3b8" : "#64748b";
 
-  // Build filter options from departments
-  const filterOptions: FilterOption[] = [
-    { value: "all", label: "Tất cả chuyên ngành" },
-    ...departments.map((dept) => ({ value: dept, label: dept })),
+  // Build filter options for Faculty
+  const facultyFilterOptions = [
+    { value: "all", label: "Tất cả Khoa" },
+    ...faculties.map((f) => ({ value: f.id, label: f.name })),
   ];
 
-  const columns: Column<Teacher>[] = [
+  // Build filter options for Department (based on selected Faculty)
+  const departmentFilterOptions = [
+    { value: "all", label: "Tất cả Bộ môn" },
+    ...departments.map((d) => ({ value: d.id, label: d.name })),
+  ];
+
+  const columns: Column<Lecturer>[] = [
     {
       id: "code",
       label: "Mã GV",
@@ -75,12 +83,12 @@ export function TeacherTable({
       ),
     },
     {
-      id: "fullName",
-      label: "Họ và tên",
+      id: "name",
+      label: "Họ tên",
       minWidth: 180,
       format: (_, row) => (
         <Typography variant="body2" sx={{ fontWeight: 500, color: textColor }}>
-          {row.fullName}
+          {row.name}
         </Typography>
       ),
     },
@@ -96,8 +104,8 @@ export function TeacherTable({
     },
     {
       id: "phone",
-      label: "Số điện thoại",
-      minWidth: 120,
+      label: "SĐT",
+      minWidth: 110,
       format: (_, row) => (
         <Typography variant="body2" sx={{ color: secondaryTextColor }}>
           {row.phone || "—"}
@@ -105,12 +113,22 @@ export function TeacherTable({
       ),
     },
     {
-      id: "department",
-      label: "Chuyên ngành",
+      id: "facultyId",
+      label: "Khoa",
       minWidth: 180,
       format: (_, row) => (
         <Typography variant="body2" sx={{ color: textColor }}>
-          {row.department}
+          {getFacultyName(row.facultyId)}
+        </Typography>
+      ),
+    },
+    {
+      id: "departmentId",
+      label: "Bộ môn",
+      minWidth: 180,
+      format: (_, row) => (
+        <Typography variant="body2" sx={{ color: textColor }}>
+          {getDepartmentName(row.departmentId)}
         </Typography>
       ),
     },
@@ -139,7 +157,7 @@ export function TeacherTable({
     },
   ];
 
-  const actions: Action<Teacher>[] = [
+  const actions: Action<Lecturer>[] = [
     {
       id: "edit",
       icon: <EditIcon fontSize="small" />,
@@ -210,9 +228,9 @@ export function TeacherTable({
       rowKey="id"
       actions={actions}
       headerActions={headerActions}
-      filterOptions={filterOptions}
-      filterValue={filterDepartment}
-      onFilterChange={onFilterDepartmentChange}
+      filterOptions={facultyFilterOptions}
+      filterValue={filterFaculty}
+      onFilterChange={onFilterFacultyChange}
       showFilterButton={true}
       showExportButton={false}
       showImportButton={false}

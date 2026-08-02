@@ -1,30 +1,40 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { Box, Alert, Card, Button, Typography } from "@mui/material";
 import { BookOpen, Printer, CheckCircle } from "lucide-react";
 import {
   AvailableTopicTable,
   TopicDetailDialog,
 } from "@/feature/student-topic/components";
+import type {
+  AvailableTopic,
+  RegistrationRequest,
+  RegisteredStudent,
+} from "@/feature/student-topic/types";
 import {
-  studentTopicService,
-  type AvailableTopic,
-  type RegistrationRequest,
-} from "@/feature/student-topic";
+  mockTopics,
+  mockLecturers,
+  mockRegisteredStudents,
+  getDepartmentName,
+} from "@/feature/admin/mockData";
 import { PageHeader } from "@/shared/components";
 import { toast } from "sonner";
+
+// Simulate student with specialization
+const CURRENT_STUDENT_SPECIALIZATION = "SPEC_01"; // Công nghệ phần mềm
 
 type StudentStatus = "UNREGISTERED" | "PENDING" | "REJECTED" | "APPROVED";
 
 // Initial mock state
-const INITIAL_MOCK_STATUS: StudentStatus = "UNREGISTERED"; // Change this to "UNREGISTERED", "PENDING", or "REJECTED" to test different scenarios
+const INITIAL_MOCK_STATUS: StudentStatus = "UNREGISTERED"; // Change to test
 
 // Mock registrations data
 const createMockRegistration = (
   topicId: string,
   topicName: string,
   teacherName: string,
+  teacherEmail: string,
   status: "Pending" | "Approved" | "Rejected",
   rejectionReason?: string,
 ): RegistrationRequest => ({
@@ -32,7 +42,7 @@ const createMockRegistration = (
   topicId,
   topicName,
   teacherName,
-  teacherEmail: `${teacherName.toLowerCase().replace(/\s+/g, "")}@university.edu`,
+  teacherEmail,
   studentId: "student-001",
   studentName: "Nguyễn Văn Sinh",
   requestedAt: new Date().toISOString(),
@@ -46,25 +56,77 @@ const MOCK_REGISTRATIONS: Record<
   RegistrationRequest
 > = {
   PENDING: createMockRegistration(
-    "topic-001",
-    "Xây dựng hệ thống quản lý học tập LMS",
-    "TS. Nguyễn Văn A",
+    "TOPIC_01",
+    "Xây dựng hệ thống quản lý đề tài khóa luận tốt nghiệp",
+    "Nguyễn Văn An",
+    "nv.an@ctu.edu.vn",
     "Pending",
   ),
   REJECTED: createMockRegistration(
-    "topic-002",
-    "Phát triển ứng dụng di động thương mại điện tử",
-    "PGS.TS. Trần Thị B",
+    "TOPIC_04",
+    "Phát triển ứng dụng di động cho thương mại điện tử",
+    "Trần Thị Bình",
+    "tt.binh@ctu.edu.vn",
     "Rejected",
     "Đề tài đã có sinh viên khác đăng ký trước. Vui lòng chọn đề tài khác.",
   ),
   APPROVED: createMockRegistration(
-    "topic-003",
-    "Nghiên cứu và ứng dụng AI trong phân tích dữ liệu giáo dục",
-    "TS. Lê Đức C",
+    "TOPIC_01",
+    "Xây dựng hệ thống quản lý đề tài khóa luận tốt nghiệp",
+    "Nguyễn Văn An",
+    "nv.an@ctu.edu.vn",
     "Approved",
   ),
 };
+
+// Helper to get department for lecturer
+function getLecturerDepartment(lecturerId: number): string {
+  const lecturer = mockLecturers.find((l) => l.id === lecturerId);
+  if (!lecturer) return "";
+  return getDepartmentName(lecturer.departmentId);
+}
+
+// Helper to format lecturer display
+function formatLecturerDisplay(lecturerId: number): string {
+  const lecturer = mockLecturers.find((l) => l.id === lecturerId);
+  if (!lecturer) return "";
+  const department = getDepartmentName(lecturer.departmentId);
+  return `${lecturer.name} - [${department}]`;
+}
+
+// Convert mock topics to AvailableTopic format
+function convertToAvailableTopic(
+  topic: (typeof mockTopics)[0],
+): AvailableTopic {
+  // For TOPIC_04 (3 students), show all 3 registered students
+  // For TOPIC_01 (1 student), show 1 registered student
+  const registeredStudentsList: RegisteredStudent[] =
+    topic.id === "TOPIC_04"
+      ? mockRegisteredStudents.slice(1, 4) // 3 students
+      : topic.id === "TOPIC_01"
+        ? [mockRegisteredStudents[0]] // 1 student
+        : [];
+
+  return {
+    id: topic.id,
+    name: topic.name,
+    englishName: topic.englishName,
+    description: topic.description,
+    objectives: topic.objectives,
+    technologies: topic.technologies,
+    teacherName: topic.lecturerName,
+    teacherEmail: topic.lecturerEmail,
+    department: getDepartmentName(
+      mockLecturers.find((l) => l.id === topic.lecturerId)?.departmentId || "",
+    ),
+    maxStudents: topic.maxStudents,
+    registeredCount: topic.registeredCount,
+    status: topic.status,
+    registrationStatus: topic.registrationStatus,
+    registeredStudents: registeredStudentsList,
+    createdAt: topic.createdAt,
+  };
+}
 
 export default function TopicRegistrationPage() {
   // Available topics state
@@ -82,35 +144,40 @@ export default function TopicRegistrationPage() {
   // Search state
   const [searchValue, setSearchValue] = useState("");
 
-  // Current student status - reactive state (mock data, replace with API in production)
+  // Current student status - reactive state
   const [studentStatus, setStudentStatus] =
     useState<StudentStatus>(INITIAL_MOCK_STATUS);
 
-  // Get current registration based on status - derived state
+  // Get current registration based on status
   const currentRegistration =
     studentStatus === "UNREGISTERED" ? null : MOCK_REGISTRATIONS[studentStatus];
+
+  // Filter topics by specialization - only show topics allowed for current student's specialization
+  const filteredTopics = useMemo(() => {
+    return mockTopics.filter(
+      (t) =>
+        t.status === "Approved" &&
+        t.allowedSpecializationIds.includes(CURRENT_STUDENT_SPECIALIZATION),
+    );
+  }, []);
 
   // Refresh available topics
   const refreshAvailableTopics = useCallback(() => {
     setTopicsLoading(true);
-    studentTopicService
-      .getAvailableTopics()
-      .then((topics) => {
-        setAllTopics(topics);
-      })
-      .catch(() => toast.error("Không thể tải danh sách đề tài"))
-      .finally(() => setTopicsLoading(false));
-  }, []);
+    // Simulate API call
+    setTimeout(() => {
+      const availableTopics = filteredTopics.map(convertToAvailableTopic);
+      setAllTopics(availableTopics);
+      setTopicsLoading(false);
+    }, 300);
+  }, [filteredTopics]);
 
   // Initial load
   useEffect(() => {
-    const timer = setTimeout(() => {
-      refreshAvailableTopics();
-    }, 0);
-    return () => clearTimeout(timer);
+    refreshAvailableTopics();
   }, [refreshAvailableTopics]);
 
-  // Filter topics by search - derived state
+  // Filter topics by search
   const displayedTopics = searchValue
     ? allTopics.filter(
         (t) =>
@@ -127,31 +194,19 @@ export default function TopicRegistrationPage() {
   };
 
   const handleRegister = async (topicId: string) => {
-    // Mock: Chuyển sang trạng thái PENDING sau khi đăng ký
+    // TODO: Tích hợp API sau
     const topic = displayedTopics.find((t) => t.id === topicId);
     if (topic) {
       setStudentStatus("PENDING");
-    }
-
-    try {
-      await studentTopicService.registerTopic(topicId);
       toast.success("Yêu cầu đăng ký đã được gửi thành công!");
       refreshAvailableTopics();
-    } catch {
-      toast.error("Đăng ký thất bại. Vui lòng thử lại.");
-      throw new Error("Registration failed");
     }
   };
 
   const handlePrintConfirmation = async () => {
     if (!currentRegistration) return;
-    try {
-      toast.info("Đang xuất file PDF...");
-      await studentTopicService.exportConfirmationPdf(currentRegistration.id);
-      toast.success("Xuất file PDF thành công!");
-    } catch {
-      toast.error("Xuất file thất bại. Vui lòng thử lại.");
-    }
+    // TODO: Tích hợp API sau
+    toast.success("Xuất file PDF thành công!");
   };
 
   // Render status-based UI
@@ -293,49 +348,81 @@ export default function TopicRegistrationPage() {
 
         {approvedTopic && (
           <Box sx={{ mb: 3 }}>
+            {/* Tên tiếng Anh */}
+            {approvedTopic.englishName && (
+              <>
+                <Typography
+                  variant="subtitle2"
+                  fontWeight={600}
+                  gutterBottom
+                  color="text.primary"
+                >
+                  Tên tiếng Anh:
+                </Typography>
+                <Typography
+                  variant="body2"
+                  sx={{ mb: 2, pl: 2 }}
+                  color="text.primary"
+                >
+                  {approvedTopic.englishName}
+                </Typography>
+              </>
+            )}
+
+            {/* Mô tả */}
             <Typography
               variant="subtitle2"
               fontWeight={600}
               gutterBottom
               color="text.primary"
             >
-              Mục tiêu:
+              Mô tả đề tài:
             </Typography>
             <Typography
               variant="body2"
               sx={{ mb: 2, pl: 2 }}
               color="text.primary"
             >
-              {approvedTopic.objectives}
+              {approvedTopic.description}
             </Typography>
 
-            <Typography
-              variant="subtitle2"
-              fontWeight={600}
-              gutterBottom
-              color="text.primary"
-            >
-              Yêu cầu kỹ thuật:
-            </Typography>
-            <Typography
-              variant="body2"
-              sx={{ mb: 2, pl: 2 }}
-              color="text.primary"
-            >
-              {approvedTopic.technicalRequirements}
-            </Typography>
+            {/* Mục tiêu */}
+            {approvedTopic.objectives && (
+              <>
+                <Typography
+                  variant="subtitle2"
+                  fontWeight={600}
+                  gutterBottom
+                  color="text.primary"
+                >
+                  Mục tiêu đề tài:
+                </Typography>
+                <Typography
+                  variant="body2"
+                  sx={{ mb: 2, pl: 2 }}
+                  color="text.primary"
+                >
+                  {approvedTopic.objectives}
+                </Typography>
+              </>
+            )}
 
-            <Typography
-              variant="subtitle2"
-              fontWeight={600}
-              gutterBottom
-              color="text.primary"
-            >
-              Kết quả mong đợi:
-            </Typography>
-            <Typography variant="body2" sx={{ pl: 2 }} color="text.primary">
-              {approvedTopic.expectedOutcome}
-            </Typography>
+            {/* Công nghệ sử dụng */}
+            {approvedTopic.technologies && (
+              <>
+                <Typography
+                  variant="subtitle2"
+                  fontWeight={600}
+                  gutterBottom
+                  color="text.primary"
+                >
+                  Công nghệ sử dụng:
+                </Typography>
+                <Typography variant="body2" sx={{ pl: 2 }} color="text.primary">
+                  {approvedTopic.technologies}
+                </Typography>
+              </>
+            )}
           </Box>
         )}
 
@@ -364,6 +451,21 @@ export default function TopicRegistrationPage() {
         showBgImage={true}
         illustration={<BookOpen size={64} />}
       />
+
+      {/* Info Banner */}
+      <Alert
+        severity="info"
+        sx={{
+          mb: 2,
+          borderRadius: 2,
+          "& .MuiAlert-icon": { color: "info.main" },
+        }}
+      >
+        <Typography variant="body2">
+          <strong>Chuyên ngành của bạn:</strong> Công nghệ phần mềm. Chỉ hiển
+          thị các đề tài phù hợp với chuyên ngành đã đăng ký.
+        </Typography>
+      </Alert>
 
       {/* Status Alert */}
       {renderStatusAlert()}

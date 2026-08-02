@@ -2,15 +2,17 @@
 // Export Teacher to Excel Utility
 // ============================================================
 import * as XLSX from "xlsx";
-import type { Teacher } from "../types";
+import type { Lecturer } from "@/feature/admin/types";
+import { getFacultyName, getDepartmentName } from "@/feature/admin/mockData";
 
-export function exportTeachersToExcel(teachers: Teacher[]) {
+export function exportTeachersToExcel(teachers: Lecturer[]) {
   const data = teachers.map((t) => ({
     "Mã GV": t.code,
-    "Họ và tên": t.fullName,
+    "Họ tên": t.name,
     Email: t.email,
     "Số điện thoại": t.phone || "",
-    "Chuyên ngành": t.department,
+    Khoa: getFacultyName(t.facultyId),
+    "Bộ môn": getDepartmentName(t.departmentId),
     "Chức vụ": t.position || "",
     "Học hàm": t.academicTitle || "",
     "Trạng thái": t.status === "active" ? "Đang công tác" : "Tạm khóa",
@@ -25,7 +27,8 @@ export function exportTeachersToExcel(teachers: Teacher[]) {
     { wch: 25 },
     { wch: 30 },
     { wch: 15 },
-    { wch: 20 },
+    { wch: 25 },
+    { wch: 25 },
     { wch: 15 },
     { wch: 12 },
     { wch: 15 },

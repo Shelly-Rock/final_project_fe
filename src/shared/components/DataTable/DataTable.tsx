@@ -39,11 +39,26 @@ export interface FilterOption {
 
 export interface Action<T> {
   id: string;
-  icon: React.ReactNode;
-  label: string;
+  icon: React.ReactNode | ((row: T) => React.ReactNode);
+  label: string | ((row: T) => string);
   onClick: (row: T) => void;
-  color?: "primary" | "secondary" | "error" | "inherit";
-  disabled?: boolean;
+  color?:
+    | "primary"
+    | "secondary"
+    | "error"
+    | "success"
+    | "warning"
+    | "inherit"
+    | ((
+        row: T,
+      ) =>
+        | "primary"
+        | "secondary"
+        | "error"
+        | "success"
+        | "warning"
+        | "inherit");
+  disabled?: boolean | ((row: T) => boolean);
 }
 
 export interface HeaderAction {
@@ -433,25 +448,57 @@ export function DataTable<T extends object>({
                           justifyContent: "center",
                         }}
                       >
-                        {actions.map((action) => (
-                          <Tooltip key={action.id} title={action.label} arrow>
-                            <IconButton
-                              size="small"
-                              onClick={() => action.onClick(row)}
-                              color={action.color ?? "default"}
-                              disabled={action.disabled}
-                              sx={{
-                                "& svg": {
-                                  fill: "none",
-                                  stroke: "currentColor",
-                                  strokeWidth: 2,
-                                },
-                              }}
+                        {actions.map((action) => {
+                          // Resolve dynamic properties
+                          const resolvedIcon =
+                            typeof action.icon === "function"
+                              ? action.icon(row)
+                              : action.icon;
+                          const resolvedLabel =
+                            typeof action.label === "function"
+                              ? action.label(row)
+                              : action.label;
+                          const resolvedColor = (
+                            typeof action.color === "function"
+                              ? action.color(row)
+                              : action.color
+                          ) as
+                            | "primary"
+                            | "secondary"
+                            | "error"
+                            | "success"
+                            | "warning"
+                            | "inherit"
+                            | undefined;
+                          const resolvedDisabled =
+                            typeof action.disabled === "function"
+                              ? action.disabled(row)
+                              : action.disabled;
+
+                          return (
+                            <Tooltip
+                              key={action.id}
+                              title={resolvedLabel}
+                              arrow
                             >
-                              {action.icon}
-                            </IconButton>
-                          </Tooltip>
-                        ))}
+                              <IconButton
+                                size="small"
+                                onClick={() => action.onClick(row)}
+                                color={resolvedColor ?? "default"}
+                                disabled={resolvedDisabled}
+                                sx={{
+                                  "& svg": {
+                                    fill: "none",
+                                    stroke: "currentColor",
+                                    strokeWidth: 2,
+                                  },
+                                }}
+                              >
+                                {resolvedIcon}
+                              </IconButton>
+                            </Tooltip>
+                          );
+                        })}
                       </Box>
                     </TableCell>
                   )}

@@ -1,7 +1,4 @@
-// ====================================
-// COMPONENTS — Teacher Feature
-// ====================================
-export { TeacherTable } from "./TeacherTable";
-export { TeacherFormDialog } from "./TeacherFormDialog";
-export { ImportExcelDialog } from "./ImportExcelDialog";
-export { exportTeachersToExcel } from "./exportToExcel";
+export * from "./TeacherTable";
+export * from "./TeacherFormDialog";
+export * from "./ImportExcelDialog";
+export * from "./exportToExcel";

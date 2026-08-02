@@ -11,6 +11,7 @@ import type {
   ApproveRegistrationInput,
   RejectRegistrationInput,
 } from "../types";
+import { periodService } from "@/feature/registration-period/services";
 
 // Mock data cho sinh viên
 const mockStudents: Student[] = [
@@ -168,6 +169,7 @@ const mockTopics: MyTopic[] = [
     maxStudents: 3,
     status: "Approved",
     isException: false,
+    registrationStatus: "OPEN", // 1/3 sinh viên - đang mở
     preAssignedStudents: [
       {
         id: 1,
@@ -210,6 +212,7 @@ const mockTopics: MyTopic[] = [
     maxStudents: 2,
     status: "Approved",
     isException: false,
+    registrationStatus: "LOCKED", // 2/2 sinh viên - giảng viên đã chốt
     preAssignedStudents: [],
     registeredStudents: [
       {
@@ -246,6 +249,7 @@ const mockTopics: MyTopic[] = [
     maxStudents: 2,
     status: "Pending",
     isException: false,
+    registrationStatus: "OPEN", // 0/2 sinh viên - đang mở
     preAssignedStudents: [],
     registeredStudents: [],
     createdAt: "2025-09-01T10:00:00Z",
@@ -262,6 +266,7 @@ const mockTopics: MyTopic[] = [
     status: "Waiting_For_Secretary",
     isException: true,
     rejectionReason: "Cần Thư ký phê duyệt do vượt quá sĩ số cho phép",
+    registrationStatus: "FULL", // Đề tài đầy
     preAssignedStudents: [
       {
         id: 5,
@@ -340,6 +345,18 @@ class MyTopicService {
   async create(data: CreateTopicInput): Promise<MyTopic> {
     await new Promise((resolve) => setTimeout(resolve, 500));
 
+    // Validate sĩ số với giới hạn của ngành (nếu có)
+    if (data.teacherDepartment) {
+      const validation = periodService.validateTopicMaxStudents(
+        data.periodId,
+        data.teacherDepartment,
+        data.maxStudents,
+      );
+      if (!validation.valid) {
+        throw new Error(validation.message || "Sĩ số không hợp lệ");
+      }
+    }
+
     const newTopic: MyTopic = {
       id: Math.max(...this.topics.map((t) => t.id)) + 1,
       periodId: data.periodId,
@@ -349,6 +366,7 @@ class MyTopicService {
       maxStudents: data.maxStudents,
       status: data.isException ? "Waiting_For_Secretary" : "Pending",
       isException: data.isException || false,
+      registrationStatus: "OPEN", // Mặc định là mở đăng ký
       preAssignedStudents:
         data.preAssignedStudentIds?.map((studentId, index) => ({
           id: index + 1,
@@ -478,6 +496,18 @@ class MyTopicService {
     if (!topic) return 0;
     return topic.registeredStudents.filter((s) => s.status === "Approved")
       .length;
+  }
+
+  // Lấy sĩ số tối đa cho một ngành trong đợt
+  getMaxStudentsForDepartment(periodId: number, department: string): number {
+    return periodService.getMaxStudentsForDepartment(periodId, department);
+  }
+
+  // Lấy tất cả cấu hình sĩ số theo ngành của đợt
+  getDepartmentStudentLimits(
+    periodId: number,
+  ): { department: string; maxStudents: number }[] {
+    return periodService.getDepartmentStudentLimits(periodId);
   }
 }
 

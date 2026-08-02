@@ -113,6 +113,24 @@ export default function MyTopicsPage() {
     }
   };
 
+  const handleToggleLock = async (topic: MyTopic) => {
+    // TODO: Tích hợp API PATCH /api/topics/:id/toggle-lock
+    // Mock: Toggle registration status between OPEN and LOCKED
+    const newStatus = topic.registrationStatus === "LOCKED" ? "OPEN" : "LOCKED";
+
+    setAllTopics((prev) =>
+      prev.map((t) =>
+        t.id === topic.id ? { ...t, registrationStatus: newStatus } : t,
+      ),
+    );
+
+    toast.success(
+      newStatus === "LOCKED"
+        ? "Đã khóa đề tài. Sinh viên không thể đăng ký."
+        : "Đã mở khóa đề tài. Sinh viên có thể đăng ký.",
+    );
+  };
+
   const handleFormSubmit = async (data: CreateTopicInput) => {
     setFormLoading(true);
     try {
@@ -185,6 +203,7 @@ export default function MyTopicsPage() {
           onCreate={handleCreateTopic}
           onCreateException={handleCreateException}
           onRefresh={refreshTopics}
+          onToggleLock={handleToggleLock}
         />
       ),
     },

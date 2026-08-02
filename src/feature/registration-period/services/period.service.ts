@@ -363,6 +363,47 @@ class PeriodService {
     return [...new Set(this.periods.map((p) => p.schoolYear))].sort().reverse();
   }
 
+  /**
+   * Lấy giới hạn sĩ số theo ngành của một đợt
+   */
+  getDepartmentStudentLimits(periodId: number): {
+    department: string;
+    maxStudents: number;
+  }[] {
+    const period = this.periods.find((p) => p.id === periodId);
+    return period?.departmentStudentLimits || [];
+  }
+
+  /**
+   * Lấy sĩ số tối đa cho một ngành cụ thể trong đợt
+   * Nếu không có cấu hình riêng, trả về giá trị mặc định
+   */
+  getMaxStudentsForDepartment(periodId: number, department: string): number {
+    const limits = this.getDepartmentStudentLimits(periodId);
+    const limit = limits.find((l) => l.department === department);
+    return limit?.maxStudents ?? 3; // Mặc định 3 sinh viên
+  }
+
+  /**
+   * Kiểm tra xem sĩ số có hợp lệ với giới hạn của ngành không
+   */
+  validateTopicMaxStudents(
+    periodId: number,
+    department: string,
+    requestedMaxStudents: number,
+  ): { valid: boolean; message?: string } {
+    const maxAllowed = this.getMaxStudentsForDepartment(periodId, department);
+
+    if (requestedMaxStudents > maxAllowed) {
+      return {
+        valid: false,
+        message: `Sĩ số tối đa cho ngành "${department}" là ${maxAllowed} sinh viên. Vượt quá giới hạn cho phép.`,
+      };
+    }
+
+    return { valid: true };
+  }
+
   getPeriodStats(periodId: number): {
     totalTopics: number;
     pendingTopics: number;

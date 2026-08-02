@@ -26,13 +26,45 @@ import {
   Trash2,
   Download,
   AlertCircle,
+  Wand2,
 } from "lucide-react";
-import type { TeacherImportRow } from "../types";
+import { mockFaculties, mockDepartments } from "@/feature/admin/mockData";
+
+interface TeacherImportRow {
+  code: string;
+  name: string;
+  email: string;
+  phone?: string;
+  facultyId: string;
+  departmentId: string;
+  academicTitle?: string;
+  position?: string;
+}
 
 interface ImportExcelDialogProps {
   open: boolean;
   onClose: () => void;
   onImport: (data: TeacherImportRow[]) => void;
+}
+
+// Helper to find faculty by name
+function findFacultyIdByName(name: string): string {
+  const found = mockFaculties.find((f) =>
+    f.name.toLowerCase().includes(name.toLowerCase()),
+  );
+  return found?.id || "";
+}
+
+// Helper to find department by name
+function findDepartmentIdByName(name: string, facultyId?: string): string {
+  const departments = facultyId
+    ? mockDepartments.filter((d) => d.facultyId === facultyId)
+    : mockDepartments;
+
+  const found = departments.find((d) =>
+    d.name.toLowerCase().includes(name.toLowerCase()),
+  );
+  return found?.id || "";
 }
 
 export function ImportExcelDialog({
@@ -69,13 +101,19 @@ export function ImportExcelDialog({
     // Match Vietnamese headers
     const expectedHeaders = [
       { key: "code", labels: ["mã gv", "magv", "code", "teacher_code"] },
-      { key: "firstName", labels: ["họ", "firstname", "first_name", "ho"] },
-      { key: "lastName", labels: ["tên", "lastname", "last_name", "ten"] },
+      {
+        key: "name",
+        labels: ["họ tên", "hoten", "name", "fullname", "full_name"],
+      },
       { key: "email", labels: ["email", "gmail", "mail"] },
       { key: "phone", labels: ["sđt", "sdt", "phone", "tel", "điện thoại"] },
       {
+        key: "faculty",
+        labels: ["khoa", "faculty", "f"],
+      },
+      {
         key: "department",
-        labels: ["chuyên ngành", "bomon", "department", "khoa"],
+        labels: ["bộ môn", "bomon", "department", "chuyên ngành"],
       },
       {
         key: "academicTitle",
@@ -98,12 +136,8 @@ export function ImportExcelDialog({
 
     // Validate required headers
     if (headerMap.code === undefined) throw new Error("Thiếu cột 'Mã GV'");
-    if (headerMap.firstName === undefined && headerMap.lastName === undefined) {
-      throw new Error("Thiếu cột 'Họ' và 'Tên'");
-    }
+    if (headerMap.name === undefined) throw new Error("Thiếu cột 'Họ tên'");
     if (headerMap.email === undefined) throw new Error("Thiếu cột 'Email'");
-    if (headerMap.department === undefined)
-      throw new Error("Thiếu cột 'Chuyên ngành'");
 
     const data: TeacherImportRow[] = [];
 
@@ -114,32 +148,23 @@ export function ImportExcelDialog({
       // Simple CSV parsing (handles basic cases)
       const values = line.split(",").map((v) => v.trim().replace(/"/g, ""));
 
-      const firstName =
-        headerMap.firstName !== undefined
-          ? values[headerMap.firstName] || ""
-          : "";
-      const lastName =
-        headerMap.lastName !== undefined
-          ? values[headerMap.lastName] || ""
-          : "";
-      // Handle full name in single column
-      const fullName =
-        headerMap.firstName === undefined && headerMap.lastName === undefined
-          ? values[0]?.split(" ").slice(0, -1).join(" ") || ""
-          : "";
-      const fullNameLast =
-        headerMap.firstName === undefined && headerMap.lastName === undefined
-          ? values[0]?.split(" ").pop() || ""
-          : "";
+      const facultyValue =
+        headerMap.faculty !== undefined ? values[headerMap.faculty] : "";
+      const departmentValue =
+        headerMap.department !== undefined ? values[headerMap.department] : "";
+
+      // Auto-map faculty and department
+      const facultyId = findFacultyIdByName(facultyValue);
+      const departmentId = findDepartmentIdByName(departmentValue, facultyId);
 
       data.push({
         code: values[headerMap.code] || "",
-        firstName: firstName || fullName,
-        lastName: lastName || fullNameLast,
+        name: values[headerMap.name] || "",
         email: values[headerMap.email] || "",
         phone:
           headerMap.phone !== undefined ? values[headerMap.phone] : undefined,
-        department: values[headerMap.department] || "",
+        facultyId,
+        departmentId,
         academicTitle:
           headerMap.academicTitle !== undefined
             ? values[headerMap.academicTitle]
@@ -192,8 +217,9 @@ export function ImportExcelDialog({
   };
 
   const downloadTemplate = () => {
+    // Sample template - note that Mã GV is optional
     const template =
-      "Mã GV,Họ,Tên,Email,Số điện thoại,Chuyên ngành,Học hàm/Học vị,Chức vụ\nGV001,Nguyễn Văn,An,nv.an@ctu.edu.vn,0912345678,Công nghệ phần mềm,Tiến sĩ,Trưởng ngành";
+      "Mã GV,Họ tên,Email,Số điện thoại,Khoa,Bộ môn,Học hàm/Học vị,Chức vụ\n,Nguyễn Văn An,nv.an@ctu.edu.vn,0912345678,Khoa Công nghệ thông tin,Công nghệ phần mềm,Tiến sĩ,Trưởng ngành";
     const blob = new Blob([template], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
@@ -280,10 +306,30 @@ export function ImportExcelDialog({
           startIcon={<Download size={18} />}
           onClick={downloadTemplate}
           size="small"
-          sx={{ mb: 2 }}
+          sx={{ mb: 1 }}
         >
           Tải file mẫu
         </Button>
+
+        {/* Helper text for auto-code generation */}
+        <Alert
+          severity="info"
+          sx={{
+            mb: 2,
+            py: 1,
+            "& .MuiAlert-message": {
+              display: "flex",
+              alignItems: "center",
+              gap: 1,
+            },
+          }}
+          icon={<Wand2 size={18} />}
+        >
+          <Typography variant="body2">
+            <strong>Lưu ý:</strong> Cột Mã giảng viên có thể để trống. Hệ thống
+            sẽ tự động cấp mã liên tục cho các dòng không nhập mã.
+          </Typography>
+        </Alert>
 
         {/* Errors */}
         {errors.length > 0 && (
@@ -313,16 +359,16 @@ export function ImportExcelDialog({
                       Mã GV
                     </TableCell>
                     <TableCell sx={{ color: "white", fontWeight: 600 }}>
-                      Họ
-                    </TableCell>
-                    <TableCell sx={{ color: "white", fontWeight: 600 }}>
-                      Tên
+                      Họ tên
                     </TableCell>
                     <TableCell sx={{ color: "white", fontWeight: 600 }}>
                       Email
                     </TableCell>
                     <TableCell sx={{ color: "white", fontWeight: 600 }}>
-                      Chuyên ngành
+                      Khoa
+                    </TableCell>
+                    <TableCell sx={{ color: "white", fontWeight: 600 }}>
+                      Bộ môn
                     </TableCell>
                     <TableCell
                       sx={{ color: "white", fontWeight: 600, minWidth: 60 }}
@@ -335,11 +381,40 @@ export function ImportExcelDialog({
                   {rows.slice(0, 10).map((row, index) => (
                     <TableRow key={index}>
                       <TableCell>{index + 1}</TableCell>
-                      <TableCell>{row.code}</TableCell>
-                      <TableCell>{row.firstName}</TableCell>
-                      <TableCell>{row.lastName}</TableCell>
+                      <TableCell>
+                        {row.code ? (
+                          row.code
+                        ) : (
+                          <Box
+                            component="span"
+                            sx={{
+                              display: "inline-flex",
+                              alignItems: "center",
+                              gap: 0.5,
+                              px: 1,
+                              py: 0.25,
+                              borderRadius: 1,
+                              bgcolor: "action.hover",
+                              color: "text.secondary",
+                              fontSize: "0.75rem",
+                              fontStyle: "italic",
+                            }}
+                          >
+                            <Wand2 size={12} />
+                            Sẽ tạo tự động
+                          </Box>
+                        )}
+                      </TableCell>
+                      <TableCell>{row.name}</TableCell>
                       <TableCell>{row.email}</TableCell>
-                      <TableCell>{row.department}</TableCell>
+                      <TableCell>
+                        {mockFaculties.find((f) => f.id === row.facultyId)
+                          ?.name || "—"}
+                      </TableCell>
+                      <TableCell>
+                        {mockDepartments.find((d) => d.id === row.departmentId)
+                          ?.name || "—"}
+                      </TableCell>
                       <TableCell>
                         <IconButton
                           size="small"

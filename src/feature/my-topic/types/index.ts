@@ -53,13 +53,18 @@ export interface MyTopic {
   periodId: number;
   periodName: string;
   name: string;
+  englishName?: string; // Tên tiếng Anh
   description: string;
+  objectives?: string; // Mục tiêu đề tài
+  technologies?: string; // Công nghệ sử dụng
   maxStudents: number;
   status: TopicStatus;
   isException: boolean;
+  department?: string; // Ngành của giảng viên - để validate sĩ số
   rejectionReason?: string;
   preAssignedStudents: PreAssignedStudent[];
   registeredStudents: RegisteredStudent[];
+  registrationStatus: "OPEN" | "FULL" | "LOCKED"; // Trạng thái đăng ký
   createdAt: string;
   updatedAt: string;
 }
@@ -95,11 +100,15 @@ export interface Student {
 
 export interface CreateTopicInput {
   name: string;
+  englishName?: string; // Tên tiếng Anh
   description: string;
+  objectives?: string; // Mục tiêu đề tài
+  technologies?: string; // Công nghệ sử dụng
   periodId: number;
   maxStudents: number;
   preAssignedStudentIds?: number[];
   isException?: boolean;
+  teacherDepartment?: string; // Ngành của giảng viên - để validate sĩ số
 }
 
 export interface UpdateTopicInput extends Partial<CreateTopicInput> {
