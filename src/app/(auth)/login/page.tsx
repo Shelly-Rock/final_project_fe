@@ -22,7 +22,6 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // Already logged in → redirect to home
   useEffect(() => {
     if (session?.user) {
       router.push("/");

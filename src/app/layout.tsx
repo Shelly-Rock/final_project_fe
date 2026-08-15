@@ -1,8 +1,3 @@
-// ============================================================
-// ROOT LAYOUT — Only <html>/<body> wrapper; no sidebar here.
-// Auth routes: (auth)/layout.tsx (no sidebar)
-// Main routes:  (main)/layout.tsx (with sidebar)
-// ============================================================
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "@/styles/main.scss";
@@ -25,8 +20,6 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({
-
-  
   children,
 }: Readonly<{
   children: React.ReactNode;
@@ -34,6 +27,7 @@ export default function RootLayout({
   return (
     <html
       lang="vi"
+      data-scroll-behavior="smooth"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full">{children}</body>

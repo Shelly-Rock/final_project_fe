@@ -29,7 +29,7 @@ body {
   font-size: $font-size-base;
   font-weight: $font-weight-normal;
   line-height: $line-height-normal;
-  color: $gray-900;
+  color: $neutral-900;
 }
 
 // ---------- Font sizes ----------
@@ -99,7 +99,7 @@ small,
   color: $color-info;
 }
 .text-muted {
-  color: $gray-500;
+  color: $neutral-500;
 }
 .text-white {
   color: $white;
@@ -118,5 +118,5 @@ a {
 // ---------- Selection ----------
 ::selection {
   background: rgba($primary-400, 0.25);
-  color: $gray-900;
+  color: $neutral-900;
 }

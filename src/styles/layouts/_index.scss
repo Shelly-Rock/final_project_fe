@@ -5,7 +5,7 @@
 @import "../abstracts/mixins";
 
 // ---------- Sidebar ----------
-$sidebar-bg: $primary-800;
+$sidebar-bg: #024282;
 $sidebar-text: rgba(255, 255, 255, 0.85);
 $sidebar-text-muted: rgba(255, 255, 255, 0.5);
 $sidebar-active-bg: rgba($primary-400, 0.25);
@@ -44,15 +44,11 @@ $sidebar-collapsed-width: 72px;
 }
 
 .sidebar-overlay {
-  display: none;
-
-  @media (max-width: 1024px) {
-    display: block;
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: $z-modal-back;
-  }
+  display: block;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 9;
 }
 
 .sidebar {
@@ -372,10 +368,10 @@ $sidebar-collapsed-width: 72px;
 
 // ---------- Mobile Toggle ----------
 .sidebar-mobile-toggle {
-  display: none;
+  display: flex;
   position: fixed;
-  top: $spacing-4;
-  left: $spacing-4;
+  top: 12px;
+  left: 12px;
   z-index: $z-sticky;
   width: 40px;
   height: 40px;
@@ -389,8 +385,8 @@ $sidebar-collapsed-width: 72px;
   font-size: $font-size-xl;
   box-shadow: $shadow-md;
 
-  @media (max-width: 1024px) {
-    display: flex;
+  @media (min-width: 1025px) {
+    display: none;
   }
 }
 
@@ -443,7 +439,7 @@ $sidebar-collapsed-width: 72px;
   min-width: 0;
   display: flex;
   flex-direction: column;
-  background: var(--bg-page, $gray-50);
+  background: var(--bg-page, $neutral-50);
   transition: margin-left $transition-base;
 
   &.sidebar-collapsed {
@@ -455,7 +451,7 @@ $sidebar-collapsed-width: 72px;
 .app-header {
   height: $header-height;
   background: $white;
-  border-bottom: 1px solid $gray-200;
+  border-bottom: 1px solid $neutral-200;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -476,7 +472,7 @@ $sidebar-collapsed-width: 72px;
 .app-header-breadcrumb {
   font-size: $font-size-sm;
   font-weight: $font-weight-medium;
-  color: $gray-500;
+  color: $neutral-500;
 }
 
 .app-header-right {
@@ -496,9 +492,9 @@ $sidebar-collapsed-width: 72px;
   gap: $spacing-2;
   padding: $spacing-2 $spacing-3;
   border-radius: $radius-lg;
-  border: 1px solid $gray-200;
+  border: 1px solid $neutral-200;
   background: $white;
-  color: $gray-700;
+  color: $neutral-700;
   font-size: $font-size-sm;
   font-weight: $font-weight-medium;
   cursor: pointer;
@@ -508,8 +504,8 @@ $sidebar-collapsed-width: 72px;
     box-shadow $transition-fast;
 
   &:hover {
-    background: $gray-50;
-    border-color: $gray-300;
+    background: $neutral-50;
+    border-color: $neutral-300;
     box-shadow: $shadow-sm;
   }
 }
@@ -528,7 +524,7 @@ $sidebar-collapsed-width: 72px;
 .role-switcher-arrow {
   font-size: $font-size-xs;
   transition: transform $transition-fast;
-  color: $gray-400;
+  color: $neutral-400;
 
   &.open {
     transform: rotate(180deg);
@@ -547,7 +543,7 @@ $sidebar-collapsed-width: 72px;
   right: 0;
   min-width: 220px;
   background: $white;
-  border: 1px solid $gray-200;
+  border: 1px solid $neutral-200;
   border-radius: $radius-xl;
   box-shadow: $shadow-lg;
   z-index: $z-dropdown + 1;
@@ -570,8 +566,8 @@ $sidebar-collapsed-width: 72px;
   padding: $spacing-3 $spacing-4;
   font-size: $font-size-xs;
   font-weight: $font-weight-semibold;
-  color: $gray-400;
-  border-bottom: 1px solid $gray-100;
+  color: $neutral-400;
+  border-bottom: 1px solid $neutral-100;
   letter-spacing: 0.05em;
   text-transform: uppercase;
 }
@@ -585,13 +581,13 @@ $sidebar-collapsed-width: 72px;
   background: transparent;
   border: none;
   font-size: $font-size-sm;
-  color: $gray-700;
+  color: $neutral-700;
   cursor: pointer;
   transition: background $transition-fast;
   text-align: left;
 
   &:hover {
-    background: $gray-50;
+    background: $neutral-50;
   }
 
   &.active {
@@ -676,14 +672,14 @@ $sidebar-collapsed-width: 72px;
 .unauthorized-title {
   font-size: $font-size-2xl;
   font-weight: $font-weight-bold;
-  color: $gray-900;
+  color: $neutral-900;
   margin-bottom: $spacing-3;
   line-height: $line-height-tight;
 }
 
 .unauthorized-desc {
   font-size: $font-size-base;
-  color: $gray-500;
+  color: $neutral-500;
   line-height: $line-height-relaxed;
   margin-bottom: $spacing-8;
 }
@@ -734,13 +730,13 @@ $sidebar-collapsed-width: 72px;
 }
 
 .unauthorized-btn--secondary {
-  background: $gray-100;
-  color: $gray-700;
-  border: 1px solid $gray-200;
+  background: $neutral-100;
+  color: $neutral-700;
+  border: 1px solid $neutral-200;
 
   &:hover {
-    background: $gray-200;
-    color: $gray-900;
+    background: $neutral-200;
+    color: $neutral-900;
   }
 }
 
@@ -749,7 +745,7 @@ $sidebar-collapsed-width: 72px;
   align-items: center;
   gap: $spacing-2;
   font-size: $font-size-sm;
-  color: $gray-500;
+  color: $neutral-500;
 
   .bi {
     font-size: $font-size-base;

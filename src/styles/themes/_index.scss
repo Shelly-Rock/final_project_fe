@@ -1,24 +1,138 @@
+// ============================================================
+// THEME TOKENS - CSS Custom Properties
+// ============================================================
 @import "../abstracts/variables";
 
+// Light Theme
 :root,
 [data-theme="light"] {
-  --bg-page: #{$gray-50};
+  // Background colors
+  --bg-page: #{$neutral-50};
   --bg-surface: #{$white};
-  --bg-hover: #{$gray-100};
-  --text-primary: #{$gray-900};
-  --text-muted: #{$gray-500};
-  --border-color: #{$gray-200};
+  --bg-surface-elevated: #{$white};
+  --bg-hover: #{$neutral-100};
+  --bg-active: #{$neutral-200};
+  --bg-disabled: #{$neutral-100};
+
+  // Text colors
+  --text-primary: #{$neutral-900};
+  --text-secondary: #{$neutral-600};
+  --text-muted: #{$neutral-400};
+  --text-disabled: #{$neutral-300};
+  --text-inverse: #{$white};
+
+  // Border colors
+  --border-default: #{$neutral-200};
+  --border-hover: #{$neutral-300};
+  --border-focus: #{$primary-400};
+  --border-disabled: #{$neutral-100};
+
+  // Primary colors
+  --color-primary: #{$primary-400};
+  --color-primary-hover: #{$primary-500};
+  --color-primary-active: #{$primary-600};
+  --color-primary-subtle: #{$primary-50};
+
+  // Secondary colors
+  --color-secondary: #{$secondary-500};
+  --color-secondary-hover: #{$secondary-600};
+  --color-secondary-subtle: #{$secondary-50};
+
+  // Status colors
+  --color-success: #{$success-500};
+  --color-success-subtle: #{$success-50};
+  --color-error: #{$error-500};
+  --color-error-subtle: #{$error-50};
+  --color-warning: #{$warning-500};
+  --color-warning-subtle: #{$warning-50};
+  --color-info: #{$info-500};
+  --color-info-subtle: #{$info-50};
+
+  // Overlay & backdrop
+  --overlay-light: rgba(255, 255, 255, 0.8);
+  --overlay-dark: rgba(0, 0, 0, 0.5);
+  --backdrop: rgba(15, 23, 42, 0.6);
+
+  // Shadows
+  --shadow-sm: #{$shadow-sm};
+  --shadow-md: #{$shadow-md};
+  --shadow-lg: #{$shadow-lg};
+  --shadow-xl: #{$shadow-xl};
+
+  // Divider
+  --divider: #{$neutral-200};
 }
 
+// Dark Theme
 [data-theme="dark"] {
-  --bg-page: #{$primary-900};
-  --bg-surface: #{$primary-800};
-  --bg-hover: #{$primary-700};
-  --text-primary: #{$gray-100};
-  --text-muted: #{$gray-400};
-  --border-color: #{$gray-700};
+  // Background colors
+  --bg-page: #{$neutral-900};
+  --bg-surface: #{$neutral-800};
+  --bg-surface-elevated: #{$neutral-700};
+  --bg-hover: #{$neutral-700};
+  --bg-active: #{$neutral-600};
+  --bg-disabled: #{$neutral-800};
+
+  // Text colors
+  --text-primary: #{$neutral-100};
+  --text-secondary: #{$neutral-400};
+  --text-muted: #{$neutral-500};
+  --text-disabled: #{$neutral-600};
+  --text-inverse: #{$neutral-900};
+
+  // Border colors
+  --border-default: #{$neutral-700};
+  --border-hover: #{$neutral-600};
+  --border-focus: #{$primary-400};
+  --border-disabled: #{$neutral-800};
+
+  // Primary colors - slightly lighter for dark mode
+  --color-primary: #{$primary-400};
+  --color-primary-hover: #{$primary-300};
+  --color-primary-active: #{$primary-200};
+  --color-primary-subtle: #{$primary-900};
+
+  // Secondary colors
+  --color-secondary: #{$secondary-400};
+  --color-secondary-hover: #{$secondary-300};
+  --color-secondary-subtle: #{$secondary-900};
+
+  // Status colors
+  --color-success: #{$success-400};
+  --color-success-subtle: #{$success-900};
+  --color-error: #{$error-400};
+  --color-error-subtle: #{$error-900};
+  --color-warning: #{$warning-400};
+  --color-warning-subtle: #{$warning-900};
+  --color-info: #{$info-400};
+  --color-info-subtle: #{$info-900};
+
+  // Overlay & backdrop
+  --overlay-light: rgba(30, 41, 59, 0.8);
+  --overlay-dark: rgba(0, 0, 0, 0.7);
+  --backdrop: rgba(0, 0, 0, 0.8);
+
+  // Shadows - darker for dark mode
+  --shadow-sm: #{$shadow-dark-sm};
+  --shadow-md: #{$shadow-dark-md};
+  --shadow-lg: #{$shadow-dark-lg};
+  --shadow-xl: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+
+  // Divider
+  --divider: #{$neutral-700};
 
   body {
     color-scheme: dark;
+  }
+}
+
+// Theme transition
+[data-theme-transition="true"] {
+  * {
+    transition:
+      background-color 0.3s ease,
+      color 0.3s ease,
+      border-color 0.3s ease,
+      box-shadow 0.3s ease;
   }
 }

@@ -1,5 +1,5 @@
-@use "variables";
-@use "mixins";
+@import "variables";
+@import "mixins";
 
 // ---------- Layout ----------
 %container {
@@ -31,7 +31,7 @@
   font-weight: 700;
   line-height: 1.25;
   letter-spacing: -0.025em;
-  color: $gray-900;
+  color: $neutral-900;
 }
 
 %heading-2 {
@@ -39,35 +39,35 @@
   font-weight: 700;
   line-height: 1.25;
   letter-spacing: -0.025em;
-  color: $gray-900;
+  color: $neutral-900;
 }
 
 %heading-3 {
   font-size: 1.5rem;
   font-weight: 600;
   line-height: 1.375;
-  color: $gray-900;
+  color: $neutral-900;
 }
 
 %heading-4 {
   font-size: 1.25rem;
   font-weight: 600;
   line-height: 1.375;
-  color: $gray-900;
+  color: $neutral-900;
 }
 
 %body-text {
   font-size: 1rem;
   font-weight: 400;
   line-height: 1.5;
-  color: $gray-700;
+  color: $neutral-700;
 }
 
 %caption-text {
   font-size: 0.75rem;
   font-weight: 400;
   line-height: 1.5;
-  color: $gray-500;
+  color: $neutral-500;
 }
 
 // ---------- Scrollable ----------

@@ -1,100 +1,118 @@
-// ---------- Primary ----------
+// ============================================================
+// DESIGN TOKENS - Color Palette
+// ============================================================
+
+// ---------- Primary - Royal Blue ----------
 $primary-900: #0a1628;
 $primary-800: #0f2137;
 $primary-700: #142a4a;
 $primary-600: #1a335c;
-$primary-500: #1e3d6f; // main navy
-$primary-400: #2a5bc0; // main blue
-$primary-300: #3a72d4;
-$primary-200: #5a8fe8;
-$primary-100: #8cb4f5;
-$primary-50: #c2d9fb;
+$primary-500: #1e3d6f;
+$primary-400: #2563eb; // main blue
+$primary-300: #3b82f6;
+$primary-200: #60a5fa;
+$primary-100: #93c5fd;
+$primary-50: #dbeafe;
 
-// ---------- Secondary ----------
+// ---------- Secondary - Violet ----------
 $secondary-900: #2d1a5e;
 $secondary-800: #4a2d8a;
 $secondary-700: #5f3fa8;
 $secondary-600: #7552c7;
-$secondary-500: #7a52cc; // main purple
-$secondary-400: #9672db;
-$secondary-300: #b393eb;
-$secondary-200: #d0b6f4;
-$secondary-100: #e8d8fb;
-$secondary-50: #f5eefe;
+$secondary-500: #7c3aed; // main violet
+$secondary-400: #8b5cf6;
+$secondary-300: #a78bfa;
+$secondary-200: #c4b5fd;
+$secondary-100: #ddd6fe;
+$secondary-50: #f5f3ff;
 
-// ---------- Accent ----------
-$accent-900: #0a3040;
-$accent-800: #0e4d63;
-$accent-700: #136a86;
-$accent-600: #1787aa;
-$accent-500: #40b8d4; // main cyan
-$accent-400: #6acde3;
-$accent-300: #8cdded;
-$accent-200: #aeeaf5;
-$accent-100: #d5f4fb;
-$accent-50: #ecfafc;
+// ---------- Accent - Emerald ----------
+$accent-900: #022c22;
+$accent-800: #064e3b;
+$accent-700: #065f46;
+$accent-600: #047857;
+$accent-500: #10b981; // main emerald
+$accent-400: #34d399;
+$accent-300: #6ee7b7;
+$accent-200: #a7f3d0;
+$accent-100: #d1fae5;
+$accent-50: #ecfdf5;
 
-// ---------- Warm accent ----------
+// ---------- Warm - Amber ----------
 $warm-900: #3d1f00;
 $warm-800: #6b3500;
 $warm-700: #994c00;
 $warm-600: #c76600;
-$warm-500: #e89b33; // main amber
-$warm-400: #f0b050;
-$warm-300: #f5c070;
-$warm-200: #fad090;
-$warm-100: #fde7c0;
-$warm-50: #fef4e3;
+$warm-500: #f59e0b; // main amber
+$warm-400: #fbbf24;
+$warm-300: #fcd34d;
+$warm-200: #fde68a;
+$warm-100: #fef3c7;
+$warm-50: #fffbeb;
 
-// ---------- Semantic: Success ----------
-$success-900: #0a2e1a;
-$success-800: #0f4d2b;
-$success-700: #146c3c;
-$success-600: #198c4e;
-$success-500: #1dab60;
-$success-400: #38c477;
-$success-300: #5dd98f;
-$success-200: #8ae8ad;
-$success-100: #b5f3cb;
-$success-50: #e2fbe9;
+// ---------- Success - Green ----------
+$success-900: #022c22;
+$success-800: #064e3b;
+$success-700: #065f46;
+$success-600: #047857;
+$success-500: #22c55e;
+$success-400: #4ade80;
+$success-300: #86efac;
+$success-200: #bbf7d0;
+$success-100: #dcfce7;
+$success-50: #f0fdf4;
 
-// ---------- Semantic: Error ----------
-$error-900: #3a0e0e;
-$error-800: #5f1a1a;
-$error-700: #852525;
-$error-600: #ab3030;
-$error-500: #d13b3b;
-$error-400: #e85a4f; // main coral-red
-$error-300: #ed7872;
-$error-200: #f19f9b;
-$error-100: #f8cecc;
-$error-50: #fcecea;
+// ---------- Error - Rose ----------
+$error-900: #4c0519;
+$error-800: #881337;
+$error-700: #9f1239;
+$error-600: #be123c;
+$error-500: #ef4444; // main rose
+$error-400: #f87171;
+$error-300: #fca5a5;
+$error-200: #fecaca;
+$error-100: #fee2e2;
+$error-50: #fef2f2;
 
-// ---------- Semantic: Warning ----------
-$warning-500: #e89b33;
-$warning-100: #fde7c0;
-$warning-50: #fef4e3;
+// ---------- Warning - Orange ----------
+$warning-900: #431407;
+$warning-800: #7c2d12;
+$warning-700: #9a3412;
+$warning-600: #c2410c;
+$warning-500: #f97316;
+$warning-400: #fb923c;
+$warning-300: #fdba74;
+$warning-200: #fed7aa;
+$warning-100: #ffedd5;
+$warning-50: #fff7ed;
 
-// ---------- Semantic: Info ----------
-$info-500: #40b8d4;
-$info-100: #d5f4fb;
-$info-50: #ecfafc;
+// ---------- Info - Sky ----------
+$info-900: #0c4a6e;
+$info-800: #075985;
+$info-700: #0369a1;
+$info-600: #0284c7;
+$info-500: #0ea5e9;
+$info-400: #38bdf8;
+$info-300: #7dd3fc;
+$info-200: #bae6fd;
+$info-100: #e0f2fe;
+$info-50: #f0f9ff;
 
-// ---------- Grayscale ----------
-$gray-900: #111827;
-$gray-800: #1f2937;
-$gray-700: #374151;
-$gray-600: #4b5563;
-$gray-500: #6b7280;
-$gray-400: #9ca3af;
-$gray-300: #d1d5db;
-$gray-200: #e5e7eb;
-$gray-100: #f3f4f6;
-$gray-50: #f9fafb;
+// ---------- Neutral - Slate ----------
+$neutral-900: #0f172a;
+$neutral-800: #1e293b;
+$neutral-700: #334155;
+$neutral-600: #475569;
+$neutral-500: #64748b;
+$neutral-400: #94a3b8;
+$neutral-300: #cbd5e1;
+$neutral-200: #e2e8f0;
+$neutral-100: #f1f5f9;
+$neutral-50: #f8fafc;
 $white: #ffffff;
 
-// ---------- Alias map (convenience) ----------
-$color-primary: $primary-500;
+// ---------- Alias map ----------
+$color-primary: $primary-400;
 $color-secondary: $secondary-500;
 $color-accent: $accent-500;
 $color-warm: $warm-500;
@@ -107,23 +125,22 @@ $color-info: $info-500;
 // TYPOGRAPHY
 // ============================================================
 $font-sans:
-  "Geist",
   "Inter",
+  "Geist",
   system-ui,
   -apple-system,
   sans-serif;
-$font-mono: "Geist Mono", "JetBrains Mono", "Fira Code", monospace;
-$font-serif: "Georgia", "Times New Roman", serif;
+$font-mono: "JetBrains Mono", "Fira Code", monospace;
 
-$font-size-xs: 0.75rem; // 12px
-$font-size-sm: 0.875rem; // 14px
-$font-size-base: 1rem; // 16px
-$font-size-lg: 1.125rem; // 18px
-$font-size-xl: 1.25rem; // 20px
-$font-size-2xl: 1.5rem; // 24px
-$font-size-3xl: 1.875rem; // 30px
-$font-size-4xl: 2.25rem; // 36px
-$font-size-5xl: 3rem; // 48px
+$font-size-xs: 0.75rem;
+$font-size-sm: 0.875rem;
+$font-size-base: 1rem;
+$font-size-lg: 1.125rem;
+$font-size-xl: 1.25rem;
+$font-size-2xl: 1.5rem;
+$font-size-3xl: 1.875rem;
+$font-size-4xl: 2.25rem;
+$font-size-5xl: 3rem;
 
 $font-weight-light: 300;
 $font-weight-normal: 400;
@@ -137,38 +154,32 @@ $line-height-tight: 1.25;
 $line-height-snug: 1.375;
 $line-height-normal: 1.5;
 $line-height-relaxed: 1.625;
-$line-height-loose: 2;
 
 $letter-spacing-tight: -0.025em;
 $letter-spacing-normal: 0;
 $letter-spacing-wide: 0.025em;
-$letter-spacing-wider: 0.05em;
 
 // ============================================================
 // SPACING
 // ============================================================
 $spacing-0: 0;
 $spacing-px: 1px;
-$spacing-0-5: 0.125rem; // 2px
-$spacing-1: 0.25rem; // 4px
-$spacing-1-5: 0.375rem; // 6px
-$spacing-2: 0.5rem; // 8px
-$spacing-2-5: 0.625rem; // 10px
-$spacing-3: 0.75rem; // 12px
-$spacing-3-5: 0.875rem; // 14px
-$spacing-4: 1rem; // 16px
-$spacing-5: 1.25rem; // 20px
-$spacing-6: 1.5rem; // 24px
-$spacing-7: 1.75rem; // 28px
-$spacing-8: 2rem; // 32px
-$spacing-9: 2.25rem; // 36px
-$spacing-10: 2.5rem; // 40px
-$spacing-12: 3rem; // 48px
-$spacing-14: 3.5rem; // 56px
-$spacing-16: 4rem; // 64px
-$spacing-20: 5rem; // 80px
-$spacing-24: 6rem; // 96px
-$spacing-32: 8rem; // 128px
+$spacing-0-5: 0.125rem;
+$spacing-1: 0.25rem;
+$spacing-1-5: 0.375rem;
+$spacing-2: 0.5rem;
+$spacing-2-5: 0.625rem;
+$spacing-3: 0.75rem;
+$spacing-3-5: 0.875rem;
+$spacing-4: 1rem;
+$spacing-5: 1.25rem;
+$spacing-6: 1.5rem;
+$spacing-8: 2rem;
+$spacing-10: 2.5rem;
+$spacing-12: 3rem;
+$spacing-16: 4rem;
+$spacing-20: 5rem;
+$spacing-24: 6rem;
 
 // ============================================================
 // BREAKPOINTS
@@ -183,13 +194,13 @@ $breakpoint-2xl: 1536px;
 // BORDER RADIUS
 // ============================================================
 $radius-none: 0;
-$radius-sm: 0.125rem; // 2px
-$radius-base: 0.25rem; // 4px
-$radius-md: 0.375rem; // 6px
-$radius-lg: 0.5rem; // 8px
-$radius-xl: 0.75rem; // 12px
-$radius-2xl: 1rem; // 16px
-$radius-3xl: 1.5rem; // 24px
+$radius-sm: 0.25rem;
+$radius-base: 0.375rem;
+$radius-md: 0.5rem;
+$radius-lg: 0.75rem;
+$radius-xl: 1rem;
+$radius-2xl: 1.5rem;
+$radius-3xl: 2rem;
 $radius-full: 9999px;
 
 // ============================================================
@@ -213,6 +224,17 @@ $shadow-2xl: 0 32px 64px -12px rgb(0 0 0 / 0.3);
 $shadow-inner: inset 0 2px 4px 0 rgb(0 0 0 / 0.05);
 $shadow-none: none;
 
+// Dark mode shadows
+$shadow-dark-sm:
+  0 1px 3px 0 rgb(0 0 0 / 0.3),
+  0 1px 2px -1px rgb(0 0 0 / 0.3);
+$shadow-dark-md:
+  0 10px 15px -3px rgb(0 0 0 / 0.4),
+  0 4px 6px -4px rgb(0 0 0 / 0.3);
+$shadow-dark-lg:
+  0 20px 25px -5px rgb(0 0 0 / 0.4),
+  0 8px 10px -6px rgb(0 0 0 / 0.3);
+
 // ============================================================
 // Z-INDEX
 // ============================================================
@@ -232,14 +254,13 @@ $transition-fast: 150ms ease;
 $transition-normal: 200ms ease;
 $transition-base: 250ms ease;
 $transition-slow: 350ms ease;
-$transition-slower: 500ms ease;
 
 // ============================================================
 // LAYOUT
 // ============================================================
 $container-max: 1280px;
-$sidebar-width: 260px;
-$sidebar-width-lg: 300px;
+$sidebar-width: 280px;
+$sidebar-width-lg: 320px;
 $header-height: 64px;
 $footer-height: 56px;
 
@@ -248,6 +269,5 @@ $footer-height: 56px;
 // ============================================================
 $border-width-thin: 1px;
 $border-width-medium: 2px;
-$border-width-thick: 4px;
-$border-color: $gray-200;
-$border-color-dark: $gray-600;
+$border-color: $neutral-200;
+$border-color-dark: $neutral-700;

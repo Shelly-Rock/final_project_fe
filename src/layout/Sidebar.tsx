@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
-import { useState, useCallback, useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { usePermissionContext } from "@/core/providers/PermissionProvider";
 import { ROLE_LABELS } from "@/core/permissions/types";
 import { getMenuSectionsForRole } from "@/shared/constants/menus";
@@ -15,13 +15,19 @@ import Image from "next/image";
 interface SidebarProps {
   collapsed?: boolean;
   onToggle?: () => void;
+  mobileOpen?: boolean;
+  onMobileClose?: () => void;
 }
 
-export function Sidebar({ collapsed = false, onToggle }: SidebarProps) {
+export function Sidebar({
+  collapsed = false,
+  onToggle,
+  mobileOpen = false,
+  onMobileClose,
+}: SidebarProps) {
   const router = useRouter();
   const pathname = usePathname();
   const { role } = usePermissionContext();
-  const [mobileOpen, setMobileOpen] = useState(false);
   const isDesktop = useMediaQuery("(min-width: 1024px)");
 
   const menuSections = useMemo(() => {
@@ -29,17 +35,13 @@ export function Sidebar({ collapsed = false, onToggle }: SidebarProps) {
     return getMenuSectionsForRole(role);
   }, [role]);
 
-  const toggleMobile = useCallback(() => {
-    setMobileOpen((prev) => !prev);
-  }, []);
-
   const handleToggle = useCallback(() => {
     if (isDesktop) {
       onToggle?.();
     } else {
-      setMobileOpen((prev) => !prev);
+      onMobileClose?.();
     }
-  }, [isDesktop, onToggle]);
+  }, [isDesktop, onToggle, onMobileClose]);
 
   const handleSignOut = useCallback(async () => {
     await signOut({ redirect: false, callbackUrl: "/login" });
@@ -53,25 +55,6 @@ export function Sidebar({ collapsed = false, onToggle }: SidebarProps) {
 
   return (
     <>
-      {/* Mobile overlay */}
-      {mobileOpen && (
-        <div
-          className="sidebar-overlay"
-          onClick={() => setMobileOpen(false)}
-          aria-hidden="true"
-        />
-      )}
-
-      {/* Mobile hamburger */}
-      <button
-        type="button"
-        className="sidebar-mobile-toggle"
-        onClick={toggleMobile}
-        aria-label="Open menu"
-      >
-        <span className="bi bi-list" />
-      </button>
-
       {/* Sidebar */}
       <div
         className={`sidebar-wrapper ${collapsed ? "collapsed" : ""} ${mobileOpen && !isDesktop ? "mobile-open" : ""}`}

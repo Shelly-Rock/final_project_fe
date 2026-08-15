@@ -3,7 +3,7 @@
 @import "../abstracts/placeholders";
 
 body {
-  background-color: $gray-50;
+  background-color: $neutral-50;
   @include custom-scrollbar;
 }
 

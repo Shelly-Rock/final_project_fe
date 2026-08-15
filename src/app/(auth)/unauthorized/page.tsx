@@ -1,6 +1,3 @@
-// ============================================================
-// UNAUTHORIZED PAGE — 403 Access Denied
-// ============================================================
 import Link from "next/link";
 import Image from "next/image";
 import { default as Logo } from "@/assets/image/png/logo.png";
@@ -14,7 +11,6 @@ export default function UnauthorizedPage() {
   return (
     <div className="unauthorized-page">
       <div className="unauthorized-container">
-        {/* Logo */}
         <div className="unauthorized-logo">
           <Image
             src={Logo}

@@ -3,8 +3,7 @@
 import type { ReactNode } from "react";
 import type { Role } from "@/core/permissions/types";
 import { PermissionProvider } from "@/core/providers/PermissionProvider";
-import { ThemeProvider } from "@mui/material/styles";
-import { muiTheme } from "@/core/providers/MuiTheme";
+import { ThemeProvider } from "@/shared/theme";
 
 interface AppProvidersProps {
   children: ReactNode;
@@ -15,7 +14,7 @@ export function AppProviders({
   initialRole = null,
 }: AppProvidersProps) {
   return (
-    <ThemeProvider theme={muiTheme}>
+    <ThemeProvider>
       <PermissionProvider initialRole={initialRole}>
         {children}
       </PermissionProvider>

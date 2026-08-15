@@ -1,41 +1,22 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import {
-  Box,
-  Typography,
-  Button,
-  TextField,
-  InputAdornment,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  Snackbar,
-  Alert,
-  Paper,
-  ToggleButton,
-  ToggleButtonGroup,
-} from "@mui/material";
-import {
-  Add as AddIcon,
-  Search as SearchIcon,
-  FileDownload as ExportIcon,
-  FileUpload as ImportIcon,
-  Refresh as RefreshIcon,
-} from "@mui/icons-material";
+import { Box, Snackbar, Alert } from "@mui/material";
 import {
   StudentTable,
   StudentImportDialog,
-  exportStudentsToExcel,
-} from "@/feature/student-management/components";
-import { studentService } from "@/feature/student-management/services";
+  StudentFormDialog,
+  StudentDetailDialog,
+} from "@/feature/student/components";
+import { PageHeader } from "@/shared/components";
+import { studentService } from "@/feature/student/services";
 import type {
   Student,
   StudentFilters,
   StudentImportRow,
   StudentStatus,
-} from "@/feature/student-management/types";
+} from "@/feature/student/types";
+import { List, CheckSquare, Square, Users } from "lucide-react";
 
 const INITIAL_FILTERS: StudentFilters = {
   search: "",
@@ -49,6 +30,9 @@ export default function StudentManagementPage() {
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState<StudentFilters>(INITIAL_FILTERS);
   const [importDialogOpen, setImportDialogOpen] = useState(false);
+  const [formDialogOpen, setFormDialogOpen] = useState(false);
+  const [detailDialogOpen, setDetailDialogOpen] = useState(false);
+  const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
   const [snackbar, setSnackbar] = useState<{
     open: boolean;
     message: string;
@@ -66,24 +50,20 @@ export default function StudentManagementPage() {
     setSnackbar({ open: true, message, severity });
   };
 
-  const fetchStudents = useCallback(async () => {
+  const refreshStudents = useCallback(() => {
     setLoading(true);
-    try {
-      const data = await studentService.getAll();
-      setStudents(data);
-    } catch {
-      showSnackbar("Không thể tải danh sách sinh viên", "error");
-    } finally {
-      setLoading(false);
-    }
+    studentService
+      .getAll()
+      .then((data) => setStudents(data))
+      .catch(() => showSnackbar("Không thể tải danh sách sinh viên", "error"))
+      .finally(() => setLoading(false));
   }, []);
 
+  // Initial load with refreshStudents dependency
   useEffect(() => {
-    const load = () => {
-      fetchStudents();
-    };
-    load();
-  }, [fetchStudents]);
+    const timer = setTimeout(refreshStudents, 0);
+    return () => clearTimeout(timer);
+  }, [refreshStudents]);
 
   const filteredStudents = students.filter((student) => {
     if (filters.search) {
@@ -103,23 +83,25 @@ export default function StudentManagementPage() {
 
   const handleImport = async (data: StudentImportRow[]) => {
     try {
-      await studentService.createMany(data);
-      await fetchStudents();
-      showSnackbar(`Đã import ${data.length} sinh viên thành công`);
+      const result = await studentService.createMany(data);
+      refreshStudents();
+      showSnackbar(
+        `Đã import ${result.success} sinh viên thành công${result.failed > 0 ? `, ${result.failed} thất bại` : ""}`,
+      );
     } catch {
       showSnackbar("Import thất bại", "error");
     }
   };
 
-  const handleExport = () => {
-    exportStudentsToExcel(filteredStudents);
-    showSnackbar("Đã xuất file Excel");
-  };
-
   const handleDelete = async (student: Student) => {
+    const confirmed = window.confirm(
+      `Bạn có chắc muốn xóa sinh viên "${student.hoTen}" (${student.mssv})?`,
+    );
+    if (!confirmed) return;
+
     try {
       await studentService.delete(student.id);
-      await fetchStudents();
+      refreshStudents();
       showSnackbar("Đã xóa sinh viên");
     } catch {
       showSnackbar("Xóa thất bại", "error");
@@ -127,151 +109,27 @@ export default function StudentManagementPage() {
   };
 
   const handleView = (student: Student) => {
-    console.log("View student:", student);
-    showSnackbar(`Xem thông tin: ${student.hoTen}`);
+    setSelectedStudent(student);
+    setDetailDialogOpen(true);
   };
 
   const handleEdit = (student: Student) => {
-    console.log("Edit student:", student);
-    showSnackbar(`Chỉnh sửa: ${student.hoTen}`);
+    setSelectedStudent(student);
+    setFormDialogOpen(true);
   };
 
-  const khoaOptions = studentService.getKhoaOptions();
-  const khoaHocOptions = studentService.getKhoaHocOptions();
+  const handleAdd = () => {
+    setSelectedStudent(null);
+    setFormDialogOpen(true);
+  };
 
   return (
-    <Box sx={{ p: 3 }}>
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          mb: 3,
-        }}
-      >
-        <Typography variant="h4" sx={{ fontWeight: 600 }}>
-          Quản lý sinh viên
-        </Typography>
-        <Box sx={{ display: "flex", gap: 1 }}>
-          <Button
-            variant="outlined"
-            startIcon={<ImportIcon />}
-            onClick={() => setImportDialogOpen(true)}
-          >
-            Import
-          </Button>
-          <Button
-            variant="outlined"
-            startIcon={<ExportIcon />}
-            onClick={handleExport}
-            disabled={filteredStudents.length === 0}
-          >
-            Xuất Excel
-          </Button>
-          <Button
-            variant="contained"
-            startIcon={<AddIcon />}
-            onClick={() =>
-              showSnackbar("Chức năng thêm sinh viên đang phát triển")
-            }
-          >
-            Thêm sinh viên
-          </Button>
-        </Box>
-      </Box>
-
-      <Paper sx={{ p: 2, mb: 3 }}>
-        <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
-          <TextField
-            size="small"
-            placeholder="Tìm kiếm theo tên, MSSV, email..."
-            value={filters.search}
-            onChange={(e) => setFilters({ ...filters, search: e.target.value })}
-            sx={{ minWidth: 280 }}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon />
-                </InputAdornment>
-              ),
-            }}
-          />
-
-          <FormControl size="small" sx={{ minWidth: 180 }}>
-            <InputLabel>Khoa</InputLabel>
-            <Select
-              value={filters.khoa}
-              label="Khoa"
-              onChange={(e) => setFilters({ ...filters, khoa: e.target.value })}
-            >
-              <MenuItem value="">Tất cả</MenuItem>
-              {khoaOptions.map((khoa) => (
-                <MenuItem key={khoa} value={khoa}>
-                  {khoa}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-
-          <FormControl size="small" sx={{ minWidth: 120 }}>
-            <InputLabel>Khóa</InputLabel>
-            <Select
-              value={filters.khoaHoc}
-              label="Khóa"
-              onChange={(e) =>
-                setFilters({ ...filters, khoaHoc: e.target.value })
-              }
-            >
-              <MenuItem value="">Tất cả</MenuItem>
-              {khoaHocOptions.map((khoa) => (
-                <MenuItem key={khoa} value={khoa}>
-                  {khoa}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            <Typography variant="body2" color="text.secondary">
-              Trạng thái:
-            </Typography>
-            <ToggleButtonGroup
-              size="small"
-              value={filters.status}
-              exclusive
-              onChange={(_, v) => {
-                if (v !== null)
-                  setFilters({ ...filters, status: v as StudentStatus });
-              }}
-            >
-              <ToggleButton value="all">Tất cả</ToggleButton>
-              <ToggleButton value="has_topic">Đã chọn đề tài</ToggleButton>
-              <ToggleButton value="no_topic">Chưa chọn đề tài</ToggleButton>
-            </ToggleButtonGroup>
-          </Box>
-
-          <Box sx={{ flex: 1 }} />
-
-          <Button
-            size="small"
-            startIcon={<RefreshIcon />}
-            onClick={fetchStudents}
-          >
-            Làm mới
-          </Button>
-        </Box>
-
-        <Box sx={{ mt: 2, display: "flex", gap: 2 }}>
-          <Typography variant="body2" color="text.secondary">
-            Tổng: <strong>{filteredStudents.length}</strong> sinh viên
-          </Typography>
-          {filteredStudents.length !== students.length && (
-            <Typography variant="body2" color="text.secondary">
-              (đã lọc từ {students.length})
-            </Typography>
-          )}
-        </Box>
-      </Paper>
+    <Box sx={{ p: 3, width: "100%" }}>
+      <PageHeader
+        title="Quản lý sinh viên"
+        illustration={<Users size={56} strokeWidth={1.5} />}
+        showBgImage={true}
+      />
 
       <StudentTable
         students={filteredStudents}
@@ -279,14 +137,42 @@ export default function StudentManagementPage() {
         onEdit={handleEdit}
         onDelete={handleDelete}
         onView={handleView}
+        filterOptions={[
+          { value: "all", label: "Tất cả", icon: <List size={16} /> },
+          {
+            value: "has_topic",
+            label: "Đã chọn đề tài",
+            icon: <CheckSquare size={16} />,
+          },
+          {
+            value: "no_topic",
+            label: "Chưa chọn đề tài",
+            icon: <Square size={16} />,
+          },
+        ]}
+        filterValue={filters.status}
+        onFilterChange={(value) =>
+          setFilters({ ...filters, status: value as StudentStatus })
+        }
+        onAdd={handleAdd}
+        onRefresh={refreshStudents}
       />
-
       <StudentImportDialog
         open={importDialogOpen}
         onClose={() => setImportDialogOpen(false)}
         onImport={handleImport}
       />
 
+      <StudentFormDialog
+        open={formDialogOpen}
+        onClose={() => setFormDialogOpen(false)}
+        student={selectedStudent}
+      />
+      <StudentDetailDialog
+        open={detailDialogOpen}
+        onClose={() => setDetailDialogOpen(false)}
+        student={selectedStudent}
+      />
       <Snackbar
         open={snackbar.open}
         autoHideDuration={3000}
