@@ -1,0 +1,14 @@
+feat(stage-4): Add Independent Scoring pages and components
+
+Frontend:
+- TeacherScoring component for GVHD/Committee scoring
+- ScoringManagement component for admin
+- scoring.service.ts with API functions
+- Pages: /scoring/teacher, /scoring/admin
+- Update menus and breadcrumbs
+
+Features:
+- Criteria-based scoring with 5 criteria
+- Score < 4 = elimination warning
+- Draft save functionality
+- Real-time stats display
