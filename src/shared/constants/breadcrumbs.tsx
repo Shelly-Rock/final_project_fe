@@ -1,5 +1,6 @@
 // src/shared/constants/breadcrumbs.ts
 import { UsersIcon, ClipboardListIcon, GraduationCap } from "lucide-react";
+import { ChartLineIcon, FileTextIcon } from "lucide-react";
 import type { BreadcrumbItem } from "@/shared/components/Breadcrumb";
 
 export const BREADCRUMB_NODES = {
@@ -27,6 +28,17 @@ export const BREADCRUMB_NODES = {
     label: "Quản lý giảng viên",
     href: "/teachers",
     icon: <GraduationCap size={16} />,
+  },
+  // Progress Tracking Breadcrumbs
+  TEACHER_PROGRESS: {
+    label: "Theo dõi tiến trình (GV)",
+    href: "/progress-tracking/teacher",
+    icon: <ChartLineIcon size={16} />,
+  },
+  STUDENT_PROGRESS: {
+    label: "Theo dõi tiến trình (SV)",
+    href: "/progress-tracking/student",
+    icon: <FileTextIcon size={16} />,
   },
 } as const satisfies Record<string, Omit<BreadcrumbItem, "onClick">>;
 
