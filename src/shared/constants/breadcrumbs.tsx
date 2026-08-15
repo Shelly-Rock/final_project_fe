@@ -1,6 +1,7 @@
 // src/shared/constants/breadcrumbs.ts
 import { UsersIcon, ClipboardListIcon, GraduationCap } from "lucide-react";
 import { ChartLineIcon, FileTextIcon } from "lucide-react";
+import { UploadIcon, PeopleIcon, CalendarIcon } from "lucide-react";
 import type { BreadcrumbItem } from "@/shared/components/Breadcrumb";
 
 export const BREADCRUMB_NODES = {
@@ -39,6 +40,27 @@ export const BREADCRUMB_NODES = {
     label: "Theo dõi tiến trình (SV)",
     href: "/progress-tracking/student",
     icon: <FileTextIcon size={16} />,
+  },
+  // Stage 3 - Submission & Committee
+  SUBMISSIONS: {
+    label: "Nộp bài cuối kỳ",
+    href: "/submission/admin",
+    icon: <UploadIcon size={16} />,
+  },
+  STUDENT_SUBMISSION: {
+    label: "Nộp bài cuối kỳ",
+    href: "/submission/student",
+    icon: <UploadIcon size={16} />,
+  },
+  COMMITTEES: {
+    label: "Hội đồng bảo vệ",
+    href: "/committee",
+    icon: <PeopleIcon size={16} />,
+  },
+  DEFENSE_SCHEDULE: {
+    label: "Lịch bảo vệ",
+    href: "/defense-schedule",
+    icon: <CalendarIcon size={16} />,
   },
 } as const satisfies Record<string, Omit<BreadcrumbItem, "onClick">>;
 
