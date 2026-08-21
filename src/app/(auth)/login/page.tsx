@@ -1,7 +1,7 @@
 "use client";
-import { useState, useCallback, useEffect, type FormEvent } from "react";
+import { useState, useCallback, useEffect, Suspense } from "react";
 import { signIn, useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
@@ -12,40 +12,76 @@ import CircularProgress from "@mui/material/CircularProgress";
 import InputAdornment from "@mui/material/InputAdornment";
 import IconButton from "@mui/material/IconButton";
 import { default as Logo } from "@/assets/image/png/logo.png";
+import { LoadingSpinner } from "@/shared/components/Spinner/Spinner";
+
+const BACKEND_ERRORS = {
+  EMAIL_NOT_VERIFIED: "Please verify your email first",
+  MUST_CHANGE_PASSWORD: "You must change your password before logging in",
+};
 
 export default function LoginPage() {
+  return (
+    <Suspense fallback={<LoadingSpinner text="Đang tải..." />}>
+      <LoginContent />
+    </Suspense>
+  );
+}
+
+function LoginContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl") || "/";
   const { data: session } = useSession();
-  const [email, setEmail] = useState("");
+
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [emailError, setEmailError] = useState("");
 
   useEffect(() => {
     if (session?.user) {
-      router.push("/");
+      router.push(callbackUrl);
       router.refresh();
     }
-  }, [session, router]);
+  }, [session, router, callbackUrl]);
 
   const handleSubmit = useCallback(
-    async (e: FormEvent<HTMLFormElement>) => {
+    async (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
       setError("");
+      setEmailError("");
       setLoading(true);
 
       try {
         const result = await signIn("credentials", {
-          email,
+          username,
           password,
           redirect: false,
         });
 
         if (result?.error) {
-          setError("Email hoặc mật khẩu không chính xác. Vui lòng thử lại.");
+          const msg = result.error;
+
+          if (
+            msg.toLowerCase().includes("verify") ||
+            msg === BACKEND_ERRORS.EMAIL_NOT_VERIFIED
+          ) {
+            setEmailError(
+              "Email chưa được xác minh. Vui lòng kiểm tra hộp thư và click link xác nhận.",
+            );
+          } else if (
+            msg.toLowerCase().includes("change password") ||
+            msg === BACKEND_ERRORS.MUST_CHANGE_PASSWORD
+          ) {
+            // Redirect to change password page (email already verified, just need to set password)
+            router.push("/change-password?mustChangePassword=1");
+          } else {
+            setError("Tài khoản hoặc mật khẩu không chính xác.");
+          }
         } else {
-          router.push("/");
+          router.push(callbackUrl);
           router.refresh();
         }
       } catch {
@@ -54,7 +90,7 @@ export default function LoginPage() {
         setLoading(false);
       }
     },
-    [email, password, router],
+    [username, password, router, callbackUrl],
   );
 
   return (
@@ -139,6 +175,16 @@ export default function LoginPage() {
             </Alert>
           )}
 
+          {emailError && (
+            <Alert
+              severity="warning"
+              className="login-alert"
+              onClose={() => setEmailError("")}
+            >
+              {emailError}
+            </Alert>
+          )}
+
           <Box
             component="form"
             className="login-form"
@@ -146,13 +192,13 @@ export default function LoginPage() {
             noValidate
           >
             <TextField
-              label="Email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              label="Tài khoản (MSSV)"
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
               required
               fullWidth
-              autoComplete="email"
+              autoComplete="username"
               autoFocus
               slotProps={{
                 input: { className: "login-field-input" },
@@ -194,7 +240,7 @@ export default function LoginPage() {
               type="submit"
               variant="contained"
               fullWidth
-              disabled={loading || !email || !password}
+              disabled={loading || !username || !password}
               className="login-submit-btn"
             >
               {loading ? (

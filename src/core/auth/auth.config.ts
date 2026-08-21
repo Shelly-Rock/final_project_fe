@@ -1,10 +1,8 @@
 // ============================================================
-// NEXTAUTH CONFIGURATION — NextAuth v4
+// NEXTAUTH CONFIGURATION — NextAuth v4 backed by NestJS JWT API
 // ============================================================
 import type { Role } from "@/core/permissions/types";
-// import { defineAbilityFor } from "@/core/permissions/ability";
 
-// ---------- Module augmentation for NextAuth v4 ----------
 declare module "next-auth" {
   interface Session {
     user: {
@@ -14,11 +12,15 @@ declare module "next-auth" {
       image?: string | null;
       role: Role;
     };
+    accessToken: string;
   }
 
   interface User {
     id: string;
     role: Role;
+    username: string;
+    mustChangePassword: boolean;
+    emailVerified: boolean;
   }
 }
 
@@ -26,92 +28,76 @@ declare module "next-auth/jwt" {
   interface JWT {
     id: string;
     role: Role;
+    username: string;
+    accessToken: string;
+    mustChangePassword: boolean;
+    emailVerified: boolean;
   }
 }
-
-// ---------- Mock session (re-exported for use in client layouts) ----------
-export const MOCK_SESSION = {
-  user: {
-    id: "usr_001",
-    name: "Nguyễn Văn Admin",
-    email: "admin@qnq.edu.vn",
-    role: "admin" as Role,
-  },
-  expires: "2099-12-31T23:59:59.999Z",
-};
-
-// ---------- Mock user store ----------
-interface MockUser {
-  id: string;
-  password: string;
-  role: Role;
-  name: string;
-}
-
-const MOCK_USERS: Record<string, MockUser> = {
-  "admin@qnq.edu.vn": {
-    id: "usr_001",
-    password: "admin123",
-    role: "admin",
-    name: "Nguyễn Văn Admin",
-  },
-  "secretary@qnq.edu.vn": {
-    id: "usr_002",
-    password: "secretary123",
-    role: "secretary",
-    name: "Trần Thị Thư Ký",
-  },
-  "teacher@qnq.edu.vn": {
-    id: "usr_003",
-    password: "teacher123",
-    role: "teacher",
-    name: "PGS.TS. Lê Văn Giảng",
-  },
-  "student@qnq.edu.vn": {
-    id: "usr_004",
-    password: "student123",
-    role: "student",
-    name: "Nguyễn Hoàng Sinh Viên",
-  },
-};
 
 // ---------- Auth options (used by API route + getServerSession) ----------
 import type { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+import { authService } from "@/core/auth/auth.service";
 
 export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
       name: "credentials",
       credentials: {
-        email: { label: "Email", type: "email" },
+        username: { label: "Username / MSSV", type: "text" },
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) return null;
+        if (!credentials?.username || !credentials?.password) return null;
 
-        // TODO: Replace with real DB call
-        // const user = await db.user.findUnique({ where: { email } });
-        // if (!user || !await bcrypt.compare(credentials.password, user.passwordHash)) return null;
+        try {
+          const result = await authService.login({
+            username: credentials.username,
+            password: credentials.password,
+          });
 
-        const user = MOCK_USERS[credentials.email];
-        if (!user || user.password !== credentials.password) return null;
-
-        return {
-          id: user.id,
-          name: user.name,
-          email: credentials.email,
-          role: user.role,
-        };
+          // Backend throws if email not verified or must change password
+          // The FE must handle these cases
+          return {
+            id: String(result.user.id),
+            name: result.user.username,
+            email: result.user.email,
+            role: mapRole(result.user.role.name),
+            username: result.user.username,
+            mustChangePassword: result.user.mustChangePassword,
+            emailVerified: !!result.user.emailVerifiedAt,
+          };
+        } catch (err: unknown) {
+          // Re-throw structured errors so the login page can show them
+          const error = err as {
+            response?: { data?: { message?: string } };
+            message?: string;
+          };
+          const message =
+            error?.response?.data?.message ||
+            error?.message ||
+            "Đăng nhập thất bại";
+          throw new Error(message);
+        }
       },
     }),
   ],
 
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger }) {
       if (user) {
         token.id = user.id;
         token.role = user.role;
+        token.username = user.username;
+        token.mustChangePassword = user.mustChangePassword;
+        token.emailVerified = !!user.emailVerified;
+        token.accessToken =
+          (user as { accessToken?: string }).accessToken || "";
+      }
+      // Persist tokens when session is updated
+      if (trigger === "update" && token.accessToken) {
+        authService.setTokens(token.accessToken, "");
       }
       return token;
     },
@@ -120,7 +106,9 @@ export const authOptions: NextAuthOptions = {
       if (session.user) {
         session.user.id = token.id as string;
         session.user.role = token.role as Role;
+        session.user.name = token.username as string;
       }
+      session.accessToken = (token.accessToken as string) || "";
       return session;
     },
   },
@@ -132,9 +120,25 @@ export const authOptions: NextAuthOptions = {
 
   session: {
     strategy: "jwt",
-    maxAge: 8 * 60 * 60, // 8 hours
+    maxAge: 8 * 60 * 60,
   },
 
   secret: process.env.NEXTAUTH_SECRET,
   debug: process.env.NODE_ENV === "development",
 };
+
+// ── Map backend role name → frontend Role type ──────────────────
+function mapRole(backendRole: string): Role {
+  switch (backendRole.toUpperCase()) {
+    case "ADMIN":
+      return "admin";
+    case "SECRETARY":
+      return "secretary";
+    case "TEACHER":
+      return "teacher";
+    case "STUDENT":
+      return "student";
+    default:
+      return "student";
+  }
+}
