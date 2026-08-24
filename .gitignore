@@ -59,7 +59,9 @@ next-env.d.ts
 next-env.d.ts
 
 # Environment files
-.env
+# Keep .env committed (checked into version control)
+!.env
+# Ignore all local overrides
 .env*.local
 .env*.development
 .env*.production
