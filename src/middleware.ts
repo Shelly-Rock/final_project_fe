@@ -9,7 +9,13 @@ import type { NextRequest } from "next/server";
 type Role = "admin" | "secretary" | "teacher" | "student";
 
 // ---------- Public routes ----------
-const PUBLIC_ROUTES = ["/login", "/unauthorized", "/change-password"];
+const PUBLIC_ROUTES = [
+  "/login",
+  "/unauthorized",
+  "/change-password",
+  "/verify-email",
+  "/auth/verify-email",
+];
 
 // ---------- Role-based restricted routes ----------
 const ROLE_ROUTES: Partial<Record<Role, RegExp[]>> = {

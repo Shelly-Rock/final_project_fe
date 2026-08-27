@@ -6,7 +6,7 @@
 // ============================================================
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { Suspense, useState, useCallback, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signIn, useSession } from "next-auth/react";
 import Box from "@mui/material/Box";
@@ -21,7 +21,7 @@ import IconButton from "@mui/material/IconButton";
 import LockResetIcon from "@mui/icons-material/LockReset";
 import { authService } from "@/core/auth/auth.service";
 
-export default function ChangePasswordPage() {
+function ChangePasswordForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { data: session } = useSession();
@@ -281,5 +281,13 @@ export default function ChangePasswordPage() {
         </Paper>
       </Box>
     </Box>
+  );
+}
+
+export default function ChangePasswordPage() {
+  return (
+    <Suspense fallback={null}>
+      <ChangePasswordForm />
+    </Suspense>
   );
 }

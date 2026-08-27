@@ -1,5 +1,8 @@
 "use client";
-import { useState, useCallback, useEffect } from "react";
+
+export const dynamic = "force-dynamic";
+
+import { Suspense, useState, useCallback, useEffect } from "react";
 import { signIn, useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
@@ -18,7 +21,7 @@ const BACKEND_ERRORS = {
   MUST_CHANGE_PASSWORD: "You must change your password before logging in",
 };
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/";
@@ -72,14 +75,19 @@ export default function LoginPage() {
             // Redirect to change password page (email already verified, just need to set password)
             router.push("/change-password?mustChangePassword=1");
           } else {
-            setError("Tài khoản hoặc mật khẩu không chính xác.");
+            setError(msg || "Tài khoản hoặc mật khẩu không chính xác.");
           }
         } else {
           router.push(callbackUrl);
           router.refresh();
         }
-      } catch {
-        setError("Đã xảy ra lỗi. Vui lòng thử lại sau.");
+      } catch (err: unknown) {
+        console.error("[Login] Credentials sign-in failed", err);
+        setError(
+          err instanceof Error && err.message
+            ? err.message
+            : "Đã xảy ra lỗi. Vui lòng thử lại sau.",
+        );
       } finally {
         setLoading(false);
       }
@@ -256,5 +264,13 @@ export default function LoginPage() {
         </Box>
       </Box>
     </Box>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginForm />
+    </Suspense>
   );
 }
