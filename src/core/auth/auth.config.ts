@@ -42,6 +42,10 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import axios from "axios";
 import { authService } from "@/core/auth/auth.service";
 
+const nextAuthUrl =
+  process.env.NEXTAUTH_URL ||
+  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined);
+
 export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
@@ -142,6 +146,9 @@ export const authOptions: NextAuthOptions = {
   },
 
   secret: process.env.NEXTAUTH_SECRET,
+  ...(nextAuthUrl
+    ? { pages: { ...{ signIn: "/login", error: "/login" } } }
+    : {}),
   debug: process.env.NODE_ENV === "development",
 };
 
