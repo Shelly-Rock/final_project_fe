@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { AuthProvider } from "@/core/providers/AuthProvider";
+import { Sonner } from "@/shared/components/Sonner/Sonner";
 import "@/styles/main.scss";
 import "bootstrap-icons/font/bootstrap-icons.css";
 
@@ -33,6 +34,7 @@ export default function RootLayout({
     >
       <body className="min-h-full">
         <AuthProvider>{children}</AuthProvider>
+        <Sonner position="top-right" richColors closeButton />
       </body>
     </html>
   );

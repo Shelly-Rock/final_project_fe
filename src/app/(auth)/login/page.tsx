@@ -15,6 +15,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import InputAdornment from "@mui/material/InputAdornment";
 import IconButton from "@mui/material/IconButton";
 import { default as Logo } from "@/assets/image/png/logo.png";
+import { toast } from "@/shared/components/Sonner/Sonner";
 
 const BACKEND_ERRORS = {
   EMAIL_NOT_VERIFIED: "Please verify your email first",
@@ -82,6 +83,9 @@ function LoginForm() {
             setError(msg || "Tài khoản hoặc mật khẩu không chính xác.");
           }
         } else if (result?.ok) {
+          const destination = result.url || callbackUrl || "/";
+          toast.success("Đăng nhập thành công");
+          router.push(destination);
           router.refresh();
         }
       } catch (err: unknown) {
