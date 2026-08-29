@@ -89,7 +89,10 @@ function LoginForm() {
           router.refresh();
         }
       } catch (err: unknown) {
-        console.error("[Login] Credentials sign-in failed", err);
+        if (process.env.NODE_ENV === "development") {
+          // eslint-disable-next-line no-console
+          console.error("[Login] Credentials sign-in failed", err);
+        }
         setError(
           err instanceof Error && err.message
             ? err.message
