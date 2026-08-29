@@ -11,6 +11,7 @@ declare module "next-auth" {
       email?: string | null;
       image?: string | null;
       role: Role;
+      mustChangePassword: boolean;
     };
     accessToken: string;
   }
@@ -124,6 +125,7 @@ export const authOptions: NextAuthOptions = {
         session.user.role = token.role as Role;
         session.user.name = token.username as string;
       }
+      session.user.mustChangePassword = !!token.mustChangePassword;
       session.accessToken = (token.accessToken as string) || "";
       return session;
     },

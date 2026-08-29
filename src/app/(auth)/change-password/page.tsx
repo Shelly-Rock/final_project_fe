@@ -8,7 +8,7 @@
 
 import { Suspense, useState, useCallback, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { signIn, useSession } from "next-auth/react";
+import { signIn, signOut, useSession } from "next-auth/react";
 import Box from "@mui/material/Box";
 import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
@@ -28,22 +28,25 @@ function ChangePasswordForm() {
 
   const token = searchParams.get("token");
   const mustChangePassword = searchParams.get("mustChangePassword") === "1";
+  const isAuthenticatedChange =
+    !token && !mustChangePassword && !!session?.user;
 
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
 
   // Validate token only for email-link flow
   useEffect(() => {
-    if (token === null && !mustChangePassword) {
+    if (!token && !mustChangePassword && !session?.user) {
       setError("Liên kết không hợp lệ hoặc đã hết hạn.");
     }
-  }, [token, mustChangePassword]);
+  }, [token, mustChangePassword, session]);
 
   const handleSubmit = useCallback(
     async (e: React.FormEvent) => {
@@ -61,7 +64,7 @@ function ChangePasswordForm() {
       }
 
       // Validate current password for logged-in users
-      if (mustChangePassword && !currentPassword) {
+      if ((mustChangePassword || isAuthenticatedChange) && !currentPassword) {
         setError("Vui lòng nhập mật khẩu hiện tại");
         return;
       }
@@ -71,17 +74,13 @@ function ChangePasswordForm() {
       try {
         if (token) {
           // ── Flow 1: Email link ────────────────────────────────
-          // Step 1: Verify email
-          await authService.verifyEmail(token);
-          // Step 2: Change password
           await authService.changePassword({ token, newPassword });
 
           setSuccess(true);
           setTimeout(() => {
             router.push("/login");
           }, 2000);
-        } else if (mustChangePassword) {
-          // ── Flow 2: Logged-in user must change password ───────
+        } else if (mustChangePassword || isAuthenticatedChange) {
           await authService.changePasswordMe({
             currentPassword,
             newPassword,
@@ -89,14 +88,15 @@ function ChangePasswordForm() {
 
           setSuccess(true);
           setTimeout(() => {
-            // Re-login with new password
-            signIn("credentials", {
-              username: session?.user?.name || "",
-              password: newPassword,
-              redirect: false,
-            }).then(() => {
+            if (mustChangePassword) {
+              signIn("credentials", {
+                username: session?.user?.name || "",
+                password: newPassword,
+                redirect: false,
+              }).then(() => router.push("/"));
+            } else {
               router.push("/");
-            });
+            }
           }, 1500);
         } else {
           setError("Liên kết không hợp lệ.");
@@ -119,6 +119,7 @@ function ChangePasswordForm() {
       confirmPassword,
       router,
       session,
+      isAuthenticatedChange,
     ],
   );
 
@@ -138,12 +139,12 @@ function ChangePasswordForm() {
             <LockResetIcon color="primary" sx={{ fontSize: 40 }} />
             <Box>
               <Typography variant="h5" fontWeight={700}>
-                {mustChangePassword ? "Đổi mật khẩu" : "Đặt mật khẩu mới"}
+                {token ? "Đặt mật khẩu mới" : "Đổi mật khẩu"}
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                {mustChangePassword
-                  ? "Vui lòng đổi mật khẩu để tiếp tục sử dụng"
-                  : "Thiết lập mật khẩu cho tài khoản của bạn"}
+                {token
+                  ? "Thiết lập mật khẩu cho tài khoản của bạn"
+                  : "Cập nhật mật khẩu để bảo vệ tài khoản"}
               </Typography>
             </Box>
           </Box>
@@ -162,10 +163,10 @@ function ChangePasswordForm() {
             </Alert>
           ) : (
             <Box component="form" onSubmit={handleSubmit} noValidate>
-              {mustChangePassword && (
+              {(mustChangePassword || isAuthenticatedChange) && (
                 <TextField
                   label="Mật khẩu hiện tại"
-                  type={showNewPassword ? "text" : "password"}
+                  type={showCurrentPassword ? "text" : "password"}
                   value={currentPassword}
                   onChange={(e) => setCurrentPassword(e.target.value)}
                   fullWidth
@@ -178,11 +179,11 @@ function ChangePasswordForm() {
                       endAdornment: (
                         <InputAdornment position="end">
                           <IconButton
-                            onClick={() => setShowNewPassword((v) => !v)}
+                            onClick={() => setShowCurrentPassword((v) => !v)}
                             edge="end"
                           >
                             <span
-                              className={`bi ${showNewPassword ? "bi-eye-slash" : "bi-eye"}`}
+                              className={`bi ${showCurrentPassword ? "bi-eye-slash" : "bi-eye"}`}
                             />
                           </IconButton>
                         </InputAdornment>
@@ -199,7 +200,10 @@ function ChangePasswordForm() {
                 onChange={(e) => setNewPassword(e.target.value)}
                 fullWidth
                 required
-                disabled={loading || (!token && !mustChangePassword)}
+                disabled={
+                  loading ||
+                  (!token && !mustChangePassword && !isAuthenticatedChange)
+                }
                 sx={{ mb: 2 }}
                 slotProps={{
                   input: {
@@ -226,7 +230,10 @@ function ChangePasswordForm() {
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 fullWidth
                 required
-                disabled={loading || (!token && !mustChangePassword)}
+                disabled={
+                  loading ||
+                  (!token && !mustChangePassword && !isAuthenticatedChange)
+                }
                 sx={{ mb: 3 }}
                 slotProps={{
                   input: {
@@ -253,7 +260,7 @@ function ChangePasswordForm() {
                 size="large"
                 disabled={
                   loading ||
-                  (!token && !mustChangePassword) ||
+                  (!token && !mustChangePassword && !isAuthenticatedChange) ||
                   !newPassword ||
                   !confirmPassword ||
                   newPassword.length < 6
@@ -266,7 +273,7 @@ function ChangePasswordForm() {
                 )}
               </Button>
 
-              {!mustChangePassword && (
+              {token && (
                 <Button
                   variant="text"
                   fullWidth

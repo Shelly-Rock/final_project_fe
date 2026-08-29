@@ -100,6 +100,12 @@ export default async function middleware(req: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
+  if (token.mustChangePassword && pathname !== "/change-password") {
+    return NextResponse.redirect(
+      new URL("/change-password?mustChangePassword=1", req.url),
+    );
+  }
+
   const role = token.role as Role | undefined;
 
   if (

@@ -223,7 +223,13 @@ export function Header({ onMenuClick, showMenuButton = true }: HeaderProps) {
                 </ListItemIcon>
                 <Typography variant="body2">Hồ sơ</Typography>
               </MenuItem>
-              <MenuItem sx={{ borderRadius: 1, mx: 1, my: 0.5 }}>
+              <MenuItem
+                sx={{ borderRadius: 1, mx: 1, my: 0.5 }}
+                onClick={() => {
+                  handleUserMenuClose();
+                  router.push("/change-password");
+                }}
+              >
                 <ListItemIcon sx={{ minWidth: 36 }}>
                   <Settings size={18} />
                 </ListItemIcon>

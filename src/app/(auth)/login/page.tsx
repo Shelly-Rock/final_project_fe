@@ -36,7 +36,11 @@ function LoginForm() {
 
   useEffect(() => {
     if (session?.user) {
-      router.push(callbackUrl);
+      router.push(
+        session.user.mustChangePassword
+          ? "/change-password?mustChangePassword=1"
+          : callbackUrl,
+      );
       router.refresh();
     }
   }, [session, router, callbackUrl]);
@@ -77,8 +81,7 @@ function LoginForm() {
           } else {
             setError(msg || "Tài khoản hoặc mật khẩu không chính xác.");
           }
-        } else {
-          router.push(callbackUrl);
+        } else if (result?.ok) {
           router.refresh();
         }
       } catch (err: unknown) {
