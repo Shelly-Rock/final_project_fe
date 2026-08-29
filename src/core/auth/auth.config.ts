@@ -93,11 +93,14 @@ export const authOptions: NextAuthOptions = {
                 ? err.message
                 : "Đăng nhập thất bại";
 
-          console.error("[NextAuth] Credentials login failed", {
-            status,
-            message,
-            username: credentials.username,
-          });
+          if (process.env.NODE_ENV === "development") {
+            // eslint-disable-next-line no-console
+            console.error("[NextAuth] Credentials login failed", {
+              status,
+              message,
+              username: credentials.username,
+            });
+          }
 
           throw new Error(message);
         }
@@ -152,16 +155,22 @@ export const authOptions: NextAuthOptions = {
   debug: process.env.NODE_ENV === "development",
 };
 
-// ── Map backend role name → frontend Role type ──────────────────
-function mapRole(backendRole: string): Role {
-  switch (backendRole.toUpperCase()) {
+// ── Map backend role value → frontend Role type ──────────────────
+function mapRole(backendRole: string | number): Role {
+  const normalized = String(backendRole).trim().toUpperCase();
+
+  switch (normalized) {
     case "ADMIN":
+    case "4":
       return "admin";
     case "SECRETARY":
+    case "3":
       return "secretary";
     case "TEACHER":
+    case "2":
       return "teacher";
     case "STUDENT":
+    case "1":
       return "student";
     default:
       return "student";
