@@ -2,7 +2,7 @@
 
 export const dynamic = "force-dynamic";
 
-import { Suspense, useState, useCallback, useEffect } from "react";
+import { Suspense, useState, useEffect } from "react";
 import { signIn, useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
@@ -22,6 +22,33 @@ const BACKEND_ERRORS = {
   MUST_CHANGE_PASSWORD: "You must change your password before logging in",
 };
 
+function getDefaultRouteForRole(role?: string) {
+  switch (role) {
+    case "student":
+      return "/topic-registration";
+    case "teacher":
+      return "/my-topics";
+    case "admin":
+    case "secretary":
+      return "/students";
+    default:
+      return "/";
+  }
+}
+
+function getSafeRedirectUrl(target: string | null | undefined, role?: string) {
+  if (
+    !target ||
+    target === "/login" ||
+    target.startsWith("/api") ||
+    target.startsWith("/auth")
+  ) {
+    return getDefaultRouteForRole(role);
+  }
+
+  return target;
+}
+
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -37,73 +64,73 @@ function LoginForm() {
 
   useEffect(() => {
     if (session?.user) {
-      router.push(
-        session.user.mustChangePassword
-          ? "/change-password?mustChangePassword=1"
-          : callbackUrl,
-      );
+      const destination = session.user.mustChangePassword
+        ? "/change-password?mustChangePassword=1"
+        : getSafeRedirectUrl(callbackUrl, session.user.role);
+
+      router.replace(destination);
       router.refresh();
     }
-  }, [session, router, callbackUrl]);
+  }, [session, router, callbackUrl, session?.user?.role]);
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [_emailToVerify, setEmailToVerify] = useState("");
 
-  const handleSubmit = useCallback(
-    async (e: React.FormEvent<HTMLFormElement>) => {
-      e.preventDefault();
-      setError("");
-      setEmailError("");
-      setLoading(true);
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setError("");
+    setEmailError("");
+    setLoading(true);
 
-      try {
-        const result = await signIn("credentials", {
-          username,
-          password,
-          redirect: false,
-        });
+    try {
+      const result = await signIn("credentials", {
+        username,
+        password,
+        redirect: false,
+      });
 
-        if (result?.error) {
-          const msg = result.error;
+      if (result?.error) {
+        const msg = result.error;
 
-          if (
-            msg.toLowerCase().includes("verify") ||
-            msg === BACKEND_ERRORS.EMAIL_NOT_VERIFIED
-          ) {
-            setEmailError(
-              "Email chưa được xác minh. Vui lòng kiểm tra hộp thư và click link xác nhận.",
-            );
-          } else if (
-            msg.toLowerCase().includes("change password") ||
-            msg === BACKEND_ERRORS.MUST_CHANGE_PASSWORD
-          ) {
-            // Redirect to change password page (email already verified, just need to set password)
-            router.push("/change-password?mustChangePassword=1");
-          } else {
-            setError(msg || "Tài khoản hoặc mật khẩu không chính xác.");
-          }
-        } else if (result?.ok) {
-          const destination = result.url || callbackUrl || "/";
-          toast.success("Đăng nhập thành công");
-          router.push(destination);
-          router.refresh();
+        if (
+          msg.toLowerCase().includes("verify") ||
+          msg === BACKEND_ERRORS.EMAIL_NOT_VERIFIED
+        ) {
+          setEmailError(
+            "Email chưa được xác minh. Vui lòng kiểm tra hộp thư và click link xác nhận.",
+          );
+        } else if (
+          msg.toLowerCase().includes("change password") ||
+          msg === BACKEND_ERRORS.MUST_CHANGE_PASSWORD
+        ) {
+          // Redirect to change password page (email already verified, just need to set password)
+          router.push("/change-password?mustChangePassword=1");
+        } else {
+          setError(msg || "Tài khoản hoặc mật khẩu không chính xác.");
         }
-      } catch (err: unknown) {
-        if (process.env.NODE_ENV === "development") {
-          // eslint-disable-next-line no-console
-          console.error("[Login] Credentials sign-in failed", err);
-        }
-        setError(
-          err instanceof Error && err.message
-            ? err.message
-            : "Đã xảy ra lỗi. Vui lòng thử lại sau.",
+      } else if (result?.ok) {
+        const destination = getSafeRedirectUrl(
+          result?.url ?? callbackUrl,
+          session?.user?.role,
         );
-      } finally {
-        setLoading(false);
+        toast.success("Đăng nhập thành công");
+        router.replace(destination);
+        router.refresh();
       }
-    },
-    [username, password, router, callbackUrl],
-  );
+    } catch (err: unknown) {
+      if (process.env.NODE_ENV === "development") {
+        // eslint-disable-next-line no-console
+        console.error("[Login] Credentials sign-in failed", err);
+      }
+      setError(
+        err instanceof Error && err.message
+          ? err.message
+          : "Đã xảy ra lỗi. Vui lòng thử lại sau.",
+      );
+    } finally {
+      setLoading(false);
+    }
+  }
 
   return (
     <Box className="login-root">

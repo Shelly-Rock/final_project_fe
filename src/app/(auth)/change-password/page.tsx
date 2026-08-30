@@ -8,7 +8,7 @@
 
 import { Suspense, useState, useCallback, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { signIn, signOut, useSession } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import Box from "@mui/material/Box";
 import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
@@ -20,6 +20,20 @@ import InputAdornment from "@mui/material/InputAdornment";
 import IconButton from "@mui/material/IconButton";
 import LockResetIcon from "@mui/icons-material/LockReset";
 import { authService } from "@/core/auth/auth.service";
+
+function getDefaultRouteForRole(role?: string) {
+  switch (role) {
+    case "student":
+      return "/topic-registration";
+    case "teacher":
+      return "/my-topics";
+    case "admin":
+    case "secretary":
+      return "/students";
+    default:
+      return "/";
+  }
+}
 
 function ChangePasswordForm() {
   const router = useRouter();
@@ -88,14 +102,16 @@ function ChangePasswordForm() {
 
           setSuccess(true);
           setTimeout(() => {
+            const defaultRoute = getDefaultRouteForRole(session?.user?.role);
+
             if (mustChangePassword) {
               signIn("credentials", {
                 username: session?.user?.name || "",
                 password: newPassword,
                 redirect: false,
-              }).then(() => router.push("/"));
+              }).then(() => router.replace(defaultRoute));
             } else {
-              router.push("/");
+              router.replace(defaultRoute);
             }
           }, 1500);
         } else {
