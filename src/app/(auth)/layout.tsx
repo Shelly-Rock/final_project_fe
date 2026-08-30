@@ -15,7 +15,7 @@ export default function AuthLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <AuthProvider session={null}>
+    <AuthProvider>
       <AppProviders initialRole={null}>
         <main className="auth-main">{children}</main>
       </AppProviders>

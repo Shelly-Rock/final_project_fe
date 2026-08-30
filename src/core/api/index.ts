@@ -37,12 +37,27 @@ apiClient.interceptors.request.use(
 apiClient.interceptors.response.use(
   (response) => response,
   (error: AxiosError) => {
-    if (error.response?.status === 401 && typeof window !== "undefined") {
-      // Token expired or invalid → clear and redirect to login
+    if (typeof window === "undefined") {
+      return Promise.reject(error);
+    }
+
+    const requestUrl = error.config?.url ?? "";
+    const isLoginPage = window.location.pathname === "/login";
+    const isAuthEndpoint =
+      requestUrl.includes("/auth") || requestUrl.includes("/login");
+
+    if (error.response?.status === 401 && !isLoginPage && !isAuthEndpoint) {
+      // Token expired or invalid → clear session, but do not loop back to login
+      // while the user is already on the auth page or during an in-flight auth flow.
       localStorage.removeItem("accessToken");
       localStorage.removeItem("refreshToken");
-      window.location.href = "/login";
+
+      const currentPath = `${window.location.pathname}${window.location.search}`;
+      const loginUrl = new URL("/login", window.location.origin);
+      loginUrl.searchParams.set("callbackUrl", currentPath || "/");
+      window.location.assign(loginUrl.toString());
     }
+
     return Promise.reject(error);
   },
 );

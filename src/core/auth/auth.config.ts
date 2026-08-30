@@ -43,8 +43,12 @@ import axios from "axios";
 import { authService } from "@/core/auth/auth.service";
 
 const nextAuthUrl =
-  process.env.NEXTAUTH_URL ||
-  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined);
+  process.env.NODE_ENV === "development"
+    ? "http://localhost:3000"
+    : process.env.NEXTAUTH_URL ||
+      (process.env.VERCEL_URL
+        ? `https://${process.env.VERCEL_URL}`
+        : undefined);
 
 export const authOptions: NextAuthOptions = {
   providers: [

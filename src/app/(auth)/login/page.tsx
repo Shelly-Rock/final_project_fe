@@ -3,7 +3,7 @@
 export const dynamic = "force-dynamic";
 
 import { Suspense, useState, useEffect } from "react";
-import { signIn, useSession } from "next-auth/react";
+import { getSession, signIn, useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import Box from "@mui/material/Box";
@@ -68,10 +68,14 @@ function LoginForm() {
         ? "/change-password?mustChangePassword=1"
         : getSafeRedirectUrl(callbackUrl, session.user.role);
 
-      router.replace(destination);
-      router.refresh();
+      if (
+        typeof window !== "undefined" &&
+        window.location.pathname !== destination
+      ) {
+        window.location.assign(destination);
+      }
     }
-  }, [session, router, callbackUrl, session?.user?.role]);
+  }, [session, callbackUrl]);
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [_emailToVerify, setEmailToVerify] = useState("");
@@ -109,13 +113,19 @@ function LoginForm() {
           setError(msg || "Tài khoản hoặc mật khẩu không chính xác.");
         }
       } else if (result?.ok) {
+        const refreshedSession = await getSession();
         const destination = getSafeRedirectUrl(
           result?.url ?? callbackUrl,
-          session?.user?.role,
+          refreshedSession?.user?.role ?? session?.user?.role,
         );
+
         toast.success("Đăng nhập thành công");
-        router.replace(destination);
-        router.refresh();
+
+        if (refreshedSession?.user) {
+          window.location.assign(destination);
+        } else {
+          window.location.assign(destination);
+        }
       }
     } catch (err: unknown) {
       if (process.env.NODE_ENV === "development") {

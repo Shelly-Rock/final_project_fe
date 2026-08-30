@@ -21,26 +21,8 @@ import {
   User,
   LogOut as LogoutIcon,
   Settings,
-  ChevronDown,
 } from "lucide-react";
 import { ThemeSwitcher } from "@/shared/theme";
-import type { Role } from "@/core/permissions/types";
-import { ROLE, ROLE_LABELS } from "@/core/permissions/types";
-import { usePermissionContext } from "@/core/providers/PermissionProvider";
-
-const ALL_ROLES: Role[] = [
-  ROLE.ADMIN,
-  ROLE.SECRETARY,
-  ROLE.TEACHER,
-  ROLE.STUDENT,
-];
-
-const ROLE_COLORS: Record<Role, string> = {
-  [ROLE.ADMIN]: "#ef4444",
-  [ROLE.SECRETARY]: "#2563eb",
-  [ROLE.TEACHER]: "#22c55e",
-  [ROLE.STUDENT]: "#8b5cf6",
-};
 
 export interface HeaderProps {
   onMenuClick?: () => void;
@@ -48,25 +30,9 @@ export interface HeaderProps {
 }
 
 export function Header({ onMenuClick, showMenuButton = true }: HeaderProps) {
-  const { role, setRole } = usePermissionContext();
   const router = useRouter();
-  const [roleMenuOpen, setRoleMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
-  const [roleAnchorEl, setRoleAnchorEl] = useState<HTMLElement | null>(null);
   const [userAnchorEl, setUserAnchorEl] = useState<HTMLElement | null>(null);
-
-  const currentRoleLabel = role ? ROLE_LABELS[role] : "Không xác định";
-  const currentRoleColor = role ? ROLE_COLORS[role] : "#999";
-
-  const handleRoleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
-    setRoleAnchorEl(event.currentTarget);
-    setRoleMenuOpen(true);
-  };
-
-  const handleRoleMenuClose = () => {
-    setRoleAnchorEl(null);
-    setRoleMenuOpen(false);
-  };
 
   const handleUserMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setUserAnchorEl(event.currentTarget);
@@ -76,12 +42,6 @@ export function Header({ onMenuClick, showMenuButton = true }: HeaderProps) {
   const handleUserMenuClose = () => {
     setUserAnchorEl(null);
     setUserMenuOpen(false);
-  };
-
-  const handleRoleChange = (newRole: Role) => {
-    setRole(newRole);
-    setRoleMenuOpen(false);
-    router.push("/dashboard");
   };
 
   return (
@@ -118,75 +78,6 @@ export function Header({ onMenuClick, showMenuButton = true }: HeaderProps) {
               <Bell size={20} />
             </MuiBadge>
           </IconButton>
-
-          <Box sx={{ position: "relative" }}>
-            <Box
-              onClick={handleRoleMenuOpen}
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                gap: 1,
-                px: 1.5,
-                py: 0.75,
-                borderRadius: 2,
-                cursor: "pointer",
-                border: "1px solid",
-                borderColor: "divider",
-                "&:hover": {
-                  bgcolor: "action.hover",
-                },
-              }}
-            >
-              <Box
-                sx={{
-                  width: 8,
-                  height: 8,
-                  borderRadius: "50%",
-                  bgcolor: currentRoleColor,
-                }}
-              />
-              <Typography variant="body2" fontWeight={500}>
-                {currentRoleLabel}
-              </Typography>
-              <ChevronDown size={16} />
-            </Box>
-
-            <Menu
-              open={roleMenuOpen}
-              onClose={handleRoleMenuClose}
-              anchorEl={roleAnchorEl}
-              PaperProps={{
-                sx: { minWidth: 200, borderRadius: 2, mt: 1 },
-              }}
-            >
-              <Box sx={{ px: 2, py: 1 }}>
-                <Typography variant="caption" color="text.secondary">
-                  Chuyển vai trò (FE testing)
-                </Typography>
-              </Box>
-              <Divider />
-              {ALL_ROLES.map((r) => (
-                <MenuItem
-                  key={r}
-                  onClick={() => handleRoleChange(r)}
-                  selected={r === role}
-                  sx={{ borderRadius: 1, mx: 1, my: 0.5 }}
-                >
-                  <ListItemIcon sx={{ minWidth: 32 }}>
-                    <Box
-                      sx={{
-                        width: 8,
-                        height: 8,
-                        borderRadius: "50%",
-                        bgcolor: ROLE_COLORS[r],
-                      }}
-                    />
-                  </ListItemIcon>
-                  <Typography variant="body2">{ROLE_LABELS[r]}</Typography>
-                </MenuItem>
-              ))}
-            </Menu>
-          </Box>
 
           <Box sx={{ position: "relative", ml: 1 }}>
             <Box
