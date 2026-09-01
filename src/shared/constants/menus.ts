@@ -28,6 +28,11 @@ export const Icon = {
   clipboardCheck: "bi-clipboard-check",
   personGear: "bi-person-gear",
   bookmarkStar: "bi-bookmark-star",
+  graphUp: "bi-graph-up",
+  fileEarmarkText: "bi-file-earmark-text",
+  upload: "bi-upload",
+  peopleTeam: "bi-people-team",
+  calendar: "bi-calendar-event",
 } as const;
 
 export const MENU_ITEMS: MenuItem[] = [
@@ -72,6 +77,39 @@ export const MENU_SECTIONS: MenuSection[] = [
         path: "/registration-periods",
         roles: ["admin", "secretary"],
       },
+      {
+        key: "admin-progress",
+        label: "Theo dõi tiến trình",
+        icon: Icon.graphUp,
+        path: "/progress-tracking/admin",
+        roles: ["admin"],
+      },
+    ],
+  },
+  {
+    section: "Giai đoạn 3",
+    items: [
+      {
+        key: "submissions",
+        label: "Nộp bài cuối kỳ",
+        icon: Icon.upload,
+        path: "/submission/admin",
+        roles: ["admin", "secretary"],
+      },
+      {
+        key: "committees",
+        label: "Hội đồng bảo vệ",
+        icon: Icon.peopleTeam,
+        path: "/committee",
+        roles: ["admin", "secretary"],
+      },
+      {
+        key: "defense-schedule",
+        label: "Lịch bảo vệ",
+        icon: Icon.calendar,
+        path: "/defense-schedule",
+        roles: ["admin", "secretary"],
+      },
     ],
   },
   {
@@ -82,7 +120,14 @@ export const MENU_SECTIONS: MenuSection[] = [
         label: "Đề tài của tôi",
         icon: Icon.clipboardCheck,
         path: "/my-topics",
-        roles: ["admin", "teacher"],
+        roles: ["teacher"],
+      },
+      {
+        key: "teacher-progress",
+        label: "Theo dõi tiến trình",
+        icon: Icon.graphUp,
+        path: "/progress-tracking/teacher",
+        roles: ["teacher"],
       },
     ],
   },
@@ -95,6 +140,20 @@ export const MENU_SECTIONS: MenuSection[] = [
         icon: Icon.bookmarkStar,
         path: "/topic-registration",
         roles: ["admin", "student"],
+      },
+      {
+        key: "student-progress",
+        label: "Theo dõi tiến trình",
+        icon: Icon.fileEarmarkText,
+        path: "/progress-tracking/student",
+        roles: ["student"],
+      },
+      {
+        key: "student-submission",
+        label: "Nộp bài cuối kỳ",
+        icon: Icon.upload,
+        path: "/submission/student",
+        roles: ["student"],
       },
     ],
   },
