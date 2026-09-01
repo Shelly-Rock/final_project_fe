@@ -33,6 +33,8 @@ export const Icon = {
   upload: "bi-upload",
   peopleTeam: "bi-people-team",
   calendar: "bi-calendar-event",
+  scorecard: "bi-scorecard",
+  pencilSquare: "bi-pencil-square",
 } as const;
 
 export const MENU_ITEMS: MenuItem[] = [
@@ -113,6 +115,18 @@ export const MENU_SECTIONS: MenuSection[] = [
     ],
   },
   {
+    section: "Giai đoạn 4",
+    items: [
+      {
+        key: "scoring-management",
+        label: "Quản lý chấm điểm",
+        icon: Icon.scorecard,
+        path: "/scoring/admin",
+        roles: ["admin", "secretary"],
+      },
+    ],
+  },
+  {
     section: "Giảng viên",
     items: [
       {
@@ -127,6 +141,13 @@ export const MENU_SECTIONS: MenuSection[] = [
         label: "Theo dõi tiến trình",
         icon: Icon.graphUp,
         path: "/progress-tracking/teacher",
+        roles: ["teacher"],
+      },
+      {
+        key: "teacher-scoring",
+        label: "Phiếu chấm điểm",
+        icon: Icon.pencilSquare,
+        path: "/scoring/teacher",
         roles: ["teacher"],
       },
     ],

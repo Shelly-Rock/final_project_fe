@@ -2,6 +2,7 @@
 import { UsersIcon, ClipboardListIcon, GraduationCap } from "lucide-react";
 import { ChartLineIcon, FileTextIcon } from "lucide-react";
 import { UploadIcon, PeopleIcon, CalendarIcon } from "lucide-react";
+import { ClipboardCheckIcon } from "lucide-react";
 import type { BreadcrumbItem } from "@/shared/components/Breadcrumb";
 
 export const BREADCRUMB_NODES = {
@@ -61,6 +62,17 @@ export const BREADCRUMB_NODES = {
     label: "Lịch bảo vệ",
     href: "/defense-schedule",
     icon: <CalendarIcon size={16} />,
+  },
+  // Stage 4 - Scoring
+  SCORING_MANAGEMENT: {
+    label: "Quản lý chấm điểm",
+    href: "/scoring/admin",
+    icon: <ClipboardCheckIcon size={16} />,
+  },
+  TEACHER_SCORING: {
+    label: "Phiếu chấm điểm",
+    href: "/scoring/teacher",
+    icon: <ClipboardCheckIcon size={16} />,
   },
 } as const satisfies Record<string, Omit<BreadcrumbItem, "onClick">>;
 
