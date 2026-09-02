@@ -140,7 +140,16 @@ function LoginForm() {
           callbackUrl,
           resultUrl: result?.url,
           retries,
+          accessToken: refreshedSession?.accessToken,
         });
+
+        // Store accessToken in localStorage for API client
+        if (refreshedSession?.accessToken) {
+          console.log("[Login] Storing accessToken in localStorage", {
+            accessToken: refreshedSession.accessToken,
+          });
+          localStorage.setItem("accessToken", refreshedSession.accessToken);
+        }
 
         toast.success("Đăng nhập thành công");
 
