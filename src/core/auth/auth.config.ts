@@ -124,6 +124,10 @@ export const authOptions: NextAuthOptions = {
           (user as { accessToken?: string }).accessToken ?? "";
         // Store token in localStorage for API client
         if (typeof window !== "undefined") {
+          console.log("[NextAuth JWT] Storing accessToken in localStorage", {
+            accessToken: token.accessToken,
+            user: user,
+          });
           localStorage.setItem("accessToken", token.accessToken as string);
         }
       }
@@ -144,6 +148,9 @@ export const authOptions: NextAuthOptions = {
       session.accessToken = (token.accessToken as string) || "";
       // Ensure token is in localStorage
       if (typeof window !== "undefined" && session.accessToken) {
+        console.log("[NextAuth Session] Ensuring accessToken in localStorage", {
+          accessToken: session.accessToken,
+        });
         localStorage.setItem("accessToken", session.accessToken);
       }
       return session;
