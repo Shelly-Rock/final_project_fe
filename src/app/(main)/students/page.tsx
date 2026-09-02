@@ -50,20 +50,36 @@ export default function StudentManagementPage() {
     setSnackbar({ open: true, message, severity });
   };
 
-  const refreshStudents = useCallback(() => {
+  const refreshStudents = () => {
     setLoading(true);
     studentService
       .getAll()
       .then((data) => setStudents(data))
       .catch(() => showSnackbar("Không thể tải danh sách sinh viên", "error"))
       .finally(() => setLoading(false));
-  }, []);
+  };
 
-  // Initial load with refreshStudents dependency
+  // Initial load - only run once on mount
   useEffect(() => {
-    const timer = setTimeout(refreshStudents, 0);
-    return () => clearTimeout(timer);
-  }, [refreshStudents]);
+    let isMounted = true;
+    setLoading(true);
+    studentService
+      .getAll()
+      .then((data) => {
+        if (isMounted) setStudents(data);
+      })
+      .catch(() => {
+        if (isMounted)
+          showSnackbar("Không thể tải danh sách sinh viên", "error");
+      })
+      .finally(() => {
+        if (isMounted) setLoading(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const filteredStudents = students.filter((student) => {
     if (filters.search) {

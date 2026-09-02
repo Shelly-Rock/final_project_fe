@@ -72,7 +72,8 @@ function LoginForm() {
         typeof window !== "undefined" &&
         window.location.pathname !== destination
       ) {
-        window.location.assign(destination);
+        // Use router.push instead of window.location.assign to avoid hard redirect
+        window.location.href = destination;
       }
     }
   }, [session, callbackUrl]);
