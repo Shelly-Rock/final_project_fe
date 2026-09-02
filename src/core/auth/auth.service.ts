@@ -76,6 +76,8 @@ function mapRole(backendRole: string | number): Role {
     case "SECRETARY":
     case "3":
       return "secretary";
+    case "COMMITTEE":
+      return "teacher"; // Map COMMITTEE to teacher for now
     case "TEACHER":
     case "2":
       return "teacher";
