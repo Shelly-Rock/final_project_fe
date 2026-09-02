@@ -122,6 +122,10 @@ export const authOptions: NextAuthOptions = {
         token.emailVerified = !!user.emailVerified;
         token.accessToken =
           (user as { accessToken?: string }).accessToken ?? "";
+        // Store token in localStorage for API client
+        if (typeof window !== "undefined") {
+          localStorage.setItem("accessToken", token.accessToken as string);
+        }
       }
       // Persist tokens when session is updated
       if (trigger === "update" && token.accessToken) {
@@ -138,6 +142,10 @@ export const authOptions: NextAuthOptions = {
       }
       session.user.mustChangePassword = !!token.mustChangePassword;
       session.accessToken = (token.accessToken as string) || "";
+      // Ensure token is in localStorage
+      if (typeof window !== "undefined" && session.accessToken) {
+        localStorage.setItem("accessToken", session.accessToken);
+      }
       return session;
     },
   },
