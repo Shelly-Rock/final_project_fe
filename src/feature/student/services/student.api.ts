@@ -2,36 +2,6 @@
 // STUDENT API SERVICE — Real HTTP calls to /students/* endpoints
 // ============================================================
 import apiClient from "@/core/api";
-import axios from "axios";
-
-// Retry configuration for rate limit handling
-const MAX_RETRIES = 3;
-const RETRY_DELAY_BASE = 1000; // 1 second base delay
-
-async function sleep(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-async function withRetry<T>(
-  fn: () => Promise<T>,
-  retries = MAX_RETRIES,
-): Promise<T> {
-  try {
-    return await fn();
-  } catch (error) {
-    if (
-      axios.isAxiosError(error) &&
-      error.response?.status === 429 &&
-      retries > 0
-    ) {
-      const delay = RETRY_DELAY_BASE * (MAX_RETRIES - retries + 1);
-      console.warn(`[StudentApi] Rate limit hit, retrying in ${delay}ms...`);
-      await sleep(delay);
-      return withRetry(fn, retries - 1);
-    }
-    throw error;
-  }
-}
 
 export interface StudentApiResponse {
   id: number;
@@ -84,86 +54,70 @@ class StudentApiService {
     search?: string;
     status?: string;
   }): Promise<StudentListResponse> {
-    return withRetry(async () => {
-      const { data } = await apiClient.get<StudentListResponse>("/students", {
-        params,
-      });
-      return data;
+    const { data } = await apiClient.get<StudentListResponse>("/students", {
+      params,
     });
+    return data;
   }
 
   async getById(id: number): Promise<StudentApiResponse> {
-    return withRetry(async () => {
-      const { data } = await apiClient.get<StudentApiResponse>(
-        `/students/${id}`,
-      );
-      return data;
-    });
+    const { data } = await apiClient.get<StudentApiResponse>(`/students/${id}`);
+    return data;
   }
 
   async getByStudentId(studentId: string): Promise<StudentApiResponse> {
-    return withRetry(async () => {
-      const { data } = await apiClient.get<StudentApiResponse>(
-        `/students/code/${studentId}`,
-      );
-      return data;
-    });
+    const { data } = await apiClient.get<StudentApiResponse>(
+      `/students/code/${studentId}`,
+    );
+    return data;
   }
 
   async importFromFile(
     file: File,
   ): Promise<{ created: number; failed: number }> {
-    return withRetry(async () => {
-      const formData = new FormData();
-      formData.append("file", file);
+    const formData = new FormData();
+    formData.append("file", file);
 
-      const { data } = await apiClient.post<
-        Array<{
-          student_id: string;
-          first_name: string;
-          last_name: string;
-          email: string;
-        }>
-      >("/students/import", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
-      // Backend returns array of created students
-      return { created: Array.isArray(data) ? data.length : 0, failed: 0 };
+    const { data } = await apiClient.post<
+      Array<{
+        student_id: string;
+        first_name: string;
+        last_name: string;
+        email: string;
+      }>
+    >("/students/import", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
     });
+    // Backend returns array of created students
+    return { created: Array.isArray(data) ? data.length : 0, failed: 0 };
   }
 
   async create(
     payload: Omit<StudentImportRow, never>,
   ): Promise<StudentApiResponse> {
-    return withRetry(async () => {
-      const { data } = await apiClient.post<StudentApiResponse>(
-        "/students",
-        payload,
-      );
-      return data;
-    });
+    const { data } = await apiClient.post<StudentApiResponse>(
+      "/students",
+      payload,
+    );
+    return data;
   }
 
   async update(
     id: number,
     payload: Partial<StudentImportRow>,
   ): Promise<StudentApiResponse> {
-    return withRetry(async () => {
-      const { data } = await apiClient.put<StudentApiResponse>(
-        `/students/${id}`,
-        payload,
-      );
-      return data;
-    });
+    const { data } = await apiClient.put<StudentApiResponse>(
+      `/students/${id}`,
+      payload,
+    );
+    return data;
   }
 
   async delete(id: number, hardDelete = false): Promise<void> {
-    return withRetry(async () => {
-      await apiClient.delete(`/students/${id}`, {
-        params: { hardDelete: hardDelete ? "true" : "false" },
-      });
+    await apiClient.delete(`/students/${id}`, {
+      params: { hardDelete: hardDelete ? "true" : "false" },
     });
   }
 }
