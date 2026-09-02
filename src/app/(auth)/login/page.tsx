@@ -120,7 +120,15 @@ function LoginForm() {
           setError(msg || "Tài khoản hoặc mật khẩu không chính xác.");
         }
       } else if (result?.ok) {
-        const refreshedSession = await getSession();
+        // Force session update by calling getSession multiple times
+        let refreshedSession = await getSession();
+        let retries = 0;
+        while (!refreshedSession?.user && retries < 5) {
+          await new Promise((resolve) => setTimeout(resolve, 200));
+          refreshedSession = await getSession();
+          retries++;
+        }
+
         const destination = getSafeRedirectUrl(
           result?.url ?? callbackUrl,
           refreshedSession?.user?.role ?? session?.user?.role,
@@ -131,10 +139,13 @@ function LoginForm() {
           destination,
           callbackUrl,
           resultUrl: result?.url,
+          retries,
         });
 
         toast.success("Đăng nhập thành công");
-        router.push(destination);
+
+        // Use window.location.replace to force full page reload with new session
+        window.location.replace(destination);
       }
     } catch (err: unknown) {
       if (process.env.NODE_ENV === "development") {
