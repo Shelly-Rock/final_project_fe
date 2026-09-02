@@ -68,6 +68,13 @@ function LoginForm() {
         ? "/change-password?mustChangePassword=1"
         : getSafeRedirectUrl(callbackUrl, session.user.role);
 
+      console.log("[Login] Session updated, redirecting", {
+        session,
+        destination,
+        callbackUrl,
+        currentPath: window.location.pathname,
+      });
+
       if (
         typeof window !== "undefined" &&
         window.location.pathname !== destination
@@ -118,6 +125,13 @@ function LoginForm() {
           result?.url ?? callbackUrl,
           refreshedSession?.user?.role ?? session?.user?.role,
         );
+
+        console.log("[Login] Login successful", {
+          refreshedSession,
+          destination,
+          callbackUrl,
+          resultUrl: result?.url,
+        });
 
         toast.success("Đăng nhập thành công");
         router.push(destination);
