@@ -51,7 +51,7 @@ function mapApiToStudent(apiStudent: {
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 class StudentService {
-  private useApi = false; // Toggle to false to use mock data
+  private useApi = true; // Toggle to false to use mock data
 
   async getAll(): Promise<Student[]> {
     if (!this.useApi) {
