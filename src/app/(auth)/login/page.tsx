@@ -72,11 +72,10 @@ function LoginForm() {
         typeof window !== "undefined" &&
         window.location.pathname !== destination
       ) {
-        // Use router.push instead of window.location.assign to avoid hard redirect
-        window.location.href = destination;
+        router.push(destination);
       }
     }
-  }, [session, callbackUrl]);
+  }, [session, callbackUrl, router]);
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [_emailToVerify, setEmailToVerify] = useState("");
@@ -121,12 +120,7 @@ function LoginForm() {
         );
 
         toast.success("Đăng nhập thành công");
-
-        if (refreshedSession?.user) {
-          window.location.assign(destination);
-        } else {
-          window.location.assign(destination);
-        }
+        router.push(destination);
       }
     } catch (err: unknown) {
       if (process.env.NODE_ENV === "development") {
