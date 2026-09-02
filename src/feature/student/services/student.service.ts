@@ -15,35 +15,34 @@ import { studentApiService } from "./student.api";
 // Map API response → frontend Student type
 function mapApiToStudent(apiStudent: {
   id: number;
-  student_id: string;
-  first_name: string;
-  last_name: string;
+  studentId: string;
   email: string;
-  phone?: string;
-  date_of_birth?: string;
-  address?: string;
-  department_name?: string;
-  enrollment_year: number;
-  status: string;
-  class_name?: string;
+  firstName: string;
+  middleName?: string;
+  lastName: string;
+  dateOfBirth?: string;
+  gender?: string;
+  className?: string;
+  major?: string;
+  courseYear?: number;
+  academicYear?: string;
+  extraData?: unknown;
+  createdAt: string;
+  updatedAt: string;
 }): Student {
   return {
     id: apiStudent.id,
-    mssv: apiStudent.student_id,
-    hoTen: `${apiStudent.last_name} ${apiStudent.first_name}`.trim(),
+    mssv: apiStudent.studentId,
+    hoTen:
+      `${apiStudent.lastName} ${apiStudent.middleName || ""} ${apiStudent.firstName}`.trim(),
     gmail: apiStudent.email,
-    khoa: apiStudent.department_name || "",
-    khoaHoc: String(apiStudent.enrollment_year),
-    lop: apiStudent.class_name || "",
-    soDienThoai: apiStudent.phone,
-    ngaySinh: apiStudent.date_of_birth,
-    diaChi: apiStudent.address,
-    trangThai:
-      apiStudent.status === "ACTIVE"
-        ? "active"
-        : apiStudent.status === "GRADUATED"
-          ? "graduated"
-          : "inactive",
+    khoa: apiStudent.major || "",
+    khoaHoc: apiStudent.academicYear || String(apiStudent.courseYear || ""),
+    lop: apiStudent.className || "",
+    soDienThoai: undefined,
+    ngaySinh: apiStudent.dateOfBirth,
+    diaChi: undefined,
+    trangThai: "active",
   };
 }
 
@@ -61,7 +60,7 @@ class StudentService {
 
     try {
       const resp = await studentApiService.getAll({ limit: 1000 });
-      return resp.data.map(mapApiToStudent);
+      return resp.students.map(mapApiToStudent);
     } catch (err) {
       // eslint-disable-next-line no-console
       console.warn("[StudentService] API unavailable, using mock data:", err);

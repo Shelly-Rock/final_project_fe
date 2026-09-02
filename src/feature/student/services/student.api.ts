@@ -5,33 +5,28 @@ import apiClient from "@/core/api";
 
 export interface StudentApiResponse {
   id: number;
-  student_id: string;
-  first_name: string;
-  last_name: string;
+  studentId: string;
   email: string;
-  phone?: string;
-  date_of_birth?: string;
-  address?: string;
-  course_id?: number;
-  course_name?: string;
-  class_id?: number;
-  class_name?: string;
-  department_id?: number;
-  department_name?: string;
-  enrollment_year: number;
-  status: string;
-  created_at: string;
-  updated_at: string;
+  firstName: string;
+  middleName?: string;
+  lastName: string;
+  dateOfBirth?: string;
+  gender?: string;
+  className?: string;
+  major?: string;
+  courseYear?: number;
+  academicYear?: string;
+  extraData?: unknown;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface StudentListResponse {
-  data: StudentApiResponse[];
-  meta: {
-    page: number;
-    limit: number;
-    total: number;
-    totalPages: number;
-  };
+  students: StudentApiResponse[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
 }
 
 export interface StudentImportRow {
