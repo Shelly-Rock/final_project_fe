@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import axios from "axios";
 import { Box, Snackbar, Alert } from "@mui/material";
 import {
   StudentTable,
@@ -103,9 +104,15 @@ export default function StudentManagementPage() {
       showSnackbar(
         `Đã import ${result.success} sinh viên thành công${result.failed > 0 ? `, ${result.failed} thất bại` : ""}`,
       );
-    } catch {
-      showSnackbar("Import thất bại", "error");
-      throw new Error("Student import failed");
+    } catch (error: unknown) {
+      const responseMessage = axios.isAxiosError(error)
+        ? error.response?.data?.message
+        : undefined;
+      const message = Array.isArray(responseMessage)
+        ? responseMessage.join(", ")
+        : responseMessage || "Import thất bại";
+      showSnackbar(message, "error");
+      throw new Error(message);
     }
   };
 

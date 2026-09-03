@@ -187,8 +187,8 @@ export function StudentImportDialog({
       setRows([]);
       setSelectedFile(null);
       onClose();
-    } catch {
-      alert("Import thất bại");
+    } catch (error) {
+      setFileError(error instanceof Error ? error.message : "Import thất bại");
     } finally {
       setImporting(false);
     }
