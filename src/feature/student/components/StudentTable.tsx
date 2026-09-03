@@ -177,7 +177,7 @@ export function StudentTable({
           {
             id: "import",
             icon: <FileUp size={16} />,
-            label: "Import sinh viên",
+            label: "Import",
             onClick: onImport,
             variant: "outlined" as const,
           },
@@ -218,6 +218,7 @@ export function StudentTable({
       filterValue={filterValue}
       onFilterChange={onFilterChange}
       showFilterButton={true}
+      showImportButton={false}
       loading={loading}
       emptyMessage="Không có sinh viên nào"
     />
