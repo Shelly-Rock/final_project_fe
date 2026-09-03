@@ -45,12 +45,14 @@ export function StudentImportDialog({
   const [rows, setRows] = useState<ImportRow[]>([]);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [importing, setImporting] = useState(false);
+  const [fileError, setFileError] = useState("");
 
   const handleFileUpload = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       const file = event.target.files?.[0];
       if (!file) return;
       setSelectedFile(file);
+      setFileError("");
 
       const reader = new FileReader();
       reader.onload = (e) => {
@@ -63,7 +65,8 @@ export function StudentImportDialog({
           );
 
           if (records.length === 0) {
-            alert("File không có dữ liệu hoặc thiếu header");
+            setRows([]);
+            setFileError("File không có dữ liệu hoặc thiếu header.");
             return;
           }
 
@@ -85,14 +88,18 @@ export function StudentImportDialog({
                 switch (header) {
                   case "mssv":
                   case "student_id":
+                  case "studentid":
                     row.mssv = value;
                     break;
+                  case "firstname":
                   case "first_name":
                     row.hoTen = `${value} ${row.hoTen}`.trim();
                     break;
+                  case "middlename":
                   case "middle_name":
                     row.hoTen = `${row.hoTen} ${value}`.trim();
                     break;
+                  case "lastname":
                   case "last_name":
                     row.hoTen = `${value} ${row.hoTen}`.trim();
                     break;
@@ -109,6 +116,8 @@ export function StudentImportDialog({
                   case "major":
                     row.khoa = value;
                     break;
+                  case "courseyear":
+                  case "academicyear":
                   case "khoahoc":
                   case "khóa":
                   case "course_year":
@@ -118,6 +127,7 @@ export function StudentImportDialog({
                   case "lop":
                   case "lớp":
                   case "class_name":
+                  case "classname":
                     row.lop = value;
                     break;
                   case "sodienthoai":
@@ -137,8 +147,16 @@ export function StudentImportDialog({
             .filter((row) => row.mssv && row.hoTen);
 
           setRows(data);
+          setFileError(
+            data.length === 0
+              ? "Không tìm thấy dòng hợp lệ. Kiểm tra các cột studentId, firstName, lastName và email."
+              : "",
+          );
         } catch {
-          alert("Không thể đọc file. Vui lòng kiểm tra định dạng.");
+          setRows([]);
+          setFileError(
+            "Không thể đọc file. Vui lòng chọn file Excel hoặc CSV hợp lệ.",
+          );
         }
       };
 
@@ -153,7 +171,14 @@ export function StudentImportDialog({
   };
 
   const handleImport = async () => {
-    if (rows.length === 0) return;
+    if (!selectedFile) {
+      setFileError("Vui lòng chọn file trước khi import.");
+      return;
+    }
+    if (rows.length === 0) {
+      setFileError("File chưa có dòng sinh viên hợp lệ để import.");
+      return;
+    }
 
     setImporting(true);
     try {
@@ -172,6 +197,7 @@ export function StudentImportDialog({
   const handleClose = () => {
     setRows([]);
     setSelectedFile(null);
+    setFileError("");
     onClose();
   };
 
@@ -244,9 +270,15 @@ export function StudentImportDialog({
       ) : (
         <Box sx={{ textAlign: "center", py: 4 }}>
           <Typography color="text.secondary">
-            Chưa có dữ liệu. Vui lòng upload file CSV.
+            Chưa có dữ liệu. Vui lòng upload file Excel hoặc CSV.
           </Typography>
         </Box>
+      )}
+
+      {fileError && (
+        <Typography color="error" variant="body2" sx={{ mt: 2 }}>
+          {fileError}
+        </Typography>
       )}
 
       {importing && <LinearProgress sx={{ mt: 2 }} />}
@@ -258,7 +290,7 @@ export function StudentImportDialog({
         <Button
           variant="contained"
           onClick={handleImport}
-          disabled={rows.length === 0 || importing}
+          disabled={!selectedFile || rows.length === 0 || importing}
         >
           Import {rows.length} sinh viên
         </Button>
