@@ -69,24 +69,20 @@ class StudentApiService {
 
   async importFromFile(
     file: File,
-  ): Promise<{ created: number; failed: number }> {
+  ): Promise<{ success: boolean; message: string; count: number }> {
     const formData = new FormData();
     formData.append("file", file);
 
-    const { data } = await apiClient.post<
-      Array<{
-        student_id: string;
-        first_name: string;
-        last_name: string;
-        email: string;
-      }>
-    >("/students/import", formData, {
+    const { data } = await apiClient.post<{
+      success: boolean;
+      message: string;
+      count: number;
+    }>("/students/import", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
     });
-    // Backend returns array of created students
-    return { created: Array.isArray(data) ? data.length : 0, failed: 0 };
+    return data;
   }
 
   async create(

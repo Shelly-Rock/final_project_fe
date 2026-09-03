@@ -132,7 +132,12 @@ class StudentService {
     // Convert CSV rows to Excel File and upload
     const file = buildExcelFile(data);
     const result = await studentApiService.importFromFile(file);
-    return { success: result.created, failed: result.failed };
+    return { success: result.count, failed: 0 };
+  }
+
+  async importFile(file: File): Promise<{ success: number; failed: number }> {
+    const result = await studentApiService.importFromFile(file);
+    return { success: result.count, failed: 0 };
   }
 
   async update(

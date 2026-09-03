@@ -11,7 +11,7 @@ import {
   Delete as DeleteIcon,
   Visibility as ViewIcon,
 } from "@mui/icons-material";
-import { Plus, RefreshCw } from "lucide-react";
+import { FileUp, Plus, RefreshCw } from "lucide-react";
 import { DataTable } from "@/shared/components";
 import type { Student } from "../types";
 
@@ -25,6 +25,7 @@ interface StudentTableProps {
   filterValue?: string;
   onFilterChange?: (value: string) => void;
   onAdd?: () => void;
+  onImport?: () => void;
   onRefresh?: () => void;
 }
 
@@ -64,6 +65,7 @@ export function StudentTable({
   filterValue,
   onFilterChange,
   onAdd,
+  onImport,
   onRefresh,
 }: StudentTableProps) {
   const theme = useTheme();
@@ -170,6 +172,17 @@ export function StudentTable({
   ];
 
   const headerActions = [
+    ...(onImport
+      ? [
+          {
+            id: "import",
+            icon: <FileUp size={16} />,
+            label: "Import sinh viên",
+            onClick: onImport,
+            variant: "outlined" as const,
+          },
+        ]
+      : []),
     ...(onAdd
       ? [
           {

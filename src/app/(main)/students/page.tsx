@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { Box, Snackbar, Alert } from "@mui/material";
 import {
   StudentTable,
@@ -13,7 +13,6 @@ import { studentService } from "@/feature/student/services";
 import type {
   Student,
   StudentFilters,
-  StudentImportRow,
   StudentStatus,
 } from "@/feature/student/types";
 import { List, CheckSquare, Square, Users } from "lucide-react";
@@ -97,15 +96,16 @@ export default function StudentManagementPage() {
     return true;
   });
 
-  const handleImport = async (data: StudentImportRow[]) => {
+  const handleImport = async (file: File) => {
     try {
-      const result = await studentService.createMany(data);
+      const result = await studentService.importFile(file);
       refreshStudents();
       showSnackbar(
         `Đã import ${result.success} sinh viên thành công${result.failed > 0 ? `, ${result.failed} thất bại` : ""}`,
       );
     } catch {
       showSnackbar("Import thất bại", "error");
+      throw new Error("Student import failed");
     }
   };
 
@@ -171,6 +171,7 @@ export default function StudentManagementPage() {
           setFilters({ ...filters, status: value as StudentStatus })
         }
         onAdd={handleAdd}
+        onImport={() => setImportDialogOpen(true)}
         onRefresh={refreshStudents}
       />
       <StudentImportDialog
