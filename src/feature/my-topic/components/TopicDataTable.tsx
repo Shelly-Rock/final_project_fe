@@ -261,8 +261,15 @@ export function TopicDataTable({
       <Dialog
         open={confirmDialog.open}
         onClose={handleCancelLock}
-        maxWidth="sm"
+        maxWidth={false}
         fullWidth
+        PaperProps={{
+          sx: {
+            width: 700,
+            maxWidth: "calc(100vw - 32px)",
+            maxHeight: "calc(100vh - 64px)",
+          },
+        }}
       >
         <DialogTitle sx={{ display: "flex", alignItems: "center", gap: 1 }}>
           <Lock size={24} color="#f59e0b" />

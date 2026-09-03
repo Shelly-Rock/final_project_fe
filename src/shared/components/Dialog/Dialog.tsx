@@ -42,20 +42,10 @@ export function Dialog({
   description,
   children,
   actions,
-  size = "md",
   showCloseButton = true,
   closeOnBackdrop = true,
   closeOnEscape = true,
 }: DialogProps) {
-  const sizeMap = {
-    xs: 300,
-    sm: 400,
-    md: 500,
-    lg: 700,
-    xl: 900,
-    fullWidth: undefined,
-  };
-
   const handleClose = (_: unknown, reason: string) => {
     if (!closeOnBackdrop && reason === "backdropClick") return;
     if (!closeOnEscape && reason === "escapeKeyDown") return;
@@ -66,12 +56,14 @@ export function Dialog({
     <MuiDialog
       open={open}
       onClose={handleClose}
-      maxWidth={size === "fullWidth" ? undefined : size}
-      fullWidth={size === "fullWidth" || true}
+      maxWidth={false}
+      fullWidth
       PaperProps={{
         sx: {
+          width: 700,
+          maxWidth: "calc(100vw - 32px)",
+          maxHeight: "calc(100vh - 64px)",
           borderRadius: 2,
-          maxWidth: sizeMap[size] || undefined,
           bgcolor: "background.paper",
           color: "text.primary",
         },
