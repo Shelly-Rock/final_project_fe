@@ -85,6 +85,13 @@ class StudentApiService {
     return data;
   }
 
+  async exportToFile(): Promise<Blob> {
+    const { data } = await apiClient.get<Blob>("/students/export", {
+      responseType: "blob",
+    });
+    return data;
+  }
+
   async create(
     payload: Omit<StudentImportRow, never>,
   ): Promise<StudentApiResponse> {

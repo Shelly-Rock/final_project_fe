@@ -140,6 +140,10 @@ class StudentService {
     return { success: result.count, failed: 0 };
   }
 
+  async exportFile(): Promise<Blob> {
+    return studentApiService.exportToFile();
+  }
+
   async update(
     id: number,
     data: UpdateStudentInput,

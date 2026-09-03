@@ -146,6 +146,29 @@ export default function StudentManagementPage() {
     setFormDialogOpen(true);
   };
 
+  const handleExport = async () => {
+    try {
+      const file = await studentService.exportFile();
+      const url = URL.createObjectURL(file);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "danh_sach_sinh_vien.xlsx";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+      showSnackbar("Đã xuất danh sách sinh viên");
+    } catch (error: unknown) {
+      const responseMessage = axios.isAxiosError(error)
+        ? error.response?.data?.message
+        : undefined;
+      const message = Array.isArray(responseMessage)
+        ? responseMessage.join(", ")
+        : responseMessage || "Xuất danh sách thất bại";
+      showSnackbar(message, "error");
+    }
+  };
+
   return (
     <Box sx={{ p: 3, width: "100%" }}>
       <PageHeader
@@ -178,6 +201,7 @@ export default function StudentManagementPage() {
           setFilters({ ...filters, status: value as StudentStatus })
         }
         onAdd={handleAdd}
+        onExport={handleExport}
         onImport={() => setImportDialogOpen(true)}
         onRefresh={refreshStudents}
       />

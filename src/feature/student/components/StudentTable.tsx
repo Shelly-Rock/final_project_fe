@@ -11,7 +11,7 @@ import {
   Delete as DeleteIcon,
   Visibility as ViewIcon,
 } from "@mui/icons-material";
-import { FileUp, Plus, RefreshCw } from "lucide-react";
+import { Download, FileUp, Plus, RefreshCw } from "lucide-react";
 import { DataTable } from "@/shared/components";
 import type { Student } from "../types";
 
@@ -26,6 +26,7 @@ interface StudentTableProps {
   onFilterChange?: (value: string) => void;
   onAdd?: () => void;
   onImport?: () => void;
+  onExport?: () => void;
   onRefresh?: () => void;
 }
 
@@ -66,6 +67,7 @@ export function StudentTable({
   onFilterChange,
   onAdd,
   onImport,
+  onExport,
   onRefresh,
 }: StudentTableProps) {
   const theme = useTheme();
@@ -172,6 +174,17 @@ export function StudentTable({
   ];
 
   const headerActions = [
+    ...(onExport
+      ? [
+          {
+            id: "export",
+            icon: <Download size={16} />,
+            label: "Export",
+            onClick: onExport,
+            variant: "outlined" as const,
+          },
+        ]
+      : []),
     ...(onImport
       ? [
           {
@@ -218,6 +231,7 @@ export function StudentTable({
       filterValue={filterValue}
       onFilterChange={onFilterChange}
       showFilterButton={true}
+      showExportButton={false}
       showImportButton={false}
       loading={loading}
       emptyMessage="Không có sinh viên nào"
