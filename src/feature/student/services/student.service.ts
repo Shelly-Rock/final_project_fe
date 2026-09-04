@@ -162,6 +162,7 @@ class StudentService {
       const lastName = nameParts[0] || "";
       const middleName = nameParts.slice(1, -1).join(" ");
       const updated = await studentApiService.update(id, {
+        email: data.gmail,
         firstName,
         middleName,
         lastName,

@@ -43,6 +43,7 @@ export interface StudentImportRow {
 }
 
 export interface StudentUpdatePayload {
+  email?: string;
   firstName?: string;
   middleName?: string;
   lastName?: string;
