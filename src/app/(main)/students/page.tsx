@@ -168,6 +168,28 @@ export default function StudentManagementPage() {
     setFormDialogOpen(true);
   };
 
+  const handleSubmitStudent = async (data: {
+    mssv: string;
+    hoTen: string;
+    gmail: string;
+    khoa: string;
+    khoaHoc: string;
+    lop: string;
+    soDienThoai?: string;
+    ngaySinh?: string;
+    diaChi?: string;
+  }) => {
+    if (!selectedStudent) return;
+    const updated = await studentService.update(selectedStudent.id, data);
+    if (!updated) {
+      showSnackbar("Cập nhật sinh viên thất bại", "error");
+      return;
+    }
+    setFormDialogOpen(false);
+    refreshStudents();
+    showSnackbar("Đã cập nhật sinh viên");
+  };
+
   const handleExport = async () => {
     try {
       exportStudentsToExcel(students);
@@ -230,6 +252,7 @@ export default function StudentManagementPage() {
         open={formDialogOpen}
         onClose={() => setFormDialogOpen(false)}
         student={selectedStudent}
+        onSubmit={handleSubmitStudent}
       />
       <StudentDetailDialog
         open={detailDialogOpen}

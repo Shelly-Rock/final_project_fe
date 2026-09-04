@@ -13,6 +13,7 @@ interface StudentFormDialogProps {
   open: boolean;
   onClose: () => void;
   student?: Student | null;
+  onSubmit?: (data: CreateStudentInput) => Promise<void>;
 }
 
 const emptyFormData: CreateStudentInput = {
@@ -48,8 +49,9 @@ export function StudentFormDialog({
   open,
   onClose,
   student,
+  onSubmit,
 }: StudentFormDialogProps) {
-  const [loading] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<CreateStudentInput>(emptyFormData);
 
   useEffect(() => {
@@ -62,6 +64,16 @@ export function StudentFormDialog({
     (e: React.ChangeEvent<HTMLInputElement>) => {
       setFormData((prev) => ({ ...prev, [field]: e.target.value }));
     };
+
+  const handleSubmit = async () => {
+    if (!onSubmit) return;
+    setLoading(true);
+    try {
+      await onSubmit(formData);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <Dialog
@@ -159,7 +171,7 @@ export function StudentFormDialog({
         <Button variant="text" onClick={onClose} disabled={loading}>
           Hủy
         </Button>
-        <Button variant="contained" disabled={loading}>
+        <Button variant="contained" onClick={handleSubmit} disabled={loading}>
           {loading ? "Đang lưu..." : "Lưu"}
         </Button>
       </DialogActions>

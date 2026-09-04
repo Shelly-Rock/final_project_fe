@@ -157,19 +157,19 @@ class StudentService {
     }
 
     try {
-      const [firstName, ...lastParts] = (data.hoTen || "").split(" ");
-      const lastName = lastParts.join(" ");
+      const nameParts = (data.hoTen || "").trim().split(/\s+/);
+      const firstName = nameParts.at(-1) || "";
+      const lastName = nameParts[0] || "";
+      const middleName = nameParts.slice(1, -1).join(" ");
       const updated = await studentApiService.update(id, {
-        student_id: data.mssv,
-        first_name: firstName,
-        last_name: lastName,
-        email: data.gmail,
-        phone: data.soDienThoai,
-        date_of_birth: data.ngaySinh,
-        address: data.diaChi,
-        class_name: data.lop,
-        department_name: data.khoa,
-        enrollment_year: data.khoaHoc ? parseInt(data.khoaHoc) : undefined,
+        firstName,
+        middleName,
+        lastName,
+        dateOfBirth: data.ngaySinh,
+        className: data.lop,
+        major: data.khoa,
+        courseYear: data.khoaHoc ? parseInt(data.khoaHoc) : undefined,
+        academicYear: data.khoaHoc,
       });
       return mapApiToStudent(updated);
     } catch {

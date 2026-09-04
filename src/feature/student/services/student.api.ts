@@ -42,6 +42,19 @@ export interface StudentImportRow {
   enrollment_year: number;
 }
 
+export interface StudentUpdatePayload {
+  firstName?: string;
+  middleName?: string;
+  lastName?: string;
+  dateOfBirth?: string;
+  gender?: string;
+  className?: string;
+  major?: string;
+  courseYear?: number;
+  academicYear?: string;
+  extraData?: Record<string, unknown>;
+}
+
 class StudentApiService {
   async getAll(params?: {
     page?: number;
@@ -104,7 +117,7 @@ class StudentApiService {
 
   async update(
     id: number,
-    payload: Partial<StudentImportRow>,
+    payload: StudentUpdatePayload,
   ): Promise<StudentApiResponse> {
     const { data } = await apiClient.put<StudentApiResponse>(
       `/students/${id}`,
