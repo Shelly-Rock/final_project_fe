@@ -162,15 +162,19 @@ class StudentService {
       const lastName = nameParts[0] || "";
       const middleName = nameParts.slice(1, -1).join(" ");
       const updated = await studentApiService.update(id, {
-        email: data.gmail,
+        email: (data.gmail || "").trim(),
         firstName,
         middleName,
         lastName,
-        dateOfBirth: data.ngaySinh,
-        className: data.lop,
-        major: data.khoa,
-        courseYear: data.khoaHoc ? parseInt(data.khoaHoc) : undefined,
-        academicYear: data.khoaHoc,
+        ...(data.ngaySinh ? { dateOfBirth: data.ngaySinh } : {}),
+        className: (data.lop || "").trim(),
+        major: (data.khoa || "").trim(),
+        ...(data.khoaHoc
+          ? {
+              courseYear: parseInt(data.khoaHoc, 10),
+              academicYear: data.khoaHoc.trim(),
+            }
+          : {}),
       });
       return mapApiToStudent(updated);
     } catch {

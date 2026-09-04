@@ -180,11 +180,21 @@ export default function StudentManagementPage() {
     diaChi?: string;
   }) => {
     if (!selectedStudent) return;
+    if (!data.hoTen.trim() || !data.gmail.trim()) {
+      showSnackbar("Họ tên và email không được để trống", "error");
+      return;
+    }
+
     const updated = await studentService.update(selectedStudent.id, data);
     if (!updated) {
       showSnackbar("Cập nhật sinh viên thất bại", "error");
       return;
     }
+    setStudents((currentStudents) =>
+      currentStudents.map((currentStudent) =>
+        currentStudent.id === updated.id ? updated : currentStudent,
+      ),
+    );
     setFormDialogOpen(false);
     refreshStudents();
     showSnackbar("Đã cập nhật sinh viên");
