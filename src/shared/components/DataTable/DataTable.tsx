@@ -17,6 +17,7 @@ import {
   IconButton,
   Tooltip,
   Button,
+  Checkbox,
 } from "@mui/material";
 import { Search, Filter, Download, Upload, RefreshCw } from "lucide-react";
 import { DropdownMenu } from "@/shared/components";
@@ -97,6 +98,9 @@ export interface DataTableProps<T> {
   rowsPerPage?: number;
   onPageChange?: (page: number) => void;
   onRowsPerPageChange?: (rowsPerPage: number) => void;
+  selectable?: boolean;
+  selectedRowKeys?: string[];
+  onSelectionChange?: (selectedRowKeys: string[]) => void;
 }
 
 function SkeletonRows<T>({
@@ -158,6 +162,9 @@ export function DataTable<T extends object>({
   rowsPerPage = 10,
   onPageChange,
   onRowsPerPageChange,
+  selectable = false,
+  selectedRowKeys = [],
+  onSelectionChange,
 }: DataTableProps<T>) {
   const [order, setOrder] = useState<Order>("asc");
   const [orderBy, setOrderBy] = useState<string | null>(null);
@@ -204,8 +211,28 @@ export function DataTable<T extends object>({
     onClick: () => handleCascadingFilterSelect(option.value),
   }));
 
-  const isSelectable = false;
   const count = totalCount ?? rows.length;
+  const allRowsSelected =
+    rows.length > 0 &&
+    rows.every((row) => selectedRowKeys.includes(String(row[rowKey])));
+
+  const toggleRowSelection = (row: T) => {
+    const key = String(row[rowKey]);
+    onSelectionChange?.(
+      selectedRowKeys.includes(key)
+        ? selectedRowKeys.filter((selectedKey) => selectedKey !== key)
+        : [...selectedRowKeys, key],
+    );
+  };
+
+  const toggleAllRows = () => {
+    const visibleKeys = rows.map((row) => String(row[rowKey]));
+    onSelectionChange?.(
+      allRowsSelected
+        ? selectedRowKeys.filter((key) => !visibleKeys.includes(key))
+        : [...new Set([...selectedRowKeys, ...visibleKeys])],
+    );
+  };
 
   const getButtonSx = (
     variant: "text" | "outlined" | "contained" | undefined,
@@ -445,6 +472,18 @@ export function DataTable<T extends object>({
         <Table stickyHeader size="medium">
           <TableHead>
             <TableRow>
+              {selectable && (
+                <TableCell padding="checkbox">
+                  <Checkbox
+                    checked={allRowsSelected}
+                    indeterminate={
+                      selectedRowKeys.length > 0 && !allRowsSelected
+                    }
+                    onChange={toggleAllRows}
+                    inputProps={{ "aria-label": "Chọn tất cả sinh viên" }}
+                  />
+                </TableCell>
+              )}
               {columns.map((col) => (
                 <TableCell
                   key={String(col.id)}
@@ -482,7 +521,9 @@ export function DataTable<T extends object>({
             ) : rows.length === 0 ? (
               <TableRow>
                 <TableCell
-                  colSpan={columns.length + (actions ? 1 : 0)}
+                  colSpan={
+                    columns.length + (actions ? 1 : 0) + (selectable ? 1 : 0)
+                  }
                   align="center"
                   sx={{ py: 6 }}
                 >
@@ -496,9 +537,20 @@ export function DataTable<T extends object>({
                 <TableRow
                   key={String(row[rowKey])}
                   hover
-                  selected={isSelectable}
-                  sx={{ cursor: isSelectable ? "pointer" : "default" }}
+                  selected={selectedRowKeys.includes(String(row[rowKey]))}
+                  sx={{ cursor: selectable ? "pointer" : "default" }}
                 >
+                  {selectable && (
+                    <TableCell padding="checkbox">
+                      <Checkbox
+                        checked={selectedRowKeys.includes(String(row[rowKey]))}
+                        onChange={() => toggleRowSelection(row)}
+                        inputProps={{
+                          "aria-label": `Chọn ${String(row[rowKey])}`,
+                        }}
+                      />
+                    </TableCell>
+                  )}
                   {columns.map((col) => (
                     <TableCell key={String(col.id)} align={col.align ?? "left"}>
                       {col.format

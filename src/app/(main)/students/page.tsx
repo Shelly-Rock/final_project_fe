@@ -132,6 +132,23 @@ export default function StudentManagementPage() {
     }
   };
 
+  const handleDeleteMany = async (selectedStudents: Student[]) => {
+    const confirmed = window.confirm(
+      `Bạn có chắc muốn xóa ${selectedStudents.length} sinh viên đã chọn?`,
+    );
+    if (!confirmed) return;
+
+    const success = await studentService.deleteMany(
+      selectedStudents.map((student) => student.id),
+    );
+    if (!success) {
+      showSnackbar("Xóa thất bại", "error");
+      return;
+    }
+    refreshStudents();
+    showSnackbar(`Đã xóa ${selectedStudents.length} sinh viên`);
+  };
+
   const handleView = (student: Student) => {
     setSelectedStudent(student);
     setDetailDialogOpen(true);
@@ -175,6 +192,7 @@ export default function StudentManagementPage() {
         loading={loading}
         onEdit={handleEdit}
         onDelete={handleDelete}
+        onDeleteMany={handleDeleteMany}
         onView={handleView}
         filterOptions={[
           { value: "all", label: "Tất cả", icon: <List size={16} /> },

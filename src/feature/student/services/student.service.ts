@@ -191,6 +191,20 @@ class StudentService {
     }
   }
 
+  async deleteMany(ids: number[]): Promise<boolean> {
+    if (!this.useApi) {
+      await delay(300);
+      return true;
+    }
+
+    try {
+      await studentApiService.deleteMany(ids);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
   async updateStatus(
     id: number,
     status: Student["trangThai"],

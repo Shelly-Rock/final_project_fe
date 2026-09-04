@@ -118,6 +118,12 @@ class StudentApiService {
       params: { hardDelete: hardDelete ? "true" : "false" },
     });
   }
+
+  async deleteMany(ids: number[], hardDelete = false): Promise<void> {
+    await apiClient.delete("/students", {
+      data: { ids, hardDelete },
+    });
+  }
 }
 
 export const studentApiService = new StudentApiService();
