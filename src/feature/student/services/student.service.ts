@@ -3,6 +3,7 @@
 // Real HTTP calls to backend /students/* endpoints
 // ============================================================
 import * as XLSX from "xlsx";
+import axios from "axios";
 import type {
   Student,
   CreateStudentInput,
@@ -200,8 +201,13 @@ class StudentService {
     try {
       await studentApiService.deleteMany(ids);
       return true;
-    } catch {
-      return false;
+    } catch (error: unknown) {
+      if (!axios.isAxiosError(error) || error.response?.status !== 404) {
+        return false;
+      }
+
+      const results = await Promise.all(ids.map((id) => this.delete(id)));
+      return results.every(Boolean);
     }
   }
 
