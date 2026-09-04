@@ -31,6 +31,7 @@ declare module "next-auth/jwt" {
     role: Role;
     username: string;
     accessToken: string;
+    refreshToken: string;
     mustChangePassword: boolean;
     emailVerified: boolean;
   }
@@ -122,6 +123,8 @@ export const authOptions: NextAuthOptions = {
         token.emailVerified = !!user.emailVerified;
         token.accessToken =
           (user as { accessToken?: string }).accessToken ?? "";
+        token.refreshToken =
+          (user as { refreshToken?: string }).refreshToken ?? "";
         // Store token in localStorage for API client
         if (typeof window !== "undefined") {
           console.log("[NextAuth JWT] Storing accessToken in localStorage", {
@@ -129,11 +132,12 @@ export const authOptions: NextAuthOptions = {
             user: user,
           });
           localStorage.setItem("accessToken", token.accessToken as string);
+          localStorage.setItem("refreshToken", token.refreshToken as string);
         }
       }
       // Persist tokens when session is updated
       if (trigger === "update" && token.accessToken) {
-        authService.setTokens(token.accessToken, "");
+        authService.setTokens(token.accessToken, token.refreshToken);
       }
       return token;
     },
@@ -152,6 +156,10 @@ export const authOptions: NextAuthOptions = {
           accessToken: session.accessToken,
         });
         localStorage.setItem("accessToken", session.accessToken);
+        localStorage.setItem(
+          "refreshToken",
+          (token.refreshToken as string) || "",
+        );
       }
       return session;
     },
