@@ -62,11 +62,10 @@ class StudentService {
     try {
       const resp = await studentApiService.getAll({ limit: 1000 });
       return resp.students.map(mapApiToStudent);
-    } catch (err) {
+    } catch (error) {
       // eslint-disable-next-line no-console
-      console.warn("[StudentService] API unavailable, using mock data:", err);
-      await delay(300);
-      return [...mockStudents];
+      console.error("[StudentService] API unavailable:", error);
+      throw error;
     }
   }
 
