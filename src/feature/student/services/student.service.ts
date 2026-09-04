@@ -40,9 +40,19 @@ function mapApiToStudent(apiStudent: {
     khoa: apiStudent.major || "",
     khoaHoc: apiStudent.academicYear || String(apiStudent.courseYear || ""),
     lop: apiStudent.className || "",
-    soDienThoai: undefined,
+    soDienThoai:
+      typeof apiStudent.extraData === "object" && apiStudent.extraData !== null
+        ? (apiStudent.extraData as { phone?: string }).phone
+        : undefined,
     ngaySinh: apiStudent.dateOfBirth,
-    diaChi: undefined,
+    diaChi:
+      typeof apiStudent.extraData === "object" && apiStudent.extraData !== null
+        ? (apiStudent.extraData as { address?: string }).address
+        : undefined,
+    extraData:
+      typeof apiStudent.extraData === "object" && apiStudent.extraData !== null
+        ? (apiStudent.extraData as Record<string, unknown>)
+        : {},
     trangThai: "active",
   };
 }
@@ -163,6 +173,8 @@ class StudentService {
       const middleName = nameParts.slice(1, -1).join(" ");
       const updated = await studentApiService.update(id, {
         email: (data.gmail || "").trim(),
+        phone: data.soDienThoai || "",
+        address: data.diaChi || "",
         firstName,
         middleName,
         lastName,
@@ -175,6 +187,11 @@ class StudentService {
               academicYear: data.khoaHoc.trim(),
             }
           : {}),
+        extraData: {
+          ...(data.extraData || {}),
+          phone: data.soDienThoai || "",
+          address: data.diaChi || "",
+        },
       });
       return mapApiToStudent(updated);
     } catch {

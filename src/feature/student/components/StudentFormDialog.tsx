@@ -40,7 +40,7 @@ function studentToFormData(
     khoaHoc: student.khoaHoc,
     lop: student.lop,
     soDienThoai: student.soDienThoai || "",
-    ngaySinh: student.ngaySinh || "",
+    ngaySinh: student.ngaySinh?.slice(0, 10) || "",
     diaChi: student.diaChi || "",
   };
 }
@@ -53,9 +53,15 @@ export function StudentFormDialog({
 }: StudentFormDialogProps) {
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<CreateStudentInput>(emptyFormData);
+  const [extraDataText, setExtraDataText] = useState("{}");
+  const [extraDataError, setExtraDataError] = useState<string | null>(null);
 
   useEffect(() => {
-    const timer = setTimeout(() => setFormData(studentToFormData(student)), 0);
+    const timer = setTimeout(() => {
+      setFormData(studentToFormData(student));
+      setExtraDataText(JSON.stringify(student?.extraData || {}, null, 2));
+      setExtraDataError(null);
+    }, 0);
     return () => clearTimeout(timer);
   }, [student]);
 
@@ -67,9 +73,23 @@ export function StudentFormDialog({
 
   const handleSubmit = async () => {
     if (!onSubmit) return;
+    let extraData: Record<string, unknown> = {};
+    try {
+      const parsed = extraDataText.trim() ? JSON.parse(extraDataText) : {};
+      if (!parsed || Array.isArray(parsed) || typeof parsed !== "object") {
+        throw new Error("JSON phải là một object");
+      }
+      extraData = parsed as Record<string, unknown>;
+      setExtraDataError(null);
+    } catch (error) {
+      setExtraDataError(
+        error instanceof Error ? error.message : "JSON không hợp lệ",
+      );
+      return;
+    }
     setLoading(true);
     try {
-      await onSubmit(formData);
+      await onSubmit({ ...formData, extraData });
     } finally {
       setLoading(false);
     }
@@ -164,6 +184,25 @@ export function StudentFormDialog({
             id="diaChi"
             value={formData.diaChi}
             onChange={handleChange("diaChi")}
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <Label htmlFor="extraData">Extra JSON</Label>
+          <Input
+            id="extraData"
+            value={extraDataText}
+            onChange={(event) => setExtraDataText(event.target.value)}
+            multiline
+            minRows={5}
+            error={!!extraDataError}
+            helperText={extraDataError || ""}
+            inputProps={{ spellCheck: false }}
+            sx={{
+              "& textarea": {
+                fontFamily: "monospace",
+                fontSize: "0.8125rem",
+              },
+            }}
           />
         </Grid>
       </Grid>

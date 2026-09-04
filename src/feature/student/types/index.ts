@@ -18,6 +18,7 @@ export interface Student {
   trangThai: "active" | "inactive" | "graduated";
   ngaySinh?: string;
   diaChi?: string;
+  extraData?: Record<string, unknown>;
 }
 
 export interface StudentFilters {
@@ -37,6 +38,7 @@ export interface StudentImportRow {
   soDienThoai?: string;
   ngaySinh?: string;
   diaChi?: string;
+  extraData?: Record<string, unknown>;
 }
 
 export interface CreateStudentInput {
@@ -49,6 +51,7 @@ export interface CreateStudentInput {
   soDienThoai?: string;
   ngaySinh?: string;
   diaChi?: string;
+  extraData?: Record<string, unknown>;
 }
 
 export type UpdateStudentStatus = "active" | "inactive" | "graduated";
