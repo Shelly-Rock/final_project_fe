@@ -33,8 +33,7 @@ export interface VerifyEmailResponse {
 }
 
 export interface ChangePasswordRequest {
-  token?: string;
-  currentPassword?: string;
+  token: string;
   newPassword: string;
 }
 
