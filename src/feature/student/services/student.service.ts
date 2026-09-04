@@ -184,7 +184,7 @@ class StudentService {
     }
 
     try {
-      await studentApiService.delete(id);
+      await studentApiService.delete(id, true);
       return true;
     } catch {
       return false;
@@ -198,7 +198,7 @@ class StudentService {
     }
 
     try {
-      await studentApiService.deleteMany(ids);
+      await studentApiService.deleteMany(ids, true);
       return true;
     } catch (error: unknown) {
       if (!axios.isAxiosError(error) || error.response?.status !== 404) {

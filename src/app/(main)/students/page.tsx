@@ -124,7 +124,11 @@ export default function StudentManagementPage() {
     if (!confirmed) return;
 
     try {
-      await studentService.delete(student.id);
+      const success = await studentService.delete(student.id);
+      if (!success) {
+        showSnackbar("Không thể xóa sinh viên này", "error");
+        return;
+      }
       refreshStudents();
       showSnackbar("Đã xóa sinh viên");
     } catch {

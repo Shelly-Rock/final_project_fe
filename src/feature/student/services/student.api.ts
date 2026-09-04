@@ -113,13 +113,13 @@ class StudentApiService {
     return data;
   }
 
-  async delete(id: number, hardDelete = false): Promise<void> {
+  async delete(id: number, hardDelete = true): Promise<void> {
     await apiClient.delete(`/students/${id}`, {
       params: { hardDelete: hardDelete ? "true" : "false" },
     });
   }
 
-  async deleteMany(ids: number[], hardDelete = false): Promise<void> {
+  async deleteMany(ids: number[], hardDelete = true): Promise<void> {
     await apiClient.delete("/students", {
       data: { ids, hardDelete },
     });
