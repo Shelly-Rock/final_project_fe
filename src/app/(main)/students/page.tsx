@@ -8,6 +8,7 @@ import {
   StudentImportDialog,
   StudentFormDialog,
   StudentDetailDialog,
+  exportStudentsToExcel,
 } from "@/feature/student/components";
 import { PageHeader } from "@/shared/components";
 import { studentService } from "@/feature/student/services";
@@ -148,15 +149,7 @@ export default function StudentManagementPage() {
 
   const handleExport = async () => {
     try {
-      const file = await studentService.exportFile();
-      const url = URL.createObjectURL(file);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = "danh_sach_sinh_vien.xlsx";
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      URL.revokeObjectURL(url);
+      exportStudentsToExcel(students);
       showSnackbar("Đã xuất danh sách sinh viên");
     } catch (error: unknown) {
       const responseMessage = axios.isAxiosError(error)
