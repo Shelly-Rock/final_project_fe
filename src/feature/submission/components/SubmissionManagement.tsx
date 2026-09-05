@@ -34,6 +34,8 @@ export function SubmissionManagement() {
   const [reviewModalVisible, setReviewModalVisible] = useState(false);
   const [selectedSubmission, setSelectedSubmission] =
     useState<SubmissionWithName | null>(null);
+  const [reviewInitialStatus, setReviewInitialStatus] =
+    useState<SubmissionStatus>("APPROVED");
   const [submitting, setSubmitting] = useState(false);
 
   const { current, pageSize } = pagination;
@@ -98,6 +100,7 @@ export function SubmissionManagement() {
     status: SubmissionStatus = "APPROVED",
   ) => {
     setSelectedSubmission(submission);
+    setReviewInitialStatus(status);
     setReviewModalVisible(true);
   };
 
@@ -141,6 +144,7 @@ export function SubmissionManagement() {
         onSubmit={handleReview}
         submission={selectedSubmission}
         loading={submitting}
+        initialStatus={reviewInitialStatus}
       />
     </>
   );

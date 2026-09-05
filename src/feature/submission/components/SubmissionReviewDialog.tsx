@@ -23,6 +23,7 @@ interface SubmissionReviewDialogProps {
   ) => Promise<void>;
   submission?: SubmissionWithName | null;
   loading?: boolean;
+  initialStatus?: SubmissionStatus;
 }
 
 export function SubmissionReviewDialog({
@@ -31,6 +32,7 @@ export function SubmissionReviewDialog({
   onSubmit,
   submission,
   loading = false,
+  initialStatus = "APPROVED",
 }: SubmissionReviewDialogProps) {
   const prevOpenRef = useRef<boolean>(open);
   const [reviewStatus, setReviewStatus] =
@@ -40,11 +42,11 @@ export function SubmissionReviewDialog({
   // Reset state when dialog opens
   useEffect(() => {
     if (open && !prevOpenRef.current) {
-      setReviewStatus("APPROVED");
+      setReviewStatus(initialStatus);
       setRejectionReason("");
     }
     prevOpenRef.current = open;
-  }, [open]);
+  }, [open, initialStatus]);
 
   const handleSubmit = async () => {
     await onSubmit(
