@@ -107,14 +107,14 @@ export function ScoringResultsTable({
       label: "Chi tiết",
       color: "primary" as const,
       onClick: (row: ScoringResult) =>
-        onViewDetails(row.project?.projectId || row.projectId),
+        onViewDetails(Number(row.project?.projectId || row.projectId)),
     },
   ];
 
   return (
     <DataTable
       columns={columns}
-      rows={results as unknown[]}
+      rows={results}
       rowKey="id"
       actions={actions}
       loading={loading}

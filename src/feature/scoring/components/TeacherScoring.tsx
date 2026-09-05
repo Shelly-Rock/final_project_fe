@@ -99,7 +99,10 @@ export default function TeacherScoringPage() {
 
   const calculateTotalScore = () => {
     return ScoringCriteria.reduce(
-      (sum: number, c: { key: string; weight: number }) => {
+      (
+        sum: number,
+        c: { key: string; label: string; description?: string; weight: number },
+      ) => {
         const score = criteriaScores[c.key] || 0;
         return sum + score * (c.weight / 100);
       },
@@ -579,7 +582,7 @@ export default function TeacherScoringPage() {
                 (criteria: {
                   key: string;
                   label: string;
-                  description: string;
+                  description?: string;
                   weight: number;
                 }) => (
                   <Box

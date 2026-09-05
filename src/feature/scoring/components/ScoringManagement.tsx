@@ -76,7 +76,6 @@ export function ScoringManagementPage() {
       setLoading(true);
       const data = await getAllResults({ page, limit: 20 });
       setResults(data.data);
-      setTotalPages(data.meta.totalPages);
       setTotal(data.meta.total);
     } catch {
       toast.error("Không thể tải kết quả chấm điểm");

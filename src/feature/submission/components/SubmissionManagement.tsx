@@ -98,7 +98,6 @@ export function SubmissionManagement() {
     status: SubmissionStatus = "APPROVED",
   ) => {
     setSelectedSubmission(submission);
-    setReviewStatus(status);
     setReviewModalVisible(true);
   };
 

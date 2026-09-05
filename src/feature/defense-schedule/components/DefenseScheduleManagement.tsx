@@ -87,7 +87,12 @@ export default function DefenseScheduleManagement() {
     setModalVisible(true);
   };
 
-  const handleSubmit = async (data: unknown) => {
+  const handleSubmit = async (data: {
+    committeeId?: number;
+    defenseDate: string;
+    startTime: string;
+    room: string;
+  }) => {
     try {
       setSubmitting(true);
 
@@ -95,7 +100,19 @@ export default function DefenseScheduleManagement() {
         await defenseService.updateDefenseSession(editingSession.id, data);
         toast.success("Cập nhật lịch bảo vệ thành công");
       } else {
-        await defenseService.createDefenseSession(data);
+        if (!data.committeeId) {
+          toast.error("Vui lòng chọn hội đồng");
+          setSubmitting(false);
+          return;
+        }
+        await defenseService.createDefenseSession(
+          data as {
+            committeeId: number;
+            defenseDate: string;
+            startTime: string;
+            room: string;
+          },
+        );
         toast.success("Tạo lịch bảo vệ thành công");
       }
 

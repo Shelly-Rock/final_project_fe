@@ -92,7 +92,14 @@ export default function CommitteeManagement() {
     setModalVisible(true);
   };
 
-  const handleSubmit = async (data: unknown) => {
+  const handleSubmit = async (data: {
+    name: string;
+    chairmanId?: number;
+    secretaryId?: number;
+    internal1Id?: number;
+    internal2Id?: number;
+    externalReviewerIds: number[];
+  }) => {
     try {
       setSubmitting(true);
 

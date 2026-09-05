@@ -142,7 +142,7 @@ export function DefenseScheduleTable({
   return (
     <DataTable
       columns={columns}
-      rows={sessions as unknown[]}
+      rows={sessions}
       rowKey="id"
       actions={actions}
       loading={loading}

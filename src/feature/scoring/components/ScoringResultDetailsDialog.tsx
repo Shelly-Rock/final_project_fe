@@ -156,7 +156,7 @@ export function ScoringResultDetailsDialog({
                   ) : null,
               },
             ]}
-            rows={result.committeeScores as unknown[]}
+            rows={result.committeeScores}
             rowKey="teacherName"
             showSearchInput={false}
             showFilterButton={false}

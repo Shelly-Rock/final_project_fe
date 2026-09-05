@@ -153,7 +153,7 @@ export function SubmissionTable({
   return (
     <DataTable
       columns={columns}
-      rows={submissions as unknown[]}
+      rows={submissions}
       rowKey="id"
       actions={actions}
       loading={loading}
