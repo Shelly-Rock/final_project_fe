@@ -1,10 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "@/styles/main.scss";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import { AppProviders } from "@/core/providers";
-import { AuthProvider } from "@/core/providers/AuthProvider";
 import { Sidebar } from "@/layout/Sidebar";
 import { Header } from "@/layout/Header";
 import { ChatbotButton } from "@/shared/components/ChatbotButton/ChatbotButton";
@@ -19,11 +18,16 @@ export default function MainLayout({
 }>) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const isMobile = useMediaQuery("(max-width: 1024px)");
   const { data: session, status } = useSession();
 
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   // Still loading → show spinner
-  if (status === "loading") {
+  if (!mounted || status === "loading") {
     return (
       <Box
         sx={{
@@ -45,48 +49,46 @@ export default function MainLayout({
   }
 
   return (
-    <AuthProvider session={session}>
-      <AppProviders initialRole={session.user.role}>
-        <div className="app-shell">
-          {/* Mobile overlay */}
-          {mobileSidebarOpen && isMobile && (
-            <div
-              className="sidebar-overlay"
-              onClick={() => setMobileSidebarOpen(false)}
-              aria-hidden="true"
-            />
-          )}
-
-          {/* Mobile toggle button on header */}
-          {isMobile && (
-            <button
-              type="button"
-              className="sidebar-mobile-toggle"
-              onClick={() => setMobileSidebarOpen(true)}
-              aria-label="Open menu"
-            >
-              <span className="bi bi-list" />
-            </button>
-          )}
-
-          <Sidebar
-            collapsed={sidebarCollapsed}
-            onToggle={() => setSidebarCollapsed((prev) => !prev)}
-            mobileOpen={mobileSidebarOpen}
-            onMobileClose={() => setMobileSidebarOpen(false)}
-          />
+    <AppProviders initialRole={session.user.role}>
+      <div className="app-shell">
+        {/* Mobile overlay */}
+        {mobileSidebarOpen && isMobile && (
           <div
-            className={`app-main ${sidebarCollapsed ? "sidebar-collapsed" : ""}`}
+            className="sidebar-overlay"
+            onClick={() => setMobileSidebarOpen(false)}
+            aria-hidden="true"
+          />
+        )}
+
+        {/* Mobile toggle button on header */}
+        {isMobile && (
+          <button
+            type="button"
+            className="sidebar-mobile-toggle"
+            onClick={() => setMobileSidebarOpen(true)}
+            aria-label="Open menu"
           >
-            <Header
-              onMenuClick={() => setMobileSidebarOpen(true)}
-              showMenuButton={isMobile}
-            />
-            {children}
-            <ChatbotButton />
-          </div>
+            <span className="bi bi-list" />
+          </button>
+        )}
+
+        <Sidebar
+          collapsed={sidebarCollapsed}
+          onToggle={() => setSidebarCollapsed((prev) => !prev)}
+          mobileOpen={mobileSidebarOpen}
+          onMobileClose={() => setMobileSidebarOpen(false)}
+        />
+        <div
+          className={`app-main ${sidebarCollapsed ? "sidebar-collapsed" : ""}`}
+        >
+          <Header
+            onMenuClick={() => setMobileSidebarOpen(true)}
+            showMenuButton={isMobile}
+          />
+          {children}
+          <ChatbotButton />
         </div>
-      </AppProviders>
-    </AuthProvider>
+      </div>
+    </AppProviders>
   );
 }

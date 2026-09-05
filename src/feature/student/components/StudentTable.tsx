@@ -11,7 +11,7 @@ import {
   Delete as DeleteIcon,
   Visibility as ViewIcon,
 } from "@mui/icons-material";
-import { Plus, RefreshCw } from "lucide-react";
+import { Download, FileUp, Plus, RefreshCw, Trash2 } from "lucide-react";
 import { DataTable } from "@/shared/components";
 import type { Student } from "../types";
 
@@ -20,11 +20,14 @@ interface StudentTableProps {
   loading?: boolean;
   onEdit?: (student: Student) => void;
   onDelete?: (student: Student) => void;
+  onDeleteMany?: (students: Student[]) => void;
   onView?: (student: Student) => void;
   filterOptions?: { value: string; label: string; icon?: React.ReactNode }[];
   filterValue?: string;
   onFilterChange?: (value: string) => void;
   onAdd?: () => void;
+  onImport?: () => void;
+  onExport?: () => void;
   onRefresh?: () => void;
 }
 
@@ -59,13 +62,17 @@ export function StudentTable({
   loading = false,
   onEdit,
   onDelete,
+  onDeleteMany,
   onView,
   filterOptions = [],
   filterValue,
   onFilterChange,
   onAdd,
+  onImport,
+  onExport,
   onRefresh,
 }: StudentTableProps) {
+  const [selectedKeys, setSelectedKeys] = React.useState<string[]>([]);
   const theme = useTheme();
   const isDarkMode = theme.palette.mode === "dark";
   const textColor = isDarkMode ? "#cbd5e1" : "#0F172A";
@@ -170,6 +177,45 @@ export function StudentTable({
   ];
 
   const headerActions = [
+    ...(onDeleteMany && selectedKeys.length > 0
+      ? [
+          {
+            id: "delete-selected",
+            icon: <Trash2 size={16} />,
+            label: `Xóa ${selectedKeys.length} sinh viên`,
+            onClick: () => {
+              const selected = students.filter((student) =>
+                selectedKeys.includes(String(student.id)),
+              );
+              onDeleteMany(selected);
+              setSelectedKeys([]);
+            },
+            variant: "outlined" as const,
+          },
+        ]
+      : []),
+    ...(onExport
+      ? [
+          {
+            id: "export",
+            icon: <Download size={16} />,
+            label: "Export",
+            onClick: onExport,
+            variant: "outlined" as const,
+          },
+        ]
+      : []),
+    ...(onImport
+      ? [
+          {
+            id: "import",
+            icon: <FileUp size={16} />,
+            label: "Import",
+            onClick: onImport,
+            variant: "outlined" as const,
+          },
+        ]
+      : []),
     ...(onAdd
       ? [
           {
@@ -198,13 +244,18 @@ export function StudentTable({
     <DataTable
       columns={columns}
       rows={students}
-      rowKey="mssv"
+      rowKey="id"
+      selectable={true}
+      selectedRowKeys={selectedKeys}
+      onSelectionChange={setSelectedKeys}
       actions={actions}
       headerActions={headerActions}
       filterOptions={filterOptions}
       filterValue={filterValue}
       onFilterChange={onFilterChange}
       showFilterButton={true}
+      showExportButton={false}
+      showImportButton={false}
       loading={loading}
       emptyMessage="Không có sinh viên nào"
     />

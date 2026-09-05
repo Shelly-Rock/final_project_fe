@@ -1,19 +1,20 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
+import axios from "axios";
 import { Box, Snackbar, Alert } from "@mui/material";
 import {
   StudentTable,
   StudentImportDialog,
   StudentFormDialog,
   StudentDetailDialog,
+  exportStudentsToExcel,
 } from "@/feature/student/components";
 import { PageHeader } from "@/shared/components";
 import { studentService } from "@/feature/student/services";
 import type {
   Student,
   StudentFilters,
-  StudentImportRow,
   StudentStatus,
 } from "@/feature/student/types";
 import { List, CheckSquare, Square, Users } from "lucide-react";
@@ -50,20 +51,36 @@ export default function StudentManagementPage() {
     setSnackbar({ open: true, message, severity });
   };
 
-  const refreshStudents = useCallback(() => {
+  const refreshStudents = () => {
     setLoading(true);
     studentService
       .getAll()
       .then((data) => setStudents(data))
       .catch(() => showSnackbar("Không thể tải danh sách sinh viên", "error"))
       .finally(() => setLoading(false));
-  }, []);
+  };
 
-  // Initial load with refreshStudents dependency
+  // Initial load - only run once on mount
   useEffect(() => {
-    const timer = setTimeout(refreshStudents, 0);
-    return () => clearTimeout(timer);
-  }, [refreshStudents]);
+    let isMounted = true;
+    setLoading(true);
+    studentService
+      .getAll()
+      .then((data) => {
+        if (isMounted) setStudents(data);
+      })
+      .catch(() => {
+        if (isMounted)
+          showSnackbar("Không thể tải danh sách sinh viên", "error");
+      })
+      .finally(() => {
+        if (isMounted) setLoading(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const filteredStudents = students.filter((student) => {
     if (filters.search) {
@@ -81,15 +98,22 @@ export default function StudentManagementPage() {
     return true;
   });
 
-  const handleImport = async (data: StudentImportRow[]) => {
+  const handleImport = async (file: File) => {
     try {
-      const result = await studentService.createMany(data);
+      const result = await studentService.importFile(file);
       refreshStudents();
       showSnackbar(
         `Đã import ${result.success} sinh viên thành công${result.failed > 0 ? `, ${result.failed} thất bại` : ""}`,
       );
-    } catch {
-      showSnackbar("Import thất bại", "error");
+    } catch (error: unknown) {
+      const responseMessage = axios.isAxiosError(error)
+        ? error.response?.data?.message
+        : undefined;
+      const message = Array.isArray(responseMessage)
+        ? responseMessage.join(", ")
+        : responseMessage || "Import thất bại";
+      showSnackbar(message, "error");
+      throw new Error(message);
     }
   };
 
@@ -100,12 +124,33 @@ export default function StudentManagementPage() {
     if (!confirmed) return;
 
     try {
-      await studentService.delete(student.id);
+      const success = await studentService.delete(student.id);
+      if (!success) {
+        showSnackbar("Không thể xóa sinh viên này", "error");
+        return;
+      }
       refreshStudents();
       showSnackbar("Đã xóa sinh viên");
     } catch {
       showSnackbar("Xóa thất bại", "error");
     }
+  };
+
+  const handleDeleteMany = async (selectedStudents: Student[]) => {
+    const confirmed = window.confirm(
+      `Bạn có chắc muốn xóa ${selectedStudents.length} sinh viên đã chọn?`,
+    );
+    if (!confirmed) return;
+
+    const success = await studentService.deleteMany(
+      selectedStudents.map((student) => student.id),
+    );
+    if (!success) {
+      showSnackbar("Xóa thất bại", "error");
+      return;
+    }
+    refreshStudents();
+    showSnackbar(`Đã xóa ${selectedStudents.length} sinh viên`);
   };
 
   const handleView = (student: Student) => {
@@ -123,6 +168,53 @@ export default function StudentManagementPage() {
     setFormDialogOpen(true);
   };
 
+  const handleSubmitStudent = async (data: {
+    mssv: string;
+    hoTen: string;
+    gmail: string;
+    khoa: string;
+    khoaHoc: string;
+    lop: string;
+    soDienThoai?: string;
+    ngaySinh?: string;
+    diaChi?: string;
+  }) => {
+    if (!selectedStudent) return;
+    if (!data.hoTen.trim() || !data.gmail.trim()) {
+      showSnackbar("Họ tên và email không được để trống", "error");
+      return;
+    }
+
+    const updated = await studentService.update(selectedStudent.id, data);
+    if (!updated) {
+      showSnackbar("Cập nhật sinh viên thất bại", "error");
+      return;
+    }
+    setStudents((currentStudents) =>
+      currentStudents.map((currentStudent) =>
+        currentStudent.id === updated.id ? updated : currentStudent,
+      ),
+    );
+    setFormDialogOpen(false);
+    refreshStudents();
+    showSnackbar("Đã cập nhật sinh viên");
+  };
+
+  const handleExport = async () => {
+    try {
+      exportStudentsToExcel(students);
+      showSnackbar("Đã xuất danh sách sinh viên");
+    } catch (error: unknown) {
+      const responseMessage = axios.isAxiosError(error)
+        ? error.response?.data?.message
+        : undefined;
+      const message = Array.isArray(responseMessage)
+        ? responseMessage.join(", ")
+        : responseMessage || "Xuất danh sách thất bại";
+      showSnackbar(message, "error");
+    }
+  };
+
   return (
     <Box sx={{ p: 3, width: "100%" }}>
       <PageHeader
@@ -136,6 +228,7 @@ export default function StudentManagementPage() {
         loading={loading}
         onEdit={handleEdit}
         onDelete={handleDelete}
+        onDeleteMany={handleDeleteMany}
         onView={handleView}
         filterOptions={[
           { value: "all", label: "Tất cả", icon: <List size={16} /> },
@@ -155,6 +248,8 @@ export default function StudentManagementPage() {
           setFilters({ ...filters, status: value as StudentStatus })
         }
         onAdd={handleAdd}
+        onExport={handleExport}
+        onImport={() => setImportDialogOpen(true)}
         onRefresh={refreshStudents}
       />
       <StudentImportDialog
@@ -167,6 +262,7 @@ export default function StudentManagementPage() {
         open={formDialogOpen}
         onClose={() => setFormDialogOpen(false)}
         student={selectedStudent}
+        onSubmit={handleSubmitStudent}
       />
       <StudentDetailDialog
         open={detailDialogOpen}

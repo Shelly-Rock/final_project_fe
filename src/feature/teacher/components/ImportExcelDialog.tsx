@@ -233,10 +233,15 @@ export function ImportExcelDialog({
     <Dialog
       open={open}
       onClose={handleClose}
-      maxWidth="md"
+      maxWidth={false}
       fullWidth
       PaperProps={{
-        sx: { borderRadius: 2 },
+        sx: {
+          width: 700,
+          maxWidth: "calc(100vw - 32px)",
+          maxHeight: "calc(100vh - 64px)",
+          borderRadius: 2,
+        },
       }}
     >
       <DialogTitle

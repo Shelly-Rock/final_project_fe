@@ -68,14 +68,21 @@ function LoginForm() {
         ? "/change-password?mustChangePassword=1"
         : getSafeRedirectUrl(callbackUrl, session.user.role);
 
+      console.log("[Login] Session updated, redirecting", {
+        session,
+        destination,
+        callbackUrl,
+        currentPath: window.location.pathname,
+      });
+
       if (
         typeof window !== "undefined" &&
         window.location.pathname !== destination
       ) {
-        window.location.assign(destination);
+        router.push(destination);
       }
     }
-  }, [session, callbackUrl]);
+  }, [session, callbackUrl, router]);
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [_emailToVerify, setEmailToVerify] = useState("");
@@ -113,19 +120,41 @@ function LoginForm() {
           setError(msg || "Tài khoản hoặc mật khẩu không chính xác.");
         }
       } else if (result?.ok) {
-        const refreshedSession = await getSession();
+        // Force session update by calling getSession multiple times
+        let refreshedSession = await getSession();
+        let retries = 0;
+        while (!refreshedSession?.user && retries < 5) {
+          await new Promise((resolve) => setTimeout(resolve, 200));
+          refreshedSession = await getSession();
+          retries++;
+        }
+
         const destination = getSafeRedirectUrl(
           result?.url ?? callbackUrl,
           refreshedSession?.user?.role ?? session?.user?.role,
         );
 
+        console.log("[Login] Login successful", {
+          refreshedSession,
+          destination,
+          callbackUrl,
+          resultUrl: result?.url,
+          retries,
+          accessToken: refreshedSession?.accessToken,
+        });
+
+        // Store accessToken in localStorage for API client
+        if (refreshedSession?.accessToken) {
+          console.log("[Login] Storing accessToken in localStorage", {
+            accessToken: refreshedSession.accessToken,
+          });
+          localStorage.setItem("accessToken", refreshedSession.accessToken);
+        }
+
         toast.success("Đăng nhập thành công");
 
-        if (refreshedSession?.user) {
-          window.location.assign(destination);
-        } else {
-          window.location.assign(destination);
-        }
+        // Use window.location.replace to force full page reload with new session
+        window.location.replace(destination);
       }
     } catch (err: unknown) {
       if (process.env.NODE_ENV === "development") {

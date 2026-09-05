@@ -51,6 +51,11 @@ export function PasswordChangeDialog({
       return;
     }
 
+    if (!token) {
+      setError("Liên kết đổi mật khẩu không hợp lệ hoặc đã hết hạn.");
+      return;
+    }
+
     setLoading(true);
 
     try {

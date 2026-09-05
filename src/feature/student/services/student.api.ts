@@ -5,33 +5,28 @@ import apiClient from "@/core/api";
 
 export interface StudentApiResponse {
   id: number;
-  student_id: string;
-  first_name: string;
-  last_name: string;
+  studentId: string;
   email: string;
-  phone?: string;
-  date_of_birth?: string;
-  address?: string;
-  course_id?: number;
-  course_name?: string;
-  class_id?: number;
-  class_name?: string;
-  department_id?: number;
-  department_name?: string;
-  enrollment_year: number;
-  status: string;
-  created_at: string;
-  updated_at: string;
+  firstName: string;
+  middleName?: string;
+  lastName: string;
+  dateOfBirth?: string;
+  gender?: string;
+  className?: string;
+  major?: string;
+  courseYear?: number;
+  academicYear?: string;
+  extraData?: unknown;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface StudentListResponse {
-  data: StudentApiResponse[];
-  meta: {
-    page: number;
-    limit: number;
-    total: number;
-    totalPages: number;
-  };
+  students: StudentApiResponse[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
 }
 
 export interface StudentImportRow {
@@ -45,6 +40,22 @@ export interface StudentImportRow {
   class_name?: string;
   department_name?: string;
   enrollment_year: number;
+}
+
+export interface StudentUpdatePayload {
+  email?: string;
+  phone?: string;
+  address?: string;
+  firstName?: string;
+  middleName?: string;
+  lastName?: string;
+  dateOfBirth?: string;
+  gender?: string;
+  className?: string;
+  major?: string;
+  courseYear?: number;
+  academicYear?: string;
+  extraData?: Record<string, unknown>;
 }
 
 class StudentApiService {
@@ -74,24 +85,27 @@ class StudentApiService {
 
   async importFromFile(
     file: File,
-  ): Promise<{ created: number; failed: number }> {
+  ): Promise<{ success: boolean; message: string; count: number }> {
     const formData = new FormData();
     formData.append("file", file);
 
-    const { data } = await apiClient.post<
-      Array<{
-        student_id: string;
-        first_name: string;
-        last_name: string;
-        email: string;
-      }>
-    >("/students/import", formData, {
+    const { data } = await apiClient.post<{
+      success: boolean;
+      message: string;
+      count: number;
+    }>("/students/import", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
     });
-    // Backend returns array of created students
-    return { created: Array.isArray(data) ? data.length : 0, failed: 0 };
+    return data;
+  }
+
+  async exportToFile(): Promise<Blob> {
+    const { data } = await apiClient.get<Blob>("/students/export", {
+      responseType: "blob",
+    });
+    return data;
   }
 
   async create(
@@ -106,7 +120,7 @@ class StudentApiService {
 
   async update(
     id: number,
-    payload: Partial<StudentImportRow>,
+    payload: StudentUpdatePayload,
   ): Promise<StudentApiResponse> {
     const { data } = await apiClient.put<StudentApiResponse>(
       `/students/${id}`,
@@ -115,9 +129,13 @@ class StudentApiService {
     return data;
   }
 
-  async delete(id: number, hardDelete = false): Promise<void> {
-    await apiClient.delete(`/students/${id}`, {
-      params: { hardDelete: hardDelete ? "true" : "false" },
+  async delete(id: number): Promise<void> {
+    await apiClient.delete(`/students/${id}`);
+  }
+
+  async deleteMany(ids: number[]): Promise<void> {
+    await apiClient.delete("/students", {
+      data: { ids },
     });
   }
 }

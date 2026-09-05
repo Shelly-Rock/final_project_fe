@@ -4,6 +4,7 @@
 "use client";
 
 import React, { useState, useCallback } from "react";
+import * as XLSX from "xlsx";
 import {
   DialogActions,
   Box,
@@ -16,15 +17,22 @@ import {
   CloudUpload as UploadIcon,
   Delete as DeleteIcon,
 } from "@mui/icons-material";
-import type { StudentImportRow } from "../types";
-
 interface StudentImportDialogProps {
   open: boolean;
   onClose: () => void;
-  onImport: (data: StudentImportRow[]) => Promise<void>;
+  onImport: (file: File) => Promise<void>;
 }
 
-type ImportRow = StudentImportRow & {
+type ImportRow = {
+  mssv: string;
+  hoTen: string;
+  gmail: string;
+  khoa: string;
+  khoaHoc: string;
+  lop: string;
+  soDienThoai?: string;
+  ngaySinh?: string;
+  diaChi?: string;
   status?: "pending" | "success" | "error";
   error?: string;
 };
@@ -35,92 +43,124 @@ export function StudentImportDialog({
   onImport,
 }: StudentImportDialogProps) {
   const [rows, setRows] = useState<ImportRow[]>([]);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [importing, setImporting] = useState(false);
+  const [fileError, setFileError] = useState("");
 
   const handleFileUpload = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       const file = event.target.files?.[0];
       if (!file) return;
+      setSelectedFile(file);
+      setFileError("");
 
       const reader = new FileReader();
       reader.onload = (e) => {
         try {
-          const text = e.target?.result as string;
-          const lines = text.split("\n").filter((line) => line.trim());
+          const workbook = XLSX.read(e.target?.result, { type: "array" });
+          const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+          const records = XLSX.utils.sheet_to_json<Record<string, unknown>>(
+            worksheet,
+            { defval: "" },
+          );
 
-          if (lines.length < 2) {
-            alert("File không có dữ liệu hoặc thiếu header");
+          if (records.length === 0) {
+            setRows([]);
+            setFileError("File không có dữ liệu hoặc thiếu header.");
             return;
           }
 
-          const headers = lines[0]
-            .split(",")
-            .map((h) => h.trim().toLowerCase());
-          const data: ImportRow[] = [];
+          const data = records
+            .map((record) => {
+              const row: ImportRow = {
+                mssv: "",
+                hoTen: "",
+                gmail: "",
+                khoa: "",
+                khoaHoc: "",
+                lop: "",
+                status: "pending",
+              };
 
-          for (let i = 1; i < lines.length; i++) {
-            const values = lines[i].split(",").map((v) => v.trim());
-            const row: ImportRow = {
-              mssv: "",
-              hoTen: "",
-              gmail: "",
-              khoa: "",
-              khoaHoc: "",
-              lop: "",
-              status: "pending",
-            };
-
-            headers.forEach((header, index) => {
-              const value = values[index] || "";
-              switch (header) {
-                case "mssv":
-                  row.mssv = value;
-                  break;
-                case "hoten":
-                case "họ tên":
-                case "name":
-                  row.hoTen = value;
-                  break;
-                case "gmail":
-                case "email":
-                  row.gmail = value;
-                  break;
-                case "khoa":
-                  row.khoa = value;
-                  break;
-                case "khoahoc":
-                case "khóa":
-                  row.khoaHoc = value;
-                  break;
-                case "lop":
-                case "lớp":
-                  row.lop = value;
-                  break;
-                case "sodienthoai":
-                case "sdt":
-                  row.soDienThoai = value;
-                  break;
-                case "ngaysinh":
-                  row.ngaySinh = value;
-                  break;
-                case "diachi":
-                  row.diaChi = value;
-                  break;
-              }
-            });
-
-            if (row.mssv && row.hoTen) {
-              data.push(row);
-            }
-          }
+              Object.entries(record).forEach(([key, rawValue]) => {
+                const header = key.trim().toLowerCase();
+                const value = String(rawValue ?? "").trim();
+                switch (header) {
+                  case "mssv":
+                  case "student_id":
+                  case "studentid":
+                    row.mssv = value;
+                    break;
+                  case "firstname":
+                  case "first_name":
+                    row.hoTen = `${value} ${row.hoTen}`.trim();
+                    break;
+                  case "middlename":
+                  case "middle_name":
+                    row.hoTen = `${row.hoTen} ${value}`.trim();
+                    break;
+                  case "lastname":
+                  case "last_name":
+                    row.hoTen = `${value} ${row.hoTen}`.trim();
+                    break;
+                  case "hoten":
+                  case "họ tên":
+                  case "name":
+                    row.hoTen = value;
+                    break;
+                  case "gmail":
+                  case "email":
+                    row.gmail = value;
+                    break;
+                  case "khoa":
+                  case "major":
+                    row.khoa = value;
+                    break;
+                  case "courseyear":
+                  case "academicyear":
+                  case "khoahoc":
+                  case "khóa":
+                  case "course_year":
+                  case "academic_year":
+                    row.khoaHoc = value;
+                    break;
+                  case "lop":
+                  case "lớp":
+                  case "class_name":
+                  case "classname":
+                    row.lop = value;
+                    break;
+                  case "sodienthoai":
+                  case "sdt":
+                    row.soDienThoai = value;
+                    break;
+                  case "ngaysinh":
+                    row.ngaySinh = value;
+                    break;
+                  case "diachi":
+                    row.diaChi = value;
+                    break;
+                }
+              });
+              return row;
+            })
+            .filter((row) => row.mssv && row.hoTen);
 
           setRows(data);
+          setFileError(
+            data.length === 0
+              ? "Không tìm thấy dòng hợp lệ. Kiểm tra các cột studentId, firstName, lastName và email."
+              : "",
+          );
         } catch {
-          alert("Không thể đọc file. Vui lòng kiểm tra định dạng.");
+          setRows([]);
+          setFileError(
+            "Không thể đọc file. Vui lòng chọn file Excel hoặc CSV hợp lệ.",
+          );
         }
       };
 
-      reader.readAsText(file);
+      reader.readAsArrayBuffer(file);
       event.target.value = "";
     },
     [],
@@ -131,15 +171,24 @@ export function StudentImportDialog({
   };
 
   const handleImport = async () => {
-    if (rows.length === 0) return;
+    if (!selectedFile) {
+      setFileError("Vui lòng chọn file trước khi import.");
+      return;
+    }
+    if (rows.length === 0) {
+      setFileError("File chưa có dòng sinh viên hợp lệ để import.");
+      return;
+    }
 
     setImporting(true);
     try {
-      await onImport(rows);
+      if (!selectedFile) return;
+      await onImport(selectedFile);
       setRows([]);
+      setSelectedFile(null);
       onClose();
-    } catch {
-      alert("Import thất bại");
+    } catch (error) {
+      setFileError(error instanceof Error ? error.message : "Import thất bại");
     } finally {
       setImporting(false);
     }
@@ -147,6 +196,8 @@ export function StudentImportDialog({
 
   const handleClose = () => {
     setRows([]);
+    setSelectedFile(null);
+    setFileError("");
     onClose();
   };
 
@@ -188,8 +239,13 @@ export function StudentImportDialog({
           startIcon={<UploadIcon />}
           sx={{ mb: 2 }}
         >
-          Chọn file CSV
-          <input type="file" accept=".csv" hidden onChange={handleFileUpload} />
+          Chọn file Excel/CSV
+          <input
+            type="file"
+            accept=".xlsx,.xls,.csv"
+            hidden
+            onChange={handleFileUpload}
+          />
         </Button>
 
         <Box
@@ -214,9 +270,15 @@ export function StudentImportDialog({
       ) : (
         <Box sx={{ textAlign: "center", py: 4 }}>
           <Typography color="text.secondary">
-            Chưa có dữ liệu. Vui lòng upload file CSV.
+            Chưa có dữ liệu. Vui lòng upload file Excel hoặc CSV.
           </Typography>
         </Box>
+      )}
+
+      {fileError && (
+        <Typography color="error" variant="body2" sx={{ mt: 2 }}>
+          {fileError}
+        </Typography>
       )}
 
       {importing && <LinearProgress sx={{ mt: 2 }} />}
@@ -228,7 +290,7 @@ export function StudentImportDialog({
         <Button
           variant="contained"
           onClick={handleImport}
-          disabled={rows.length === 0 || importing}
+          disabled={!selectedFile || rows.length === 0 || importing}
         >
           Import {rows.length} sinh viên
         </Button>

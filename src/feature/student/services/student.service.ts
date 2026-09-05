@@ -3,6 +3,7 @@
 // Real HTTP calls to backend /students/* endpoints
 // ============================================================
 import * as XLSX from "xlsx";
+import axios from "axios";
 import type {
   Student,
   CreateStudentInput,
@@ -15,35 +16,44 @@ import { studentApiService } from "./student.api";
 // Map API response → frontend Student type
 function mapApiToStudent(apiStudent: {
   id: number;
-  student_id: string;
-  first_name: string;
-  last_name: string;
+  studentId: string;
   email: string;
-  phone?: string;
-  date_of_birth?: string;
-  address?: string;
-  department_name?: string;
-  enrollment_year: number;
-  status: string;
-  class_name?: string;
+  firstName: string;
+  middleName?: string;
+  lastName: string;
+  dateOfBirth?: string;
+  gender?: string;
+  className?: string;
+  major?: string;
+  courseYear?: number;
+  academicYear?: string;
+  extraData?: unknown;
+  createdAt: string;
+  updatedAt: string;
 }): Student {
   return {
     id: apiStudent.id,
-    mssv: apiStudent.student_id,
-    hoTen: `${apiStudent.last_name} ${apiStudent.first_name}`.trim(),
+    mssv: apiStudent.studentId,
+    hoTen:
+      `${apiStudent.lastName} ${apiStudent.middleName || ""} ${apiStudent.firstName}`.trim(),
     gmail: apiStudent.email,
-    khoa: apiStudent.department_name || "",
-    khoaHoc: String(apiStudent.enrollment_year),
-    lop: apiStudent.class_name || "",
-    soDienThoai: apiStudent.phone,
-    ngaySinh: apiStudent.date_of_birth,
-    diaChi: apiStudent.address,
-    trangThai:
-      apiStudent.status === "ACTIVE"
-        ? "active"
-        : apiStudent.status === "GRADUATED"
-          ? "graduated"
-          : "inactive",
+    khoa: apiStudent.major || "",
+    khoaHoc: apiStudent.academicYear || String(apiStudent.courseYear || ""),
+    lop: apiStudent.className || "",
+    soDienThoai:
+      typeof apiStudent.extraData === "object" && apiStudent.extraData !== null
+        ? (apiStudent.extraData as { phone?: string }).phone
+        : undefined,
+    ngaySinh: apiStudent.dateOfBirth,
+    diaChi:
+      typeof apiStudent.extraData === "object" && apiStudent.extraData !== null
+        ? (apiStudent.extraData as { address?: string }).address
+        : undefined,
+    extraData:
+      typeof apiStudent.extraData === "object" && apiStudent.extraData !== null
+        ? (apiStudent.extraData as Record<string, unknown>)
+        : {},
+    trangThai: "active",
   };
 }
 
@@ -61,12 +71,11 @@ class StudentService {
 
     try {
       const resp = await studentApiService.getAll({ limit: 1000 });
-      return resp.data.map(mapApiToStudent);
-    } catch (err) {
+      return resp.students.map(mapApiToStudent);
+    } catch (error) {
       // eslint-disable-next-line no-console
-      console.warn("[StudentService] API unavailable, using mock data:", err);
-      await delay(300);
-      return [...mockStudents];
+      console.error("[StudentService] API unavailable:", error);
+      throw error;
     }
   }
 
@@ -133,7 +142,16 @@ class StudentService {
     // Convert CSV rows to Excel File and upload
     const file = buildExcelFile(data);
     const result = await studentApiService.importFromFile(file);
-    return { success: result.created, failed: result.failed };
+    return { success: result.count, failed: 0 };
+  }
+
+  async importFile(file: File): Promise<{ success: number; failed: number }> {
+    const result = await studentApiService.importFromFile(file);
+    return { success: result.count, failed: 0 };
+  }
+
+  async exportFile(): Promise<Blob> {
+    return studentApiService.exportToFile();
   }
 
   async update(
@@ -149,19 +167,31 @@ class StudentService {
     }
 
     try {
-      const [firstName, ...lastParts] = (data.hoTen || "").split(" ");
-      const lastName = lastParts.join(" ");
+      const nameParts = (data.hoTen || "").trim().split(/\s+/);
+      const firstName = nameParts.at(-1) || "";
+      const lastName = nameParts[0] || "";
+      const middleName = nameParts.slice(1, -1).join(" ");
       const updated = await studentApiService.update(id, {
-        student_id: data.mssv,
-        first_name: firstName,
-        last_name: lastName,
-        email: data.gmail,
-        phone: data.soDienThoai,
-        date_of_birth: data.ngaySinh,
-        address: data.diaChi,
-        class_name: data.lop,
-        department_name: data.khoa,
-        enrollment_year: data.khoaHoc ? parseInt(data.khoaHoc) : undefined,
+        email: (data.gmail || "").trim(),
+        phone: data.soDienThoai || "",
+        address: data.diaChi || "",
+        firstName,
+        middleName,
+        lastName,
+        ...(data.ngaySinh ? { dateOfBirth: data.ngaySinh } : {}),
+        className: (data.lop || "").trim(),
+        major: (data.khoa || "").trim(),
+        ...(data.khoaHoc
+          ? {
+              courseYear: parseInt(data.khoaHoc, 10),
+              academicYear: data.khoaHoc.trim(),
+            }
+          : {}),
+        extraData: {
+          ...(data.extraData || {}),
+          phone: data.soDienThoai || "",
+          address: data.diaChi || "",
+        },
       });
       return mapApiToStudent(updated);
     } catch {
@@ -180,6 +210,25 @@ class StudentService {
       return true;
     } catch {
       return false;
+    }
+  }
+
+  async deleteMany(ids: number[]): Promise<boolean> {
+    if (!this.useApi) {
+      await delay(300);
+      return true;
+    }
+
+    try {
+      await studentApiService.deleteMany(ids);
+      return true;
+    } catch (error: unknown) {
+      if (!axios.isAxiosError(error) || error.response?.status !== 404) {
+        return false;
+      }
+
+      const results = await Promise.all(ids.map((id) => this.delete(id)));
+      return results.every(Boolean);
     }
   }
 

@@ -31,6 +31,7 @@ declare module "next-auth/jwt" {
     role: Role;
     username: string;
     accessToken: string;
+    refreshToken: string;
     mustChangePassword: boolean;
     emailVerified: boolean;
   }
@@ -122,10 +123,21 @@ export const authOptions: NextAuthOptions = {
         token.emailVerified = !!user.emailVerified;
         token.accessToken =
           (user as { accessToken?: string }).accessToken ?? "";
+        token.refreshToken =
+          (user as { refreshToken?: string }).refreshToken ?? "";
+        // Store token in localStorage for API client
+        if (typeof window !== "undefined") {
+          console.log("[NextAuth JWT] Storing accessToken in localStorage", {
+            accessToken: token.accessToken,
+            user: user,
+          });
+          localStorage.setItem("accessToken", token.accessToken as string);
+          localStorage.setItem("refreshToken", token.refreshToken as string);
+        }
       }
       // Persist tokens when session is updated
       if (trigger === "update" && token.accessToken) {
-        authService.setTokens(token.accessToken, "");
+        authService.setTokens(token.accessToken, token.refreshToken);
       }
       return token;
     },
@@ -138,6 +150,17 @@ export const authOptions: NextAuthOptions = {
       }
       session.user.mustChangePassword = !!token.mustChangePassword;
       session.accessToken = (token.accessToken as string) || "";
+      // Ensure token is in localStorage
+      if (typeof window !== "undefined" && session.accessToken) {
+        console.log("[NextAuth Session] Ensuring accessToken in localStorage", {
+          accessToken: session.accessToken,
+        });
+        localStorage.setItem("accessToken", session.accessToken);
+        localStorage.setItem(
+          "refreshToken",
+          (token.refreshToken as string) || "",
+        );
+      }
       return session;
     },
   },
@@ -170,6 +193,8 @@ function mapRole(backendRole: string | number): Role {
     case "SECRETARY":
     case "3":
       return "secretary";
+    case "COMMITTEE":
+      return "teacher"; // Map COMMITTEE to teacher for now
     case "TEACHER":
     case "2":
       return "teacher";

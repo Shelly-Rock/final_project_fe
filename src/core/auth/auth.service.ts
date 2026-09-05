@@ -24,6 +24,11 @@ export interface LoginResponse {
       name: string;
       displayName: string;
     };
+    roles?: Array<{
+      id: number;
+      name: string;
+      displayName: string;
+    }>;
   };
 }
 
@@ -33,8 +38,7 @@ export interface VerifyEmailResponse {
 }
 
 export interface ChangePasswordRequest {
-  token?: string;
-  currentPassword?: string;
+  token: string;
   newPassword: string;
 }
 
@@ -50,6 +54,21 @@ export interface ResendVerificationRequest {
 export interface ResendVerificationResponse {
   success: boolean;
   message: string;
+}
+
+export interface ForgotPasswordResponse {
+  success: boolean;
+  message: string;
+}
+
+export interface ResetPasswordRequest {
+  token: string;
+  newPassword: string;
+}
+
+export interface RefreshTokenResponse {
+  accessToken: string;
+  refreshToken: string;
 }
 
 export interface UserInfo {
@@ -76,6 +95,8 @@ function mapRole(backendRole: string | number): Role {
     case "SECRETARY":
     case "3":
       return "secretary";
+    case "COMMITTEE":
+      return "teacher"; // Map COMMITTEE to teacher for now
     case "TEACHER":
     case "2":
       return "teacher";
@@ -132,6 +153,33 @@ class AuthService {
       "/auth/resend-verification",
       req,
     );
+    return data;
+  }
+
+  async forgotPassword(email: string): Promise<ForgotPasswordResponse> {
+    const { data } = await apiClient.post<ForgotPasswordResponse>(
+      "/auth/forgot-password",
+      { email },
+    );
+    return data;
+  }
+
+  async resetPassword(
+    req: ResetPasswordRequest,
+  ): Promise<ChangePasswordResponse> {
+    const { data } = await apiClient.post<ChangePasswordResponse>(
+      "/auth/reset-password",
+      req,
+    );
+    return data;
+  }
+
+  async refreshToken(refreshToken: string): Promise<RefreshTokenResponse> {
+    const { data } = await apiClient.post<RefreshTokenResponse>(
+      "/auth/refresh-token",
+      { refreshToken },
+    );
+    this.setTokens(data.accessToken, data.refreshToken);
     return data;
   }
 
