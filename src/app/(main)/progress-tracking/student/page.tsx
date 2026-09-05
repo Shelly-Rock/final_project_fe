@@ -38,6 +38,8 @@ import type {
   StudentProgress,
   ProgressReport,
 } from "@/feature/progress-tracking/types";
+import { PageHeader } from "@/shared/components";
+import { TrendingUp } from "lucide-react";
 
 // Mock student data - replace with actual auth
 // Note: id is a number to match the new service types.
@@ -346,16 +348,13 @@ export default function StudentProgressPage() {
   };
 
   return (
-    <Box>
-      {/* Page Header */}
-      <Box sx={{ mb: 3 }}>
-        <Typography variant="h4" fontWeight={700} gutterBottom>
-          Theo dõi tiến trình thực hiện
-        </Typography>
-        <Typography variant="body1" color="text.secondary">
-          Theo dõi tiến độ thực hiện đề tài và nộp báo cáo
-        </Typography>
-      </Box>
+    <Box sx={{ p: 3, width: "100%" }}>
+      <PageHeader
+        title="Theo dõi tiến trình thực hiện"
+        subtitle="Theo dõi tiến độ thực hiện đề tài và nộp báo cáo"
+        illustration={<TrendingUp size={56} strokeWidth={1.5} />}
+        showBgImage={true}
+      />
 
       {/* Quick Actions */}
       <Paper sx={{ p: 2, mb: 3 }}>
@@ -467,7 +466,6 @@ export default function StudentProgressPage() {
         open={submitDialogOpen}
         onClose={() => setSubmitDialogOpen(false)}
         studentId={MOCK_STUDENT.id}
-        studentName={MOCK_STUDENT.name}
         onSuccess={() => {
           toast.success("Nộp báo cáo thành công!");
           handleRefresh();

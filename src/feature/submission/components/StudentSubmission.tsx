@@ -1,28 +1,18 @@
-/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars */
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
 import {
-  Card,
-  Upload,
-  Button,
-  message,
-  Alert,
-  Space,
+  Box,
   Typography,
-  Descriptions,
-  Result,
-} from "antd";
-import {
-  InboxOutlined,
-  UploadOutlined,
-  CheckCircleOutlined,
-} from "@ant-design/icons";
-import type { UploadProps } from "antd";
+  Button,
+  CircularProgress,
+  Alert,
+  Paper,
+} from "@mui/material";
+import { Card, CardHeader, CardContentDiv } from "@/shared/components";
+import { Inbox, Upload, CheckCircle } from "lucide-react";
 import { submissionService } from "../services";
-
-const { Title, Text } = Typography;
-const { Dragger } = Upload;
+import { toast } from "sonner";
 
 interface StudentSubmissionProps {
   studentId: number;
@@ -37,7 +27,7 @@ export default function StudentSubmission({
   projectCode,
   projectName,
 }: StudentSubmissionProps) {
-  const [file, setFile] = useState<any>(null);
+  const [file, setFile] = useState<File | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [eligible, setEligible] = useState(false);
@@ -50,6 +40,7 @@ export default function StudentSubmission({
       const isEligible = eligibleStudents.some((s) => s.id === studentId);
       setEligible(isEligible);
     } catch {
+      toast.error("Không thể kiểm tra điều kiện nộp bài");
       setEligible(true);
     } finally {
       setChecking(false);
@@ -60,41 +51,34 @@ export default function StudentSubmission({
     checkEligibility();
   }, [checkEligibility]);
 
-  const uploadProps: UploadProps = {
-    name: "file",
-    multiple: false,
-    maxCount: 1,
-    accept: ".pdf,.docx,.pptx",
-    beforeUpload: (uploadFile) => {
-      const fileName = uploadFile.name;
-      const expectedPrefix = `[${projectCode}]`;
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = event.target.files?.[0];
+    if (!selectedFile) return;
 
-      if (!fileName.startsWith(expectedPrefix)) {
-        message.error(
-          `Tên file phải bắt đầu bằng "${expectedPrefix}" (VD: ${projectCode}.PDF)`,
-        );
-        return Upload.LIST_IGNORE;
-      }
+    const fileName = selectedFile.name;
+    const expectedPrefix = `[${projectCode}]`;
 
-      const extension = fileName.split(".").pop()?.toUpperCase();
-      if (!["PDF", "DOCX", "PPTX"].includes(extension || "")) {
-        message.error(
-          "Chỉ chấp nhận file PDF, Word (.docx), PowerPoint (.pptx)",
-        );
-        return Upload.LIST_IGNORE;
-      }
+    if (!fileName.startsWith(expectedPrefix)) {
+      toast.error(
+        `Tên file phải bắt đầu bằng "${expectedPrefix}" (VD: ${projectCode}.PDF)`,
+      );
+      event.target.value = "";
+      return;
+    }
 
-      setFile(uploadFile);
-      return false;
-    },
-    onRemove: () => {
-      setFile(null);
-    },
+    const extension = fileName.split(".").pop()?.toUpperCase();
+    if (!["PDF", "DOCX", "PPTX"].includes(extension || "")) {
+      toast.error("Chỉ chấp nhận file PDF, Word (.docx), PowerPoint (.pptx)");
+      event.target.value = "";
+      return;
+    }
+
+    setFile(selectedFile);
   };
 
   const handleSubmit = async () => {
     if (!file) {
-      message.error("Vui lòng chọn file để nộp");
+      toast.error("Vui lòng chọn file để nộp");
       return;
     }
 
@@ -111,9 +95,9 @@ export default function StudentSubmission({
         fileType: getFileType(file.name),
       });
       setSubmitted(true);
-      message.success("Nộp bài thành công!");
-    } catch (err) {
-      message.error("Không thể nộp bài");
+      toast.success("Nộp bài thành công!");
+    } catch {
+      toast.error("Không thể nộp bài");
     } finally {
       setSubmitting(false);
     }
@@ -136,92 +120,148 @@ export default function StudentSubmission({
 
   if (checking) {
     return (
-      <Card loading style={{ maxWidth: 600, margin: "0 auto" }}>
-        Đang kiểm tra...
-      </Card>
+      <Box
+        sx={{
+          maxWidth: 600,
+          mx: "auto",
+          mt: 4,
+          p: 3,
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: 200,
+        }}
+      >
+        <CircularProgress />
+        <Typography sx={{ ml: 2 }}>Đang kiểm tra...</Typography>
+      </Box>
     );
   }
 
   if (submitted) {
     return (
-      <Card style={{ maxWidth: 600, margin: "0 auto" }}>
-        <Result
-          icon={<CheckCircleOutlined style={{ color: "#52c41a" }} />}
-          title="Nộp bài thành công!"
-          subTitle="Bài nộp của bạn đang chờ được duyệt."
-        />
-      </Card>
+      <Box sx={{ maxWidth: 600, mx: "auto", mt: 4 }}>
+        <Card>
+          <CardContentDiv padding={4}>
+            <Box sx={{ textAlign: "center" }}>
+              <CheckCircle
+                size={64}
+                color="#22c55e"
+                style={{ marginBottom: 16 }}
+              />
+              <Typography variant="h5" sx={{ fontWeight: 700, mb: 2 }}>
+                Nộp bài thành công!
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Bài nộp của bạn đang chờ được duyệt.
+              </Typography>
+            </Box>
+          </CardContentDiv>
+        </Card>
+      </Box>
     );
   }
 
   return (
-    <Card style={{ maxWidth: 600, margin: "0 auto" }}>
-      <Title level={4}>Nộp bài cuối kỳ</Title>
+    <Box sx={{ maxWidth: 600, mx: "auto", mt: 4 }}>
+      <Card>
+        <CardHeader title="Nộp bài cuối kỳ" />
+        <CardContentDiv padding={3}>
+          {!eligible && (
+            <Alert severity="warning" sx={{ mb: 3 }}>
+              <Typography variant="body2">
+                <strong>Chưa đủ điều kiện:</strong> Bạn cần hoàn thành tất cả
+                báo cáo tiến độ và không bị cấm thi để có thể nộp bài.
+              </Typography>
+            </Alert>
+          )}
 
-      {!eligible && (
-        <Alert
-          type="warning"
-          message="Chưa đủ điều kiện"
-          description="Bạn cần hoàn thành tất cả báo cáo tiến độ và không bị cấm thi để có thể nộp bài."
-          style={{ marginBottom: 16 }}
-        />
-      )}
+          <Box sx={{ mb: 3 }}>
+            <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>
+              Mã đề tài:
+            </Typography>
+            <Typography variant="body1" sx={{ fontWeight: 700 }}>
+              {projectCode}
+            </Typography>
+          </Box>
 
-      <Descriptions
-        column={1}
-        bordered
-        size="small"
-        style={{ marginBottom: 24 }}
-      >
-        <Descriptions.Item label="Mã đề tài">
-          <Text strong>{projectCode}</Text>
-        </Descriptions.Item>
-        <Descriptions.Item label="Tên đề tài">{projectName}</Descriptions.Item>
-        <Descriptions.Item label="Quy cách file">
-          [{projectCode}].PDF hoặc .DOCX hoặc .PPTX
-        </Descriptions.Item>
-      </Descriptions>
+          <Box sx={{ mb: 3 }}>
+            <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>
+              Tên đề tài:
+            </Typography>
+            <Typography variant="body1">{projectName}</Typography>
+          </Box>
 
-      <Dragger {...uploadProps} style={{ marginBottom: 16 }}>
-        <p className="ant-upload-drag-icon">
-          <InboxOutlined />
-        </p>
-        <p className="ant-upload-text">
-          Kéo thả file vào đây hoặc click để chọn
-        </p>
-        <p className="ant-upload-hint">
-          Chỉ chấp nhận file PDF, Word (.docx), PowerPoint (.pptx)
-        </p>
-        <p
-          className="ant-upload-hint"
-          style={{ color: "#1890ff", fontWeight: 500 }}
-        >
-          Tên file phải theo định dạng: [{projectCode}].PDF
-        </p>
-      </Dragger>
+          <Box sx={{ mb: 3 }}>
+            <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>
+              Quy cách file:
+            </Typography>
+            <Typography variant="body1">
+              [{projectCode}].PDF hoặc .DOCX hoặc .PPTX
+            </Typography>
+          </Box>
 
-      {file && (
-        <div style={{ marginBottom: 16 }}>
-          <Text strong>File đã chọn: </Text>
-          <Text>{file.name}</Text>
-          <br />
-          <Text type="secondary">
-            Kích thước: {formatFileSize(file.size || 0)}
-          </Text>
-        </div>
-      )}
+          <Paper
+            sx={{
+              p: 4,
+              mb: 3,
+              border: "2px dashed",
+              borderColor: "divider",
+              textAlign: "center",
+              cursor: "pointer",
+              "&:hover": {
+                borderColor: "primary.main",
+                bgcolor: "action.hover",
+              },
+            }}
+            onClick={() => document.getElementById("file-upload")?.click()}
+          >
+            <input
+              id="file-upload"
+              type="file"
+              accept=".pdf,.docx,.pptx"
+              style={{ display: "none" }}
+              onChange={handleFileChange}
+            />
+            <Inbox size={48} color="#9ca3af" style={{ marginBottom: 16 }} />
+            <Typography variant="body1" sx={{ mb: 1 }}>
+              Kéo thả file vào đây hoặc click để chọn
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+              Chỉ chấp nhận file PDF, Word (.docx), PowerPoint (.pptx)
+            </Typography>
+            <Typography
+              variant="body2"
+              sx={{ color: "#1976d2", fontWeight: 600 }}
+            >
+              Tên file phải theo định dạng: [{projectCode}].PDF
+            </Typography>
+          </Paper>
 
-      <Space>
-        <Button
-          type="primary"
-          icon={<UploadOutlined />}
-          onClick={handleSubmit}
-          loading={submitting}
-          disabled={!file || !eligible}
-        >
-          Nộp bài
-        </Button>
-      </Space>
-    </Card>
+          {file && (
+            <Box sx={{ mb: 3 }}>
+              <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                File đã chọn:
+              </Typography>
+              <Typography variant="body1">{file.name}</Typography>
+              <Typography variant="body2" color="text.secondary">
+                Kích thước: {formatFileSize(file.size || 0)}
+              </Typography>
+            </Box>
+          )}
+
+          <Button
+            variant="contained"
+            startIcon={<Upload size={18} />}
+            onClick={handleSubmit}
+            disabled={!file || !eligible}
+            sx={{ minWidth: 120 }}
+          >
+            {submitting ? <CircularProgress size={20} sx={{ mr: 1 }} /> : null}
+            Nộp bài
+          </Button>
+        </CardContentDiv>
+      </Card>
+    </Box>
   );
 }

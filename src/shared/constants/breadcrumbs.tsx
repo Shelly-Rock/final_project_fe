@@ -1,8 +1,14 @@
 // src/shared/constants/breadcrumbs.ts
-import { UsersIcon, ClipboardListIcon, GraduationCap } from "lucide-react";
-import { ChartLineIcon, FileTextIcon } from "lucide-react";
-import { UploadIcon, PeopleIcon, CalendarIcon } from "lucide-react";
-import { ClipboardCheckIcon } from "lucide-react";
+import {
+  UsersIcon,
+  UploadIcon,
+  CalendarIcon,
+  ClipboardListIcon,
+  GraduationCap,
+  ChartLineIcon,
+  FileTextIcon,
+  ClipboardCheckIcon,
+} from "lucide-react";
 import type { BreadcrumbItem } from "@/shared/components/Breadcrumb";
 
 export const BREADCRUMB_NODES = {
@@ -56,7 +62,7 @@ export const BREADCRUMB_NODES = {
   COMMITTEES: {
     label: "Hội đồng bảo vệ",
     href: "/committee",
-    icon: <PeopleIcon size={16} />,
+    icon: <UsersIcon size={16} />,
   },
   DEFENSE_SCHEDULE: {
     label: "Lịch bảo vệ",

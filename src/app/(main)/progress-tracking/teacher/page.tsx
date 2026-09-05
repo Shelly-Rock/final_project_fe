@@ -46,6 +46,8 @@ import type {
   ProgressReport,
   ReportStatus,
 } from "@/feature/progress-tracking/types";
+import { PageHeader } from "@/shared/components";
+import { TrendingUp } from "lucide-react";
 
 // Mock teacher data - replace with actual auth
 const MOCK_TEACHER = {
@@ -394,16 +396,13 @@ export default function TeacherProgressPage() {
   };
 
   return (
-    <Box>
-      {/* Page Header */}
-      <Box sx={{ mb: 3 }}>
-        <Typography variant="h4" fontWeight={700} gutterBottom>
-          Theo dõi tiến trình thực hiện
-        </Typography>
-        <Typography variant="body1" color="text.secondary">
-          Quản lý và giám sát tiến độ thực hiện đề tài của sinh viên
-        </Typography>
-      </Box>
+    <Box sx={{ p: 3, width: "100%" }}>
+      <PageHeader
+        title="Theo dõi tiến trình thực hiện"
+        subtitle="Quản lý và giám sát tiến độ thực hiện đề tài của sinh viên"
+        illustration={<TrendingUp size={56} strokeWidth={1.5} />}
+        showBgImage={true}
+      />
 
       {/* Quick Actions */}
       <Paper sx={{ p: 2, mb: 3 }}>
@@ -513,7 +512,6 @@ export default function TeacherProgressPage() {
         open={uploadDialogOpen}
         onClose={() => setUploadDialogOpen(false)}
         teacherId={MOCK_TEACHER.id}
-        teacherName={MOCK_TEACHER.name}
         onSuccess={() => {
           toast.success("Template đã được tải lên");
           handleRefresh();

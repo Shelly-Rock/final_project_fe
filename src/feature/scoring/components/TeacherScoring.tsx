@@ -2,34 +2,20 @@
 
 import { useState, useEffect, useCallback } from "react";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
+  Box,
+  Typography,
+  Grid,
+  Tabs,
+  Tab,
+  CircularProgress,
+  Chip,
+  Alert,
+  TextField,
+  Button as MuiButton,
+} from "@mui/material";
+import { Card, CardHeader, CardContentDiv } from "@/shared/components";
+import { DataTable } from "@/shared/components";
+import { Dialog } from "@/shared/components";
 import {
   AlertCircle,
   CheckCircle,
@@ -51,7 +37,7 @@ import {
   ScoringTypeLabels,
   ScoringStatusLabels,
   ScoringCriteria,
-} from "../../services";
+} from "../services";
 import { toast } from "sonner";
 
 export default function TeacherScoringPage() {
@@ -112,13 +98,13 @@ export default function TeacherScoringPage() {
   };
 
   const calculateTotalScore = () => {
-    if (Object.keys(criteriaScores).length === 0) return scoreValue;
-    const total = Object.values(criteriaScores).reduce(
-      (sum, val) => sum + val,
+    return ScoringCriteria.reduce(
+      (sum: number, c: { key: string; weight: number }) => {
+        const score = criteriaScores[c.key] || 0;
+        return sum + score * (c.weight / 100);
+      },
       0,
     );
-    const maxPossible = ScoringCriteria.reduce((sum, c) => sum + c.weight, 0);
-    return Math.round((total / maxPossible) * 10 * 100) / 100;
   };
 
   const handleSubmitScore = async () => {
@@ -173,18 +159,28 @@ export default function TeacherScoringPage() {
   };
 
   const getStatusBadge = (status: ScoringStatus) => {
-    const variants: Record<
+    const colorMap: Record<
       ScoringStatus,
-      "secondary" | "success" | "destructive" | "warning"
+      | "default"
+      | "primary"
+      | "secondary"
+      | "error"
+      | "info"
+      | "success"
+      | "warning"
     > = {
-      PENDING: "secondary",
+      PENDING: "default",
       IN_PROGRESS: "warning",
       SUBMITTED: "success",
-      FAILED: "destructive",
+      FAILED: "error",
       PASSED: "success",
     };
     return (
-      <Badge variant={variants[status]}>{ScoringStatusLabels[status]}</Badge>
+      <Chip
+        label={ScoringStatusLabels[status]}
+        color={colorMap[status]}
+        size="small"
+      />
     );
   };
 
@@ -200,346 +196,412 @@ export default function TeacherScoringPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-[50vh]">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: "50vh",
+        }}
+      >
+        <CircularProgress />
+      </Box>
     );
   }
 
   return (
-    <div className="container mx-auto py-6 space-y-6">
+    <Box sx={{ maxWidth: "1400px", mx: "auto", py: 4, px: 2 }}>
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">
+      <Box sx={{ mb: 4 }}>
+        <Typography variant="h4" component="h1" sx={{ fontWeight: 700, mb: 1 }}>
           Phiếu chấm điểm độc lập
-        </h1>
-        <p className="text-muted-foreground">
+        </Typography>
+        <Typography variant="body2" color="text.secondary">
           Chấm điểm đề tài khóa luận của sinh viên
-        </p>
-      </div>
+        </Typography>
+      </Box>
 
       {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Tổng số phiếu</CardTitle>
-            <BookOpen className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats?.total || 0}</div>
-          </CardContent>
-        </Card>
+      <Grid container spacing={3} sx={{ mb: 4 }}>
+        <Grid item xs={12} sm={6} md={3}>
+          <Card>
+            <CardHeader
+              title="Tổng số phiếu"
+              action={<BookOpen size={20} color="#64748b" />}
+            />
+            <CardContentDiv padding={2}>
+              <Typography variant="h4" sx={{ fontWeight: 700 }}>
+                {stats?.total || 0}
+              </Typography>
+            </CardContentDiv>
+          </Card>
+        </Grid>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Chưa chấm</CardTitle>
-            <Clock className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-orange-500">
-              {stats?.pending || 0}
-            </div>
-          </CardContent>
-        </Card>
+        <Grid item xs={12} sm={6} md={3}>
+          <Card>
+            <CardHeader
+              title="Chưa chấm"
+              action={<Clock size={20} color="#f97316" />}
+            />
+            <CardContentDiv padding={2}>
+              <Typography
+                variant="h4"
+                sx={{ fontWeight: 700, color: "#f97316" }}
+              >
+                {stats?.pending || 0}
+              </Typography>
+            </CardContentDiv>
+          </Card>
+        </Grid>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Đã nộp</CardTitle>
-            <CheckCircle className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-500">
-              {stats?.submitted || 0}
-            </div>
-          </CardContent>
-        </Card>
+        <Grid item xs={12} sm={6} md={3}>
+          <Card>
+            <CardHeader
+              title="Đã nộp"
+              action={<CheckCircle size={20} color="#22c55e" />}
+            />
+            <CardContentDiv padding={2}>
+              <Typography
+                variant="h4"
+                sx={{ fontWeight: 700, color: "#22c55e" }}
+              >
+                {stats?.submitted || 0}
+              </Typography>
+            </CardContentDiv>
+          </Card>
+        </Grid>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Bị rớt</CardTitle>
-            <XCircle className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-red-500">
-              {stats?.failed || 0}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+        <Grid item xs={12} sm={6} md={3}>
+          <Card>
+            <CardHeader
+              title="Bị rớt"
+              action={<XCircle size={20} color="#ef4444" />}
+            />
+            <CardContentDiv padding={2}>
+              <Typography
+                variant="h4"
+                sx={{ fontWeight: 700, color: "#ef4444" }}
+              >
+                {stats?.failed || 0}
+              </Typography>
+            </CardContentDiv>
+          </Card>
+        </Grid>
+      </Grid>
 
       {/* Rules Alert */}
-      <Card className="border-orange-200 bg-orange-50">
-        <CardContent className="pt-4">
-          <div className="flex items-start gap-3">
-            <AlertTriangle className="h-5 w-5 text-orange-600 mt-0.5" />
-            <div className="text-sm">
-              <p className="font-semibold text-orange-800">
-                Quy tắc điểm liệt:
-              </p>
-              <ul className="text-orange-700 mt-1 space-y-1">
-                <li>
-                  • <strong>GVHD</strong>: Nếu chấm dưới 4 điểm, đề tài bị loại
-                  ngay lập tức
-                </li>
-                <li>
-                  • <strong>Hội đồng</strong>: Nếu bất kỳ thành viên nào chấm
-                  dưới 4 điểm, sinh viên bị loại
-                </li>
-              </ul>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      <Alert severity="warning" sx={{ mb: 4 }}>
+        <Box sx={{ display: "flex", alignItems: "flex-start", gap: 1 }}>
+          <AlertTriangle size={20} color="#ed6c02" />
+          <Box>
+            <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+              Quy tắc điểm liệt:
+            </Typography>
+            <Typography variant="body2" component="ul" sx={{ pl: 2, mt: 0.5 }}>
+              <Typography component="li" variant="body2">
+                <strong>GVHD:</strong> Nếu chấm dưới 4 điểm, đề tài bị loại ngay
+                lập tức
+              </Typography>
+              <Typography component="li" variant="body2">
+                <strong>Hội đồng:</strong> Nếu bất kỳ thành viên nào chấm dưới 4
+                điểm, sinh viên bị loại
+              </Typography>
+            </Typography>
+          </Box>
+        </Box>
+      </Alert>
 
       {/* Tabs */}
-      <Tabs
-        value={activeTab}
-        onValueChange={(v) => setActiveTab(v as "pending" | "submitted")}
-      >
-        <TabsList>
-          <TabsTrigger value="pending">
-            Chưa chấm ({stats?.pending || 0})
-          </TabsTrigger>
-          <TabsTrigger value="submitted">
-            Đã nộp ({stats?.submitted || 0})
-          </TabsTrigger>
-        </TabsList>
+      <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 3 }}>
+        <Tabs
+          value={activeTab === "pending" ? 0 : 1}
+          onChange={(_, v) => setActiveTab(v === 0 ? "pending" : "submitted")}
+        >
+          <Tab label={`Chưa chấm (${stats?.pending || 0})`} />
+          <Tab label={`Đã nộp (${stats?.submitted || 0})`} />
+        </Tabs>
+      </Box>
 
-        <TabsContent value="pending" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Danh sách phiếu chấm</CardTitle>
-              <CardDescription>
-                Danh sách các đề tài cần được chấm điểm
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {filteredScores.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">
-                  Không có phiếu chấm nào cần xử lý
-                </div>
-              ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Đề tài</TableHead>
-                      <TableHead>Sinh viên</TableHead>
-                      <TableHead>Loại</TableHead>
-                      <TableHead>Thời hạn</TableHead>
-                      <TableHead>Trạng thái</TableHead>
-                      <TableHead className="text-right">Hành động</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredScores.map((score) => {
-                      const daysRemaining = getDaysRemaining(score.deadline);
-                      return (
-                        <TableRow key={score.id}>
-                          <TableCell>
-                            <div>
-                              <p className="font-medium">
-                                {score.project?.projectCode ||
-                                  score.project?.projectId}
-                              </p>
-                              <p className="text-sm text-muted-foreground">
-                                {score.project?.projectName}
-                              </p>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <div>
-                              <p className="font-medium">
-                                {score.student?.firstName}{" "}
-                                {score.student?.middleName}{" "}
-                                {score.student?.lastName}
-                              </p>
-                              <p className="text-sm text-muted-foreground">
-                                {score.student?.studentId}
-                              </p>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            {ScoringTypeLabels[score.scoringType]}
-                            {score.role && ` - ${score.role}`}
-                          </TableCell>
-                          <TableCell>
-                            {daysRemaining !== null && (
-                              <Badge
-                                variant={
-                                  daysRemaining <= 0
-                                    ? "destructive"
-                                    : daysRemaining <= 1
-                                      ? "warning"
-                                      : "secondary"
-                                }
-                              >
-                                {daysRemaining <= 0
-                                  ? "Quá hạn"
-                                  : `${daysRemaining} ngày`}
-                              </Badge>
-                            )}
-                          </TableCell>
-                          <TableCell>{getStatusBadge(score.status)}</TableCell>
-                          <TableCell className="text-right">
-                            <Button
-                              size="sm"
-                              onClick={() => openScoreDialog(score)}
-                            >
-                              <FileText className="h-4 w-4 mr-1" />
-                              Chấm điểm
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })}
-                  </TableBody>
-                </Table>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
+      {activeTab === "pending" && (
+        <Card>
+          <CardHeader
+            title="Danh sách phiếu chấm"
+            subtitle="Danh sách các đề tài cần được chấm điểm"
+          />
+          <CardContentDiv padding={2}>
+            {filteredScores.length === 0 ? (
+              <Box sx={{ textAlign: "center", py: 8, color: "text.secondary" }}>
+                Không có phiếu chấm nào cần xử lý
+              </Box>
+            ) : (
+              <DataTable
+                columns={[
+                  {
+                    id: "project",
+                    label: "Đề tài",
+                    minWidth: 200,
+                    format: (_, row) => (
+                      <Box>
+                        <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                          {row.project?.projectCode || row.project?.projectId}
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          {row.project?.projectName}
+                        </Typography>
+                      </Box>
+                    ),
+                  },
+                  {
+                    id: "student",
+                    label: "Sinh viên",
+                    minWidth: 150,
+                    format: (_, row) => (
+                      <Box>
+                        <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                          {row.student?.firstName} {row.student?.middleName}{" "}
+                          {row.student?.lastName}
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          {row.student?.studentId}
+                        </Typography>
+                      </Box>
+                    ),
+                  },
+                  {
+                    id: "scoringType",
+                    label: "Loại",
+                    format: (_, row) =>
+                      `${ScoringTypeLabels[row.scoringType]}${row.role ? ` - ${row.role}` : ""}`,
+                  },
+                  {
+                    id: "deadline",
+                    label: "Thời hạn",
+                    format: (_, row) => {
+                      const daysRemaining = getDaysRemaining(row.deadline);
+                      return daysRemaining !== null ? (
+                        <Chip
+                          label={
+                            daysRemaining <= 0
+                              ? "Quá hạn"
+                              : `${daysRemaining} ngày`
+                          }
+                          color={
+                            daysRemaining <= 0
+                              ? "error"
+                              : daysRemaining <= 1
+                                ? "warning"
+                                : "default"
+                          }
+                          size="small"
+                        />
+                      ) : null;
+                    },
+                  },
+                  {
+                    id: "status",
+                    label: "Trạng thái",
+                    format: (_, row) => getStatusBadge(row.status),
+                  },
+                ]}
+                rows={filteredScores}
+                rowKey="id"
+                actions={[
+                  {
+                    id: "score",
+                    icon: <FileText size={16} />,
+                    label: "Chấm điểm",
+                    onClick: (row) => openScoreDialog(row),
+                    color: "primary",
+                  },
+                ]}
+                showSearchInput={false}
+                showFilterButton={false}
+                showExportButton={false}
+                showImportButton={false}
+                emptyMessage="Không có dữ liệu"
+              />
+            )}
+          </CardContentDiv>
+        </Card>
+      )}
 
-        <TabsContent value="submitted" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Đã nộp</CardTitle>
-              <CardDescription>Danh sách các phiếu chấm đã nộp</CardDescription>
-            </CardHeader>
-            <CardContent>
-              {filteredScores.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">
-                  Chưa có phiếu chấm nào được nộp
-                </div>
-              ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Đề tài</TableHead>
-                      <TableHead>Sinh viên</TableHead>
-                      <TableHead>Loại</TableHead>
-                      <TableHead>Điểm</TableHead>
-                      <TableHead>Trạng thái</TableHead>
-                      <TableHead>Ngày nộp</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredScores.map((score) => (
-                      <TableRow key={score.id}>
-                        <TableCell>
-                          <div>
-                            <p className="font-medium">
-                              {score.project?.projectCode}
-                            </p>
-                            <p className="text-sm text-muted-foreground">
-                              {score.project?.projectName}
-                            </p>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          {score.student?.firstName} {score.student?.middleName}{" "}
-                          {score.student?.lastName}
-                        </TableCell>
-                        <TableCell>
-                          {ScoringTypeLabels[score.scoringType]}
-                        </TableCell>
-                        <TableCell>
-                          {score.score !== null ? (
-                            <span
-                              className={
-                                score.score < 4
-                                  ? "text-red-600 font-bold"
-                                  : "text-green-600"
-                              }
-                            >
-                              {score.score}/10
-                            </span>
-                          ) : (
-                            "-"
-                          )}
-                        </TableCell>
-                        <TableCell>{getStatusBadge(score.status)}</TableCell>
-                        <TableCell>
-                          {score.submittedAt
-                            ? new Date(score.submittedAt).toLocaleDateString(
-                                "vi-VN",
-                              )
-                            : "-"}
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+      {activeTab === "submitted" && (
+        <Card>
+          <CardHeader
+            title="Đã nộp"
+            subtitle="Danh sách các phiếu chấm đã nộp"
+          />
+          <CardContentDiv padding={2}>
+            {filteredScores.length === 0 ? (
+              <Box sx={{ textAlign: "center", py: 8, color: "text.secondary" }}>
+                Chưa có phiếu chấm nào được nộp
+              </Box>
+            ) : (
+              <DataTable
+                columns={[
+                  {
+                    id: "project",
+                    label: "Đề tài",
+                    minWidth: 200,
+                    format: (_, row) => (
+                      <Box>
+                        <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                          {row.project?.projectCode}
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          {row.project?.projectName}
+                        </Typography>
+                      </Box>
+                    ),
+                  },
+                  {
+                    id: "student",
+                    label: "Sinh viên",
+                    format: (_, row) =>
+                      `${row.student?.firstName} ${row.student?.middleName} ${row.student?.lastName}`,
+                  },
+                  {
+                    id: "scoringType",
+                    label: "Loại",
+                    format: (_, row) => ScoringTypeLabels[row.scoringType],
+                  },
+                  {
+                    id: "score",
+                    label: "Điểm",
+                    format: (_, row) =>
+                      row.score !== null ? (
+                        <Typography
+                          sx={{
+                            fontWeight: 600,
+                            color: row.score < 4 ? "#ef4444" : "#22c55e",
+                          }}
+                        >
+                          {row.score}/10
+                        </Typography>
+                      ) : (
+                        "-"
+                      ),
+                  },
+                  {
+                    id: "status",
+                    label: "Trạng thái",
+                    format: (_, row) => getStatusBadge(row.status),
+                  },
+                  {
+                    id: "submittedAt",
+                    label: "Ngày nộp",
+                    format: (_, row) =>
+                      row.submittedAt
+                        ? new Date(row.submittedAt).toLocaleDateString("vi-VN")
+                        : "-",
+                  },
+                ]}
+                rows={filteredScores}
+                rowKey="id"
+                showSearchInput={false}
+                showFilterButton={false}
+                showExportButton={false}
+                showImportButton={false}
+                emptyMessage="Không có dữ liệu"
+              />
+            )}
+          </CardContentDiv>
+        </Card>
+      )}
 
       {/* Score Dialog */}
       <Dialog
         open={!!selectedScore}
-        onOpenChange={() => setSelectedScore(null)}
+        onClose={() => setSelectedScore(null)}
+        title="Phiếu chấm điểm"
+        description={selectedScore?.project?.projectName}
+        size="lg"
       >
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Phiếu chấm điểm</DialogTitle>
-            <DialogDescription>
-              {selectedScore?.project?.projectName}
-            </DialogDescription>
-          </DialogHeader>
+        {selectedScore && (
+          <Box sx={{ mt: 2 }}>
+            {/* Project Info */}
+            <Grid
+              container
+              spacing={2}
+              sx={{
+                mb: 3,
+                p: 2,
+                bgcolor: "background.default",
+                borderRadius: 1,
+              }}
+            >
+              <Grid item xs={6}>
+                <Typography variant="caption" color="text.secondary">
+                  Mã đề tài
+                </Typography>
+                <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                  {selectedScore.project?.projectCode}
+                </Typography>
+              </Grid>
+              <Grid item xs={6}>
+                <Typography variant="caption" color="text.secondary">
+                  Sinh viên
+                </Typography>
+                <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                  {selectedScore.student?.firstName}{" "}
+                  {selectedScore.student?.middleName}{" "}
+                  {selectedScore.student?.lastName}
+                </Typography>
+              </Grid>
+              <Grid item xs={6}>
+                <Typography variant="caption" color="text.secondary">
+                  Loại chấm
+                </Typography>
+                <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                  {ScoringTypeLabels[selectedScore.scoringType]}
+                </Typography>
+              </Grid>
+              <Grid item xs={6}>
+                <Typography variant="caption" color="text.secondary">
+                  Thời hạn
+                </Typography>
+                <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                  {selectedScore.deadline
+                    ? new Date(selectedScore.deadline).toLocaleDateString(
+                        "vi-VN",
+                      )
+                    : "Không có"}
+                </Typography>
+              </Grid>
+            </Grid>
 
-          {selectedScore && (
-            <div className="space-y-6">
-              {/* Project Info */}
-              <div className="grid grid-cols-2 gap-4 p-4 bg-muted rounded-lg">
-                <div>
-                  <p className="text-sm text-muted-foreground">Mã đề tài</p>
-                  <p className="font-medium">
-                    {selectedScore.project?.projectCode}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Sinh viên</p>
-                  <p className="font-medium">
-                    {selectedScore.student?.firstName}{" "}
-                    {selectedScore.student?.middleName}{" "}
-                    {selectedScore.student?.lastName}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Loại chấm</p>
-                  <p className="font-medium">
-                    {ScoringTypeLabels[selectedScore.scoringType]}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Thời hạn</p>
-                  <p className="font-medium">
-                    {selectedScore.deadline
-                      ? new Date(selectedScore.deadline).toLocaleDateString(
-                          "vi-VN",
-                        )
-                      : "Không có"}
-                  </p>
-                </div>
-              </div>
-
-              {/* Criteria Scores */}
-              <div className="space-y-4">
-                <h3 className="font-semibold">Tiêu chí chấm điểm</h3>
-                {ScoringCriteria.map((criteria) => (
-                  <div key={criteria.key} className="flex items-center gap-4">
-                    <Label className="w-1/3">
-                      {criteria.label}
-                      <span className="text-muted-foreground text-sm block">
+            {/* Criteria Scores */}
+            <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
+              Tiêu chí chấm điểm
+            </Typography>
+            <Box sx={{ mb: 3 }}>
+              {ScoringCriteria.map(
+                (criteria: {
+                  key: string;
+                  label: string;
+                  description: string;
+                  weight: number;
+                }) => (
+                  <Box
+                    key={criteria.key}
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 2,
+                      mb: 2,
+                    }}
+                  >
+                    <Box sx={{ flex: 1 }}>
+                      <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                        {criteria.label}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
                         ({criteria.weight}%)
-                      </span>
-                    </Label>
-                    <Input
+                      </Typography>
+                    </Box>
+                    <TextField
                       type="number"
-                      min={0}
-                      max={10}
-                      step={0.5}
+                      inputProps={{ min: 0, max: 10, step: 0.5 }}
                       value={criteriaScores[criteria.key] || ""}
                       onChange={(e) =>
                         setCriteriaScores({
@@ -547,105 +609,140 @@ export default function TeacherScoringPage() {
                           [criteria.key]: parseFloat(e.target.value) || 0,
                         })
                       }
-                      className="w-24"
+                      sx={{ width: 80 }}
+                      size="small"
                     />
-                    <span className="text-muted-foreground">/10</span>
-                  </div>
-                ))}
-              </div>
-
-              {/* Overall Score */}
-              <div className="flex items-center justify-between p-4 bg-primary/10 rounded-lg">
-                <Label className="text-lg font-semibold">Tổng điểm</Label>
-                <div className="text-3xl font-bold">
-                  {calculateTotalScore()}/10
-                  {calculateTotalScore() < 4 && (
-                    <Badge variant="destructive" className="ml-2">
-                      ĐIỂM LIỆT
-                    </Badge>
-                  )}
-                </div>
-              </div>
-
-              {/* Manual Score Override */}
-              <div className="flex items-center gap-4">
-                <Label className="w-1/3">Hoặc nhập điểm trực tiếp</Label>
-                <Input
-                  type="number"
-                  min={0}
-                  max={10}
-                  step={0.5}
-                  value={scoreValue}
-                  onChange={(e) =>
-                    setScoreValue(parseFloat(e.target.value) || 0)
-                  }
-                  className="w-24"
-                />
-              </div>
-
-              {/* Feedback */}
-              <div className="space-y-4">
-                <div>
-                  <Label>Điểm mạnh</Label>
-                  <Textarea
-                    value={strengths}
-                    onChange={(e) => setStrengths(e.target.value)}
-                    placeholder="Nhận xét về điểm mạnh của đề tài..."
-                    rows={3}
-                  />
-                </div>
-                <div>
-                  <Label>Điểm yếu / Cần cải thiện</Label>
-                  <Textarea
-                    value={weaknesses}
-                    onChange={(e) => setWeaknesses(e.target.value)}
-                    placeholder="Nhận xét về điểm yếu cần cải thiện..."
-                    rows={3}
-                  />
-                </div>
-                <div>
-                  <Label>Ghi chú thêm</Label>
-                  <Textarea
-                    value={notes}
-                    onChange={(e) => setNotes(e.target.value)}
-                    placeholder="Ghi chú khác..."
-                    rows={2}
-                  />
-                </div>
-              </div>
-            </div>
-          )}
-
-          <DialogFooter className="gap-2">
-            <Button variant="outline" onClick={() => setSelectedScore(null)}>
-              Đóng
-            </Button>
-            <Button
-              variant="secondary"
-              onClick={handleSaveDraft}
-              disabled={isSubmitting}
-            >
-              Lưu nháp
-            </Button>
-            <Button
-              onClick={handleSubmitScore}
-              disabled={isSubmitting || scoreValue === 0}
-              variant={scoreValue < 4 ? "destructive" : "default"}
-            >
-              {isSubmitting ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : scoreValue < 4 ? (
-                <>
-                  <AlertCircle className="h-4 w-4 mr-1" />
-                  Nộp (Sinh viên sẽ bị loại)
-                </>
-              ) : (
-                "Nộp phiếu chấm"
+                    <Typography variant="body2" color="text.secondary">
+                      /10
+                    </Typography>
+                  </Box>
+                ),
               )}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
+            </Box>
+
+            {/* Overall Score */}
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                p: 2,
+                bgcolor: "primary.main",
+                color: "primary.contrastText",
+                borderRadius: 1,
+                mb: 3,
+              }}
+            >
+              <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                Tổng điểm
+              </Typography>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <Typography variant="h4" sx={{ fontWeight: 700 }}>
+                  {calculateTotalScore()}/10
+                </Typography>
+                {calculateTotalScore() < 4 && (
+                  <Chip label="ĐIỂM LIỆT" color="error" size="small" />
+                )}
+              </Box>
+            </Box>
+
+            {/* Manual Score Override */}
+            <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 3 }}>
+              <Typography variant="body2" sx={{ flex: 1, fontWeight: 600 }}>
+                Hoặc nhập điểm trực tiếp
+              </Typography>
+              <TextField
+                type="number"
+                inputProps={{ min: 0, max: 10, step: 0.5 }}
+                value={scoreValue}
+                onChange={(e) => setScoreValue(parseFloat(e.target.value) || 0)}
+                sx={{ width: 80 }}
+                size="small"
+              />
+            </Box>
+
+            {/* Feedback */}
+            <Box sx={{ mb: 3 }}>
+              <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>
+                Điểm mạnh
+              </Typography>
+              <TextField
+                multiline
+                rows={3}
+                fullWidth
+                value={strengths}
+                onChange={(e) => setStrengths(e.target.value)}
+                placeholder="Nhận xét về điểm mạnh của đề tài..."
+                size="small"
+              />
+            </Box>
+
+            <Box sx={{ mb: 3 }}>
+              <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>
+                Điểm yếu / Cần cải thiện
+              </Typography>
+              <TextField
+                multiline
+                rows={3}
+                fullWidth
+                value={weaknesses}
+                onChange={(e) => setWeaknesses(e.target.value)}
+                placeholder="Nhận xét về điểm yếu cần cải thiện..."
+                size="small"
+              />
+            </Box>
+
+            <Box sx={{ mb: 3 }}>
+              <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>
+                Ghi chú thêm
+              </Typography>
+              <TextField
+                multiline
+                rows={2}
+                fullWidth
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                placeholder="Ghi chú khác..."
+                size="small"
+              />
+            </Box>
+          </Box>
+        )}
+
+        <Box
+          sx={{ display: "flex", gap: 1, justifyContent: "flex-end", mt: 2 }}
+        >
+          <MuiButton variant="outlined" onClick={() => setSelectedScore(null)}>
+            Đóng
+          </MuiButton>
+          <MuiButton
+            variant="outlined"
+            onClick={handleSaveDraft}
+            disabled={isSubmitting}
+          >
+            Lưu nháp
+          </MuiButton>
+          <MuiButton
+            variant={scoreValue < 4 ? "contained" : "contained"}
+            onClick={handleSubmitScore}
+            disabled={isSubmitting || scoreValue === 0}
+            color={scoreValue < 4 ? "error" : "primary"}
+            startIcon={
+              isSubmitting ? (
+                <Loader2 className="animate-spin" size={16} />
+              ) : scoreValue < 4 ? (
+                <AlertCircle size={16} />
+              ) : null
+            }
+          >
+            {isSubmitting
+              ? "Đang xử lý..."
+              : scoreValue < 4
+                ? "Nộp (Sinh viên sẽ bị loại)"
+                : "Nộp phiếu chấm"}
+          </MuiButton>
+        </Box>
       </Dialog>
-    </div>
+    </Box>
   );
 }

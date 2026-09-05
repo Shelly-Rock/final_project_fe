@@ -72,6 +72,7 @@ export interface Score {
   updatedAt: string;
   project?: {
     projectId: string;
+    projectCode: string;
     projectName: string;
   };
   student?: {
@@ -100,6 +101,17 @@ export interface ScoringResult {
   isGvhdFailed: boolean;
   finalStatus: string | null;
   scoreSheetUrl: string | null;
+  project?: {
+    projectId: string;
+    projectCode: string;
+    projectName: string;
+  };
+  student?: {
+    studentId: string;
+    firstName: string;
+    middleName: string;
+    lastName: string;
+  };
 }
 
 export interface CommitteeScore {
