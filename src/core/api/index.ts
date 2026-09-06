@@ -19,6 +19,38 @@ export const apiClient: AxiosInstance = axios.create({
   },
 });
 
+let refreshPromise: Promise<string | null> | null = null;
+
+async function refreshAccessToken(): Promise<string | null> {
+  if (typeof window === "undefined") return null;
+
+  const refreshToken = localStorage.getItem("refreshToken");
+  if (!refreshToken) return null;
+
+  if (!refreshPromise) {
+    refreshPromise = apiClient
+      .post<{ accessToken: string; refreshToken: string }>(
+        "/auth/refresh-token",
+        { refreshToken },
+      )
+      .then(({ data }) => {
+        localStorage.setItem("accessToken", data.accessToken);
+        localStorage.setItem("refreshToken", data.refreshToken);
+        return data.accessToken;
+      })
+      .catch(() => {
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("refreshToken");
+        return null;
+      })
+      .finally(() => {
+        refreshPromise = null;
+      });
+  }
+
+  return refreshPromise;
+}
+
 // ── Request interceptor: attach JWT token ──────────────────────
 apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
@@ -38,10 +70,10 @@ apiClient.interceptors.request.use(
   (error: AxiosError) => Promise.reject(error),
 );
 
-// ── Response interceptor: handle 401 by clearing session ───────
+// ── Response interceptor: refresh expired access tokens ───────
 apiClient.interceptors.response.use(
   (response) => response,
-  (error: AxiosError) => {
+  async (error: AxiosError) => {
     if (typeof window === "undefined") {
       return Promise.reject(error);
     }
@@ -58,18 +90,22 @@ apiClient.interceptors.response.use(
       isAuthEndpoint,
     });
 
-    // Temporarily disable 401 redirect to avoid loop
-    // if (error.response?.status === 401 && !isLoginPage && !isAuthEndpoint) {
-    //   // Token expired or invalid → clear session, but do not loop back to login
-    //   // while the user is already on the auth page or during an in-flight auth flow.
-    //   localStorage.removeItem("accessToken");
-    //   localStorage.removeItem("refreshToken");
-
-    //   const currentPath = `${window.location.pathname}${window.location.search}`;
-    //   const loginUrl = new URL("/login", window.location.origin);
-    //   loginUrl.searchParams.set("callbackUrl", currentPath || "/");
-    //   window.location.assign(loginUrl.toString());
-    // }
+    const requestConfig = error.config as
+      | (InternalAxiosRequestConfig & { _retry?: boolean })
+      | undefined;
+    if (
+      error.response?.status === 401 &&
+      requestConfig &&
+      !requestConfig._retry &&
+      !isAuthEndpoint
+    ) {
+      requestConfig._retry = true;
+      const accessToken = await refreshAccessToken();
+      if (accessToken) {
+        requestConfig.headers.Authorization = `Bearer ${accessToken}`;
+        return apiClient(requestConfig);
+      }
+    }
 
     return Promise.reject(error);
   },

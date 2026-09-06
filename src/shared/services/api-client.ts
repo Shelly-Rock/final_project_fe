@@ -2,7 +2,8 @@
 // API Client - Wrapper around fetch for API calls
 // ============================================================
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api/v1";
 
 interface ApiClientOptions extends RequestInit {
   params?: Record<string, string | number | boolean | undefined>;
@@ -15,9 +16,43 @@ class ApiClient {
     this.baseUrl = baseUrl;
   }
 
+  private async refreshAccessToken(): Promise<boolean> {
+    if (typeof window === "undefined") return false;
+
+    const refreshToken = localStorage.getItem("refreshToken");
+    if (!refreshToken) return false;
+
+    const response = await fetch(`${this.baseUrl}/auth/refresh-token`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ refreshToken }),
+    }).catch(() => null);
+
+    if (!response?.ok) {
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
+      return false;
+    }
+
+    const data = (await response.json()) as {
+      accessToken?: string;
+      refreshToken?: string;
+    };
+    if (!data.accessToken || !data.refreshToken) {
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
+      return false;
+    }
+
+    localStorage.setItem("accessToken", data.accessToken);
+    localStorage.setItem("refreshToken", data.refreshToken);
+    return true;
+  }
+
   private async request<T>(
     endpoint: string,
     options: ApiClientOptions = {},
+    canRetry = true,
   ): Promise<T> {
     const { params, ...fetchOptions } = options;
 
@@ -56,6 +91,15 @@ class ApiClient {
       ...fetchOptions,
       headers,
     });
+
+    if (
+      response.status === 401 &&
+      canRetry &&
+      !endpoint.startsWith("/auth/") &&
+      (await this.refreshAccessToken())
+    ) {
+      return this.request<T>(endpoint, options, false);
+    }
 
     if (!response.ok) {
       const error = await response
