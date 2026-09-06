@@ -1,8 +1,4 @@
-// ============================================================
-// Student Form Dialog Component
-// ============================================================
 "use client";
-
 import React, { useState, useEffect } from "react";
 import { Grid } from "@mui/material";
 import { Dialog, Input, Label, Button } from "@/shared/components";

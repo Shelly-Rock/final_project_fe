@@ -11,14 +11,17 @@ declare module "next-auth" {
       email?: string | null;
       image?: string | null;
       role: Role;
+      roles: Role[];
       mustChangePassword: boolean;
     };
     accessToken: string;
+    refreshToken?: string;
   }
 
   interface User {
     id: string;
     role: Role;
+    roles: Role[];
     username: string;
     mustChangePassword: boolean;
     emailVerified: boolean;
@@ -29,6 +32,7 @@ declare module "next-auth/jwt" {
   interface JWT {
     id: string;
     role: Role;
+    roles: Role[];
     username: string;
     accessToken: string;
     refreshToken: string;
@@ -72,13 +76,18 @@ export const authOptions: NextAuthOptions = {
 
           // Backend throws if email not verified or must change password
           // The FE must handle these cases
+          const roles: Role[] = (result.user.roles ?? []).map((r) =>
+            mapRole(r.name),
+          );
+          const primaryRole = mapRole(result.user.role.name);
           return {
             id: String(result.user.id),
             name: result.user.username,
             email: result.user.email,
             accessToken: result.accessToken,
             refreshToken: result.refreshToken,
-            role: mapRole(result.user.role.name),
+            role: primaryRole,
+            roles: roles.length > 0 ? roles : [primaryRole],
             username: result.user.username,
             mustChangePassword: result.user.mustChangePassword,
             emailVerified: !!result.user.emailVerifiedAt,
@@ -114,10 +123,11 @@ export const authOptions: NextAuthOptions = {
   ],
 
   callbacks: {
-    async jwt({ token, user, trigger }) {
+    async jwt({ token, user, trigger, session }) {
       if (user) {
         token.id = user.id;
         token.role = user.role;
+        token.roles = (user as { roles?: Role[] }).roles ?? [user.role];
         token.username = user.username;
         token.mustChangePassword = user.mustChangePassword;
         token.emailVerified = !!user.emailVerified;
@@ -135,6 +145,14 @@ export const authOptions: NextAuthOptions = {
           localStorage.setItem("refreshToken", token.refreshToken as string);
         }
       }
+      // Handle session updates (e.g., role switching)
+      if (trigger === "update" && session) {
+        if (session.user?.role) token.role = session.user.role;
+        if (session.user?.roles) token.roles = session.user.roles;
+        if (session.accessToken) token.accessToken = session.accessToken;
+        if (session.refreshToken) token.refreshToken = session.refreshToken;
+        if (session.user?.name) token.username = session.user.name;
+      }
       // Persist tokens when session is updated
       if (trigger === "update" && token.accessToken) {
         authService.setTokens(token.accessToken, token.refreshToken);
@@ -146,6 +164,7 @@ export const authOptions: NextAuthOptions = {
       if (session.user) {
         session.user.id = token.id as string;
         session.user.role = token.role as Role;
+        session.user.roles = (token.roles as Role[]) ?? [token.role as Role];
         session.user.name = token.username as string;
       }
       session.user.mustChangePassword = !!token.mustChangePassword;

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { signOut } from "next-auth/react";
 import {
   AppBar,
   Toolbar,
@@ -23,6 +24,7 @@ import {
   Settings,
 } from "lucide-react";
 import { ThemeSwitcher } from "@/shared/theme";
+import { RoleSwitcher } from "@/shared/components/RoleSwitcher";
 
 export interface HeaderProps {
   onMenuClick?: () => void;
@@ -42,6 +44,12 @@ export function Header({ onMenuClick, showMenuButton = true }: HeaderProps) {
   const handleUserMenuClose = () => {
     setUserAnchorEl(null);
     setUserMenuOpen(false);
+  };
+
+  const handleLogout = async () => {
+    handleUserMenuClose();
+    await signOut({ redirect: false, callbackUrl: "/login" });
+    router.push("/login");
   };
 
   return (
@@ -105,7 +113,7 @@ export function Header({ onMenuClick, showMenuButton = true }: HeaderProps) {
               onClose={handleUserMenuClose}
               anchorEl={userAnchorEl}
               PaperProps={{
-                sx: { minWidth: 180, borderRadius: 2, mt: 1 },
+                sx: { minWidth: 200, borderRadius: 2, mt: 1 },
               }}
             >
               <MenuItem sx={{ borderRadius: 1, mx: 1, my: 0.5 }}>
@@ -126,9 +134,14 @@ export function Header({ onMenuClick, showMenuButton = true }: HeaderProps) {
                 </ListItemIcon>
                 <Typography variant="body2">Cài đặt</Typography>
               </MenuItem>
-              <Divider />
+
+              <Divider sx={{ my: 1 }} />
+              <RoleSwitcher onClose={handleUserMenuClose} />
+
+              <Divider sx={{ my: 1 }} />
               <MenuItem
                 sx={{ borderRadius: 1, mx: 1, my: 0.5, color: "error.main" }}
+                onClick={handleLogout}
               >
                 <ListItemIcon sx={{ minWidth: 36, color: "error.main" }}>
                   <LogoutIcon size={18} />

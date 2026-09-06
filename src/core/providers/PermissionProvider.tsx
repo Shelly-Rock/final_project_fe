@@ -4,6 +4,7 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
   type ReactNode,
@@ -32,6 +33,10 @@ export function PermissionProvider({
   initialRole = null,
 }: PermissionProviderProps) {
   const [role, setRoleState] = useState<Role | null>(initialRole);
+
+  useEffect(() => {
+    setRoleState(initialRole ?? null);
+  }, [initialRole]);
 
   const ability = useMemo(
     () => (role ? defineAbilityFor(role) : new AppAbility()),

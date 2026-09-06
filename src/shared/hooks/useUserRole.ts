@@ -9,6 +9,11 @@ export function useUserRole(): Role | null {
   return session?.user?.role ?? null;
 }
 
+export function useUserRoles(): Role[] {
+  const { data: session } = useSession();
+  return session?.user?.roles ?? [];
+}
+
 export function useIsRole(...roles: Role[]): boolean {
   const userRole = useUserRole();
   return userRole !== null && roles.includes(userRole);

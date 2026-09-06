@@ -188,6 +188,15 @@ class AuthService {
     return data;
   }
 
+  async switchRole(roleName: string): Promise<RefreshTokenResponse> {
+    const { data } = await apiClient.post<RefreshTokenResponse>(
+      "/auth/switch-role",
+      { roleName },
+    );
+    this.setTokens(data.accessToken, data.refreshToken);
+    return data;
+  }
+
   // ── Token helpers ─────────────────────────────────────────────
   setTokens(accessToken: string, refreshToken: string): void {
     if (typeof window !== "undefined") {
@@ -216,6 +225,7 @@ class AuthService {
       email: string;
       image?: string;
       role: Role;
+      roles: Role[];
     };
     accessToken: string;
     expires: string;
@@ -232,6 +242,7 @@ class AuthService {
           name: payload.username || payload.email || "",
           email: payload.email || "",
           role: mapRole(payload.role || ""),
+          roles: (payload.roles || []).map(mapRole),
         },
         accessToken: token,
         expires: new Date(payload.exp * 1000).toISOString(),
