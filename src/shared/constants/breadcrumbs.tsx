@@ -1,5 +1,14 @@
 // src/shared/constants/breadcrumbs.ts
-import { UsersIcon, ClipboardListIcon, GraduationCap } from "lucide-react";
+import {
+  UsersIcon,
+  UploadIcon,
+  CalendarIcon,
+  ClipboardListIcon,
+  GraduationCap,
+  ChartLineIcon,
+  FileTextIcon,
+  ClipboardCheckIcon,
+} from "lucide-react";
 import type { BreadcrumbItem } from "@/shared/components/Breadcrumb";
 
 export const BREADCRUMB_NODES = {
@@ -27,6 +36,49 @@ export const BREADCRUMB_NODES = {
     label: "Quản lý giảng viên",
     href: "/teachers",
     icon: <GraduationCap size={16} />,
+  },
+  // Progress Tracking Breadcrumbs
+  TEACHER_PROGRESS: {
+    label: "Theo dõi tiến trình (GV)",
+    href: "/progress-tracking/teacher",
+    icon: <ChartLineIcon size={16} />,
+  },
+  STUDENT_PROGRESS: {
+    label: "Theo dõi tiến trình (SV)",
+    href: "/progress-tracking/student",
+    icon: <FileTextIcon size={16} />,
+  },
+  // Stage 3 - Submission & Committee
+  SUBMISSIONS: {
+    label: "Nộp bài cuối kỳ",
+    href: "/submission/admin",
+    icon: <UploadIcon size={16} />,
+  },
+  STUDENT_SUBMISSION: {
+    label: "Nộp bài cuối kỳ",
+    href: "/submission/student",
+    icon: <UploadIcon size={16} />,
+  },
+  COMMITTEES: {
+    label: "Hội đồng bảo vệ",
+    href: "/committee",
+    icon: <UsersIcon size={16} />,
+  },
+  DEFENSE_SCHEDULE: {
+    label: "Lịch bảo vệ",
+    href: "/defense-schedule",
+    icon: <CalendarIcon size={16} />,
+  },
+  // Stage 4 - Scoring
+  SCORING_MANAGEMENT: {
+    label: "Quản lý chấm điểm",
+    href: "/scoring/admin",
+    icon: <ClipboardCheckIcon size={16} />,
+  },
+  TEACHER_SCORING: {
+    label: "Phiếu chấm điểm",
+    href: "/scoring/teacher",
+    icon: <ClipboardCheckIcon size={16} />,
   },
 } as const satisfies Record<string, Omit<BreadcrumbItem, "onClick">>;
 
