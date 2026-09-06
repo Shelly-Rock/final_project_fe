@@ -10,8 +10,9 @@ import {
   CircularProgress,
   Box,
   Chip,
+  Button,
 } from "@mui/material";
-import { Check, Shield } from "lucide-react";
+import { Check, Shield, ChevronDown } from "lucide-react";
 import { ROLE_LABELS, ROLE_COLORS, type Role } from "@/core/permissions/types";
 import { authService } from "@/core/auth/auth.service";
 import { usePermissionContext } from "@/core/providers/PermissionProvider";
@@ -21,6 +22,7 @@ export function RoleSwitcher({ onClose }: { onClose?: () => void }) {
   const router = useRouter();
   const { setRole } = usePermissionContext();
   const [switching, setSwitching] = useState(false);
+  const [expanded, setExpanded] = useState(false);
 
   const currentRole = session?.user?.role;
   const availableRoles = session?.user?.roles ?? [];
@@ -66,71 +68,90 @@ export function RoleSwitcher({ onClose }: { onClose?: () => void }) {
 
   return (
     <Box sx={{ py: 1 }}>
-      <Box sx={{ px: 2, py: 1, opacity: 0.6 }}>
-        <Box
-          sx={(theme) => ({
-            display: "flex",
-            alignItems: "center",
-            gap: 0.5,
-            mb: 0.5,
-            color: theme.palette.mode === "dark" ? "#ffff" : "inherit",
-          })}
-        >
-          <Shield size={14} />
-          <span style={{ fontSize: "0.75rem", fontWeight: 600 }}>
-            CHUYỂN ROLE
-          </span>
-        </Box>
-      </Box>
-
-      {availableRoles.map((role) => {
-        const isActive = role === currentRole;
-        const colors = ROLE_COLORS[role];
-
-        return (
-          <MenuItem
-            key={role}
-            onClick={() => handleSwitchRole(role)}
-            disabled={switching || isActive}
-            sx={{
-              borderRadius: 1,
-              mx: 1,
-              my: 0.5,
-              position: "relative",
+      <Button
+        onClick={() => setExpanded((prev) => !prev)}
+        fullWidth
+        size="small"
+        sx={(theme) => ({
+          justifyContent: "space-between",
+          px: 2,
+          py: 0.75,
+          fontSize: "0.75rem",
+          fontWeight: 600,
+          letterSpacing: "0.02em",
+          color: theme.palette.mode === "dark" ? "#ffff" : "text.secondary",
+          "&:hover": {
+            bgcolor: "action.hover",
+          },
+        })}
+        endIcon={
+          <ChevronDown
+            size={14}
+            style={{
+              transform: expanded ? "rotate(180deg)" : "rotate(0deg)",
+              transition: "transform 0.2s",
             }}
-          >
-            <ListItemIcon sx={{ minWidth: 36 }}>
-              {switching && !isActive ? (
-                <CircularProgress size={18} />
-              ) : isActive ? (
-                <Check size={18} color={colors.color} />
-              ) : (
-                <Shield size={18} style={{ opacity: 0.5 }} />
-              )}
-            </ListItemIcon>
-            <ListItemText
-              primary={ROLE_LABELS[role]}
-              primaryTypographyProps={{
-                variant: "body2",
-                fontWeight: isActive ? 600 : 400,
+          />
+        }
+      >
+        <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+          <Shield size={14} />
+          CHUYỂN ROLE
+        </Box>
+      </Button>
+
+      {expanded &&
+        availableRoles.map((role) => {
+          const isActive = role === currentRole;
+          const colors = ROLE_COLORS[role];
+
+          return (
+            <MenuItem
+              key={role}
+              onClick={() => {
+                setExpanded(false);
+                handleSwitchRole(role);
               }}
-            />
-            {isActive && (
-              <Chip
-                label="Hiện tại"
-                size="small"
-                sx={{
-                  height: 20,
-                  fontSize: "0.65rem",
-                  bgcolor: colors.bg,
-                  color: colors.color,
-                  border: `1px solid ${colors.border}`,
+              disabled={switching || isActive}
+              sx={{
+                borderRadius: 1,
+                mx: 1,
+                my: 0.5,
+                position: "relative",
+              }}
+            >
+              <ListItemIcon sx={{ minWidth: 36 }}>
+                {switching && !isActive ? (
+                  <CircularProgress size={18} />
+                ) : isActive ? (
+                  <Check size={18} color={colors.color} />
+                ) : (
+                  <Shield size={18} style={{ opacity: 0.5 }} />
+                )}
+              </ListItemIcon>
+              <ListItemText
+                primary={ROLE_LABELS[role]}
+                primaryTypographyProps={{
+                  variant: "body2",
+                  fontWeight: isActive ? 600 : 400,
                 }}
               />
-            )}
-          </MenuItem>
-        );
-      })}
+              {isActive && (
+                <Chip
+                  label="Hiện tại"
+                  size="small"
+                  sx={{
+                    height: 20,
+                    fontSize: "0.65rem",
+                    bgcolor: colors.bg,
+                    color: colors.color,
+                    border: `1px solid ${colors.border}`,
+                  }}
+                />
+              )}
+            </MenuItem>
+          );
+        })}
     </Box>
   );
 }
