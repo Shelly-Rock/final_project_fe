@@ -113,7 +113,16 @@ export function Header({ onMenuClick, showMenuButton = true }: HeaderProps) {
               onClose={handleUserMenuClose}
               anchorEl={userAnchorEl}
               PaperProps={{
-                sx: { minWidth: 200, borderRadius: 2, mt: 1 },
+                sx: (theme) => ({
+                  minWidth: 200,
+                  borderRadius: 2,
+                  mt: 1,
+                  ...(theme.palette.mode === "dark" && {
+                    "& .MuiTypography-root": {
+                      color: "#ffff",
+                    },
+                  }),
+                }),
               }}
             >
               <MenuItem sx={{ borderRadius: 1, mx: 1, my: 0.5 }}>

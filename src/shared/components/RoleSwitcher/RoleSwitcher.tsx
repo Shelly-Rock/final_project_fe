@@ -67,7 +67,15 @@ export function RoleSwitcher({ onClose }: { onClose?: () => void }) {
   return (
     <Box sx={{ py: 1 }}>
       <Box sx={{ px: 2, py: 1, opacity: 0.6 }}>
-        <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, mb: 0.5 }}>
+        <Box
+          sx={(theme) => ({
+            display: "flex",
+            alignItems: "center",
+            gap: 0.5,
+            mb: 0.5,
+            color: theme.palette.mode === "dark" ? "#ffff" : "inherit",
+          })}
+        >
           <Shield size={14} />
           <span style={{ fontSize: "0.75rem", fontWeight: 600 }}>
             CHUYỂN ROLE
