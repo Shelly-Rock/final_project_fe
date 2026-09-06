@@ -86,6 +86,13 @@ export const MENU_SECTIONS: MenuSection[] = [
         path: "/progress-tracking/admin",
         roles: ["admin"],
       },
+      {
+        key: "role",
+        label: "Phân quyền",
+        icon: Icon.personGear,
+        path: "/role",
+        roles: ["admin"],
+      },
     ],
   },
   {

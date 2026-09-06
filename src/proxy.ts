@@ -49,10 +49,12 @@ const ADMIN_ONLY_ROUTES = [
   /^\/students/,
   /^\/teachers/,
   /^\/user/,
-  /^\/role/,
   /^\/setting/,
   /^\/audit/,
 ];
+
+// ---------- Admin-only (no secretary) ----------
+const ADMIN_STRICT_ROUTES = [/^\/role/];
 
 // ---------- Helpers ----------
 function isPublicRoute(pathname: string): boolean {
@@ -67,6 +69,10 @@ function canAccessRoute(role: Role, pathname: string): boolean {
 
 function isAdminOnlyRoute(pathname: string): boolean {
   return ADMIN_ONLY_ROUTES.some((pattern) => pattern.test(pathname));
+}
+
+function isAdminStrictRoute(pathname: string): boolean {
+  return ADMIN_STRICT_ROUTES.some((pattern) => pattern.test(pathname));
 }
 
 // ---------- Main middleware ----------
@@ -114,6 +120,10 @@ export default async function middleware(req: NextRequest) {
     role !== "admin" &&
     role !== "secretary"
   ) {
+    return NextResponse.redirect(new URL("/unauthorized", req.url));
+  }
+
+  if (role && isAdminStrictRoute(pathname) && role !== "admin") {
     return NextResponse.redirect(new URL("/unauthorized", req.url));
   }
 

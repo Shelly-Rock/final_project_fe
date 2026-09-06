@@ -72,6 +72,22 @@ export function defineAbilityFor(role: Role): AppAbility {
   return new AppAbility(rules);
 }
 
+/**
+ * Build ability from dynamic permission strings (e.g. "student:read", "role:update").
+ * Used when permissions come from the backend API instead of static config.
+ */
+export function defineAbilityFromPermissions(
+  permissions: string[],
+): AppAbility {
+  const rules: AbilityRule[] = permissions
+    .filter((p) => p.includes(":"))
+    .map((p) => {
+      const [resource, action] = p.split(":") as [string, string];
+      return { action: action as Action, resource: resource as Resource };
+    });
+  return new AppAbility(rules);
+}
+
 // ---------- Permission check (pure function) ----------
 export function can(
   role: Role,
