@@ -78,7 +78,8 @@ export function SubmissionManagement() {
     if (!selectedSubmission) return;
     setSubmitting(true);
     try {
-      await submissionService.reviewSubmission(selectedSubmission.id, 1, {
+      // reviewer_id không gửi lên — BE suy ra từ JWT (Teacher profile id).
+      await submissionService.reviewSubmission(selectedSubmission.id, {
         status,
         rejectionReason,
       });
@@ -88,8 +89,8 @@ export function SubmissionManagement() {
       setReviewModalVisible(false);
       fetchSubmissions();
       fetchStats();
-    } catch {
-      toast.error("Không thể duyệt bài nộp");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Không thể duyệt bài nộp");
     } finally {
       setSubmitting(false);
     }

@@ -256,7 +256,7 @@ class ProgressTrackingService {
   }
 
   async createTemplate(data: {
-    teacherId: number;
+    teacherId?: number;
     name: string;
     description?: string;
     type: TemplateType;
@@ -265,7 +265,6 @@ class ProgressTrackingService {
     fileSize: number;
   }): Promise<Template> {
     const response: any = await apiClient.post(`${API_BASE}/templates`, {
-      teacher_id: data.teacherId,
       name: data.name,
       description: data.description,
       type: data.type,
@@ -316,7 +315,7 @@ class ProgressTrackingService {
   }
 
   async submitReport(data: {
-    studentId: number;
+    studentId?: number;
     title: string;
     content: string;
     month: number;
@@ -325,7 +324,6 @@ class ProgressTrackingService {
     fileName?: string;
   }): Promise<ProgressReport> {
     const response: any = await apiClient.post(`${API_BASE}/reports`, {
-      student_id: data.studentId,
       title: data.title,
       content: data.content,
       month: data.month,
@@ -338,7 +336,7 @@ class ProgressTrackingService {
 
   async reviewReport(data: {
     reportId: number;
-    reviewerId: number;
+    reviewerId?: number;
     status: ReportStatus;
     feedback?: string;
     score?: number;
@@ -346,7 +344,6 @@ class ProgressTrackingService {
     const response: any = await apiClient.put(
       `${API_BASE}/reports/${data.reportId}/review`,
       {
-        reviewer_id: data.reviewerId,
         status: data.status,
         feedback: data.feedback,
         score: data.score,
@@ -424,15 +421,14 @@ class ProgressTrackingService {
 
   // ==================== NOTIFICATIONS ====================
 
-  async getNotifications(params: {
-    recipientId: number;
+  async getNotifications(params?: {
+    recipientId?: number;
     page?: number;
     limit?: number;
     isRead?: boolean;
     type?: NotificationType;
   }): Promise<PaginatedResult<Notification>> {
     const searchParams = new URLSearchParams();
-    searchParams.set("recipient_id", String(params.recipientId));
     if (params?.page) searchParams.set("page", String(params.page));
     if (params?.limit) searchParams.set("limit", String(params.limit));
     if (params?.isRead !== undefined)
@@ -455,17 +451,18 @@ class ProgressTrackingService {
     await apiClient.put(`${API_BASE}/notifications/${id}/read`);
   }
 
-  async markAllNotificationsAsRead(recipientId: number): Promise<void> {
-    await apiClient.put(
-      `${API_BASE}/notifications/read-all?recipient_id=${recipientId}`,
-    );
+  async markAllNotificationsAsRead(_recipientId?: number): Promise<void> {
+    await apiClient.put(`${API_BASE}/notifications/read-all`);
   }
 
-  async getUnreadNotificationCount(recipientId: number): Promise<number> {
+  async getUnreadNotificationCount(_recipientId?: number): Promise<number> {
     const response: any = await apiClient.get(
-      `${API_BASE}/notifications/unread-count?recipient_id=${recipientId}`,
+      `${API_BASE}/notifications/unread-count`,
     );
-    return typeof response === "number" ? response : 0;
+    if (typeof response === "number") return response;
+    if (typeof response?.count === "number") return response.count;
+    if (typeof response?.unreadCount === "number") return response.unreadCount;
+    return 0;
   }
 
   async createNotification(data: {

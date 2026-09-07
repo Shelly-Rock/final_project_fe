@@ -202,6 +202,78 @@ class ApiClient {
 
     return response.json() as Promise<T>;
   }
+
+  // Download a binary response (Excel export, ...) with auth + 401 refresh.
+  // Returns the Blob plus the filename parsed from Content-Disposition.
+  async downloadBlob(
+    endpoint: string,
+    options: ApiClientOptions = {},
+    canRetry = true,
+  ): Promise<{ blob: Blob; filename: string | null }> {
+    const { params, ...fetchOptions } = options;
+
+    let url = `${this.baseUrl}${endpoint}`;
+    if (params) {
+      const searchParams = new URLSearchParams();
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined) {
+          searchParams.set(key, String(value));
+        }
+      });
+      const queryString = searchParams.toString();
+      if (queryString) {
+        url += `?${queryString}`;
+      }
+    }
+
+    let headers: HeadersInit = {
+      ...(fetchOptions.headers as Record<string, string>),
+    };
+    if (typeof window !== "undefined") {
+      const token = localStorage.getItem("accessToken");
+      if (token) {
+        headers = { ...headers, Authorization: `Bearer ${token}` };
+      }
+    }
+
+    const response = await fetch(url, {
+      ...fetchOptions,
+      method: fetchOptions.method || "GET",
+      headers,
+    });
+
+    if (
+      response.status === 401 &&
+      canRetry &&
+      !endpoint.startsWith("/auth/") &&
+      (await this.refreshAccessToken())
+    ) {
+      return this.downloadBlob(endpoint, options, false);
+    }
+
+    if (!response.ok) {
+      const error = await response
+        .json()
+        .catch(() => ({ message: response.statusText }));
+      throw new Error(
+        (error as { message?: string }).message || `HTTP ${response.status}`,
+      );
+    }
+
+    const disposition = response.headers.get("Content-Disposition");
+    let filename: string | null = null;
+    if (disposition) {
+      const utf8Match = disposition.match(/filename\*=UTF-8''([^;]+)/i);
+      const plainMatch = disposition.match(/filename="?([^";]+)"?/i);
+      if (utf8Match) {
+        filename = decodeURIComponent(utf8Match[1]);
+      } else if (plainMatch) {
+        filename = plainMatch[1];
+      }
+    }
+
+    return { blob: await response.blob(), filename };
+  }
 }
 
 // Export singleton instance

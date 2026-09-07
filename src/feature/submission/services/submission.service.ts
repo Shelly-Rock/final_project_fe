@@ -125,36 +125,34 @@ class SubmissionService {
   }
 
   async createSubmission(data: {
-    studentId: number;
+    studentId?: number;
     projectId: number;
     fileUrl: string;
     fileName: string;
     originalName: string;
     fileSize: number;
-    fileType: SubmissionType;
+    fileType?: SubmissionType;
   }): Promise<Submission> {
     const response: any = await apiClient.post(API_BASE, {
-      student_id: data.studentId,
       project_id: data.projectId,
       file_url: data.fileUrl,
       file_name: data.fileName,
       original_name: data.originalName,
       file_size: data.fileSize,
-      file_type: data.fileType,
+      ...(data.fileType ? { file_type: data.fileType } : {}),
     });
     return mapSubmission(response);
   }
 
   async reviewSubmission(
     id: number,
-    reviewerId: number,
     data: {
       status: SubmissionStatus;
       rejectionReason?: string;
     },
+    _reviewerId?: number,
   ): Promise<Submission> {
     const response: any = await apiClient.put(`${API_BASE}/${id}/review`, {
-      reviewer_id: reviewerId,
       status: data.status,
       rejection_reason: data.rejectionReason,
     });
