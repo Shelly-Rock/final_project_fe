@@ -35,6 +35,7 @@ export const Icon = {
   calendar: "bi-calendar-event",
   scorecard: "bi-scorecard",
   pencilSquare: "bi-pencil-square",
+  gear: "bi-gear",
 } as const;
 
 export const MENU_ITEMS: MenuItem[] = [
@@ -77,6 +78,13 @@ export const MENU_SECTIONS: MenuSection[] = [
         label: "Đợt đăng ký",
         icon: Icon.clipboard,
         path: "/registration-periods",
+        roles: ["admin", "secretary"],
+      },
+      {
+        key: "project-config",
+        label: "Cấu hình & Duyệt đề tài",
+        icon: Icon.gear,
+        path: "/project-config",
         roles: ["admin", "secretary"],
       },
       {

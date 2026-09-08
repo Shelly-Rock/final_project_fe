@@ -69,6 +69,7 @@ export interface HeaderAction {
   onClick: () => void;
   variant?: "text" | "outlined" | "contained";
   color?: "primary" | "secondary" | "error" | "inherit";
+  disabled?: boolean;
 }
 
 export interface DataTableProps<T> {
@@ -449,6 +450,7 @@ export function DataTable<T extends object>({
               size="small"
               startIcon={action.icon}
               onClick={action.onClick}
+              disabled={action.disabled}
               sx={getButtonSx(action.variant)}
             >
               {action.label}

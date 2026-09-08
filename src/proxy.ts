@@ -23,6 +23,7 @@ const ROLE_ROUTES: Partial<Record<Role, RegExp[]>> = {
     /^\/students/,
     /^\/teachers/,
     /^\/registration-periods/,
+    /^\/project-config/,
     /^\/user/,
     /^\/role/,
     /^\/setting/,
@@ -35,6 +36,8 @@ const ROLE_ROUTES: Partial<Record<Role, RegExp[]>> = {
   teacher: [
     /^\/students/,
     /^\/teachers/,
+    /^\/registration-periods/,
+    /^\/project-config/,
     /^\/user/,
     /^\/role/,
     /^\/setting/,
