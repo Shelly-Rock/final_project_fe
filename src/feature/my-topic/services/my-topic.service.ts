@@ -85,7 +85,9 @@ function mapBackendStatusToTopicStatus(status: string): TopicStatus {
   return map[status] || "Pending";
 }
 
-function mapBackendStatusToRegistrationStatus(status: string): RegistrationStatus {
+function mapBackendStatusToRegistrationStatus(
+  status: string,
+): RegistrationStatus {
   const map: Record<string, RegistrationStatus> = {
     PENDING: "Pending",
     APPROVED: "Approved",
@@ -95,21 +97,22 @@ function mapBackendStatusToRegistrationStatus(status: string): RegistrationStatu
 }
 
 function mapBackendToMyTopic(backend: BackendTopic): MyTopic {
-  const registrations: BackendStudent[] = backend.registrations || backend.registered_students || [];
+  const registrations: BackendStudent[] =
+    backend.registrations || backend.registered_students || [];
   return {
     id: backend.id,
-    periodId: backend.periodId || backend.period_id,
-    periodName: backend.periodName || backend.period_name || "",
+    periodId: backend.period_id,
+    periodName: backend.period_name || "",
     name: backend.name,
-    englishName: backend.englishName || backend.english_name,
+    englishName: backend.english_name,
     description: backend.description,
     objectives: backend.objectives,
     technologies: backend.technologies,
-    maxStudents: backend.maxStudents || backend.max_students,
+    maxStudents: backend.max_students,
     status: mapBackendStatusToTopicStatus(backend.status),
-    isException: backend.isSupplemental || backend.is_exception || false,
-    department: backend.departmentName || backend.department_name,
-    rejectionReason: backend.rejectionReason || backend.rejection_reason,
+    isException: backend.is_exception || false,
+    department: backend.department_name,
+    rejectionReason: backend.rejection_reason,
     preAssignedStudents: [],
     registeredStudents: registrations.map((s: BackendStudent) => ({
       id: s.projectId || s.id || 0,
@@ -119,14 +122,25 @@ function mapBackendToMyTopic(backend: BackendTopic): MyTopic {
       status: mapBackendStatusToRegistrationStatus(s.status || ""),
       registeredAt: s.registeredAt || s.registered_at || "",
       approvedAt: s.approvedAt || s.approved_at,
-      approvedBy: s.approvedBy || s.approved_by,
+      approvedBy: s.approvedBy
+        ? Number(s.approvedBy)
+        : s.approved_by
+          ? Number(s.approved_by)
+          : undefined,
       rejectedAt: s.rejectedAt || s.rejected_at,
-      rejectedBy: s.rejectedBy || s.rejected_by,
+      rejectedBy: s.rejectedBy
+        ? Number(s.rejectedBy)
+        : s.rejected_by
+          ? Number(s.rejected_by)
+          : undefined,
       rejectionReason: s.rejectionReason || s.rejection_reason,
     })),
-    registrationStatus: (backend.registrationStatus || backend.registration_status || "OPEN") as "OPEN" | "FULL" | "LOCKED",
-    createdAt: backend.createdAt || backend.created_at,
-    updatedAt: backend.updatedAt || backend.updated_at,
+    registrationStatus: (backend.registration_status || "OPEN") as
+      | "OPEN"
+      | "FULL"
+      | "LOCKED",
+    createdAt: backend.created_at,
+    updatedAt: backend.updated_at,
   };
 }
 
@@ -178,8 +192,10 @@ class MyTopicService {
     if (input.englishName) payload.englishName = input.englishName;
     if (input.objectives) payload.objectives = input.objectives;
     if (input.technologies) payload.technologies = input.technologies;
-    if (input.preAssignedStudentIds) payload.preAssignedStudentIds = input.preAssignedStudentIds;
-    if (input.isException !== undefined) payload.isException = input.isException;
+    if (input.preAssignedStudentIds)
+      payload.preAssignedStudentIds = input.preAssignedStudentIds;
+    if (input.isException !== undefined)
+      payload.isException = input.isException;
 
     const { data } = await apiClient.post<BackendTopic>("/topics", payload);
     return mapBackendToMyTopic(data);
@@ -189,15 +205,24 @@ class MyTopicService {
     const payload: Record<string, unknown> = {};
     if (input.periodId !== undefined) payload.periodId = input.periodId;
     if (input.name !== undefined) payload.name = input.name;
-    if (input.englishName !== undefined) payload.englishName = input.englishName;
-    if (input.description !== undefined) payload.description = input.description;
+    if (input.englishName !== undefined)
+      payload.englishName = input.englishName;
+    if (input.description !== undefined)
+      payload.description = input.description;
     if (input.objectives !== undefined) payload.objectives = input.objectives;
-    if (input.technologies !== undefined) payload.technologies = input.technologies;
-    if (input.maxStudents !== undefined) payload.maxStudents = input.maxStudents;
-    if (input.preAssignedStudentIds !== undefined) payload.preAssignedStudentIds = input.preAssignedStudentIds;
-    if (input.isException !== undefined) payload.isException = input.isException;
+    if (input.technologies !== undefined)
+      payload.technologies = input.technologies;
+    if (input.maxStudents !== undefined)
+      payload.maxStudents = input.maxStudents;
+    if (input.preAssignedStudentIds !== undefined)
+      payload.preAssignedStudentIds = input.preAssignedStudentIds;
+    if (input.isException !== undefined)
+      payload.isException = input.isException;
 
-    const { data } = await apiClient.put<BackendTopic>(`/topics/${id}`, payload);
+    const { data } = await apiClient.put<BackendTopic>(
+      `/topics/${id}`,
+      payload,
+    );
     return mapBackendToMyTopic(data);
   }
 
@@ -237,12 +262,17 @@ class MyTopicService {
     const topic = allTopics.find((t) => t.id === input.topicId);
     if (!topic) throw new Error("Topic not found");
 
-    const registration = topic.registeredStudents.find((s) => s.studentId === input.studentId);
+    const registration = topic.registeredStudents.find(
+      (s) => s.studentId === input.studentId,
+    );
     if (!registration) throw new Error("Registration not found");
 
-    await apiClient.post(`/topics/${input.topicId}/approvals/${registration.id}`, {
-      decision: "APPROVE",
-    });
+    await apiClient.post(
+      `/topics/${input.topicId}/approvals/${registration.id}`,
+      {
+        decision: "APPROVE",
+      },
+    );
   }
 
   async rejectRegistration(input: RejectRegistrationInput): Promise<void> {
@@ -250,13 +280,18 @@ class MyTopicService {
     const topic = allTopics.find((t) => t.id === input.topicId);
     if (!topic) throw new Error("Topic not found");
 
-    const registration = topic.registeredStudents.find((s) => s.studentId === input.studentId);
+    const registration = topic.registeredStudents.find(
+      (s) => s.studentId === input.studentId,
+    );
     if (!registration) throw new Error("Registration not found");
 
-    await apiClient.post(`/topics/${input.topicId}/approvals/${registration.id}`, {
-      decision: "REJECT",
-      note: input.reason,
-    });
+    await apiClient.post(
+      `/topics/${input.topicId}/approvals/${registration.id}`,
+      {
+        decision: "REJECT",
+        note: input.reason,
+      },
+    );
   }
 
   async searchStudents(_query: string): Promise<Student[]> {
@@ -271,7 +306,9 @@ class MyTopicService {
     return 3;
   }
 
-  getDepartmentStudentLimits(_periodId: number): { department: string; maxStudents: number }[] {
+  getDepartmentStudentLimits(
+    _periodId: number,
+  ): { department: string; maxStudents: number }[] {
     return [];
   }
 }

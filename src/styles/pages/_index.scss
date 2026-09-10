@@ -1,3 +1,5 @@
+@use "../abstracts/variables";
+
 // ============================================================
 // LOGIN PAGE — Two-column layout styles
 // ============================================================
@@ -15,16 +17,16 @@
 .login-panel--left {
   position: relative;
   flex: 0 0 44%;
-  background: $primary-800;
+  background: variables.$primary-800;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  padding: $spacing-10 $spacing-12;
+  padding: variables.$spacing-10 variables.$spacing-12;
   @media (max-width: 1024px) {
     flex: 0 0 auto;
     min-height: 280px;
-    padding: $spacing-8 $spacing-6;
+    padding: variables.$spacing-8 variables.$spacing-6;
   }
 }
 
@@ -33,7 +35,7 @@
   z-index: 2;
   display: flex;
   flex-direction: column;
-  gap: $spacing-10;
+  gap: variables.$spacing-10;
   width: 100%;
   max-width: 480px;
 }
@@ -42,7 +44,7 @@
 .login-brand {
   display: flex;
   align-items: center;
-  gap: $spacing-4;
+  gap: variables.$spacing-4;
 }
 
 .login-brand-logo-wrap {
@@ -67,7 +69,7 @@
     border-radius: 18px;
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.3), transparent);
     opacity: 0;
-    transition: opacity $transition-normal;
+    transition: opacity variables.$transition-normal;
   }
 }
 
@@ -78,13 +80,13 @@
 .login-brand-logo {
   width: 80px !important;
   height: 80px !important;
-  border-radius: $radius-xl !important;
+  border-radius: variables.$radius-xl !important;
   object-fit: contain !important;
   flex-shrink: 0;
   filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.3));
   transition:
-    transform $transition-normal,
-    filter $transition-normal;
+    transform variables.$transition-normal,
+    filter variables.$transition-normal;
   position: relative;
   z-index: 1;
 }
@@ -97,7 +99,7 @@
 .login-brand-text {
   font-size: 1.5rem !important;
   font-weight: 700 !important;
-  color: $white !important;
+  color: variables.$white !important;
   letter-spacing: 0.02em;
 }
 
@@ -105,42 +107,42 @@
 .login-hero {
   display: flex;
   flex-direction: column;
-  gap: $spacing-3;
+  gap: variables.$spacing-3;
 }
 
 .login-hero-title {
-  font-size: $font-size-3xl !important;
+  font-size: variables.$font-size-3xl !important;
   font-weight: 700 !important;
-  line-height: $line-height-tight !important;
-  color: $white !important;
+  line-height: variables.$line-height-tight !important;
+  color: variables.$white !important;
   letter-spacing: -0.025em !important;
 }
 
 .login-hero-desc {
-  font-size: $font-size-base !important;
+  font-size: variables.$font-size-base !important;
   color: rgba(255, 255, 255, 0.6) !important;
-  line-height: $line-height-relaxed !important;
+  line-height: variables.$line-height-relaxed !important;
 }
 
 // ---------- Feature List ----------
 .login-features {
   display: flex;
   flex-direction: column;
-  gap: $spacing-4;
+  gap: variables.$spacing-4;
 }
 
 .login-feature-item {
   display: flex;
   align-items: center;
-  gap: $spacing-3;
+  gap: variables.$spacing-3;
 }
 
 .login-feature-icon-wrap {
   width: 36px;
   height: 36px;
-  border-radius: $radius-lg;
-  background: rgba($primary-400, 0.2);
-  border: 1px solid rgba($primary-200, 0.2);
+  border-radius: variables.$radius-lg;
+  background: rgba(variables.$primary-400, 0.2);
+  border: 1px solid rgba(variables.$primary-200, 0.2);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -148,12 +150,12 @@
 }
 
 .login-feature-icon {
-  font-size: $font-size-base;
-  color: $primary-200;
+  font-size: variables.$font-size-base;
+  color: variables.$primary-200;
 }
 
 .login-feature-text {
-  font-size: $font-size-sm !important;
+  font-size: variables.$font-size-sm !important;
   font-weight: 500 !important;
   color: rgba(255, 255, 255, 0.8) !important;
 }
@@ -170,7 +172,7 @@
 .login-deco--circle1 {
   width: 500px;
   height: 500px;
-  background: $primary-400;
+  background: variables.$primary-400;
   bottom: -180px;
   right: -120px;
 }
@@ -178,7 +180,7 @@
 .login-deco--circle2 {
   width: 300px;
   height: 300px;
-  background: $secondary-500;
+  background: variables.$secondary-500;
   top: -80px;
   left: -80px;
 }
@@ -186,7 +188,7 @@
 .login-deco--circle3 {
   width: 200px;
   height: 200px;
-  background: $primary-200;
+  background: variables.$primary-200;
   bottom: 20%;
   left: 10%;
   opacity: 0.05;
@@ -195,15 +197,15 @@
 // ---------- Right Panel ----------
 .login-panel--right {
   flex: 1;
-  background: $white;
+  background: variables.$white;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: $spacing-10 $spacing-12;
+  padding: variables.$spacing-10 variables.$spacing-12;
 
   @media (max-width: 1024px) {
     flex: 1;
-    padding: $spacing-8 $spacing-6;
+    padding: variables.$spacing-8 variables.$spacing-6;
   }
 }
 
@@ -212,27 +214,27 @@
   max-width: 420px;
   display: flex;
   flex-direction: column;
-  gap: $spacing-6;
+  gap: variables.$spacing-6;
 }
 
 // ---------- Form Header ----------
 .login-form-header {
   display: flex;
   flex-direction: column;
-  gap: $spacing-2;
+  gap: variables.$spacing-2;
 }
 
 .login-form-title {
-  font-size: $font-size-3xl !important;
+  font-size: variables.$font-size-3xl !important;
   font-weight: 700 !important;
-  color: $neutral-900 !important;
+  color: variables.$neutral-900 !important;
   letter-spacing: -0.025em !important;
 }
 
 .login-form-subtitle {
-  font-size: $font-size-sm !important;
-  color: $neutral-500 !important;
-  line-height: $line-height-relaxed !important;
+  font-size: variables.$font-size-sm !important;
+  color: variables.$neutral-500 !important;
+  line-height: variables.$line-height-relaxed !important;
 }
 
 // ---------- Alert ----------
@@ -244,7 +246,7 @@
 .login-form {
   display: flex;
   flex-direction: column;
-  gap: $spacing-5;
+  gap: variables.$spacing-5;
 }
 
 .login-field {
@@ -252,22 +254,22 @@
 }
 
 .login-field-input {
-  font-size: $font-size-sm;
+  font-size: variables.$font-size-sm;
 }
 
 // ---------- Submit Button ----------
 .login-submit-btn {
   height: 48px !important;
-  font-size: $font-size-base !important;
-  margin-top: $spacing-2 !important;
-  box-shadow: 0 4px 14px rgba($primary-400, 0.4) !important;
-  background: $primary-400 !important;
-  color: $white !important;
-  gap: $spacing-2;
+  font-size: variables.$font-size-base !important;
+  margin-top: variables.$spacing-2 !important;
+  box-shadow: 0 4px 14px rgba(variables.$primary-400, 0.4) !important;
+  background: variables.$primary-400 !important;
+  color: variables.$white !important;
+  gap: variables.$spacing-2;
 
   &:hover {
-    background: $primary-500 !important;
-    box-shadow: 0 6px 20px rgba($primary-400, 0.55) !important;
+    background: variables.$primary-500 !important;
+    box-shadow: 0 6px 20px rgba(variables.$primary-400, 0.55) !important;
   }
 
   &:disabled {
@@ -277,29 +279,29 @@
 }
 
 .login-btn-icon {
-  font-size: $font-size-base;
+  font-size: variables.$font-size-base;
 }
 
 // ---------- Password Toggle ----------
 .login-password-toggle {
-  color: $neutral-500;
+  color: variables.$neutral-500;
 
   &:hover {
-    color: $primary-400;
-    background: rgba($primary-400, 0.06);
+    color: variables.$primary-400;
+    background: rgba(variables.$primary-400, 0.06);
   }
 }
 
 // ---------- Footer ----------
 .login-footer {
   text-align: center;
-  padding-top: $spacing-4;
-  border-top: 1px solid $neutral-100;
+  padding-top: variables.$spacing-4;
+  border-top: 1px solid variables.$neutral-100;
 }
 
 .login-footer-text {
-  font-size: $font-size-xs !important;
-  color: $neutral-400 !important;
+  font-size: variables.$font-size-xs !important;
+  color: variables.$neutral-400 !important;
 }
 
 // ---------- Responsive: Mobile stack ----------
@@ -309,22 +311,22 @@
   }
 
   .login-panel--left {
-    padding: $spacing-6;
+    padding: variables.$spacing-6;
   }
 
   .login-panel-content {
-    gap: $spacing-6;
+    gap: variables.$spacing-6;
     max-width: 100%;
   }
 
   .login-hero-title {
-    font-size: $font-size-2xl !important;
+    font-size: variables.$font-size-2xl !important;
   }
 }
 
 @media (max-width: 640px) {
   .login-panel--right {
-    padding: $spacing-6 $spacing-4;
+    padding: variables.$spacing-6 variables.$spacing-4;
   }
 
   .login-form-wrap {
@@ -336,13 +338,13 @@
 // HOME PAGE — Dashboard / landing after login
 // ============================================================
 .home-page {
-  padding: $spacing-8 $spacing-8;
+  padding: variables.$spacing-8 variables.$spacing-8;
   max-width: 1280px;
   margin: 0 auto;
   width: 100%;
 
   @media (max-width: 768px) {
-    padding: $spacing-5 $spacing-4;
+    padding: variables.$spacing-5 variables.$spacing-4;
   }
 }
 
@@ -352,35 +354,35 @@
   align-items: flex-start;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: $spacing-4;
-  margin-bottom: $spacing-8;
-  padding-bottom: $spacing-6;
-  border-bottom: 1px solid $neutral-100;
+  gap: variables.$spacing-4;
+  margin-bottom: variables.$spacing-8;
+  padding-bottom: variables.$spacing-6;
+  border-bottom: 1px solid variables.$neutral-100;
 }
 
 .home-greeting {
-  font-size: $font-size-2xl !important;
+  font-size: variables.$font-size-2xl !important;
   font-weight: 700 !important;
-  color: $neutral-900 !important;
-  margin-bottom: $spacing-2 !important;
+  color: variables.$neutral-900 !important;
+  margin-bottom: variables.$spacing-2 !important;
 
   strong {
-    color: $primary-400;
+    color: variables.$primary-400;
   }
 }
 
 .home-role {
   display: flex;
   align-items: center;
-  gap: $spacing-2;
-  font-size: $font-size-sm !important;
-  color: $neutral-500 !important;
+  gap: variables.$spacing-2;
+  font-size: variables.$font-size-sm !important;
+  color: variables.$neutral-500 !important;
 }
 
 .home-role-chip {
   font-size: 0.75rem !important;
-  background: rgba($primary-400, 0.1) !important;
-  color: $primary-400 !important;
+  background: rgba(variables.$primary-400, 0.1) !important;
+  color: variables.$primary-400 !important;
   font-weight: 600 !important;
   border: none !important;
 }
@@ -388,53 +390,53 @@
 .home-date {
   display: flex;
   align-items: center;
-  gap: $spacing-2;
-  font-size: $font-size-sm !important;
-  color: $neutral-500 !important;
-  padding-top: $spacing-1;
+  gap: variables.$spacing-2;
+  font-size: variables.$font-size-sm !important;
+  color: variables.$neutral-500 !important;
+  padding-top: variables.$spacing-1;
 
   .bi {
-    font-size: $font-size-base;
+    font-size: variables.$font-size-base;
   }
 }
 
 // ---------- Section ----------
 .home-section {
-  margin-bottom: $spacing-8;
+  margin-bottom: variables.$spacing-8;
 }
 
 .home-section-title {
-  font-size: $font-size-lg !important;
+  font-size: variables.$font-size-lg !important;
   font-weight: 700 !important;
-  color: $neutral-900 !important;
-  margin-bottom: $spacing-5 !important;
+  color: variables.$neutral-900 !important;
+  margin-bottom: variables.$spacing-5 !important;
 }
 
 // ---------- Action Cards ----------
 .home-action-card {
   cursor: pointer;
   transition:
-    transform $transition-fast,
-    box-shadow $transition-fast;
+    transform variables.$transition-fast,
+    box-shadow variables.$transition-fast;
   height: 100%;
 
   &:hover {
     transform: translateY(-3px);
-    box-shadow: $shadow-lg;
+    box-shadow: variables.$shadow-lg;
   }
 }
 
 .home-action-card-content {
   display: flex;
   flex-direction: column;
-  gap: $spacing-3;
-  padding: $spacing-5 !important;
+  gap: variables.$spacing-3;
+  padding: variables.$spacing-5 !important;
 }
 
 .home-action-icon-wrap {
   width: 44px;
   height: 44px;
-  border-radius: $radius-lg;
+  border-radius: variables.$radius-lg;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -445,28 +447,28 @@
 }
 
 .home-action-label {
-  font-size: $font-size-base !important;
+  font-size: variables.$font-size-base !important;
   font-weight: 700 !important;
-  color: $neutral-900 !important;
+  color: variables.$neutral-900 !important;
 }
 
 .home-action-desc {
-  font-size: $font-size-sm !important;
-  color: $neutral-500 !important;
-  line-height: $line-height-relaxed !important;
+  font-size: variables.$font-size-sm !important;
+  color: variables.$neutral-500 !important;
+  line-height: variables.$line-height-relaxed !important;
 }
 
 // ============================================================
 // ADMIN DASHBOARD
 // ============================================================
 .dashboard-page {
-  padding: $spacing-8;
+  padding: variables.$spacing-8;
   max-width: 1280px;
   margin: 0 auto;
   width: 100%;
 
   @media (max-width: 768px) {
-    padding: $spacing-5 $spacing-4;
+    padding: variables.$spacing-5 variables.$spacing-4;
   }
 }
 
@@ -476,44 +478,44 @@
   align-items: flex-start;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: $spacing-4;
-  margin-bottom: $spacing-8;
+  gap: variables.$spacing-4;
+  margin-bottom: variables.$spacing-8;
 }
 
 .dashboard-title {
-  font-size: $font-size-2xl !important;
+  font-size: variables.$font-size-2xl !important;
   font-weight: 700 !important;
-  color: $neutral-900 !important;
-  line-height: $line-height-tight !important;
+  color: variables.$neutral-900 !important;
+  line-height: variables.$line-height-tight !important;
 }
 
 .dashboard-subtitle {
-  font-size: $font-size-sm !important;
-  color: $neutral-500 !important;
-  margin-top: $spacing-1 !important;
+  font-size: variables.$font-size-sm !important;
+  color: variables.$neutral-500 !important;
+  margin-top: variables.$spacing-1 !important;
 }
 
 .dashboard-welcome {
   display: flex;
   align-items: center;
-  gap: $spacing-2;
-  margin-top: $spacing-1;
+  gap: variables.$spacing-2;
+  margin-top: variables.$spacing-1;
   flex-wrap: wrap;
 }
 
 .dashboard-role-badge {
   display: inline-flex;
   align-items: center;
-  padding: $spacing-1 $spacing-3;
-  border-radius: $radius-full;
-  font-size: $font-size-sm;
+  padding: variables.$spacing-1 variables.$spacing-3;
+  border-radius: variables.$radius-full;
+  font-size: variables.$font-size-sm;
   font-weight: 600;
   white-space: nowrap;
 }
 
 .dashboard-header-actions {
   display: flex;
-  gap: $spacing-3;
+  gap: variables.$spacing-3;
   align-items: center;
   flex-wrap: wrap;
 }
@@ -528,7 +530,7 @@
 
 // ---------- Section ----------
 .dashboard-section {
-  margin-bottom: $spacing-8;
+  margin-bottom: variables.$spacing-8;
 
   &:last-child {
     margin-bottom: 0;
@@ -718,38 +720,38 @@
 .dashboard-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: $font-size-sm;
+  font-size: variables.$font-size-sm;
 
   thead tr {
-    border-bottom: 1px solid $neutral-100;
+    border-bottom: 1px solid variables.$neutral-100;
   }
 
   th {
-    padding: $spacing-3 $spacing-5;
+    padding: variables.$spacing-3 variables.$spacing-5;
     text-align: left;
-    font-size: $font-size-xs;
+    font-size: variables.$font-size-xs;
     font-weight: 600;
-    color: $neutral-500;
+    color: variables.$neutral-500;
     text-transform: uppercase;
     letter-spacing: 0.05em;
     white-space: nowrap;
   }
 
   tbody tr {
-    border-bottom: 1px solid $neutral-50;
-    transition: background $transition-fast;
+    border-bottom: 1px solid variables.$neutral-50;
+    transition: background variables.$transition-fast;
 
     &:last-child {
       border-bottom: none;
     }
 
     &:hover {
-      background: $neutral-50;
+      background: variables.$neutral-50;
     }
   }
 
   td {
-    padding: $spacing-3 $spacing-5;
+    padding: variables.$spacing-3 variables.$spacing-5;
     vertical-align: middle;
   }
 }
@@ -757,13 +759,13 @@
 .dashboard-thesis-cell {
   display: flex;
   flex-direction: column;
-  gap: $spacing-1;
+  gap: variables.$spacing-1;
   max-width: 280px;
 }
 
 .dashboard-thesis-title {
   font-weight: 600 !important;
-  color: $neutral-900 !important;
+  color: variables.$neutral-900 !important;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -771,11 +773,11 @@
 }
 
 .dashboard-thesis-meta {
-  font-size: $font-size-xs !important;
-  color: $neutral-400 !important;
+  font-size: variables.$font-size-xs !important;
+  color: variables.$neutral-400 !important;
   display: flex;
   align-items: center;
-  gap: $spacing-1;
+  gap: variables.$spacing-1;
 
   .bi {
     font-size: 0.7rem;
@@ -783,21 +785,21 @@
 }
 
 .dashboard-table-text {
-  font-size: $font-size-sm !important;
-  color: $neutral-700 !important;
+  font-size: variables.$font-size-sm !important;
+  color: variables.$neutral-700 !important;
   white-space: nowrap;
 }
 
 .dashboard-progress-cell {
   display: flex;
   align-items: center;
-  gap: $spacing-2;
+  gap: variables.$spacing-2;
   min-width: 120px;
 }
 
 .dashboard-progress-label {
-  font-size: $font-size-xs !important;
-  color: $neutral-500 !important;
+  font-size: variables.$font-size-xs !important;
+  color: variables.$neutral-500 !important;
   white-space: nowrap;
   min-width: 32px;
 }
@@ -812,9 +814,9 @@
 .dashboard-activity-item {
   display: flex;
   align-items: flex-start;
-  gap: $spacing-3;
-  padding: $spacing-3 0;
-  border-bottom: 1px solid $neutral-50;
+  gap: variables.$spacing-3;
+  padding: variables.$spacing-3 0;
+  border-bottom: 1px solid variables.$neutral-50;
 
   &:last-child {
     border-bottom: none;
@@ -827,20 +829,20 @@
 }
 
 .dashboard-activity-text {
-  font-size: $font-size-sm !important;
-  color: $neutral-700 !important;
-  line-height: $line-height-relaxed !important;
+  font-size: variables.$font-size-sm !important;
+  color: variables.$neutral-700 !important;
+  line-height: variables.$line-height-relaxed !important;
 
   strong {
     font-weight: 600;
-    color: $neutral-900;
+    color: variables.$neutral-900;
   }
 }
 
 .dashboard-activity-time {
-  font-size: $font-size-xs !important;
-  color: $neutral-400 !important;
-  margin-top: $spacing-0-5 !important;
+  font-size: variables.$font-size-xs !important;
+  color: variables.$neutral-400 !important;
+  margin-top: variables.$spacing-0-5 !important;
 }
 
 // ---------- Role Stats ----------
@@ -848,8 +850,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: $spacing-3 0;
-  border-bottom: 1px solid $neutral-50;
+  padding: variables.$spacing-3 0;
+  border-bottom: 1px solid variables.$neutral-50;
 
   &:last-child {
     border-bottom: none;
@@ -859,24 +861,24 @@
 .dashboard-role-info {
   display: flex;
   align-items: center;
-  gap: $spacing-3;
+  gap: variables.$spacing-3;
 }
 
 .dashboard-role-label {
-  font-size: $font-size-sm !important;
-  color: $neutral-700 !important;
+  font-size: variables.$font-size-sm !important;
+  color: variables.$neutral-700 !important;
 }
 
 .dashboard-role-count {
-  font-size: $font-size-sm !important;
+  font-size: variables.$font-size-sm !important;
   font-weight: 700 !important;
-  color: $neutral-900 !important;
+  color: variables.$neutral-900 !important;
 }
 
 // ---------- Card ----------
 .dashboard-card {
-  border: 1px solid $neutral-100;
-  box-shadow: $shadow-sm;
+  border: 1px solid variables.$neutral-100;
+  box-shadow: variables.$shadow-sm;
   height: 100%;
 }
 

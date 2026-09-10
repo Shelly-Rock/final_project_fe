@@ -1,52 +1,52 @@
 // ============================================================
 // THEME TOKENS - CSS Custom Properties
 // ============================================================
-@import "../abstracts/variables";
+@use "../abstracts/variables";
 
 // Light Theme
 :root,
 [data-theme="light"] {
   // Background colors
-  --bg-page: #{$neutral-50};
-  --bg-surface: #{$white};
-  --bg-surface-elevated: #{$white};
-  --bg-hover: #{$neutral-100};
-  --bg-active: #{$neutral-200};
-  --bg-disabled: #{$neutral-100};
+  --bg-page: #{variables.$neutral-50};
+  --bg-surface: #{variables.$white};
+  --bg-surface-elevated: #{variables.$white};
+  --bg-hover: #{variables.$neutral-100};
+  --bg-active: #{variables.$neutral-200};
+  --bg-disabled: #{variables.$neutral-100};
 
   // Text colors
-  --text-primary: #{$neutral-900};
-  --text-secondary: #{$neutral-600};
-  --text-muted: #{$neutral-400};
-  --text-disabled: #{$neutral-300};
-  --text-inverse: #{$white};
+  --text-primary: #{variables.$neutral-900};
+  --text-secondary: #{variables.$neutral-600};
+  --text-muted: #{variables.$neutral-400};
+  --text-disabled: #{variables.$neutral-300};
+  --text-inverse: #{variables.$white};
 
   // Border colors
-  --border-default: #{$neutral-200};
-  --border-hover: #{$neutral-300};
-  --border-focus: #{$primary-400};
-  --border-disabled: #{$neutral-100};
+  --border-default: #{variables.$neutral-200};
+  --border-hover: #{variables.$neutral-300};
+  --border-focus: #{variables.$primary-400};
+  --border-disabled: #{variables.$neutral-100};
 
   // Primary colors
-  --color-primary: #{$primary-400};
-  --color-primary-hover: #{$primary-500};
-  --color-primary-active: #{$primary-600};
-  --color-primary-subtle: #{$primary-50};
+  --color-primary: #{variables.$primary-400};
+  --color-primary-hover: #{variables.$primary-500};
+  --color-primary-active: #{variables.$primary-600};
+  --color-primary-subtle: #{variables.$primary-50};
 
   // Secondary colors
-  --color-secondary: #{$secondary-500};
-  --color-secondary-hover: #{$secondary-600};
-  --color-secondary-subtle: #{$secondary-50};
+  --color-secondary: #{variables.$secondary-500};
+  --color-secondary-hover: #{variables.$secondary-600};
+  --color-secondary-subtle: #{variables.$secondary-50};
 
   // Status colors
-  --color-success: #{$success-500};
-  --color-success-subtle: #{$success-50};
-  --color-error: #{$error-500};
-  --color-error-subtle: #{$error-50};
-  --color-warning: #{$warning-500};
-  --color-warning-subtle: #{$warning-50};
-  --color-info: #{$info-500};
-  --color-info-subtle: #{$info-50};
+  --color-success: #{variables.$success-500};
+  --color-success-subtle: #{variables.$success-50};
+  --color-error: #{variables.$error-500};
+  --color-error-subtle: #{variables.$error-50};
+  --color-warning: #{variables.$warning-500};
+  --color-warning-subtle: #{variables.$warning-50};
+  --color-info: #{variables.$info-500};
+  --color-info-subtle: #{variables.$info-50};
 
   // Overlay & backdrop
   --overlay-light: rgba(255, 255, 255, 0.8);
@@ -54,58 +54,58 @@
   --backdrop: rgba(15, 23, 42, 0.6);
 
   // Shadows
-  --shadow-sm: #{$shadow-sm};
-  --shadow-md: #{$shadow-md};
-  --shadow-lg: #{$shadow-lg};
-  --shadow-xl: #{$shadow-xl};
+  --shadow-sm: #{variables.$shadow-sm};
+  --shadow-md: #{variables.$shadow-md};
+  --shadow-lg: #{variables.$shadow-lg};
+  --shadow-xl: #{variables.$shadow-xl};
 
   // Divider
-  --divider: #{$neutral-200};
+  --divider: #{variables.$neutral-200};
 }
 
 // Dark Theme
 [data-theme="dark"] {
   // Background colors
-  --bg-page: #{$neutral-900};
-  --bg-surface: #{$neutral-800};
-  --bg-surface-elevated: #{$neutral-700};
-  --bg-hover: #{$neutral-700};
-  --bg-active: #{$neutral-600};
-  --bg-disabled: #{$neutral-800};
+  --bg-page: #{variables.$neutral-900};
+  --bg-surface: #{variables.$neutral-800};
+  --bg-surface-elevated: #{variables.$neutral-700};
+  --bg-hover: #{variables.$neutral-700};
+  --bg-active: #{variables.$neutral-600};
+  --bg-disabled: #{variables.$neutral-800};
 
   // Text colors
-  --text-primary: #{$neutral-100};
-  --text-secondary: #{$neutral-400};
-  --text-muted: #{$neutral-500};
-  --text-disabled: #{$neutral-600};
-  --text-inverse: #{$neutral-900};
+  --text-primary: #{variables.$neutral-100};
+  --text-secondary: #{variables.$neutral-400};
+  --text-muted: #{variables.$neutral-500};
+  --text-disabled: #{variables.$neutral-600};
+  --text-inverse: #{variables.$neutral-900};
 
   // Border colors
-  --border-default: #{$neutral-700};
-  --border-hover: #{$neutral-600};
-  --border-focus: #{$primary-400};
-  --border-disabled: #{$neutral-800};
+  --border-default: #{variables.$neutral-700};
+  --border-hover: #{variables.$neutral-600};
+  --border-focus: #{variables.$primary-400};
+  --border-disabled: #{variables.$neutral-800};
 
   // Primary colors - slightly lighter for dark mode
-  --color-primary: #{$primary-400};
-  --color-primary-hover: #{$primary-300};
-  --color-primary-active: #{$primary-200};
-  --color-primary-subtle: #{$primary-900};
+  --color-primary: #{variables.$primary-400};
+  --color-primary-hover: #{variables.$primary-300};
+  --color-primary-active: #{variables.$primary-200};
+  --color-primary-subtle: #{variables.$primary-900};
 
   // Secondary colors
-  --color-secondary: #{$secondary-400};
-  --color-secondary-hover: #{$secondary-300};
-  --color-secondary-subtle: #{$secondary-900};
+  --color-secondary: #{variables.$secondary-400};
+  --color-secondary-hover: #{variables.$secondary-300};
+  --color-secondary-subtle: #{variables.$secondary-900};
 
   // Status colors
-  --color-success: #{$success-400};
-  --color-success-subtle: #{$success-900};
-  --color-error: #{$error-400};
-  --color-error-subtle: #{$error-900};
-  --color-warning: #{$warning-400};
-  --color-warning-subtle: #{$warning-900};
-  --color-info: #{$info-400};
-  --color-info-subtle: #{$info-900};
+  --color-success: #{variables.$success-400};
+  --color-success-subtle: #{variables.$success-900};
+  --color-error: #{variables.$error-400};
+  --color-error-subtle: #{variables.$error-900};
+  --color-warning: #{variables.$warning-400};
+  --color-warning-subtle: #{variables.$warning-900};
+  --color-info: #{variables.$info-400};
+  --color-info-subtle: #{variables.$info-900};
 
   // Overlay & backdrop
   --overlay-light: rgba(30, 41, 59, 0.8);
@@ -113,13 +113,13 @@
   --backdrop: rgba(0, 0, 0, 0.8);
 
   // Shadows - darker for dark mode
-  --shadow-sm: #{$shadow-dark-sm};
-  --shadow-md: #{$shadow-dark-md};
-  --shadow-lg: #{$shadow-dark-lg};
+  --shadow-sm: #{variables.$shadow-dark-sm};
+  --shadow-md: #{variables.$shadow-dark-md};
+  --shadow-lg: #{variables.$shadow-dark-lg};
   --shadow-xl: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
 
   // Divider
-  --divider: #{$neutral-700};
+  --divider: #{variables.$neutral-700};
 
   body {
     color-scheme: dark;
