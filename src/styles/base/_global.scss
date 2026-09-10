@@ -1,10 +1,10 @@
-@import "../abstracts/variables";
-@import "../abstracts/mixins";
-@import "../abstracts/placeholders";
+@use "../abstracts/variables";
+@use "../abstracts/mixins";
+@use "../abstracts/placeholders";
 
 body {
-  background-color: $neutral-50;
-  @include custom-scrollbar;
+  background-color: variables.$neutral-50;
+  @include mixins.custom-scrollbar;
 }
 
 #__next,
@@ -30,7 +30,7 @@ main {
 }
 
 .divider {
-  @include divider;
+  @include mixins.divider;
 }
 
 .sr-only {

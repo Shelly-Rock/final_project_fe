@@ -1,5 +1,5 @@
-@import "../abstracts/variables";
-@import "../abstracts/placeholders";
+@use "../abstracts/variables";
+@use "../abstracts/placeholders";
 
 // ---------- Headings ----------
 h1,
@@ -25,98 +25,98 @@ p {
 }
 
 body {
-  font-family: $font-sans;
-  font-size: $font-size-base;
-  font-weight: $font-weight-normal;
-  line-height: $line-height-normal;
-  color: $neutral-900;
+  font-family: variables.$font-sans;
+  font-size: variables.$font-size-base;
+  font-weight: variables.$font-weight-normal;
+  line-height: variables.$line-height-normal;
+  color: variables.$neutral-900;
 }
 
 // ---------- Font sizes ----------
 small,
 .text-sm {
-  font-size: $font-size-sm;
+  font-size: variables.$font-size-sm;
 }
 .text-xs {
-  font-size: $font-size-xs;
+  font-size: variables.$font-size-xs;
 }
 .text-lg {
-  font-size: $font-size-lg;
+  font-size: variables.$font-size-lg;
 }
 .text-xl {
-  font-size: $font-size-xl;
+  font-size: variables.$font-size-xl;
 }
 .text-2xl {
-  font-size: $font-size-2xl;
+  font-size: variables.$font-size-2xl;
 }
 .text-3xl {
-  font-size: $font-size-3xl;
+  font-size: variables.$font-size-3xl;
 }
 .text-4xl {
-  font-size: $font-size-4xl;
+  font-size: variables.$font-size-4xl;
 }
 
 // ---------- Font weights ----------
 .font-light {
-  font-weight: $font-weight-light;
+  font-weight: variables.$font-weight-light;
 }
 .font-normal {
-  font-weight: $font-weight-normal;
+  font-weight: variables.$font-weight-normal;
 }
 .font-medium {
-  font-weight: $font-weight-medium;
+  font-weight: variables.$font-weight-medium;
 }
 .font-semibold {
-  font-weight: $font-weight-semibold;
+  font-weight: variables.$font-weight-semibold;
 }
 .font-bold {
-  font-weight: $font-weight-bold;
+  font-weight: variables.$font-weight-bold;
 }
 
 // ---------- Colors ----------
 .text-primary {
-  color: $color-primary;
+  color: variables.$color-primary;
 }
 .text-secondary {
-  color: $color-secondary;
+  color: variables.$color-secondary;
 }
 .text-accent {
-  color: $color-accent;
+  color: variables.$color-accent;
 }
 .text-warm {
-  color: $color-warm;
+  color: variables.$color-warm;
 }
 .text-success {
-  color: $color-success;
+  color: variables.$color-success;
 }
 .text-error {
-  color: $color-error;
+  color: variables.$color-error;
 }
 .text-warning {
-  color: $color-warning;
+  color: variables.$color-warning;
 }
 .text-info {
-  color: $color-info;
+  color: variables.$color-info;
 }
 .text-muted {
-  color: $neutral-500;
+  color: variables.$neutral-500;
 }
 .text-white {
-  color: $white;
+  color: variables.$white;
 }
 
 // ---------- Links ----------
 a {
-  color: $primary-400;
-  transition: color $transition-fast;
+  color: variables.$primary-400;
+  transition: color variables.$transition-fast;
 
   &:hover {
-    color: $primary-500;
+    color: variables.$primary-500;
   }
 }
 
 // ---------- Selection ----------
 ::selection {
-  background: rgba($primary-400, 0.25);
-  color: $neutral-900;
+  background: rgba(variables.$primary-400, 0.25);
+  color: variables.$neutral-900;
 }

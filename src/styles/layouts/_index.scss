@@ -1,29 +1,29 @@
 // ============================================================
 // LAYOUT — Sidebar, Header, Footer, App Shell
 // ============================================================
-@import "../abstracts/variables";
-@import "../abstracts/mixins";
+@use "../abstracts/variables";
+@use "../abstracts/mixins";
 
 // ---------- Sidebar ----------
 $sidebar-bg: #024282;
 $sidebar-text: #ffff;
 $sidebar-text-muted: #ffff;
-$sidebar-active-bg: rgba($primary-400, 0.25);
+$sidebar-active-bg: rgba(variables.$primary-400, 0.25);
 $sidebar-active-text: #ffff;
 $sidebar-hover-bg: rgba(255, 255, 255, 0.08);
 $sidebar-border: rgba(255, 255, 255, 0.1);
 $sidebar-section-color: #ffff;
-$sidebar-width: 260px;
+variables.$sidebar-width: 260px;
 $sidebar-collapsed-width: 72px;
 
 .sidebar-wrapper {
-  width: $sidebar-width;
+  width: variables.$sidebar-width;
   flex-shrink: 0;
   height: 100vh;
   position: sticky;
   top: 0;
-  z-index: $z-fixed;
-  transition: width $transition-base;
+  z-index: variables.$z-fixed;
+  transition: width variables.$transition-base;
 
   &.collapsed {
     width: $sidebar-collapsed-width;
@@ -31,11 +31,11 @@ $sidebar-collapsed-width: 72px;
 
   @media (max-width: 1024px) {
     position: fixed;
-    left: -$sidebar-width;
+    left: -(variables.$sidebar-width);
     top: 0;
     height: 100vh;
-    z-index: $z-modal;
-    transition: left $transition-base;
+    z-index: variables.$z-modal;
+    transition: left variables.$transition-base;
 
     &.mobile-open {
       left: 0;
@@ -65,16 +65,16 @@ $sidebar-collapsed-width: 72px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: $spacing-4 $spacing-5;
+  padding: variables.$spacing-4 variables.$spacing-5;
   border-bottom: 1px solid $sidebar-border;
-  height: $header-height;
+  height: variables.$header-height;
   position: relative;
 }
 
 .sidebar-brand {
   display: flex;
   align-items: center;
-  gap: $spacing-3;
+  gap: variables.$spacing-3;
   text-decoration: none;
   color: $sidebar-active-text;
   flex: 1;
@@ -95,7 +95,7 @@ $sidebar-collapsed-width: 72px;
     border-radius: 12px;
     background: rgba(255, 255, 255, 0.1);
     opacity: 0;
-    transition: opacity $transition-normal;
+    transition: opacity variables.$transition-normal;
   }
 }
 
@@ -107,7 +107,7 @@ $sidebar-collapsed-width: 72px;
   object-fit: contain;
   flex-shrink: 0;
   background: transparent !important;
-  transition: transform $transition-normal;
+  transition: transform variables.$transition-normal;
 }
 
 .sidebar-brand:hover .sidebar-brand-logo {
@@ -115,8 +115,8 @@ $sidebar-collapsed-width: 72px;
 }
 
 .sidebar-brand-text {
-  font-size: $font-size-base;
-  font-weight: $font-weight-semibold;
+  font-size: variables.$font-size-base;
+  font-weight: variables.$font-weight-semibold;
   color: #ffff;
   white-space: nowrap;
   opacity: 0.9;
@@ -153,7 +153,7 @@ $sidebar-collapsed-width: 72px;
 }
 
 .sidebar-toggle-icon {
-  font-size: $font-size-lg;
+  font-size: variables.$font-size-lg;
   line-height: 1;
 }
 
@@ -161,22 +161,22 @@ $sidebar-collapsed-width: 72px;
 .sidebar-user {
   display: flex;
   align-items: center;
-  gap: $spacing-3;
-  padding: $spacing-4 $spacing-5;
+  gap: variables.$spacing-3;
+  padding: variables.$spacing-4 variables.$spacing-5;
   border-bottom: 1px solid $sidebar-border;
 }
 
 .sidebar-user-avatar {
   width: 36px;
   height: 36px;
-  border-radius: $radius-full;
-  background: $primary-600;
+  border-radius: variables.$radius-full;
+  background: variables.$primary-600;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
   color: #ffff;
-  font-size: $font-size-xl;
+  font-size: variables.$font-size-xl;
 }
 
 .sidebar-user-info {
@@ -187,8 +187,8 @@ $sidebar-collapsed-width: 72px;
 }
 
 .sidebar-user-name {
-  font-size: $font-size-sm;
-  font-weight: $font-weight-medium;
+  font-size: variables.$font-size-sm;
+  font-weight: variables.$font-weight-medium;
   color: $sidebar-active-text;
   white-space: nowrap;
   overflow: hidden;
@@ -196,7 +196,7 @@ $sidebar-collapsed-width: 72px;
 }
 
 .sidebar-user-role {
-  font-size: $font-size-xs;
+  font-size: variables.$font-size-xs;
   color: $sidebar-text-muted;
 }
 
@@ -205,9 +205,9 @@ $sidebar-collapsed-width: 72px;
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: $spacing-3 0;
+  padding: variables.$spacing-3 0;
 
-  @include custom-scrollbar(
+  @include mixins.custom-scrollbar(
     $thumb-color: rgba(255, 255, 255, 0.15),
     $track-color: transparent
   );
@@ -215,13 +215,13 @@ $sidebar-collapsed-width: 72px;
 
 // ---------- Sidebar Sections ----------
 .sidebar-section {
-  margin-bottom: $spacing-4;
+  margin-bottom: variables.$spacing-4;
 }
 
 .sidebar-section-title {
-  padding: $spacing-2 $spacing-5;
-  font-size: $font-size-xs;
-  font-weight: $font-weight-semibold;
+  padding: variables.$spacing-2 variables.$spacing-5;
+  font-size: variables.$font-size-xs;
+  font-weight: variables.$font-weight-semibold;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: $sidebar-section-color;
@@ -247,17 +247,17 @@ $sidebar-collapsed-width: 72px;
 .sidebar-menu-btn {
   display: flex;
   align-items: center;
-  gap: $spacing-3;
-  padding: $spacing-2-5 $spacing-5;
+  gap: variables.$spacing-3;
+  padding: variables.$spacing-2-5 variables.$spacing-5;
   color: $sidebar-text;
-  font-size: $font-size-sm;
-  font-weight: $font-weight-medium;
+  font-size: variables.$font-size-sm;
+  font-weight: variables.$font-weight-medium;
   text-decoration: none;
   width: 100%;
   text-align: left;
   transition:
-    background $transition-fast,
-    color $transition-fast;
+    background variables.$transition-fast,
+    color variables.$transition-fast;
   cursor: pointer;
   border: none;
   background: transparent;
@@ -272,7 +272,7 @@ $sidebar-collapsed-width: 72px;
 .sidebar-menu-item.active > .sidebar-menu-btn {
   background: $sidebar-active-bg;
   color: $sidebar-active-text;
-  font-weight: $font-weight-semibold;
+  font-weight: variables.$font-weight-semibold;
 
   &::before {
     content: "";
@@ -282,14 +282,14 @@ $sidebar-collapsed-width: 72px;
     transform: translateY(-50%);
     width: 3px;
     height: 60%;
-    background: $primary-200;
-    border-radius: 0 $radius-full $radius-full 0;
+    background: variables.$primary-200;
+    border-radius: 0 variables.$radius-full variables.$radius-full 0;
   }
 }
 
 // ---------- Sidebar Icons ----------
 .sidebar-menu-icon {
-  font-size: $font-size-base;
+  font-size: variables.$font-size-base;
   flex-shrink: 0;
   width: 20px;
   text-align: center;
@@ -306,10 +306,10 @@ $sidebar-collapsed-width: 72px;
 }
 
 .sidebar-menu-arrow {
-  font-size: $font-size-xs;
+  font-size: variables.$font-size-xs;
   flex-shrink: 0;
   opacity: 0.6;
-  transition: transform $transition-fast;
+  transition: transform variables.$transition-fast;
 }
 
 // ---------- Submenu ----------
@@ -321,8 +321,8 @@ $sidebar-collapsed-width: 72px;
 
   .sidebar-menu-link,
   .sidebar-menu-btn {
-    padding-left: $spacing-8;
-    font-size: $font-size-sm;
+    padding-left: variables.$spacing-8;
+    font-size: variables.$font-size-sm;
     color: $sidebar-text-muted;
   }
 
@@ -334,35 +334,35 @@ $sidebar-collapsed-width: 72px;
 
 // ---------- Sidebar Footer ----------
 .sidebar-footer {
-  padding: $spacing-4 $spacing-5;
+  padding: variables.$spacing-4 variables.$spacing-5;
   border-top: 1px solid $sidebar-border;
 }
 
 .sidebar-logout-btn {
   display: flex;
   align-items: center;
-  gap: $spacing-3;
+  gap: variables.$spacing-3;
   width: 100%;
-  padding: $spacing-2-5 $spacing-3;
-  border-radius: $radius-md;
+  padding: variables.$spacing-2-5 variables.$spacing-3;
+  border-radius: variables.$radius-md;
   color: #ffff;
-  font-size: $font-size-sm;
-  font-weight: $font-weight-medium;
+  font-size: variables.$font-size-sm;
+  font-weight: variables.$font-weight-medium;
   transition:
-    background $transition-fast,
-    color $transition-fast;
+    background variables.$transition-fast,
+    color variables.$transition-fast;
   cursor: pointer;
   background: transparent;
   border: none;
 
   &:hover {
-    background: rgba($error-500, 0.15);
-    color: $error-300;
+    background: rgba(variables.$error-500, 0.15);
+    color: variables.$error-300;
   }
 }
 
 .sidebar-logout-icon {
-  font-size: $font-size-base;
+  font-size: variables.$font-size-base;
   flex-shrink: 0;
 }
 
@@ -372,18 +372,18 @@ $sidebar-collapsed-width: 72px;
   position: fixed;
   top: 12px;
   left: 12px;
-  z-index: $z-sticky;
+  z-index: variables.$z-sticky;
   width: 40px;
   height: 40px;
-  background: $primary-500;
+  background: variables.$primary-500;
   color: #ffff;
   border: none;
-  border-radius: $radius-lg;
+  border-radius: variables.$radius-lg;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  font-size: $font-size-xl;
-  box-shadow: $shadow-md;
+  font-size: variables.$font-size-xl;
+  box-shadow: variables.$shadow-md;
 
   @media (min-width: 1025px) {
     display: none;
@@ -393,7 +393,7 @@ $sidebar-collapsed-width: 72px;
 // ---------- Collapsed Sidebar ----------
 .sidebar--collapsed {
   .sidebar-header {
-    padding: $spacing-4 $spacing-3;
+    padding: variables.$spacing-4 variables.$spacing-3;
     justify-content: center;
   }
 
@@ -403,27 +403,27 @@ $sidebar-collapsed-width: 72px;
 
   .sidebar-user {
     justify-content: center;
-    padding: $spacing-4 $spacing-3;
+    padding: variables.$spacing-4 variables.$spacing-3;
   }
 
   .sidebar-menu-link,
   .sidebar-menu-btn {
-    padding: $spacing-2-5 $spacing-3;
+    padding: variables.$spacing-2-5 variables.$spacing-3;
     justify-content: center;
   }
 
   .sidebar-section-title {
-    padding: $spacing-2 $spacing-3;
+    padding: variables.$spacing-2 variables.$spacing-3;
     text-align: center;
   }
 
   .sidebar-footer {
-    padding: $spacing-4 $spacing-3;
+    padding: variables.$spacing-4 variables.$spacing-3;
   }
 
   .sidebar-logout-btn {
     justify-content: center;
-    padding: $spacing-2-5 $spacing-3;
+    padding: variables.$spacing-2-5 variables.$spacing-3;
   }
 }
 
@@ -439,8 +439,8 @@ $sidebar-collapsed-width: 72px;
   min-width: 0;
   display: flex;
   flex-direction: column;
-  background: var(--bg-page, $neutral-50);
-  transition: margin-left $transition-base;
+  background: var(--bg-page, variables.$neutral-50);
+  transition: margin-left variables.$transition-base;
 
   &.sidebar-collapsed {
     margin-left: 0;
@@ -449,36 +449,36 @@ $sidebar-collapsed-width: 72px;
 
 // ---------- App Header ----------
 .app-header {
-  height: $header-height;
-  background: $white;
-  border-bottom: 1px solid $neutral-200;
+  height: variables.$header-height;
+  background: variables.$white;
+  border-bottom: 1px solid variables.$neutral-200;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 $spacing-6;
+  padding: 0 variables.$spacing-6;
   flex-shrink: 0;
   position: sticky;
   top: 0;
-  z-index: $z-sticky;
-  box-shadow: $shadow-sm;
+  z-index: variables.$z-sticky;
+  box-shadow: variables.$shadow-sm;
 }
 
 .app-header-left {
   display: flex;
   align-items: center;
-  gap: $spacing-4;
+  gap: variables.$spacing-4;
 }
 
 .app-header-breadcrumb {
-  font-size: $font-size-sm;
-  font-weight: $font-weight-medium;
-  color: $neutral-500;
+  font-size: variables.$font-size-sm;
+  font-weight: variables.$font-weight-medium;
+  color: variables.$neutral-500;
 }
 
 .app-header-right {
   display: flex;
   align-items: center;
-  gap: $spacing-4;
+  gap: variables.$spacing-4;
 }
 
 // ---------- Role Switcher ----------
@@ -489,29 +489,29 @@ $sidebar-collapsed-width: 72px;
 .role-switcher-btn {
   display: flex;
   align-items: center;
-  gap: $spacing-2;
-  padding: $spacing-2 $spacing-3;
-  border-radius: $radius-lg;
-  border: 1px solid $neutral-200;
-  background: $white;
-  color: $neutral-700;
-  font-size: $font-size-sm;
-  font-weight: $font-weight-medium;
+  gap: variables.$spacing-2;
+  padding: variables.$spacing-2 variables.$spacing-3;
+  border-radius: variables.$radius-lg;
+  border: 1px solid variables.$neutral-200;
+  background: variables.$white;
+  color: variables.$neutral-700;
+  font-size: variables.$font-size-sm;
+  font-weight: variables.$font-weight-medium;
   cursor: pointer;
   transition:
-    background $transition-fast,
-    border-color $transition-fast,
-    box-shadow $transition-fast;
+    background variables.$transition-fast,
+    border-color variables.$transition-fast,
+    box-shadow variables.$transition-fast;
 
   &:hover {
-    background: $neutral-50;
-    border-color: $neutral-300;
-    box-shadow: $shadow-sm;
+    background: variables.$neutral-50;
+    border-color: variables.$neutral-300;
+    box-shadow: variables.$shadow-sm;
   }
 }
 
 .role-switcher-icon {
-  font-size: $font-size-lg;
+  font-size: variables.$font-size-lg;
 }
 
 .role-switcher-label {
@@ -522,9 +522,9 @@ $sidebar-collapsed-width: 72px;
 }
 
 .role-switcher-arrow {
-  font-size: $font-size-xs;
-  transition: transform $transition-fast;
-  color: $neutral-400;
+  font-size: variables.$font-size-xs;
+  transition: transform variables.$transition-fast;
+  color: variables.$neutral-400;
 
   &.open {
     transform: rotate(180deg);
@@ -534,19 +534,19 @@ $sidebar-collapsed-width: 72px;
 .role-switcher-overlay {
   position: fixed;
   inset: 0;
-  z-index: $z-dropdown;
+  z-index: variables.$z-dropdown;
 }
 
 .role-switcher-dropdown {
   position: absolute;
-  top: calc(100% + $spacing-2);
+  top: calc(100% + variables.$spacing-2);
   right: 0;
   min-width: 220px;
-  background: $white;
-  border: 1px solid $neutral-200;
-  border-radius: $radius-xl;
-  box-shadow: $shadow-lg;
-  z-index: $z-dropdown + 1;
+  background: variables.$white;
+  border: 1px solid variables.$neutral-200;
+  border-radius: variables.$radius-xl;
+  box-shadow: variables.$shadow-lg;
+  z-index: variables.$z-dropdown + 1;
   overflow: hidden;
   animation: dropdownFadeIn 150ms ease;
 }
@@ -554,7 +554,7 @@ $sidebar-collapsed-width: 72px;
 @keyframes dropdownFadeIn {
   from {
     opacity: 0;
-    transform: translateY(-$spacing-2);
+    transform: translateY(-(variables.$spacing-2));
   }
   to {
     opacity: 1;
@@ -563,11 +563,11 @@ $sidebar-collapsed-width: 72px;
 }
 
 .role-switcher-dropdown-header {
-  padding: $spacing-3 $spacing-4;
-  font-size: $font-size-xs;
-  font-weight: $font-weight-semibold;
-  color: $neutral-400;
-  border-bottom: 1px solid $neutral-100;
+  padding: variables.$spacing-3 variables.$spacing-4;
+  font-size: variables.$font-size-xs;
+  font-weight: variables.$font-weight-semibold;
+  color: variables.$neutral-400;
+  border-bottom: 1px solid variables.$neutral-100;
   letter-spacing: 0.05em;
   text-transform: uppercase;
 }
@@ -575,39 +575,39 @@ $sidebar-collapsed-width: 72px;
 .role-switcher-item {
   display: flex;
   align-items: center;
-  gap: $spacing-3;
+  gap: variables.$spacing-3;
   width: 100%;
-  padding: $spacing-3 $spacing-4;
+  padding: variables.$spacing-3 variables.$spacing-4;
   background: transparent;
   border: none;
-  font-size: $font-size-sm;
-  color: $neutral-700;
+  font-size: variables.$font-size-sm;
+  color: variables.$neutral-700;
   cursor: pointer;
-  transition: background $transition-fast;
+  transition: background variables.$transition-fast;
   text-align: left;
 
   &:hover {
-    background: $neutral-50;
+    background: variables.$neutral-50;
   }
 
   &.active {
-    background: $primary-50;
-    color: $primary-500;
-    font-weight: $font-weight-semibold;
+    background: variables.$primary-50;
+    color: variables.$primary-500;
+    font-weight: variables.$font-weight-semibold;
   }
 }
 
 .role-switcher-dot {
   width: 8px;
   height: 8px;
-  border-radius: $radius-full;
+  border-radius: variables.$radius-full;
   flex-shrink: 0;
 }
 
 .role-switcher-check {
   margin-left: auto;
-  color: $primary-500;
-  font-size: $font-size-sm;
+  color: variables.$primary-500;
+  font-size: variables.$font-size-sm;
 }
 
 // ---------- Unauthorized Page ----------
@@ -616,8 +616,12 @@ $sidebar-collapsed-width: 72px;
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  background: linear-gradient(135deg, $primary-900 0%, $primary-600 100%);
-  padding: $spacing-6;
+  background: linear-gradient(
+    135deg,
+    variables.$primary-900 0%,
+    variables.$primary-600 100%
+  );
+  padding: variables.$spacing-6;
 }
 
 .unauthorized-container {
@@ -627,89 +631,89 @@ $sidebar-collapsed-width: 72px;
   text-align: center;
   max-width: 480px;
   width: 100%;
-  background: $white;
-  border-radius: $radius-3xl;
-  padding: $spacing-12 $spacing-10;
-  box-shadow: $shadow-2xl;
+  background: variables.$white;
+  border-radius: variables.$radius-3xl;
+  padding: variables.$spacing-12 variables.$spacing-10;
+  box-shadow: variables.$shadow-2xl;
 }
 
 .unauthorized-logo {
-  margin-bottom: $spacing-4;
+  margin-bottom: variables.$spacing-4;
 }
 
 .unauthorized-logo-img {
   width: 80px;
   height: 80px;
-  border-radius: $radius-xl;
+  border-radius: variables.$radius-xl;
   object-fit: cover;
 }
 
 .unauthorized-icon {
   width: 80px;
   height: 80px;
-  border-radius: $radius-full;
-  background: rgba($error-500, 0.1);
+  border-radius: variables.$radius-full;
+  background: rgba(variables.$error-500, 0.1);
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: $spacing-6;
+  margin-bottom: variables.$spacing-6;
 
   .bi-shield-lock {
     font-size: 2.5rem;
-    color: $error-500;
+    color: variables.$error-500;
   }
 }
 
 .unauthorized-code {
   font-size: 6rem;
-  font-weight: $font-weight-extrabold;
+  font-weight: variables.$font-weight-extrabold;
   line-height: 1;
-  color: $error-500;
-  margin-bottom: $spacing-4;
+  color: variables.$error-500;
+  margin-bottom: variables.$spacing-4;
   letter-spacing: -0.05em;
 }
 
 .unauthorized-title {
-  font-size: $font-size-2xl;
-  font-weight: $font-weight-bold;
-  color: $neutral-900;
-  margin-bottom: $spacing-3;
-  line-height: $line-height-tight;
+  font-size: variables.$font-size-2xl;
+  font-weight: variables.$font-weight-bold;
+  color: variables.$neutral-900;
+  margin-bottom: variables.$spacing-3;
+  line-height: variables.$line-height-tight;
 }
 
 .unauthorized-desc {
-  font-size: $font-size-base;
-  color: $neutral-500;
-  line-height: $line-height-relaxed;
-  margin-bottom: $spacing-8;
+  font-size: variables.$font-size-base;
+  color: variables.$neutral-500;
+  line-height: variables.$line-height-relaxed;
+  margin-bottom: variables.$spacing-8;
 }
 
 .unauthorized-actions {
   display: flex;
   flex-direction: column;
-  gap: $spacing-3;
+  gap: variables.$spacing-3;
   width: 100%;
-  margin-bottom: $spacing-6;
+  margin-bottom: variables.$spacing-6;
 }
 
 .unauthorized-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: $spacing-2;
-  padding: $spacing-3 $spacing-6;
-  border-radius: $radius-lg;
-  font-size: $font-size-base;
-  font-weight: $font-weight-semibold;
+  gap: variables.$spacing-2;
+  padding: variables.$spacing-3 variables.$spacing-6;
+  border-radius: variables.$radius-lg;
+  font-size: variables.$font-size-base;
+  font-weight: variables.$font-weight-semibold;
   text-decoration: none;
   transition:
-    background $transition-fast,
-    transform $transition-fast,
-    box-shadow $transition-fast;
+    background variables.$transition-fast,
+    transform variables.$transition-fast,
+    box-shadow variables.$transition-fast;
   cursor: pointer;
 
   .bi {
-    font-size: $font-size-lg;
+    font-size: variables.$font-size-lg;
   }
 
   &:active {
@@ -718,47 +722,47 @@ $sidebar-collapsed-width: 72px;
 }
 
 .unauthorized-btn--primary {
-  background: $primary-400;
-  color: $white;
-  box-shadow: 0 4px 14px rgba($primary-400, 0.4);
+  background: variables.$primary-400;
+  color: variables.$white;
+  box-shadow: 0 4px 14px rgba(variables.$primary-400, 0.4);
 
   &:hover {
-    background: $primary-500;
-    box-shadow: 0 6px 20px rgba($primary-400, 0.5);
-    color: $white;
+    background: variables.$primary-500;
+    box-shadow: 0 6px 20px rgba(variables.$primary-400, 0.5);
+    color: variables.$white;
   }
 }
 
 .unauthorized-btn--secondary {
-  background: $neutral-100;
-  color: $neutral-700;
-  border: 1px solid $neutral-200;
+  background: variables.$neutral-100;
+  color: variables.$neutral-700;
+  border: 1px solid variables.$neutral-200;
 
   &:hover {
-    background: $neutral-200;
-    color: $neutral-900;
+    background: variables.$neutral-200;
+    color: variables.$neutral-900;
   }
 }
 
 .unauthorized-help {
   display: flex;
   align-items: center;
-  gap: $spacing-2;
-  font-size: $font-size-sm;
-  color: $neutral-500;
+  gap: variables.$spacing-2;
+  font-size: variables.$font-size-sm;
+  color: variables.$neutral-500;
 
   .bi {
-    font-size: $font-size-base;
+    font-size: variables.$font-size-base;
   }
 }
 
 .unauthorized-link {
-  color: $primary-400;
+  color: variables.$primary-400;
   text-decoration: none;
-  font-weight: $font-weight-medium;
+  font-weight: variables.$font-weight-medium;
 
   &:hover {
-    color: $primary-500;
+    color: variables.$primary-500;
     text-decoration: underline;
   }
 }

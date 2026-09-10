@@ -1,15 +1,17 @@
+@use "sass:color";
+@use "sass:map";
 @function tint($color, $percentage) {
-  @return mix(#ffffff, $color, $percentage);
+  @return color.mix(#ffffff, $color, $percentage);
 }
 
 /// Darken a color by a percentage (0–100)
 @function shade($color, $percentage) {
-  @return mix(#000000, $color, $percentage);
+  @return color.mix(#000000, $color, $percentage);
 }
 
 /// Get a shade one level lighter than given shade token
 @function color-level($base, $shade: 500) {
-  @return map-get(
+  @return map.get(
     (
       50: tint($base, 90%),
       100: tint($base, 80%),
@@ -42,7 +44,7 @@
 /// Deep get a nested map value
 @function map-deep-get($map, $keys...) {
   @each $key in $keys {
-    $map: map-get($map, $key);
+    $map: map.get($map, $key);
   }
   @return $map;
 }
