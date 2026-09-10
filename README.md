@@ -22,7 +22,7 @@
 | ------------------------ | ------- | ---------------------------------------------------- |
 | **Tailwind CSS**         | ^4      | Utility-first CSS framework                          |
 | **@tailwindcss/postcss** | ^4      | PostCSS plugin cho Tailwind v4                       |
-| **Ant Design**           | 6.4.3   | UI component library (table, form, modal, menu...)   |
+| **@mui/material**        | ^6.5.0  | UI component library (table, form, modal, menu...)   |
 | **clsx**                 | ^2.1.1  | Tạo className động từ điều kiện                      |
 | **tailwind-merge**       | ^3.6.0  | Merge Tailwind classes không bị đè (dùng với `cn()`) |
 
@@ -207,7 +207,7 @@ pnpm lint
 ```
 ┌─────────────────────────────────────────────────┐
 │                    UI Layer                      │
-│  Ant Design  ·  Lucide Icons  ·  Recharts       │
+│  MUI         ·  Lucide Icons  ·  Recharts       │
 │  TipTap Editor  ·  Sonner Toasts                 │
 ├─────────────────────────────────────────────────┤
 │               State Management                   │
