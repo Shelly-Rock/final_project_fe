@@ -101,6 +101,27 @@ export const MENU_SECTIONS: MenuSection[] = [
         path: "/role",
         roles: ["admin"],
       },
+      {
+        key: "audit",
+        label: "Nhật ký Audit",
+        icon: Icon.clipboardCheck,
+        path: "/audit",
+        roles: ["admin", "secretary"],
+      },
+      {
+        key: "dashboard",
+        label: "Dashboard Thư ký",
+        icon: Icon.graphUp,
+        path: "/dashboard",
+        roles: ["admin", "secretary"],
+      },
+      {
+        key: "department",
+        label: "Dashboard Khoa",
+        icon: Icon.people,
+        path: "/department",
+        roles: ["admin", "secretary"],
+      },
     ],
   },
   {
