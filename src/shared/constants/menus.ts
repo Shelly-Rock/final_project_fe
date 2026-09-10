@@ -35,6 +35,7 @@ export const Icon = {
   calendar: "bi-calendar-event",
   scorecard: "bi-scorecard",
   pencilSquare: "bi-pencil-square",
+  gear: "bi-gear",
 } as const;
 
 export const MENU_ITEMS: MenuItem[] = [
@@ -80,6 +81,13 @@ export const MENU_SECTIONS: MenuSection[] = [
         roles: ["admin", "secretary"],
       },
       {
+        key: "project-config",
+        label: "Cấu hình & Duyệt đề tài",
+        icon: Icon.gear,
+        path: "/project-config",
+        roles: ["admin", "secretary"],
+      },
+      {
         key: "admin-progress",
         label: "Theo dõi tiến trình",
         icon: Icon.graphUp,
@@ -92,6 +100,27 @@ export const MENU_SECTIONS: MenuSection[] = [
         icon: Icon.personGear,
         path: "/role",
         roles: ["admin"],
+      },
+      {
+        key: "audit",
+        label: "Nhật ký Audit",
+        icon: Icon.clipboardCheck,
+        path: "/audit",
+        roles: ["admin", "secretary"],
+      },
+      {
+        key: "dashboard",
+        label: "Dashboard Thư ký",
+        icon: Icon.graphUp,
+        path: "/dashboard",
+        roles: ["admin", "secretary"],
+      },
+      {
+        key: "department",
+        label: "Dashboard Khoa",
+        icon: Icon.people,
+        path: "/department",
+        roles: ["admin", "secretary"],
       },
     ],
   },

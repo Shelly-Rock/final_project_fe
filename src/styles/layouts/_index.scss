@@ -6,13 +6,13 @@
 
 // ---------- Sidebar ----------
 $sidebar-bg: #024282;
-$sidebar-text: rgba(255, 255, 255, 0.85);
-$sidebar-text-muted: rgba(255, 255, 255, 0.5);
+$sidebar-text: #ffff;
+$sidebar-text-muted: #ffff;
 $sidebar-active-bg: rgba($primary-400, 0.25);
-$sidebar-active-text: #ffffff;
+$sidebar-active-text: #ffff;
 $sidebar-hover-bg: rgba(255, 255, 255, 0.08);
 $sidebar-border: rgba(255, 255, 255, 0.1);
-$sidebar-section-color: rgba(255, 255, 255, 0.4);
+$sidebar-section-color: #ffff;
 $sidebar-width: 260px;
 $sidebar-collapsed-width: 72px;
 
@@ -117,7 +117,7 @@ $sidebar-collapsed-width: 72px;
 .sidebar-brand-text {
   font-size: $font-size-base;
   font-weight: $font-weight-semibold;
-  color: $white;
+  color: #ffff;
   white-space: nowrap;
   opacity: 0.9;
   letter-spacing: 0.02em;
@@ -132,7 +132,7 @@ $sidebar-collapsed-width: 72px;
   flex-shrink: 0;
   border-radius: 4px;
   background: #1470e0;
-  color: #ffffff;
+  color: #ffff;
   border: 1px solid transparent;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   transition: all 0.2s ease-in-out;
@@ -175,7 +175,7 @@ $sidebar-collapsed-width: 72px;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  color: rgba(255, 255, 255, 0.7);
+  color: #ffff;
   font-size: $font-size-xl;
 }
 
@@ -345,7 +345,7 @@ $sidebar-collapsed-width: 72px;
   width: 100%;
   padding: $spacing-2-5 $spacing-3;
   border-radius: $radius-md;
-  color: rgba(255, 255, 255, 0.6);
+  color: #ffff;
   font-size: $font-size-sm;
   font-weight: $font-weight-medium;
   transition:
@@ -376,7 +376,7 @@ $sidebar-collapsed-width: 72px;
   width: 40px;
   height: 40px;
   background: $primary-500;
-  color: $white;
+  color: #ffff;
   border: none;
   border-radius: $radius-lg;
   align-items: center;

@@ -1,93 +1,77 @@
 // ====================================
 // SERVICE — Teacher Management Feature
 // ====================================
-// NOTE: This service is kept for backward compatibility.
-// All data operations are now handled in the page component with mock data.
-
 import type {
   Lecturer,
   CreateLecturerInput,
   UpdateLecturerInput,
 } from "@/feature/admin/types";
-import { mockLecturers } from "@/feature/admin/mockData";
-
-// Current lecturers state (in-memory)
-let lecturers = [...mockLecturers];
+import { teacherApiService } from "./teacher.api";
 
 export const teacherService = {
   /**
    * Lấy danh sách tất cả giảng viên
    */
-  async getAll(): Promise<Lecturer[]> {
-    return [...lecturers];
+  async getAll(params?: {
+    page?: number;
+    pageSize?: number;
+    search?: string;
+    facultyId?: string;
+    departmentId?: string;
+    status?: "active" | "inactive";
+  }): Promise<{ teachers: Lecturer[]; total: number }> {
+    const result = await teacherApiService.getAll(params);
+    return { teachers: result.teachers, total: result.total };
   },
 
   /**
-   * Lấy thông tin giảng viên theo ID
+   * Lấy thông tin giảng viên theo code
    */
-  async getById(id: number): Promise<Lecturer | undefined> {
-    return lecturers.find((t) => t.id === id);
+  async getByCode(code: string): Promise<Lecturer> {
+    return teacherApiService.getByCode(code);
   },
 
   /**
    * Tạo mới giảng viên
    */
   async create(data: CreateLecturerInput): Promise<Lecturer> {
-    const now = new Date().toISOString();
-    const newTeacher: Lecturer = {
-      ...data,
-      id: Math.max(...lecturers.map((t) => t.id), 0) + 1,
-      status: "active",
-      createdAt: now,
-      updatedAt: now,
+    const payload = {
+      code: data.code,
+      name: data.name,
+      email: data.email,
+      phone: data.phone,
+      facultyId: data.facultyId,
+      departmentId: data.departmentId,
+      academicTitle: data.academicTitle,
+      position: data.position,
+      dateOfBirth: data.dateOfBirth,
+      gender: data.gender,
+      address: data.address,
     };
-    lecturers.push(newTeacher);
-    return newTeacher;
+    return teacherApiService.create(payload);
   },
 
   /**
    * Cập nhật thông tin giảng viên
    */
-  async update(id: number, data: UpdateLecturerInput): Promise<Lecturer> {
-    const index = lecturers.findIndex((t) => t.id === id);
-    if (index === -1) {
-      throw new Error("Không tìm thấy giảng viên");
-    }
-    const updated: Lecturer = {
-      ...lecturers[index],
-      ...data,
-      updatedAt: new Date().toISOString(),
-    };
-    lecturers[index] = updated;
-    return updated;
+  async update(code: string, data: UpdateLecturerInput): Promise<Lecturer> {
+    return teacherApiService.update(code, data);
   },
 
   /**
-   * Chuyển đổi trạng thái giảng viên (Soft Toggle)
+   * Chuyển đổi trạng thái giảng viên
    */
-  async toggleStatus(id: number): Promise<Lecturer> {
-    const index = lecturers.findIndex((t) => t.id === id);
-    if (index === -1) {
-      throw new Error("Không tìm thấy giảng viên");
-    }
-    const currentStatus = lecturers[index].status;
-    const newStatus = currentStatus === "active" ? "inactive" : "active";
-    lecturers[index] = {
-      ...lecturers[index],
-      status: newStatus,
-      updatedAt: new Date().toISOString(),
-    };
-    return lecturers[index];
+  async toggleStatus(
+    code: string,
+    newStatus: "active" | "inactive",
+  ): Promise<Lecturer> {
+    return teacherApiService.toggleStatus(code, newStatus);
   },
 
   /**
-   * Xóa giảng viên (Hard Delete - chỉ dùng khi cần)
+   * Xóa giảng viên (Soft delete)
    */
-  async delete(id: number): Promise<void> {
-    const index = lecturers.findIndex((t) => t.id === id);
-    if (index === -1) {
-      throw new Error("Không tìm thấy giảng viên");
-    }
-    lecturers = lecturers.filter((t) => t.id !== id);
+  async delete(code: string): Promise<void> {
+    await teacherApiService.remove(code);
   },
 };

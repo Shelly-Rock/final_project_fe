@@ -11,7 +11,6 @@ import {
 } from "react";
 import type { Action, Resource, Role } from "../permissions/types";
 import {
-  defineAbilityFor,
   defineAbilityFromPermissions,
   AppAbility,
 } from "../permissions/ability";
@@ -37,18 +36,21 @@ export function PermissionProvider({
   initialRole = null,
 }: PermissionProviderProps) {
   const [role, setRoleState] = useState<Role | null>(initialRole);
-  const [permissions, setPermissions] = useState<string[] | null>(null);
+  const [permissions, setPermissions] = useState<string[]>([]);
 
   useEffect(() => {
+    // Clear permissions in the same update that applies a role supplied by auth.
+    // This prevents the previous active role's ability surviving one render.
+    setPermissions([]);
     setRoleState(initialRole ?? null);
   }, [initialRole]);
 
-  // Fetch effective permissions from BE when active role changes
+  // Fetch effective permissions from BE when active role changes.
   useEffect(() => {
-    if (!role) {
-      setPermissions(null);
-      return;
-    }
+    // Defense in depth for role changes not initiated through setRole().
+    setPermissions([]);
+    if (!role) return;
+
     let cancelled = false;
     (async () => {
       try {
@@ -59,11 +61,12 @@ export function PermissionProvider({
           setPermissions(result.permissions ?? []);
         }
       } catch {
-        if (!cancelled) {
-          setPermissions(null); // fallback to static ability
-        }
+        // Fail closed: an unavailable permission API must not restore static
+        // permissions or retain permissions loaded for an earlier role.
+        if (!cancelled) setPermissions([]);
       }
     })();
+
     return () => {
       cancelled = true;
     };
@@ -71,11 +74,7 @@ export function PermissionProvider({
 
   const ability = useMemo(() => {
     if (!role) return new AppAbility();
-    // Use dynamic permissions from BE; fall back to static config while unavailable
-    if (permissions && permissions.length > 0) {
-      return defineAbilityFromPermissions(permissions);
-    }
-    return defineAbilityFor(role);
+    return defineAbilityFromPermissions(permissions);
   }, [role, permissions]);
 
   const can = useCallback(
@@ -90,15 +89,24 @@ export function PermissionProvider({
     [ability],
   );
 
-  const setRole = useCallback((newRole: Role | null) => {
-    setRoleState(newRole);
-  }, []);
+  const setRole = useCallback(
+    (newRole: Role | null) => {
+      // Selecting the current role must not clear permissions without causing
+      // the role-dependent fetch effect to run again.
+      if (newRole === role) return;
+
+      // Never render a new active role with permissions loaded for the old role.
+      setPermissions([]);
+      setRoleState(newRole);
+    },
+    [role],
+  );
 
   const value = useMemo(
     () => ({
       role,
       ability,
-      permissions: permissions ?? [],
+      permissions,
       setRole,
       can,
       cannot,
