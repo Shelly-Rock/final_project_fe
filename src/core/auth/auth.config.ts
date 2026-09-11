@@ -44,8 +44,7 @@ declare module "next-auth/jwt" {
 // ---------- Auth options (used by API route + getServerSession) ----------
 import type { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import axios from "axios";
-import { authService } from "@/core/auth/auth.service";
+import { serverAuthService } from "@/core/auth/auth.server";
 
 const nextAuthUrl =
   process.env.NODE_ENV === "development"
@@ -69,7 +68,7 @@ export const authOptions: NextAuthOptions = {
         }
 
         try {
-          const result = await authService.login({
+          const result = await serverAuthService.login({
             username: credentials.username,
             password: credentials.password,
           });
@@ -93,24 +92,12 @@ export const authOptions: NextAuthOptions = {
             emailVerified: !!result.user.emailVerifiedAt,
           };
         } catch (err: unknown) {
-          const status = axios.isAxiosError(err)
-            ? err.response?.status
-            : undefined;
-          const backendMessage = axios.isAxiosError(err)
-            ? err.response?.data?.message
-            : undefined;
-          const message = Array.isArray(backendMessage)
-            ? backendMessage.join(", ")
-            : typeof backendMessage === "string"
-              ? backendMessage
-              : err instanceof Error
-                ? err.message
-                : "Đăng nhập thất bại";
+          const message =
+            err instanceof Error ? err.message : "Đăng nhập thất bại";
 
           if (process.env.NODE_ENV === "development") {
             // eslint-disable-next-line no-console
             console.error("[NextAuth] Credentials login failed", {
-              status,
               message,
               username: credentials.username,
             });
@@ -153,9 +140,9 @@ export const authOptions: NextAuthOptions = {
         if (session.refreshToken) token.refreshToken = session.refreshToken;
         if (session.user?.name) token.username = session.user.name;
       }
-      // Persist tokens when session is updated
+      // Persist tokens when session is updated (server-side only)
       if (trigger === "update" && token.accessToken) {
-        authService.setTokens(token.accessToken, token.refreshToken);
+        // Tokens stored in JWT, no need to persist to storage on server
       }
       return token;
     },
