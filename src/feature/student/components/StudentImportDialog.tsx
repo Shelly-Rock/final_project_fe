@@ -33,6 +33,8 @@ type ImportRow = {
   soDienThoai?: string;
   ngaySinh?: string;
   diaChi?: string;
+  deTai?: string;
+  giangVienHuongDan?: string;
   status?: "pending" | "success" | "error";
   error?: string;
 };
@@ -79,6 +81,8 @@ export function StudentImportDialog({
                 khoa: "",
                 khoaHoc: "",
                 lop: "",
+                deTai: "chưa có",
+                giangVienHuongDan: "chưa có",
                 status: "pending",
               };
 
@@ -139,6 +143,19 @@ export function StudentImportDialog({
                     break;
                   case "diachi":
                     row.diaChi = value;
+                    break;
+                  case "detai":
+                  case "đề tài":
+                  case "thesis_topic":
+                  case "thesis":
+                    if (value) row.deTai = value;
+                    break;
+                  case "giangvienhuongdan":
+                  case "gv hướng dẫn":
+                  case "advisor":
+                  case "teacher":
+                  case "advisor_teacher":
+                    if (value) row.giangVienHuongDan = value;
                     break;
                 }
               });
@@ -258,7 +275,13 @@ export function StudentImportDialog({
         >
           <Typography variant="body2">
             File CSV cần có các cột:{" "}
-            <strong>mssv, hoten, gmail, khoa, khoahoc, lop</strong>
+            <strong>mssv, hoten, gmail, khoa, khoahoc, lop</strong> (Các cột
+            &quot;detai&quot; và &quot;giangvienhuongdan&quot; không bắt buộc,
+            mặc định là &quot;chưa có&quot;)
+          </Typography>
+          <Typography variant="caption" sx={{ display: "block", mt: 1 }}>
+            Các cột tùy chọn: detai, giangvienhuongdan (mặc định: &quot;chưa
+            có&quot;)
           </Typography>
         </Box>
       </Box>

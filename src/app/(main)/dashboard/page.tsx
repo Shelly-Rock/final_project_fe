@@ -11,6 +11,7 @@ import {
   CircularProgress,
 } from "@mui/material";
 import { PageHeader } from "@/shared/components";
+import { RoleGate } from "@/shared/components/PermissionGuard/PermissionGuard";
 import { BarChart3 } from "lucide-react";
 import { toast } from "sonner";
 import { useTheme } from "@/shared/theme";
@@ -42,7 +43,9 @@ export default function DashboardPage() {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const response = await apiClient.get<{ data: SecretaryDashboard }>("/dashboard/secretary");
+        const response = await apiClient.get<{ data: SecretaryDashboard }>(
+          "/dashboard/secretary",
+        );
         setData(response.data);
       } catch (e: unknown) {
         const msg =
@@ -79,112 +82,127 @@ export default function DashboardPage() {
   ];
 
   return (
-    <Box sx={{ p: 3, width: "100%" }}>
-      <PageHeader
-        title="Dashboard Thư ký"
-        subtitle="Tổng quan thống kê hệ thống"
-        illustration={<BarChart3 size={56} strokeWidth={1.5} />}
-        showBgImage
-      />
+    <RoleGate
+      roles={["admin", "secretary"]}
+      fallback={
+        <Box sx={{ p: 3, width: "100%", textAlign: "center" }}>
+          <Typography variant="h6" color="error">
+            Bạn không có quyền truy cập trang này
+          </Typography>
+        </Box>
+      }
+    >
+      <Box sx={{ p: 3, width: "100%" }}>
+        <PageHeader
+          title="Dashboard Thư ký"
+          subtitle="Tổng quan thống kê hệ thống"
+          illustration={<BarChart3 size={56} strokeWidth={1.5} />}
+          showBgImage
+        />
 
-      <Grid container spacing={3}>
-        {statCards.map((stat) => (
-          <Grid item xs={12} sm={6} md={3} key={stat.label}>
-            <Card
+        <Grid container spacing={3}>
+          {statCards.map((stat) => (
+            <Grid item xs={12} sm={6} md={3} key={stat.label}>
+              <Card
+                elevation={0}
+                sx={{
+                  border: "1px solid",
+                  borderColor: "divider",
+                  borderRadius: 2,
+                }}
+              >
+                <CardContent>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    gutterBottom
+                  >
+                    {stat.label}
+                  </Typography>
+                  <Typography
+                    variant="h3"
+                    sx={{ fontWeight: 700, color: stat.color }}
+                  >
+                    {stat.value}
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+          ))}
+
+          <Grid item xs={12} md={6}>
+            <Paper
               elevation={0}
               sx={{
+                p: 2.5,
                 border: "1px solid",
                 borderColor: "divider",
                 borderRadius: 2,
               }}
             >
-              <CardContent>
-                <Typography variant="body2" color="text.secondary" gutterBottom>
-                  {stat.label}
-                </Typography>
-                <Typography
-                  variant="h3"
-                  sx={{ fontWeight: 700, color: stat.color }}
-                >
-                  {stat.value}
-                </Typography>
-              </CardContent>
-            </Card>
+              <Typography variant="h6" sx={{ mb: 2, fontWeight: 700 }}>
+                Báo cáo tiến trình
+              </Typography>
+              <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
+                <StatRow
+                  label="Tổng số báo cáo"
+                  value={data.reports.total}
+                  color="#6b7280"
+                />
+                <StatRow
+                  label="Chờ duyệt"
+                  value={data.reports.pending}
+                  color="#f59e0b"
+                />
+                <StatRow
+                  label="Đã duyệt"
+                  value={data.reports.approved}
+                  color="#10b981"
+                />
+                <StatRow
+                  label="Từ chối"
+                  value={data.reports.rejected}
+                  color="#ef4444"
+                />
+              </Box>
+            </Paper>
           </Grid>
-        ))}
 
-        <Grid item xs={12} md={6}>
-          <Paper
-            elevation={0}
-            sx={{
-              p: 2.5,
-              border: "1px solid",
-              borderColor: "divider",
-              borderRadius: 2,
-            }}
-          >
-            <Typography variant="h6" sx={{ mb: 2, fontWeight: 700 }}>
-              Báo cáo tiến trình
-            </Typography>
-            <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
-              <StatRow
-                label="Tổng số báo cáo"
-                value={data.reports.total}
-                color="#6b7280"
-              />
-              <StatRow
-                label="Chờ duyệt"
-                value={data.reports.pending}
-                color="#f59e0b"
-              />
-              <StatRow
-                label="Đã duyệt"
-                value={data.reports.approved}
-                color="#10b981"
-              />
-              <StatRow
-                label="Từ chối"
-                value={data.reports.rejected}
-                color="#ef4444"
-              />
-            </Box>
-          </Paper>
+          <Grid item xs={12} md={6}>
+            <Paper
+              elevation={0}
+              sx={{
+                p: 2.5,
+                border: "1px solid",
+                borderColor: "divider",
+                borderRadius: 2,
+              }}
+            >
+              <Typography variant="h6" sx={{ mb: 2, fontWeight: 700 }}>
+                Đề tài theo trạng thái
+              </Typography>
+              <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
+                <StatRow
+                  label="Chờ duyệt"
+                  value={data.projects_by_status.pending}
+                  color="#f59e0b"
+                />
+                <StatRow
+                  label="Đã duyệt"
+                  value={data.projects_by_status.approved}
+                  color="#10b981"
+                />
+                <StatRow
+                  label="Từ chối"
+                  value={data.projects_by_status.rejected}
+                  color="#ef4444"
+                />
+              </Box>
+            </Paper>
+          </Grid>
         </Grid>
-
-        <Grid item xs={12} md={6}>
-          <Paper
-            elevation={0}
-            sx={{
-              p: 2.5,
-              border: "1px solid",
-              borderColor: "divider",
-              borderRadius: 2,
-            }}
-          >
-            <Typography variant="h6" sx={{ mb: 2, fontWeight: 700 }}>
-              Đề tài theo trạng thái
-            </Typography>
-            <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
-              <StatRow
-                label="Chờ duyệt"
-                value={data.projects_by_status.pending}
-                color="#f59e0b"
-              />
-              <StatRow
-                label="Đã duyệt"
-                value={data.projects_by_status.approved}
-                color="#10b981"
-              />
-              <StatRow
-                label="Từ chối"
-                value={data.projects_by_status.rejected}
-                color="#ef4444"
-              />
-            </Box>
-          </Paper>
-        </Grid>
-      </Grid>
-    </Box>
+      </Box>
+    </RoleGate>
   );
 }
 
