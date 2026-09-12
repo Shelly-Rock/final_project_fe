@@ -287,3 +287,118 @@ export const assignScoresToCommittee = async (
     committeeId,
   });
 };
+
+export type MeetingFinalStatus =
+  | "PASSED"
+  | "REJECTED_DEFENSE"
+  | "REJECTED_GVHD";
+
+export interface MeetingListItem {
+  projectId: number;
+  projectCode: string;
+  projectName: string;
+  student: {
+    studentId: string;
+    firstName: string;
+    middleName: string;
+    lastName: string;
+    className: string;
+  } | null;
+  scoredCount: number;
+  totalCount: number;
+  defenseAverage: number | null;
+  finalScore: number | null;
+  finalStatus: string | null;
+  isFinalized: boolean;
+}
+
+export interface MeetingCommitteeScore {
+  id: number;
+  teacherId: number;
+  teacherName: string;
+  teacherCode: string;
+  role: CommitteeRole | null;
+  score: number | null;
+  maxScore: number;
+  criteriaScores: Record<string, number> | null;
+  status: ScoringStatus;
+  notes: string | null;
+  strengths: string | null;
+  weaknesses: string | null;
+  submittedAt: string | null;
+  canEdit: boolean;
+}
+
+export interface MeetingDetail {
+  projectId: number;
+  projectCode: string;
+  projectName: string;
+  student: {
+    studentId: string;
+    firstName: string;
+    middleName: string;
+    lastName: string;
+    className: string;
+  } | null;
+  gvhdScore: {
+    id: number;
+    teacherId: number;
+    teacherName: string;
+    score: number | null;
+    status: ScoringStatus;
+    notes: string | null;
+  } | null;
+  committeeScores: MeetingCommitteeScore[];
+  defenseAverage: number | null;
+  finalScorePreview: number | null;
+  gvhdPassed: boolean | null;
+  finalStatus: string | null;
+  isFinalPassed: boolean;
+  isFinalized: boolean;
+  canEditAll: boolean;
+  canFinalize: boolean;
+  currentTeacherId: number | null;
+}
+
+export const getMeetings = async (
+  params?: Partial<{ page: number; limit: number; finalized: boolean }>,
+): Promise<PaginatedResponse<MeetingListItem>> => {
+  const queryParams = new URLSearchParams();
+  if (params?.page) queryParams.set("page", params.page.toString());
+  if (params?.limit) queryParams.set("limit", params.limit.toString());
+  if (params?.finalized !== undefined) {
+    queryParams.set("finalized", String(params.finalized));
+  }
+  return apiClient.get(`${API_BASE}/meetings?${queryParams.toString()}`);
+};
+
+export const getMeeting = async (projectId: number): Promise<MeetingDetail> => {
+  return apiClient.get(`${API_BASE}/meetings/${projectId}`);
+};
+
+export const adjustMeetingScore = async (
+  scoreId: number,
+  data: {
+    score: number;
+    maxScore?: number;
+    criteriaScores?: Record<string, number>;
+    notes?: string;
+    strengths?: string;
+    weaknesses?: string;
+  },
+): Promise<MeetingCommitteeScore> => {
+  return apiClient.put(`${API_BASE}/meetings/${scoreId}`, data);
+};
+
+export const finalizeMeeting = async (
+  projectId: number,
+): Promise<{
+  projectId: number;
+  defenseScore: number | null;
+  finalScore: number | null;
+  isFinalPassed: boolean;
+  finalStatus: string | null;
+  isFinalized: boolean;
+}> => {
+  return apiClient.post(`${API_BASE}/meetings/${projectId}/finalize`);
+};
