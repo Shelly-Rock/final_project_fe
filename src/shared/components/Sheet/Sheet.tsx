@@ -1,6 +1,5 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { Drawer, Box, IconButton, Typography } from "@mui/material";
 import { X } from "lucide-react";
 
@@ -38,6 +37,8 @@ export function Sheet({
       onClose={onClose}
       PaperProps={{
         sx: {
+          display: "flex",
+          flexDirection: "column",
           width: isVertical ? size : "100%",
           height: !isVertical ? size : "100%",
           borderRadius: isVertical
@@ -81,6 +82,7 @@ export function Sheet({
       <Box
         sx={{
           flex: 1,
+          minHeight: 0,
           overflow: "auto",
           p: 2,
           ...(footer && { pb: 0 }),
@@ -94,7 +96,6 @@ export function Sheet({
             p: 2,
             borderTop: "1px solid",
             borderColor: "divider",
-            mt: 2,
           }}
         >
           {footer}

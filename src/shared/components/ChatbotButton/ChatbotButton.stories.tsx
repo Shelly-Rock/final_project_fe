@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { Box } from "@mui/material";
+import { SessionProvider } from "next-auth/react";
 import { ChatbotButton } from "./ChatbotButton";
 
 const meta = {
@@ -11,16 +12,18 @@ const meta = {
   },
   decorators: [
     (Story) => (
-      <Box
-        sx={{
-          position: "relative",
-          width: "100vw",
-          height: "100vh",
-          bgcolor: "#f5f5f5",
-        }}
-      >
-        <Story />
-      </Box>
+      <SessionProvider session={null}>
+        <Box
+          sx={{
+            position: "relative",
+            width: "100vw",
+            height: "100vh",
+            bgcolor: "#f5f5f5",
+          }}
+        >
+          <Story />
+        </Box>
+      </SessionProvider>
     ),
   ],
 } satisfies Meta<typeof ChatbotButton>;
