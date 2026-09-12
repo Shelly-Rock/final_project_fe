@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
-import { Box } from "@mui/material";
+import { Box, IconButton, Typography } from "@mui/material";
+import { Bot, X } from "lucide-react";
 import type { Role } from "@/core/permissions/types";
 import { ROLE } from "@/core/permissions/types";
 import { Sheet } from "@/shared/components/Sheet";
@@ -11,6 +12,8 @@ import type { ChatMessage } from "../types";
 import { ChatInput } from "./ChatInput";
 import { ChatMessageList } from "./ChatMessageList";
 import { SuggestedChips } from "./SuggestedChips";
+
+const HEADER_GRADIENT = "linear-gradient(135deg, #2563eb 0%, #1e3d6f 100%)";
 
 export function ChatPanel({
   open,
@@ -117,12 +120,90 @@ export function ChatPanel({
     <Sheet
       open={open}
       onClose={onClose}
-      title="Trợ lý đồ án"
-      description="Hỏi về quy trình, hạn nộp và trạng thái của bạn"
-      size={400}
+      size={420}
+      header={
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            gap: 1.5,
+            px: 2,
+            py: 1.75,
+            background: HEADER_GRADIENT,
+            color: "#fff",
+          }}
+        >
+          <Box
+            sx={{
+              width: 40,
+              height: 40,
+              borderRadius: "12px",
+              bgcolor: "rgba(255,255,255,0.16)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              flexShrink: 0,
+            }}
+          >
+            <Bot size={22} />
+          </Box>
+          <Box sx={{ minWidth: 0, flex: 1 }}>
+            <Typography sx={{ fontWeight: 700, fontSize: 16, lineHeight: 1.3 }}>
+              Trợ lý đồ án
+            </Typography>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 0.75,
+                mt: 0.25,
+              }}
+            >
+              <Box
+                sx={{
+                  width: 7,
+                  height: 7,
+                  borderRadius: "50%",
+                  bgcolor: "#4ade80",
+                  boxShadow: "0 0 0 3px rgba(74,222,128,0.28)",
+                }}
+              />
+              <Typography
+                sx={{ fontSize: 12, color: "rgba(255,255,255,0.78)" }}
+              >
+                Sẵn sàng hỗ trợ quy trình
+              </Typography>
+            </Box>
+          </Box>
+          <IconButton
+            onClick={onClose}
+            size="small"
+            aria-label="Đóng chatbot"
+            sx={{
+              color: "#fff",
+              bgcolor: "rgba(255,255,255,0.12)",
+              "&:hover": { bgcolor: "rgba(255,255,255,0.22)" },
+            }}
+          >
+            <X size={18} />
+          </IconButton>
+        </Box>
+      }
       footer={<ChatInput disabled={streaming} onSend={send} />}
     >
-      <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          gap: 1.5,
+          minHeight: "100%",
+          mx: -2,
+          px: 2,
+          pt: 1,
+          pb: 2,
+          bgcolor: "background.default",
+        }}
+      >
         {messages.length === 0 ? (
           <SuggestedChips role={role} name={session?.user.name} onPick={send} />
         ) : (

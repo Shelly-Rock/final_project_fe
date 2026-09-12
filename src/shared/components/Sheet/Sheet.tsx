@@ -9,6 +9,7 @@ export interface SheetProps {
   children: React.ReactNode;
   title?: string;
   description?: string;
+  header?: React.ReactNode;
   anchor?: "top" | "bottom" | "left" | "right";
   size?: number | string;
   hideCloseButton?: boolean;
@@ -22,6 +23,7 @@ export function Sheet({
   children,
   title,
   description,
+  header,
   anchor = "right",
   size = 400,
   hideCloseButton = false,
@@ -39,6 +41,7 @@ export function Sheet({
         sx: {
           display: "flex",
           flexDirection: "column",
+          overflow: "hidden",
           width: isVertical ? size : "100%",
           height: !isVertical ? size : "100%",
           borderRadius: isVertical
@@ -49,36 +52,37 @@ export function Sheet({
         },
       }}
     >
-      {showHeader && (
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            p: 2,
-            borderBottom: "1px solid",
-            borderColor: "divider",
-          }}
-        >
-          <Box>
-            {title && (
-              <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                {title}
-              </Typography>
-            )}
-            {description && (
-              <Typography variant="body2" color="text.secondary">
-                {description}
-              </Typography>
+      {showHeader &&
+        (header ?? (
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              p: 2,
+              borderBottom: "1px solid",
+              borderColor: "divider",
+            }}
+          >
+            <Box>
+              {title && (
+                <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                  {title}
+                </Typography>
+              )}
+              {description && (
+                <Typography variant="body2" color="text.secondary">
+                  {description}
+                </Typography>
+              )}
+            </Box>
+            {!hideCloseButton && (
+              <IconButton onClick={onClose} size="small">
+                <X size={20} />
+              </IconButton>
             )}
           </Box>
-          {!hideCloseButton && (
-            <IconButton onClick={onClose} size="small">
-              <X size={20} />
-            </IconButton>
-          )}
-        </Box>
-      )}
+        ))}
       <Box
         sx={{
           flex: 1,
