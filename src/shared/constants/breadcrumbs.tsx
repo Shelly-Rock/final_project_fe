@@ -85,6 +85,16 @@ export const BREADCRUMB_NODES = {
     href: "/scoring/meeting",
     icon: <ClipboardCheckIcon size={16} />,
   },
+  SCORE_PUBLICATION: {
+    label: "Tính điểm & công bố",
+    href: "/scoring/transcript",
+    icon: <ClipboardCheckIcon size={16} />,
+  },
+  STUDENT_TRANSCRIPT: {
+    label: "Bảng điểm",
+    href: "/scoring/my-transcript",
+    icon: <ClipboardCheckIcon size={16} />,
+  },
 } as const satisfies Record<string, Omit<BreadcrumbItem, "onClick">>;
 
 export type BreadcrumbNodeKey = keyof typeof BREADCRUMB_NODES;

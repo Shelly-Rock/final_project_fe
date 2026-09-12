@@ -402,3 +402,84 @@ export const finalizeMeeting = async (
 }> => {
   return apiClient.post(`${API_BASE}/meetings/${projectId}/finalize`);
 };
+
+export interface TranscriptComment {
+  teacherName: string;
+  role: CommitteeRole | null;
+  notes: string | null;
+  strengths: string | null;
+  weaknesses: string | null;
+}
+
+export interface TranscriptDetail {
+  projectId: number;
+  projectCode: string;
+  projectName: string;
+  student: {
+    studentId: string;
+    firstName: string;
+    middleName: string;
+    lastName: string;
+    className: string;
+  } | null;
+  isFinalized: boolean;
+  finalStatus: string | null;
+  isFinalPassed: boolean;
+  gvhdScore: number;
+  gvhdPassed: boolean;
+  externalScore: number;
+  externalTeacherName: string;
+  otherScores: Array<{
+    teacherName: string;
+    teacherCode: string;
+    role: CommitteeRole | null;
+    score: number | null;
+  }>;
+  othersAverage: number;
+  defenseAverage: number;
+  failedCount: number;
+  weightedScore: number;
+  bonusScore: number;
+  bonusNote: string | null;
+  finalScore: number;
+  comments: TranscriptComment[];
+  isPublished: boolean;
+  publishedAt: string | null;
+  canAwardBonus?: boolean;
+  canPublish?: boolean;
+}
+
+export const getTranscripts = async (
+  params?: Partial<{ page: number; limit: number; published: boolean }>,
+): Promise<PaginatedResponse<TranscriptDetail>> => {
+  const queryParams = new URLSearchParams();
+  if (params?.page) queryParams.set("page", params.page.toString());
+  if (params?.limit) queryParams.set("limit", params.limit.toString());
+  if (params?.published !== undefined) {
+    queryParams.set("published", String(params.published));
+  }
+  return apiClient.get(`${API_BASE}/transcripts?${queryParams.toString()}`);
+};
+
+export const getTranscript = async (
+  projectId: number,
+): Promise<TranscriptDetail> => {
+  return apiClient.get(`${API_BASE}/transcripts/${projectId}`);
+};
+
+export const updateBonusScore = async (
+  projectId: number,
+  data: { bonusScore: number; bonusNote?: string },
+): Promise<TranscriptDetail> => {
+  return apiClient.put(`${API_BASE}/transcripts/${projectId}/bonus`, data);
+};
+
+export const publishTranscript = async (
+  projectId: number,
+): Promise<TranscriptDetail> => {
+  return apiClient.post(`${API_BASE}/transcripts/${projectId}/publish`);
+};
+
+export const getMyTranscript = async (): Promise<TranscriptDetail> => {
+  return apiClient.get(`${API_BASE}/transcripts/me`);
+};
