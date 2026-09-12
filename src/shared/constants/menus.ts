@@ -175,6 +175,18 @@ export const MENU_SECTIONS: MenuSection[] = [
     ],
   },
   {
+    section: "Giai đoạn 6",
+    items: [
+      {
+        key: "score-publication",
+        label: "Tính điểm & công bố",
+        icon: Icon.scorecard,
+        path: "/scoring/transcript",
+        roles: ["admin", "secretary", "teacher"],
+      },
+    ],
+  },
+  {
     section: "Giảng viên",
     items: [
       {
@@ -222,6 +234,13 @@ export const MENU_SECTIONS: MenuSection[] = [
         label: "Nộp bài cuối kỳ",
         icon: Icon.upload,
         path: "/submission/student",
+        roles: ["student"],
+      },
+      {
+        key: "student-transcript",
+        label: "Bảng điểm",
+        icon: Icon.scorecard,
+        path: "/scoring/my-transcript",
         roles: ["student"],
       },
     ],

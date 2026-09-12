@@ -7,3 +7,6 @@ export { ScoringFilterCard } from "./ScoringFilterCard";
 export { ScoringResultDetailsDialog } from "./ScoringResultDetailsDialog";
 export { CommitteeMeetingPage } from "./CommitteeMeeting";
 export { CommitteeMeetingDetailPage } from "./CommitteeMeetingDetail";
+export { ScorePublicationPage } from "./ScorePublication";
+export { ScorePublicationDetailPage } from "./ScorePublicationDetail";
+export { StudentScoreSheetPage } from "./StudentScoreSheet";
