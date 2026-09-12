@@ -163,6 +163,18 @@ export const MENU_SECTIONS: MenuSection[] = [
     ],
   },
   {
+    section: "Giai đoạn 5",
+    items: [
+      {
+        key: "committee-meeting",
+        label: "Họp & chốt điểm hội đồng",
+        icon: Icon.peopleTeam,
+        path: "/scoring/meeting",
+        roles: ["admin", "secretary", "teacher"],
+      },
+    ],
+  },
+  {
     section: "Giảng viên",
     items: [
       {
