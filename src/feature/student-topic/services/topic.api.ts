@@ -127,10 +127,11 @@ class TopicApiService {
   async getGovernanceState(
     periodId?: number,
   ): Promise<GovernanceStateResponse> {
-    return await apiClient.get<GovernanceStateResponse>(
+    const response = await apiClient.get<GovernanceStateResponse>(
       "/topics/governance-state",
       { params: periodId ? { periodId } : undefined },
     );
+    return response.data;
   }
 
   async getAvailableTopics(params?: {
@@ -139,10 +140,11 @@ class TopicApiService {
     page?: number;
     limit?: number;
   }): Promise<{ topics: AvailableTopic[]; total: number }> {
-    const data = await apiClient.get<AvailableTopicsResponse>(
+    const response = await apiClient.get<AvailableTopicsResponse>(
       "/topics/available",
       { params },
     );
+    const data = response.data;
     const rows = data.items || data.data || data.topics || [];
     return {
       topics: rows.map(mapApiToAvailableTopic),
@@ -151,9 +153,10 @@ class TopicApiService {
   }
 
   async getMyRegistration(): Promise<RegistrationRequest | null> {
-    const data = await apiClient.get<MyRegistrationResponse>(
+    const response = await apiClient.get<MyRegistrationResponse>(
       "/topics/my-registration",
     );
+    const data = response.data;
 
     if (!data.registration) return null;
 
