@@ -483,3 +483,90 @@ export const publishTranscript = async (
 export const getMyTranscript = async (): Promise<TranscriptDetail> => {
   return apiClient.get(`${API_BASE}/transcripts/me`);
 };
+
+export interface PostDefenseRow {
+  projectId: number;
+  projectCode: string;
+  projectName: string;
+  student: {
+    studentId: string;
+    firstName: string;
+    middleName: string;
+    lastName: string;
+    className: string;
+  } | null;
+  finalScore: number | null;
+  bonusScore: number;
+  rank: number | null;
+  rankOverride: number | null;
+  rankNote: string | null;
+  revisionDeadline: string;
+  revisionCount: number;
+  latestRevisionFile: string | null;
+}
+
+export interface StudentRevisionDetail extends TranscriptDetail {
+  revisionDeadline: string;
+  canSubmitRevision: boolean;
+  revision: {
+    id: number;
+    fileName: string;
+    fileUrl: string;
+    submittedAt: string;
+    note: string | null;
+  } | null;
+}
+
+export const getPostDefenseList = async (
+  params?: Partial<{ page: number; limit: number }>,
+): Promise<PaginatedResponse<PostDefenseRow>> => {
+  const queryParams = new URLSearchParams();
+  if (params?.page) queryParams.set("page", params.page.toString());
+  if (params?.limit) queryParams.set("limit", params.limit.toString());
+  return apiClient.get(`${API_BASE}/post-defense?${queryParams.toString()}`);
+};
+
+export const computeRankings = async (): Promise<{
+  total: number;
+  rankedAt: string;
+}> => {
+  return apiClient.post(`${API_BASE}/post-defense/rank`);
+};
+
+export const updateRank = async (
+  projectId: number,
+  data: { rankOverride: number; rankNote?: string },
+): Promise<{ projectId: number; rank: number; rankOverride: number }> => {
+  return apiClient.put(`${API_BASE}/post-defense/${projectId}/rank`, data);
+};
+
+export const setRevisionWindow = async (
+  projectId: number,
+  revisionDeadline: string,
+): Promise<{ projectId: number; revisionDeadline: string }> => {
+  return apiClient.put(
+    `${API_BASE}/post-defense/${projectId}/revision-window`,
+    { revisionDeadline },
+  );
+};
+
+export const getPrintSheet = async (): Promise<{
+  data: PostDefenseRow[];
+  generatedAt: string;
+}> => {
+  return apiClient.get(`${API_BASE}/post-defense/print`);
+};
+
+export const getMyRevision = async (): Promise<StudentRevisionDetail> => {
+  return apiClient.get(`${API_BASE}/revisions/me`);
+};
+
+export const submitRevision = async (data: {
+  fileUrl: string;
+  fileName: string;
+  originalName: string;
+  fileSize: number;
+  note?: string;
+}): Promise<unknown> => {
+  return apiClient.post(`${API_BASE}/revisions/me`, data);
+};
