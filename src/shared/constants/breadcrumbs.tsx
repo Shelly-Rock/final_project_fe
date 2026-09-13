@@ -110,6 +110,11 @@ export const BREADCRUMB_NODES = {
     href: "/scoring/revision",
     icon: <ClipboardCheckIcon size={16} />,
   },
+  STATISTICS: {
+    label: "Thống kê và báo cáo",
+    href: "/statistics",
+    icon: <ChartLineIcon size={16} />,
+  },
 } as const satisfies Record<string, Omit<BreadcrumbItem, "onClick">>;
 
 export type BreadcrumbNodeKey = keyof typeof BREADCRUMB_NODES;
