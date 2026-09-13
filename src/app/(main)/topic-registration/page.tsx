@@ -32,6 +32,7 @@ export default function TopicRegistrationPage() {
   const [currentRegistration, setCurrentRegistration] =
     useState<RegistrationRequest | null>(null);
   const [isExpired, setIsExpired] = useState(false);
+  const [isRefreshingToken, setIsRefreshingToken] = useState(false);
 
   const refreshAvailableTopics = useCallback(async () => {
     setTopicsLoading(true);
@@ -86,6 +87,45 @@ export default function TopicRegistrationPage() {
       setIsExpired(false);
     }
   }, []);
+
+  const handleRefreshToken = useCallback(async () => {
+    setIsRefreshingToken(true);
+    try {
+      const refreshToken = localStorage.getItem("refreshToken");
+      if (!refreshToken) {
+        toast.error("Không có refresh token. Vui lòng đăng nhập lại.");
+        setIsRefreshingToken(false);
+        return;
+      }
+
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/auth/refresh-token`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ refreshToken }),
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error("Token refresh failed");
+      }
+
+      const data = await response.json();
+      localStorage.setItem("accessToken", data.accessToken);
+      localStorage.setItem("refreshToken", data.refreshToken);
+      toast.success("Token đã được làm mới!");
+
+      await refreshAvailableTopics();
+      await loadMyRegistration();
+      await loadGovernanceState();
+    } catch (err) {
+      console.error("Token refresh error:", err);
+      toast.error("Không thể làm mới token. Vui lòng đăng nhập lại.");
+    } finally {
+      setIsRefreshingToken(false);
+    }
+  }, [refreshAvailableTopics, loadMyRegistration, loadGovernanceState]);
 
   useEffect(() => {
     refreshAvailableTopics();
@@ -362,6 +402,17 @@ export default function TopicRegistrationPage() {
         showBgImage={true}
         illustration={<BookOpen size={64} />}
       />
+
+      <Box sx={{ mb: 2 }}>
+        <Button
+          variant="outlined"
+          size="small"
+          onClick={handleRefreshToken}
+          disabled={isRefreshingToken}
+        >
+          {isRefreshingToken ? "Đang làm mới..." : "Làm mới Token"}
+        </Button>
+      </Box>
 
       {renderStatusAlert()}
 
