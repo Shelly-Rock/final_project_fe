@@ -35,6 +35,7 @@ export const Icon = {
   calendar: "bi-calendar-event",
   scorecard: "bi-scorecard",
   pencilSquare: "bi-pencil-square",
+  trophy: "bi-trophy",
   gear: "bi-gear",
 } as const;
 
@@ -187,6 +188,18 @@ export const MENU_SECTIONS: MenuSection[] = [
     ],
   },
   {
+    section: "Giai đoạn 7",
+    items: [
+      {
+        key: "post-defense",
+        label: "Hậu kiểm & xếp hạng",
+        icon: Icon.trophy,
+        path: "/scoring/post-defense",
+        roles: ["admin", "secretary"],
+      },
+    ],
+  },
+  {
     section: "Giảng viên",
     items: [
       {
@@ -241,6 +254,13 @@ export const MENU_SECTIONS: MenuSection[] = [
         label: "Bảng điểm",
         icon: Icon.scorecard,
         path: "/scoring/my-transcript",
+        roles: ["student"],
+      },
+      {
+        key: "student-revision",
+        label: "Chỉnh sửa hồ sơ",
+        icon: Icon.upload,
+        path: "/scoring/revision",
         roles: ["student"],
       },
     ],

@@ -95,6 +95,21 @@ export const BREADCRUMB_NODES = {
     href: "/scoring/my-transcript",
     icon: <ClipboardCheckIcon size={16} />,
   },
+  POST_DEFENSE: {
+    label: "Hậu kiểm & xếp hạng",
+    href: "/scoring/post-defense",
+    icon: <ClipboardCheckIcon size={16} />,
+  },
+  OFFICIAL_SCORE_SHEET: {
+    label: "Bảng điểm chính thức",
+    href: "/scoring/post-defense/print",
+    icon: <ClipboardCheckIcon size={16} />,
+  },
+  STUDENT_REVISION: {
+    label: "Chỉnh sửa hồ sơ",
+    href: "/scoring/revision",
+    icon: <ClipboardCheckIcon size={16} />,
+  },
 } as const satisfies Record<string, Omit<BreadcrumbItem, "onClick">>;
 
 export type BreadcrumbNodeKey = keyof typeof BREADCRUMB_NODES;

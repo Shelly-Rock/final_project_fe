@@ -10,3 +10,6 @@ export { CommitteeMeetingDetailPage } from "./CommitteeMeetingDetail";
 export { ScorePublicationPage } from "./ScorePublication";
 export { ScorePublicationDetailPage } from "./ScorePublicationDetail";
 export { StudentScoreSheetPage } from "./StudentScoreSheet";
+export { PostDefenseRankingPage } from "./PostDefenseRanking";
+export { StudentRevisionPage } from "./StudentRevision";
+export { OfficialScoreSheetPage } from "./OfficialScoreSheet";
