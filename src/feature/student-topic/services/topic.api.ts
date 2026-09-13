@@ -73,9 +73,7 @@ interface MyRegistrationResponse {
   } | null;
 }
 
-function mapFrontendStatus(
-  status?: string,
-): "Approved" | "Pending" | "Closed" {
+function mapFrontendStatus(status?: string): "Approved" | "Pending" | "Closed" {
   const normalized = (status || "").toUpperCase();
   if (normalized === "APPROVED") return "Approved";
   if (normalized === "PENDING" || normalized === "WAITING_SECRETARY") {
@@ -126,12 +124,13 @@ function mapApiToAvailableTopic(api: AvailableTopicRow): AvailableTopic {
 }
 
 class TopicApiService {
-  async getGovernanceState(periodId?: number): Promise<GovernanceStateResponse> {
-    const { data } = await apiClient.get<GovernanceStateResponse>(
+  async getGovernanceState(
+    periodId?: number,
+  ): Promise<GovernanceStateResponse> {
+    return await apiClient.get<GovernanceStateResponse>(
       "/topics/governance-state",
       { params: periodId ? { periodId } : undefined },
     );
-    return data;
   }
 
   async getAvailableTopics(params?: {
@@ -140,7 +139,7 @@ class TopicApiService {
     page?: number;
     limit?: number;
   }): Promise<{ topics: AvailableTopic[]; total: number }> {
-    const { data } = await apiClient.get<AvailableTopicsResponse>(
+    const data = await apiClient.get<AvailableTopicsResponse>(
       "/topics/available",
       { params },
     );
@@ -152,7 +151,7 @@ class TopicApiService {
   }
 
   async getMyRegistration(): Promise<RegistrationRequest | null> {
-    const { data } = await apiClient.get<MyRegistrationResponse>(
+    const data = await apiClient.get<MyRegistrationResponse>(
       "/topics/my-registration",
     );
 
@@ -176,7 +175,9 @@ class TopicApiService {
     };
   }
 
-  async registerTopic(topicId: number): Promise<{ success: boolean; message: string }> {
+  async registerTopic(
+    topicId: number,
+  ): Promise<{ success: boolean; message: string }> {
     await apiClient.post(`/topics/${topicId}/registrations`);
     return {
       success: true,

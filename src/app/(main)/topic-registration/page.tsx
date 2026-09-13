@@ -21,11 +21,16 @@ export default function TopicRegistrationPage() {
   const [allTopics, setAllTopics] = useState<AvailableTopic[]>([]);
   const [topicsLoading, setTopicsLoading] = useState(true);
   const [detailDialogOpen, setDetailDialogOpen] = useState(false);
-  const [selectedTopic, setSelectedTopic] = useState<AvailableTopic | null>(null);
-  const [selectedRegistration, setSelectedRegistration] = useState<RegistrationRequest | null>(null);
+  const [selectedTopic, setSelectedTopic] = useState<AvailableTopic | null>(
+    null,
+  );
+  const [selectedRegistration, setSelectedRegistration] =
+    useState<RegistrationRequest | null>(null);
   const [searchValue, setSearchValue] = useState("");
-  const [studentStatus, setStudentStatus] = useState<StudentStatus>("UNREGISTERED");
-  const [currentRegistration, setCurrentRegistration] = useState<RegistrationRequest | null>(null);
+  const [studentStatus, setStudentStatus] =
+    useState<StudentStatus>("UNREGISTERED");
+  const [currentRegistration, setCurrentRegistration] =
+    useState<RegistrationRequest | null>(null);
   const [isExpired, setIsExpired] = useState(false);
 
   const refreshAvailableTopics = useCallback(async () => {
@@ -33,8 +38,11 @@ export default function TopicRegistrationPage() {
     try {
       const topics = await studentTopicService.getAvailableTopics();
       setAllTopics(topics);
-    } catch {
-      toast.error("Không thể tải danh sách đề tài");
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "Không thể tải danh sách đề tài";
+      console.error("Error loading topics:", err);
+      toast.error(message);
     } finally {
       setTopicsLoading(false);
     }
@@ -46,16 +54,17 @@ export default function TopicRegistrationPage() {
       if (registration) {
         setCurrentRegistration(registration);
         const statusMap: Record<string, StudentStatus> = {
-          "Pending": "PENDING",
-          "Approved": "APPROVED",
-          "Rejected": "REJECTED",
+          Pending: "PENDING",
+          Approved: "APPROVED",
+          Rejected: "REJECTED",
         };
         setStudentStatus(statusMap[registration.status] || "UNREGISTERED");
       } else {
         setCurrentRegistration(null);
         setStudentStatus("UNREGISTERED");
       }
-    } catch {
+    } catch (err) {
+      console.error("Error loading registration:", err);
       setCurrentRegistration(null);
       setStudentStatus("UNREGISTERED");
     }
@@ -106,7 +115,8 @@ export default function TopicRegistrationPage() {
       await refreshAvailableTopics();
       setDetailDialogOpen(false);
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "Không thể gửi yêu cầu đăng ký";
+      const message =
+        err instanceof Error ? err.message : "Không thể gửi yêu cầu đăng ký";
       toast.error(message);
     }
   };
@@ -132,17 +142,30 @@ export default function TopicRegistrationPage() {
               "& .MuiAlert-icon": { color: "warning.dark" },
             }}
           >
-            <Typography variant="body1" fontWeight={600} gutterBottom color="text.primary">
+            <Typography
+              variant="body1"
+              fontWeight={600}
+              gutterBottom
+              color="text.primary"
+            >
               Đang chờ duyệt yêu cầu đăng ký
             </Typography>
             <Typography variant="body2" color="text.primary">
-              Bạn đang chờ Giảng viên <strong>{currentRegistration?.teacherName}</strong> duyệt yêu cầu
-              đăng ký đề tài <strong>&quot;{currentRegistration?.topicName}&quot;</strong>.
+              Bạn đang chờ Giảng viên{" "}
+              <strong>{currentRegistration?.teacherName}</strong> duyệt yêu cầu
+              đăng ký đề tài{" "}
+              <strong>&quot;{currentRegistration?.topicName}&quot;</strong>.
             </Typography>
-            <Typography variant="body2" sx={{ mt: 1, opacity: 0.8 }} color="text.primary">
+            <Typography
+              variant="body2"
+              sx={{ mt: 1, opacity: 0.8 }}
+              color="text.primary"
+            >
               Ngày gửi:{" "}
               {currentRegistration?.requestedAt &&
-                new Date(currentRegistration.requestedAt).toLocaleDateString("vi-VN")}
+                new Date(currentRegistration.requestedAt).toLocaleDateString(
+                  "vi-VN",
+                )}
             </Typography>
           </Alert>
         );
@@ -161,16 +184,27 @@ export default function TopicRegistrationPage() {
               "& .MuiAlert-icon": { color: "error.dark" },
             }}
           >
-            <Typography variant="body1" fontWeight={600} gutterBottom color="text.primary">
+            <Typography
+              variant="body1"
+              fontWeight={600}
+              gutterBottom
+              color="text.primary"
+            >
               Yêu cầu đăng ký đã bị từ chối
             </Typography>
             <Typography variant="body2" color="text.primary">
-              Yêu cầu đăng ký đề tài <strong>&quot;{currentRegistration?.topicName}&quot;</strong> của bạn đã bị từ chối.
+              Yêu cầu đăng ký đề tài{" "}
+              <strong>&quot;{currentRegistration?.topicName}&quot;</strong> của
+              bạn đã bị từ chối.
             </Typography>
             <Typography variant="body2" sx={{ mt: 1 }} color="text.primary">
               <strong>Lý do:</strong> {currentRegistration?.rejectionReason}
             </Typography>
-            <Typography variant="body2" sx={{ mt: 1, opacity: 0.8, fontStyle: "italic" }} color="text.primary">
+            <Typography
+              variant="body2"
+              sx={{ mt: 1, opacity: 0.8, fontStyle: "italic" }}
+              color="text.primary"
+            >
               Vui lòng chọn đề tài khác bên dưới.
             </Typography>
           </Alert>
@@ -185,7 +219,9 @@ export default function TopicRegistrationPage() {
   };
 
   const renderApprovedContent = () => {
-    const approvedTopic = allTopics.find((t) => t.id === currentRegistration?.topicId);
+    const approvedTopic = allTopics.find(
+      (t) => t.id === currentRegistration?.topicId,
+    );
 
     return (
       <Card
@@ -200,19 +236,29 @@ export default function TopicRegistrationPage() {
         }}
       >
         <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
-          <CheckCircle size={32} style={{ color: "#16a34a", marginRight: 12 }} />
+          <CheckCircle
+            size={32}
+            style={{ color: "#16a34a", marginRight: 12 }}
+          />
           <Typography variant="h6" fontWeight={700} color="success.dark">
             Đề tài đã được duyệt thành công
           </Typography>
         </Box>
 
         <Box sx={{ mb: 3 }}>
-          <Typography variant="h5" fontWeight={700} gutterBottom color="text.primary">
+          <Typography
+            variant="h5"
+            fontWeight={700}
+            gutterBottom
+            color="text.primary"
+          >
             {currentRegistration?.topicName}
           </Typography>
           <Typography variant="body2" color="text.secondary" gutterBottom>
             Giảng viên hướng dẫn:{" "}
-            <strong color="text.primary">{currentRegistration?.teacherName}</strong>
+            <strong color="text.primary">
+              {currentRegistration?.teacherName}
+            </strong>
           </Typography>
         </Box>
 
@@ -220,28 +266,55 @@ export default function TopicRegistrationPage() {
           <Box sx={{ mb: 3 }}>
             {approvedTopic.englishName && (
               <>
-                <Typography variant="subtitle2" fontWeight={600} gutterBottom color="text.primary">
+                <Typography
+                  variant="subtitle2"
+                  fontWeight={600}
+                  gutterBottom
+                  color="text.primary"
+                >
                   Tên tiếng Anh:
                 </Typography>
-                <Typography variant="body2" sx={{ mb: 2, pl: 2 }} color="text.primary">
+                <Typography
+                  variant="body2"
+                  sx={{ mb: 2, pl: 2 }}
+                  color="text.primary"
+                >
                   {approvedTopic.englishName}
                 </Typography>
               </>
             )}
 
-            <Typography variant="subtitle2" fontWeight={600} gutterBottom color="text.primary">
+            <Typography
+              variant="subtitle2"
+              fontWeight={600}
+              gutterBottom
+              color="text.primary"
+            >
               Mô tả đề tài:
             </Typography>
-            <Typography variant="body2" sx={{ mb: 2, pl: 2 }} color="text.primary">
+            <Typography
+              variant="body2"
+              sx={{ mb: 2, pl: 2 }}
+              color="text.primary"
+            >
               {approvedTopic.description}
             </Typography>
 
             {approvedTopic.objectives && (
               <>
-                <Typography variant="subtitle2" fontWeight={600} gutterBottom color="text.primary">
+                <Typography
+                  variant="subtitle2"
+                  fontWeight={600}
+                  gutterBottom
+                  color="text.primary"
+                >
                   Mục tiêu đề tài:
                 </Typography>
-                <Typography variant="body2" sx={{ mb: 2, pl: 2 }} color="text.primary">
+                <Typography
+                  variant="body2"
+                  sx={{ mb: 2, pl: 2 }}
+                  color="text.primary"
+                >
                   {approvedTopic.objectives}
                 </Typography>
               </>
@@ -249,7 +322,12 @@ export default function TopicRegistrationPage() {
 
             {approvedTopic.technologies && (
               <>
-                <Typography variant="subtitle2" fontWeight={600} gutterBottom color="text.primary">
+                <Typography
+                  variant="subtitle2"
+                  fontWeight={600}
+                  gutterBottom
+                  color="text.primary"
+                >
                   Công nghệ sử dụng:
                 </Typography>
                 <Typography variant="body2" sx={{ pl: 2 }} color="text.primary">
@@ -260,7 +338,9 @@ export default function TopicRegistrationPage() {
           </Box>
         )}
 
-        <Box sx={{ mt: 3, pt: 2, borderTop: "1px solid", borderColor: "divider" }}>
+        <Box
+          sx={{ mt: 3, pt: 2, borderTop: "1px solid", borderColor: "divider" }}
+        >
           <Button
             variant="contained"
             color="success"
