@@ -245,7 +245,7 @@ export const MENU_SECTIONS: MenuSection[] = [
         label: "Đăng ký đề tài",
         icon: Icon.bookmarkStar,
         path: "/topic-registration",
-        roles: ["admin", "student"],
+        roles: ["student"],
       },
       {
         key: "student-progress",
