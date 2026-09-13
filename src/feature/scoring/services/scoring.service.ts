@@ -201,6 +201,15 @@ export const submitMyScore = async (
   return apiClient.post(`${API_BASE}/my/${id}/submit`, data);
 };
 
+// Export my score to Word
+export const exportMyScoreWord = async (
+  id: number,
+): Promise<{ blob: Blob; filename: string | null }> => {
+  return apiClient.downloadBlob(`${API_BASE}/my/${id}/export/word`, {
+    method: "GET",
+  });
+};
+
 // ============ ADMIN FUNCTIONS ============
 
 // Get all scores

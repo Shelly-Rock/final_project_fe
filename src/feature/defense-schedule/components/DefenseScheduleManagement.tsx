@@ -92,6 +92,8 @@ export default function DefenseScheduleManagement() {
     defenseDate: string;
     startTime: string;
     room: string;
+    durationMinutes: number;
+    projectIds?: number[];
   }) => {
     try {
       setSubmitting(true);
@@ -105,22 +107,24 @@ export default function DefenseScheduleManagement() {
           setSubmitting(false);
           return;
         }
-        await defenseService.createDefenseSession(
-          data as {
-            committeeId: number;
-            defenseDate: string;
-            startTime: string;
-            room: string;
-          },
-        );
+        await defenseService.createDefenseSession({
+          committeeId: data.committeeId,
+          defenseDate: data.defenseDate,
+          startTime: data.startTime,
+          room: data.room,
+          durationMinutes: data.durationMinutes,
+          projectIds: data.projectIds,
+        });
         toast.success("Tạo lịch bảo vệ thành công");
       }
 
       setModalVisible(false);
       fetchSessions();
       fetchStats();
-    } catch {
-      toast.error("Không thể lưu lịch bảo vệ");
+    } catch (error: unknown) {
+      toast.error(
+        (error as { message?: string })?.message || "Không thể lưu lịch bảo vệ",
+      );
     } finally {
       setSubmitting(false);
     }
@@ -145,6 +149,20 @@ export default function DefenseScheduleManagement() {
       fetchStats();
     } catch {
       toast.error("Không thể đánh dấu hoàn thành");
+    }
+  };
+
+  const [exportingId, setExportingId] = useState<number | null>(null);
+
+  const handleExportWord = async (id: number) => {
+    setExportingId(id);
+    try {
+      await defenseService.downloadScheduleWord(id);
+      toast.success("Đã tải xuống file lịch bảo vệ");
+    } catch {
+      toast.error("Không thể xuất file lịch bảo vệ. Vui lòng thử lại.");
+    } finally {
+      setExportingId(null);
     }
   };
 
@@ -184,6 +202,8 @@ export default function DefenseScheduleManagement() {
           setDeleteConfirm({ id: row.id, name: row.committeeName })
         }
         onComplete={handleComplete}
+        onExportWord={handleExportWord}
+        exportingId={exportingId}
         onPageChange={(page) =>
           setPagination({ ...pagination, current: page + 1 })
         }

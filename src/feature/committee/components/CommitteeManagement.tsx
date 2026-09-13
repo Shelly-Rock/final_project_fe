@@ -84,11 +84,20 @@ export default function CommitteeManagement() {
 
   const openCreateModal = () => {
     setEditingCommittee(null);
+    // Khi tạo mới, không có đề tài nào được gán → không loại trừ GV nào
+    setExcludedTeacherIds([]);
     setModalVisible(true);
   };
 
-  const openEditModal = (committee: Committee) => {
+  const openEditModal = async (committee: Committee) => {
     setEditingCommittee(committee);
+    // Khi sửa HĐ cụ thể, lấy danh sách GVHD bị loại trừ theo HĐ đó
+    try {
+      const excluded = await committeeService.getExcludedTeachers(committee.id);
+      setExcludedTeacherIds(excluded);
+    } catch {
+      setExcludedTeacherIds([]);
+    }
     setModalVisible(true);
   };
 
@@ -186,6 +195,7 @@ export default function CommitteeManagement() {
         loading={submitting}
         availableTeachers={availableTeachers}
         allTeachers={teachers}
+        excludedTeacherIds={excludedTeacherIds}
       />
 
       <ConfirmDialog

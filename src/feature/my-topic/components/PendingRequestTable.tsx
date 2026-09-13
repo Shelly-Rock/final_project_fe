@@ -39,12 +39,6 @@ export function PendingRequestTable({
     };
   };
 
-  // Kiểm tra xem có thể duyệt thêm SV cho đề tài này không
-  const canApproveMore = (topicId: number): boolean => {
-    const { isFull } = getTopicEnrollment(topicId);
-    return !isFull;
-  };
-
   const columns: Column<PendingRequest>[] = [
     {
       id: "studentName",

@@ -185,8 +185,6 @@ export function SendAlertDialog({
             label: RECIPIENT_ROLE_LABELS[role],
           }))}
           onChange={(value) => setRecipientRole(value as AlertRecipientRole)}
-          showClearButton
-          onClear={() => setRecipientRole("")}
           disabled={submitting}
         />
 

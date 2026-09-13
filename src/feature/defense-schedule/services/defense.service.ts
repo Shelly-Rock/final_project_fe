@@ -163,6 +163,17 @@ class DefenseService {
     return mapDefenseSession(response);
   }
 
+  async getAvailableProjects(): Promise<any[]> {
+    try {
+      const response: any = await apiClient.get(
+        "/defense-sessions/projects/available",
+      );
+      return response || [];
+    } catch (_error) {
+      return [];
+    }
+  }
+
   async createDefenseSession(data: {
     committeeId: number;
     defenseDate: string;
@@ -278,6 +289,24 @@ class DefenseService {
         studentMssv: p.student_mssv,
       })),
     };
+  }
+
+  /**
+   * Tải file Word lịch bảo vệ về máy dưới dạng Blob.
+   * FE sẽ tạo một thẻ <a> tạm thời để trình duyệt kích hoạt tải file.
+   */
+  async downloadScheduleWord(sessionId: number): Promise<void> {
+    const { blob, filename } = await apiClient.downloadBlob(
+      `${API_BASE}/${sessionId}/export/word`,
+    );
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = filename ?? `lich-bao-ve-${sessionId}.docx`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
   }
 
   // ==================== STATISTICS ====================

@@ -12,8 +12,8 @@ export interface SelectProps extends Omit<
   value?: string | number;
   onChange?: (value: string) => void;
   placeholder?: string;
-  showClearButton?: boolean;
-  onClear?: () => void;
+  // showClearButton?: boolean;
+  // onClear?: () => void;
 }
 
 export const Select = forwardRef<HTMLDivElement, SelectProps>(
@@ -23,8 +23,8 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
       value,
       onChange,
       placeholder,
-      showClearButton,
-      onClear,
+      // showClearButton,
+      // onClear,
       size = "medium",
       ...props
     },
@@ -38,7 +38,7 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
       <TextField
         ref={ref}
         select
-        value={value}
+        value={value !== undefined ? value : ""}
         onChange={handleChange}
         size={size}
         fullWidth
@@ -107,7 +107,7 @@ export function MultiSelect({
       fullWidth
       SelectProps={{
         multiple: true,
-        value,
+        value: value || [],
         renderValue: (selected) => {
           if ((selected as string[]).length === 0) {
             return placeholder || "Chọn...";

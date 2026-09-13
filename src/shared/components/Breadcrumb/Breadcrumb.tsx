@@ -109,42 +109,6 @@ export function Breadcrumb({
           );
         }
 
-        const linkContent = (
-          <Box
-            component="span"
-            sx={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 0.5,
-              fontSize,
-              color: isDark ? "#94a3b8" : "#64748b",
-              cursor: onClick ? "pointer" : "default",
-              borderRadius: 1,
-              px: 0.5,
-              "&:hover": {
-                color: isDark ? "#60a5fa" : "#2563eb",
-                bgcolor: isDark
-                  ? "rgba(59, 130, 246, 0.1)"
-                  : "rgba(37, 99, 235, 0.05)",
-              },
-            }}
-            onClick={() => onClick?.(item, index)}
-          >
-            {item.icon && (
-              <Box
-                component="span"
-                sx={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                }}
-              >
-                {item.icon}
-              </Box>
-            )}
-            <span>{item.label}</span>
-          </Box>
-        );
-
         if (item.href) {
           return (
             <Link

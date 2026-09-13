@@ -13,7 +13,7 @@ import {
 import { PageHeader } from "@/shared/components";
 import { BarChart3 } from "lucide-react";
 import { toast } from "sonner";
-import { useTheme } from "@/shared/theme";
+import {} from "@/shared/theme";
 import { apiClient } from "@/shared/services/api-client";
 
 interface SecretaryDashboard {
@@ -42,7 +42,9 @@ export default function DashboardPage() {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const response = await apiClient.get<{ data: SecretaryDashboard }>("/dashboard/secretary");
+        const response = await apiClient.get<{ data: SecretaryDashboard }>(
+          "/dashboard/secretary",
+        );
         setData(response.data);
       } catch (e: unknown) {
         const msg =
