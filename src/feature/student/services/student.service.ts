@@ -73,8 +73,6 @@ class StudentService {
       const resp = await studentApiService.getAll({ limit: 1000 });
       return resp.students.map(mapApiToStudent);
     } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error("[StudentService] API unavailable:", error);
       throw error;
     }
   }

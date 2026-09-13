@@ -7,6 +7,7 @@ import type {
   AxiosError,
   InternalAxiosRequestConfig,
 } from "axios";
+import { signOut } from "next-auth/react";
 
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api/v1";
@@ -56,11 +57,6 @@ apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     if (typeof window !== "undefined") {
       const token = localStorage.getItem("accessToken");
-      console.log("[API Client] Request interceptor", {
-        url: config.url,
-        hasToken: !!token,
-        tokenLength: token?.length,
-      });
       if (token && config.headers) {
         config.headers.Authorization = `Bearer ${token}`;
       }
@@ -71,6 +67,7 @@ apiClient.interceptors.request.use(
 );
 
 // ── Response interceptor: refresh expired access tokens ───────
+
 apiClient.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
@@ -83,27 +80,25 @@ apiClient.interceptors.response.use(
     const isAuthEndpoint =
       requestUrl.includes("/auth") || requestUrl.includes("/login");
 
-    console.log("[API Client] Response error", {
-      status: error.response?.status,
-      url: requestUrl,
-      isLoginPage,
-      isAuthEndpoint,
-    });
-
     const requestConfig = error.config as
       | (InternalAxiosRequestConfig & { _retry?: boolean })
       | undefined;
-    if (
-      error.response?.status === 401 &&
-      requestConfig &&
-      !requestConfig._retry &&
-      !isAuthEndpoint
-    ) {
-      requestConfig._retry = true;
-      const accessToken = await refreshAccessToken();
-      if (accessToken) {
-        requestConfig.headers.Authorization = `Bearer ${accessToken}`;
-        return apiClient(requestConfig);
+
+    if (error.response?.status === 401 && !isAuthEndpoint) {
+      if (requestConfig && !requestConfig._retry) {
+        requestConfig._retry = true;
+        const accessToken = await refreshAccessToken();
+        if (accessToken) {
+          requestConfig.headers.Authorization = `Bearer ${accessToken}`;
+          return apiClient(requestConfig);
+        }
+      }
+
+      // Nếu refresh token thất bại hoặc không có token -> Logout NextAuth và chuyển về login
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
+      if (!isLoginPage) {
+        signOut({ callbackUrl: "/login" });
       }
     }
 

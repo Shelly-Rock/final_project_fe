@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 // ============================================================
 // NEXTAUTH CONFIGURATION — NextAuth v4 backed by NestJS JWT API
 // ============================================================
@@ -96,7 +97,7 @@ export const authOptions: NextAuthOptions = {
             err instanceof Error ? err.message : "Đăng nhập thất bại";
 
           if (process.env.NODE_ENV === "development") {
-            // eslint-disable-next-line no-console
+             
             console.error("[NextAuth] Credentials login failed", {
               message,
               username: credentials.username,

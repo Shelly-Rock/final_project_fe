@@ -5,6 +5,7 @@ import {
   Edit as EditIcon,
   Delete as DeleteIcon,
   Check as CheckIcon,
+  FileDownload as FileDownloadIcon,
 } from "@mui/icons-material";
 import { DataTable } from "@/shared/components";
 import type { Column, Action } from "@/shared/components";
@@ -39,13 +40,13 @@ interface DefenseScheduleTableProps {
   onEdit: (session: DefenseSession) => void;
   onDelete: (session: DefenseSession) => void;
   onComplete: (sessionId: number) => void;
+  /** Xuất lịch bảo vệ ra file Word (.docx) về máy */
+  onExportWord: (sessionId: number) => void;
+  /** ID đang trong quá trình export — dùng để disable nút tránh bấm 2 lần */
+  exportingId: number | null;
   onPageChange: (page: number) => void;
   onRowsPerPageChange: (pageSize: number) => void;
 }
-
-const formatDate = (date: string) => {
-  return dayjs(date).format("DD/MM/YYYY");
-};
 
 export function DefenseScheduleTable({
   sessions,
@@ -54,6 +55,8 @@ export function DefenseScheduleTable({
   onEdit,
   onDelete,
   onComplete,
+  onExportWord,
+  exportingId,
   onPageChange,
   onRowsPerPageChange,
 }: DefenseScheduleTableProps) {
@@ -66,7 +69,7 @@ export function DefenseScheduleTable({
     {
       id: "defenseDate",
       label: "Ngày bảo vệ",
-      format: (_, row) => formatDate(row.defenseDate),
+      format: (_, row) => dayjs(row.defenseDate).format("DD/MM/YYYY"),
       minWidth: 120,
     },
     {
@@ -77,9 +80,9 @@ export function DefenseScheduleTable({
     },
     {
       id: "estimatedEndTime",
-      label: "Giờ kết thúc",
+      label: "Giờ kết thúc (DK)",
       format: (_, row) => row.estimatedEndTime || "-",
-      minWidth: 100,
+      minWidth: 120,
     },
     {
       id: "room",
@@ -128,6 +131,14 @@ export function DefenseScheduleTable({
       color: "success" as const,
       onClick: (row) => onComplete(row.id),
       disabled: (row) => row.status !== "SCHEDULED",
+    },
+    {
+      id: "exportWord",
+      icon: <FileDownloadIcon fontSize="small" />,
+      label: "Xuất lịch (.docx)",
+      color: "primary" as const,
+      onClick: (row) => onExportWord(row.id),
+      disabled: (row) => exportingId === row.id,
     },
     {
       id: "delete",

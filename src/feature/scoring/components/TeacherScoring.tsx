@@ -17,11 +17,9 @@ import { Card, CardHeader, CardContentDiv } from "@/shared/components";
 import { DataTable } from "@/shared/components";
 import { Dialog } from "@/shared/components";
 import {
-  AlertCircle,
   CheckCircle,
   Clock,
   FileText,
-  Loader2,
   XCircle,
   AlertTriangle,
   BookOpen,
@@ -31,6 +29,7 @@ import {
   getMyStats,
   submitMyScore,
   updateMyScore,
+  exportMyScoreWord,
   ScoringStatus,
   ScoringStats,
   Score,
@@ -51,7 +50,7 @@ export default function TeacherScoringPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Scoring form state
-  const [scoreValue, setScoreValue] = useState<number>(0);
+  const [scoreValue, setScoreValue] = useState<string>("0");
   const [criteriaScores, setCriteriaScores] = useState<Record<string, number>>(
     {},
   );
@@ -79,6 +78,17 @@ export default function TeacherScoringPage() {
     fetchData();
   }, [fetchData]);
 
+  // Xác định form có bị khoá hay không (quá hạn hoặc đã nộp)
+  const isExpired = selectedScore?.deadline
+    ? new Date() > new Date(selectedScore.deadline)
+    : false;
+  const isSubmitted =
+    selectedScore?.status === "SUBMITTED" ||
+    selectedScore?.status === "PASSED" ||
+    selectedScore?.status === "FAILED";
+  const isReadOnly = isExpired || isSubmitted;
+
+  // Filter scores by tab
   const filteredScores = scores.filter((s) => {
     if (activeTab === "pending") {
       return s.status === "PENDING" || s.status === "IN_PROGRESS";
@@ -90,7 +100,7 @@ export default function TeacherScoringPage() {
 
   const openScoreDialog = (score: Score) => {
     setSelectedScore(score);
-    setScoreValue(score.score || 0);
+    setScoreValue(score.score != null ? String(score.score) : "");
     setCriteriaScores(score.criteriaScores || {});
     setNotes(score.notes || "");
     setStrengths(score.strengths || "");
@@ -113,7 +123,7 @@ export default function TeacherScoringPage() {
   const handleSubmitScore = async () => {
     if (!selectedScore) return;
 
-    if (scoreValue < 4) {
+    if (parseFloat(scoreValue) < 4) {
       toast.warning("Điểm dưới 4 - Sinh viên sẽ bị loại khỏi Hội đồng!", {
         duration: 5000,
       });
@@ -122,7 +132,7 @@ export default function TeacherScoringPage() {
     try {
       setIsSubmitting(true);
       await submitMyScore(selectedScore.id, {
-        score: scoreValue,
+        score: parseFloat(scoreValue) || 0,
         criteriaScores,
         notes,
         strengths,
@@ -131,10 +141,45 @@ export default function TeacherScoringPage() {
       toast.success("Nộp phiếu chấm thành công!");
       setSelectedScore(null);
       fetchData();
-    } catch {
-      toast.error("Không thể nộp phiếu chấm");
+    } catch (error: unknown) {
+      const msg =
+        (
+          error as {
+            message?: string;
+            response?: { data?: { message?: string } };
+          }
+        )?.response?.data?.message ||
+        (error as { message?: string })?.message ||
+        "Lỗi không xác định";
+      toast.error(`Không thể nộp phiếu chấm: ${msg}`);
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const [isExporting, setIsExporting] = useState(false);
+
+  const handleExportScoreSheet = async () => {
+    if (!selectedScore) return;
+    try {
+      setIsExporting(true);
+      const { blob, filename } = await exportMyScoreWord(selectedScore.id);
+
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename || `Phieu_Cham_Diem_${selectedScore.id}.docx`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      a.remove();
+      toast.success("Xuất phiếu chấm thành công!");
+    } catch (error: unknown) {
+      toast.error(
+        `Có lỗi xảy ra khi xuất phiếu chấm: ${(error as { message?: string })?.message || "Lỗi không xác định"}`,
+      );
+    } finally {
+      setIsExporting(false);
     }
   };
 
@@ -144,7 +189,7 @@ export default function TeacherScoringPage() {
     try {
       setIsSubmitting(true);
       await updateMyScore(selectedScore.id, {
-        score: scoreValue,
+        score: parseFloat(scoreValue) || 0,
         criteriaScores,
         notes,
         strengths,
@@ -154,8 +199,17 @@ export default function TeacherScoringPage() {
       toast.success("Lưu nháp thành công!");
       setSelectedScore(null);
       fetchData();
-    } catch {
-      toast.error("Không thể lưu nháp");
+    } catch (error: unknown) {
+      const msg =
+        (
+          error as {
+            message?: string;
+            response?: { data?: { message?: string } };
+          }
+        )?.response?.data?.message ||
+        (error as { message?: string })?.message ||
+        "Lỗi không xác định";
+      toast.error(`Không thể lưu nháp: ${msg}`);
     } finally {
       setIsSubmitting(false);
     }
@@ -213,17 +267,7 @@ export default function TeacherScoringPage() {
   }
 
   return (
-    <Box sx={{ maxWidth: "1400px", mx: "auto", py: 4, px: 2 }}>
-      {/* Header */}
-      <Box sx={{ mb: 4 }}>
-        <Typography variant="h4" component="h1" sx={{ fontWeight: 700, mb: 1 }}>
-          Phiếu chấm điểm độc lập
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
-          Chấm điểm đề tài khóa luận của sinh viên
-        </Typography>
-      </Box>
-
+    <Box sx={{ width: "100%" }}>
       {/* Stats Cards */}
       <Grid container spacing={3} sx={{ mb: 4 }}>
         <Grid item xs={12} sm={6} md={3}>
@@ -326,190 +370,198 @@ export default function TeacherScoringPage() {
       </Box>
 
       {activeTab === "pending" && (
-        <Card>
-          <CardHeader
-            title="Danh sách phiếu chấm"
-            subtitle="Danh sách các đề tài cần được chấm điểm"
-          />
-          <CardContentDiv padding={2}>
-            {filteredScores.length === 0 ? (
-              <Box sx={{ textAlign: "center", py: 8, color: "text.secondary" }}>
-                Không có phiếu chấm nào cần xử lý
-              </Box>
-            ) : (
-              <DataTable
-                columns={[
-                  {
-                    id: "project",
-                    label: "Đề tài",
-                    minWidth: 200,
-                    format: (_, row) => (
-                      <Box>
-                        <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                          {row.project?.projectCode || row.project?.projectId}
-                        </Typography>
-                        <Typography variant="caption" color="text.secondary">
-                          {row.project?.projectName}
-                        </Typography>
-                      </Box>
-                    ),
+        <Box>
+          {filteredScores.length === 0 ? (
+            <Box sx={{ textAlign: "center", py: 8, color: "text.secondary" }}>
+              Không có phiếu chấm nào cần xử lý
+            </Box>
+          ) : (
+            <DataTable
+              columns={[
+                {
+                  id: "project",
+                  label: "Đề tài",
+                  minWidth: 200,
+                  format: (_, row) => (
+                    <Box>
+                      <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                        {row.project?.projectCode || row.project?.projectId}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        {row.project?.projectName}
+                      </Typography>
+                    </Box>
+                  ),
+                },
+                {
+                  id: "student",
+                  label: "Sinh viên",
+                  minWidth: 150,
+                  format: (_, row) => (
+                    <Box>
+                      <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                        {row.student?.firstName} {row.student?.middleName}{" "}
+                        {row.student?.lastName}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        {row.student?.studentId}
+                      </Typography>
+                    </Box>
+                  ),
+                },
+                {
+                  id: "scoringType",
+                  label: "Loại",
+                  format: (_, row) =>
+                    `${ScoringTypeLabels[row.scoringType]}${row.role ? ` - ${row.role}` : ""}`,
+                },
+                {
+                  id: "deadline",
+                  label: "Thời hạn",
+                  format: (_, row) => {
+                    const daysRemaining = getDaysRemaining(row.deadline);
+                    return daysRemaining !== null ? (
+                      <Chip
+                        label={
+                          daysRemaining <= 0
+                            ? "Quá hạn"
+                            : `${daysRemaining} ngày`
+                        }
+                        color={
+                          daysRemaining <= 0
+                            ? "error"
+                            : daysRemaining <= 1
+                              ? "warning"
+                              : "default"
+                        }
+                        size="small"
+                      />
+                    ) : null;
                   },
-                  {
-                    id: "student",
-                    label: "Sinh viên",
-                    minWidth: 150,
-                    format: (_, row) => (
-                      <Box>
-                        <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                          {row.student?.firstName} {row.student?.middleName}{" "}
-                          {row.student?.lastName}
-                        </Typography>
-                        <Typography variant="caption" color="text.secondary">
-                          {row.student?.studentId}
-                        </Typography>
-                      </Box>
-                    ),
-                  },
-                  {
-                    id: "scoringType",
-                    label: "Loại",
-                    format: (_, row) =>
-                      `${ScoringTypeLabels[row.scoringType]}${row.role ? ` - ${row.role}` : ""}`,
-                  },
-                  {
-                    id: "deadline",
-                    label: "Thời hạn",
-                    format: (_, row) => {
-                      const daysRemaining = getDaysRemaining(row.deadline);
-                      return daysRemaining !== null ? (
-                        <Chip
-                          label={
-                            daysRemaining <= 0
-                              ? "Quá hạn"
-                              : `${daysRemaining} ngày`
-                          }
-                          color={
-                            daysRemaining <= 0
-                              ? "error"
-                              : daysRemaining <= 1
-                                ? "warning"
-                                : "default"
-                          }
-                          size="small"
-                        />
-                      ) : null;
-                    },
-                  },
-                  {
-                    id: "status",
-                    label: "Trạng thái",
-                    format: (_, row) => getStatusBadge(row.status),
-                  },
-                ]}
-                rows={filteredScores}
-                rowKey="id"
-                actions={[
-                  {
-                    id: "score",
-                    icon: <FileText size={16} />,
-                    label: "Chấm điểm",
-                    onClick: (row) => openScoreDialog(row),
-                    color: "primary",
-                  },
-                ]}
-                showSearchInput={false}
-                showFilterButton={false}
-                showExportButton={false}
-                showImportButton={false}
-                emptyMessage="Không có dữ liệu"
-              />
-            )}
-          </CardContentDiv>
-        </Card>
+                },
+                {
+                  id: "status",
+                  label: "Trạng thái",
+                  format: (_, row) => getStatusBadge(row.status),
+                },
+              ]}
+              rows={filteredScores}
+              rowKey="id"
+              actions={[
+                {
+                  id: "score",
+                  icon: <FileText size={16} />,
+                  label: "Chấm điểm",
+                  onClick: (row) => openScoreDialog(row),
+                  color: "primary",
+                },
+              ]}
+              showSearchInput={false}
+              showFilterButton={false}
+              showExportButton={false}
+              showImportButton={false}
+              emptyMessage="Không có dữ liệu"
+            />
+          )}
+        </Box>
       )}
 
       {activeTab === "submitted" && (
-        <Card>
-          <CardHeader
-            title="Đã nộp"
-            subtitle="Danh sách các phiếu chấm đã nộp"
-          />
-          <CardContentDiv padding={2}>
-            {filteredScores.length === 0 ? (
-              <Box sx={{ textAlign: "center", py: 8, color: "text.secondary" }}>
-                Chưa có phiếu chấm nào được nộp
-              </Box>
-            ) : (
-              <DataTable
-                columns={[
-                  {
-                    id: "project",
-                    label: "Đề tài",
-                    minWidth: 200,
-                    format: (_, row) => (
-                      <Box>
-                        <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                          {row.project?.projectCode}
-                        </Typography>
-                        <Typography variant="caption" color="text.secondary">
-                          {row.project?.projectName}
-                        </Typography>
-                      </Box>
+        <Box>
+          {filteredScores.length === 0 ? (
+            <Box sx={{ textAlign: "center", py: 8, color: "text.secondary" }}>
+              Chưa có phiếu chấm nào được nộp
+            </Box>
+          ) : (
+            <DataTable
+              columns={[
+                {
+                  id: "project",
+                  label: "Đề tài",
+                  minWidth: 200,
+                  format: (_, row) => (
+                    <Box>
+                      <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                        {row.project?.projectCode || row.project?.projectId}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        {row.project?.projectName}
+                      </Typography>
+                    </Box>
+                  ),
+                },
+                {
+                  id: "student",
+                  label: "Sinh viên",
+                  minWidth: 150,
+                  format: (_, row) => (
+                    <Box>
+                      <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                        {row.student?.firstName} {row.student?.middleName}{" "}
+                        {row.student?.lastName}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        {row.student?.studentId}
+                      </Typography>
+                    </Box>
+                  ),
+                },
+                {
+                  id: "scoringType",
+                  label: "Loại",
+                  format: (_, row) =>
+                    `${ScoringTypeLabels[row.scoringType]}${row.role ? ` - ${row.role}` : ""}`,
+                },
+                {
+                  id: "score",
+                  label: "Điểm",
+                  format: (_, row) =>
+                    row.score !== null ? (
+                      <Typography
+                        sx={{
+                          fontWeight: 600,
+                          color: row.score < 4 ? "#ef4444" : "#22c55e",
+                        }}
+                      >
+                        {row.score}/10
+                      </Typography>
+                    ) : (
+                      "-"
                     ),
-                  },
-                  {
-                    id: "student",
-                    label: "Sinh viên",
-                    format: (_, row) =>
-                      `${row.student?.firstName} ${row.student?.middleName} ${row.student?.lastName}`,
-                  },
-                  {
-                    id: "scoringType",
-                    label: "Loại",
-                    format: (_, row) => ScoringTypeLabels[row.scoringType],
-                  },
-                  {
-                    id: "score",
-                    label: "Điểm",
-                    format: (_, row) =>
-                      row.score !== null ? (
-                        <Typography
-                          sx={{
-                            fontWeight: 600,
-                            color: row.score < 4 ? "#ef4444" : "#22c55e",
-                          }}
-                        >
-                          {row.score}/10
-                        </Typography>
-                      ) : (
-                        "-"
-                      ),
-                  },
-                  {
-                    id: "status",
-                    label: "Trạng thái",
-                    format: (_, row) => getStatusBadge(row.status),
-                  },
-                  {
-                    id: "submittedAt",
-                    label: "Ngày nộp",
-                    format: (_, row) =>
-                      row.submittedAt
-                        ? new Date(row.submittedAt).toLocaleDateString("vi-VN")
-                        : "-",
-                  },
-                ]}
-                rows={filteredScores}
-                rowKey="id"
-                showSearchInput={false}
-                showFilterButton={false}
-                showExportButton={false}
-                showImportButton={false}
-                emptyMessage="Không có dữ liệu"
-              />
-            )}
-          </CardContentDiv>
-        </Card>
+                },
+                {
+                  id: "status",
+                  label: "Trạng thái",
+                  format: (_, row) => getStatusBadge(row.status),
+                },
+                {
+                  id: "submittedAt",
+                  label: "Ngày nộp",
+                  format: (_, row) =>
+                    row.submittedAt
+                      ? new Date(row.submittedAt).toLocaleDateString("vi-VN")
+                      : "-",
+                },
+              ]}
+              rows={filteredScores}
+              rowKey="id"
+              actions={[
+                {
+                  id: "view",
+                  icon: <FileText size={16} />,
+                  label: "Xem chi tiết",
+                  onClick: (row) => openScoreDialog(row),
+                  color: "secondary",
+                },
+              ]}
+              showSearchInput={false}
+              showFilterButton={false}
+              showExportButton={false}
+              showImportButton={false}
+              emptyMessage="Không có dữ liệu"
+            />
+          )}
+        </Box>
       )}
 
       {/* Score Dialog */}
@@ -559,20 +611,7 @@ export default function TeacherScoringPage() {
                   {ScoringTypeLabels[selectedScore.scoringType]}
                 </Typography>
               </Grid>
-              <Grid item xs={6}>
-                <Typography variant="caption" color="text.secondary">
-                  Thời hạn
-                </Typography>
-                <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                  {selectedScore.deadline
-                    ? new Date(selectedScore.deadline).toLocaleDateString(
-                        "vi-VN",
-                      )
-                    : "Không có"}
-                </Typography>
-              </Grid>
             </Grid>
-
             {/* Criteria Scores */}
             <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
               Tiêu chí chấm điểm
@@ -622,7 +661,6 @@ export default function TeacherScoringPage() {
                 ),
               )}
             </Box>
-
             {/* Overall Score */}
             <Box
               sx={{
@@ -648,22 +686,25 @@ export default function TeacherScoringPage() {
                 )}
               </Box>
             </Box>
-
             {/* Manual Score Override */}
-            <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 3 }}>
-              <Typography variant="body2" sx={{ flex: 1, fontWeight: 600 }}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 3 }}>
+              <Typography
+                variant="body2"
+                sx={{ fontWeight: 600, width: "30%" }}
+              >
                 Hoặc nhập điểm trực tiếp
               </Typography>
-              <TextField
-                type="number"
-                inputProps={{ min: 0, max: 10, step: 0.5 }}
-                value={scoreValue}
-                onChange={(e) => setScoreValue(parseFloat(e.target.value) || 0)}
-                sx={{ width: 80 }}
-                size="small"
-              />
-            </Box>
-
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <TextField
+                  type="number"
+                  inputProps={{ min: 0, max: 10, step: 0.5 }}
+                  value={scoreValue}
+                  onChange={(e) => setScoreValue(e.target.value)}
+                  sx={{ width: 80 }}
+                  size="small"
+                />
+              </Box>
+            </Box>{" "}
             {/* Feedback */}
             <Box sx={{ mb: 3 }}>
               <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>
@@ -679,7 +720,6 @@ export default function TeacherScoringPage() {
                 size="small"
               />
             </Box>
-
             <Box sx={{ mb: 3 }}>
               <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>
                 Điểm yếu / Cần cải thiện
@@ -694,7 +734,6 @@ export default function TeacherScoringPage() {
                 size="small"
               />
             </Box>
-
             <Box sx={{ mb: 3 }}>
               <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>
                 Ghi chú thêm
@@ -712,38 +751,52 @@ export default function TeacherScoringPage() {
           </Box>
         )}
 
+        {/* Actions */}
         <Box
           sx={{ display: "flex", gap: 1, justifyContent: "flex-end", mt: 2 }}
         >
           <MuiButton variant="outlined" onClick={() => setSelectedScore(null)}>
             Đóng
           </MuiButton>
+
+          {/* Nút xuất phiếu chấm — luôn hiển thị kể cả khi quá hạn */}
           <MuiButton
             variant="outlined"
-            onClick={handleSaveDraft}
-            disabled={isSubmitting}
+            color="info"
+            onClick={handleExportScoreSheet}
+            disabled={!selectedScore || isExporting}
           >
-            Lưu nháp
+            {isExporting ? "Đang xuất..." : "Xuất phiếu chấm"}
           </MuiButton>
-          <MuiButton
-            variant={scoreValue < 4 ? "contained" : "contained"}
-            onClick={handleSubmitScore}
-            disabled={isSubmitting || scoreValue === 0}
-            color={scoreValue < 4 ? "error" : "primary"}
-            startIcon={
-              isSubmitting ? (
-                <Loader2 className="animate-spin" size={16} />
-              ) : scoreValue < 4 ? (
-                <AlertCircle size={16} />
-              ) : null
-            }
-          >
-            {isSubmitting
-              ? "Đang xử lý..."
-              : scoreValue < 4
-                ? "Nộp (Sinh viên sẽ bị loại)"
-                : "Nộp phiếu chấm"}
-          </MuiButton>
+
+          {/* Các nút bên dưới ẩn khi đã nộp hoặc quá hạn */}
+          {!isReadOnly && (
+            <>
+              <MuiButton
+                variant="outlined"
+                onClick={handleSaveDraft}
+                disabled={isSubmitting}
+              >
+                Lưu nháp
+              </MuiButton>
+              <MuiButton
+                variant="contained"
+                onClick={handleSubmitScore}
+                disabled={
+                  isSubmitting ||
+                  scoreValue === "" ||
+                  isNaN(parseFloat(scoreValue))
+                }
+                color={parseFloat(scoreValue) < 4 ? "error" : "primary"}
+              >
+                {isSubmitting
+                  ? "Đang xử lý..."
+                  : parseFloat(scoreValue) < 4
+                    ? "Nộp (Sinh viên sẽ bị loại)"
+                    : "Nộp phiếu chấm"}
+              </MuiButton>
+            </>
+          )}
         </Box>
       </Dialog>
     </Box>

@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 "use client";
 
 export const dynamic = "force-dynamic";
@@ -158,7 +159,7 @@ function LoginForm() {
       }
     } catch (err: unknown) {
       if (process.env.NODE_ENV === "development") {
-        // eslint-disable-next-line no-console
+         
         console.error("[Login] Credentials sign-in failed", err);
       }
       setError(

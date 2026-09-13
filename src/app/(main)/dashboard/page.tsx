@@ -14,7 +14,7 @@ import { PageHeader } from "@/shared/components";
 import { RoleGate } from "@/shared/components/PermissionGuard/PermissionGuard";
 import { BarChart3 } from "lucide-react";
 import { toast } from "sonner";
-import { useTheme } from "@/shared/theme";
+import {} from "@/shared/theme";
 import { apiClient } from "@/shared/services/api-client";
 
 interface SecretaryDashboard {
