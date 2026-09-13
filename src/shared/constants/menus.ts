@@ -200,6 +200,18 @@ export const MENU_SECTIONS: MenuSection[] = [
     ],
   },
   {
+    section: "Giai đoạn 8",
+    items: [
+      {
+        key: "statistics",
+        label: "Thống kê và báo cáo",
+        icon: Icon.graphUp,
+        path: "/statistics",
+        roles: ["admin", "secretary"],
+      },
+    ],
+  },
+  {
     section: "Giảng viên",
     items: [
       {
