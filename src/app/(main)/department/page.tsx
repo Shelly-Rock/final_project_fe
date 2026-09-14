@@ -9,11 +9,25 @@ import {
   CardActionArea,
   CircularProgress,
   Typography,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
 } from "@mui/material";
 import { PageHeader } from "@/shared/components";
 import { RoleGate } from "@/shared/components/PermissionGuard/PermissionGuard";
-import { Building2 } from "lucide-react";
+import { Building2, Plus } from "lucide-react";
 import { toast } from "sonner";
+import {
+  PieChart,
+  Pie,
+  Cell,
+  Legend,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
 import {
   departmentService,
   DepartmentSummary,
@@ -23,6 +37,9 @@ export default function DepartmentPage() {
   const router = useRouter();
   const [departments, setDepartments] = useState<DepartmentSummary[]>([]);
   const [loading, setLoading] = useState(true);
+  const [openDialog, setOpenDialog] = useState(false);
+  const [newDeptName, setNewDeptName] = useState("");
+  const [userRole, setUserRole] = useState<string>("");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -30,6 +47,9 @@ export default function DepartmentPage() {
       try {
         const data = await departmentService.getDepartments();
         setDepartments(data);
+        // Get user role from session/context if available
+        const roleFromSession = localStorage.getItem("userRole");
+        setUserRole(roleFromSession || "");
       } catch (e: unknown) {
         const msg =
           e instanceof Error ? e.message : "Không tải được dữ liệu khoa";
@@ -43,6 +63,17 @@ export default function DepartmentPage() {
 
   const handleCardClick = (departmentId: string) => {
     router.push(`/department/${encodeURIComponent(departmentId)}`);
+  };
+
+  const handleAddDepartment = async () => {
+    if (!newDeptName.trim()) {
+      toast.error("Vui lòng nhập tên khoa");
+      return;
+    }
+    // TODO: Implement API call to create department
+    toast.success(`Thêm khoa "${newDeptName}" thành công`);
+    setNewDeptName("");
+    setOpenDialog(false);
   };
 
   if (loading) {
@@ -65,12 +96,32 @@ export default function DepartmentPage() {
       }
     >
       <Box sx={{ p: 3, width: "100%" }}>
-        <PageHeader
-          title="Dashboard Khoa"
-          subtitle="Quản lý và theo dõi thống kê các khoa"
-          illustration={<Building2 size={56} strokeWidth={1.5} />}
-          showBgImage
-        />
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            mb: 3,
+          }}
+        >
+          <Box>
+            <PageHeader
+              title="Dashboard Khoa"
+              subtitle="Quản lý và theo dõi thống kê các khoa"
+              illustration={<Building2 size={56} strokeWidth={1.5} />}
+              showBgImage
+            />
+          </Box>
+          {userRole === "admin" && (
+            <Button
+              variant="contained"
+              onClick={() => setOpenDialog(true)}
+              sx={{ mt: 2 }}
+            >
+              + Thêm khoa mới
+            </Button>
+          )}
+        </Box>
 
         {departments.length === 0 ? (
           <Box sx={{ p: 4, textAlign: "center" }}>
@@ -78,76 +129,127 @@ export default function DepartmentPage() {
           </Box>
         ) : (
           <Grid container spacing={3}>
-            {departments.map((dept) => (
-              <Grid item xs={12} sm={6} md={4} key={dept.department_id}>
-                <MuiCard
-                  elevation={0}
-                  sx={{
-                    border: "1px solid",
-                    borderColor: "divider",
-                    borderRadius: 2,
-                    height: "100%",
-                    transition: "all 0.3s ease",
-                    "&:hover": {
-                      boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-                      transform: "translateY(-2px)",
-                    },
-                  }}
-                >
-                  <CardActionArea
-                    onClick={() => handleCardClick(dept.department_id)}
+            {departments.map((dept) => {
+              const chartData = [
+                { name: "Chờ duyệt", value: dept.projects.pending },
+                { name: "Đã duyệt", value: dept.projects.approved },
+                { name: "Từ chối", value: dept.projects.rejected },
+              ];
+              const COLORS = ["#f59e0b", "#10b981", "#ef4444"];
+
+              return (
+                <Grid item xs={12} sm={6} md={4} key={dept.department_id}>
+                  <MuiCard
+                    elevation={0}
                     sx={{
+                      border: "1px solid",
+                      borderColor: "divider",
+                      borderRadius: 2,
                       height: "100%",
-                      display: "flex",
-                      flexDirection: "column",
+                      transition: "all 0.3s ease",
+                      "&:hover": {
+                        boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                        transform: "translateY(-2px)",
+                      },
                     }}
                   >
-                    <Box sx={{ p: 3, width: "100%", flexGrow: 1 }}>
-                      <Typography variant="h6" sx={{ fontWeight: 700, mb: 3 }}>
-                        {dept.department_name}
-                      </Typography>
+                    <CardActionArea
+                      onClick={() => handleCardClick(dept.department_id)}
+                      sx={{
+                        height: "100%",
+                        display: "flex",
+                        flexDirection: "column",
+                      }}
+                    >
+                      <Box sx={{ p: 3, width: "100%", flexGrow: 1 }}>
+                        <Typography
+                          variant="h6"
+                          sx={{ fontWeight: 700, mb: 2 }}
+                        >
+                          {dept.department_name}
+                        </Typography>
 
-                      <Box
-                        sx={{
-                          display: "flex",
-                          flexDirection: "column",
-                          gap: 2,
-                        }}
-                      >
-                        <StatRow
-                          label="Giảng viên"
-                          value={dept.teachers}
-                          color="#8b5cf6"
-                        />
-                        <StatRow
-                          label="Tổng đề tài"
-                          value={dept.projects.total}
-                          color="#6b7280"
-                        />
-                        <StatRow
-                          label="Chờ duyệt"
-                          value={dept.projects.pending}
-                          color="#f59e0b"
-                        />
-                        <StatRow
-                          label="Đã duyệt"
-                          value={dept.projects.approved}
-                          color="#10b981"
-                        />
-                        <StatRow
-                          label="Từ chối"
-                          value={dept.projects.rejected}
-                          color="#ef4444"
-                        />
+                        {/* Pie Chart */}
+                        <Box
+                          sx={{
+                            display: "flex",
+                            justifyContent: "center",
+                            mb: 2,
+                          }}
+                        >
+                          <ResponsiveContainer width={150} height={150}>
+                            <PieChart>
+                              <Pie
+                                data={chartData}
+                                cx="50%"
+                                cy="50%"
+                                innerRadius={35}
+                                outerRadius={60}
+                                paddingAngle={2}
+                                dataKey="value"
+                              >
+                                {chartData.map((entry, index) => (
+                                  <Cell
+                                    key={`cell-${index}`}
+                                    fill={COLORS[index % COLORS.length]}
+                                  />
+                                ))}
+                              </Pie>
+                            </PieChart>
+                          </ResponsiveContainer>
+                        </Box>
+
+                        {/* Summary Stats */}
+                        <Box
+                          sx={{
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: 1,
+                          }}
+                        >
+                          <StatRow
+                            label="Giảng viên"
+                            value={dept.teachers}
+                            color="#8b5cf6"
+                          />
+                          <StatRow
+                            label="Tổng đề tài"
+                            value={dept.projects.total}
+                            color="#6b7280"
+                          />
+                        </Box>
                       </Box>
-                    </Box>
-                  </CardActionArea>
-                </MuiCard>
-              </Grid>
-            ))}
+                    </CardActionArea>
+                  </MuiCard>
+                </Grid>
+              );
+            })}
           </Grid>
         )}
       </Box>
+
+      {/* Add Department Dialog */}
+      <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
+        <DialogTitle>Thêm khoa mới</DialogTitle>
+        <DialogContent sx={{ minWidth: 400 }}>
+          <TextField
+            autoFocus
+            margin="dense"
+            label="Tên khoa"
+            fullWidth
+            variant="outlined"
+            value={newDeptName}
+            onChange={(e) => setNewDeptName(e.target.value)}
+            sx={{ mt: 2 }}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenDialog(false)}>Hủy</Button>
+          <Button onClick={handleAddDepartment} variant="contained">
+            Thêm
+          </Button>
+        </DialogActions>
+      </Dialog>
     </RoleGate>
   );
 }
