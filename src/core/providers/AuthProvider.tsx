@@ -15,6 +15,9 @@ function TokenSyncer({ session }: { session?: Session | null }) {
     if (session?.accessToken) {
       localStorage.setItem("accessToken", session.accessToken);
     }
+    if (session?.refreshToken) {
+      localStorage.setItem("refreshToken", session.refreshToken);
+    }
   }, [session]);
   return null;
 }

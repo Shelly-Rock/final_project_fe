@@ -35,13 +35,30 @@ export default function MyTopicsPage() {
   // Search state
   const [searchValue, setSearchValue] = useState("");
 
-  // Refresh topics list
+  // Refresh topics list (pending requests are derived from the same payload)
   const refreshTopics = useCallback(() => {
     setTopicsLoading(true);
+    setRequestsLoading(true);
     myTopicService
       .getAll()
       .then((data) => {
         setAllTopics(data);
+        setPendingRequests(
+          data.flatMap((topic) =>
+            topic.registeredStudents
+              .filter((s) => s.status === "Pending")
+              .map((s) => ({
+                id: s.id,
+                studentId: s.studentId,
+                studentName: s.studentName,
+                studentCode: s.studentCode,
+                topicId: topic.id,
+                topicName: topic.name,
+                requestedAt: s.registeredAt,
+                status: "Pending" as const,
+              })),
+          ),
+        );
       })
       .catch((error: unknown) => {
         const errorMessage = error instanceof Error ? error.message : "";
@@ -54,27 +71,19 @@ export default function MyTopicsPage() {
           toast.error("Không thể tải danh sách đề tài");
         }
       })
-      .finally(() => setTopicsLoading(false));
-  }, []);
-
-  // Refresh pending requests
-  const refreshPendingRequests = useCallback(() => {
-    setRequestsLoading(true);
-    myTopicService
-      .getPendingRequests()
-      .then(setPendingRequests)
-      .catch(() => toast.error("Không thể tải danh sách yêu cầu"))
-      .finally(() => setRequestsLoading(false));
+      .finally(() => {
+        setTopicsLoading(false);
+        setRequestsLoading(false);
+      });
   }, []);
 
   // Initial load
   useEffect(() => {
     const timer = setTimeout(() => {
       refreshTopics();
-      refreshPendingRequests();
     }, 0);
     return () => clearTimeout(timer);
-  }, [refreshTopics, refreshPendingRequests]);
+  }, [refreshTopics]);
 
   // Filter topics by search - derived state
   const displayedTopics = searchValue
@@ -116,7 +125,6 @@ export default function MyTopicsPage() {
     try {
       await myTopicService.delete(topic.id);
       refreshTopics();
-      refreshPendingRequests();
       toast.success("Đã xóa đề tài");
     } catch {
       toast.error("Xóa thất bại");
@@ -151,7 +159,6 @@ export default function MyTopicsPage() {
         );
       }
       refreshTopics();
-      refreshPendingRequests();
       setFormDialogOpen(false);
     } catch {
       toast.error(selectedTopic ? "Cập nhật thất bại" : "Tạo mới thất bại");
@@ -167,7 +174,6 @@ export default function MyTopicsPage() {
         studentId: request.studentId,
       });
       refreshTopics();
-      refreshPendingRequests();
       toast.success(`Đã duyệt yêu cầu của ${request.studentName}`);
     } catch {
       toast.error("Duyệt thất bại");
@@ -187,7 +193,6 @@ export default function MyTopicsPage() {
         reason: reason || "Không đạt yêu cầu",
       });
       refreshTopics();
-      refreshPendingRequests();
       toast.success(`Đã từ chối yêu cầu của ${request.studentName}`);
     } catch {
       toast.error("Từ chối thất bại");

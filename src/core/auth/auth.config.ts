@@ -97,7 +97,6 @@ export const authOptions: NextAuthOptions = {
             err instanceof Error ? err.message : "Đăng nhập thất bại";
 
           if (process.env.NODE_ENV === "development") {
-             
             console.error("[NextAuth] Credentials login failed", {
               message,
               username: credentials.username,
@@ -157,6 +156,7 @@ export const authOptions: NextAuthOptions = {
       }
       session.user.mustChangePassword = !!token.mustChangePassword;
       session.accessToken = (token.accessToken as string) || "";
+      session.refreshToken = (token.refreshToken as string) || "";
       // Ensure token is in localStorage
       if (typeof window !== "undefined" && session.accessToken) {
         console.log("[NextAuth Session] Ensuring accessToken in localStorage", {

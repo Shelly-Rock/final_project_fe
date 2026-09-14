@@ -144,12 +144,12 @@ function LoginForm() {
           accessToken: refreshedSession?.accessToken,
         });
 
-        // Store accessToken in localStorage for API client
+        // Store backend JWTs for the Axios API client
         if (refreshedSession?.accessToken) {
-          console.log("[Login] Storing accessToken in localStorage", {
-            accessToken: refreshedSession.accessToken,
-          });
           localStorage.setItem("accessToken", refreshedSession.accessToken);
+        }
+        if (refreshedSession?.refreshToken) {
+          localStorage.setItem("refreshToken", refreshedSession.refreshToken);
         }
 
         toast.success("Đăng nhập thành công");
