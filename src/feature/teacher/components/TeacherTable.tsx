@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useMemo } from "react";
 import { Typography, useTheme } from "@mui/material";
 import { Badge } from "@/shared/components";
 import { Edit as EditIcon, Block } from "@mui/icons-material";
@@ -8,7 +8,6 @@ import { Plus, RefreshCw, Download, Upload } from "lucide-react";
 import { DataTable } from "@/shared/components";
 import type { Column, Action, HeaderAction } from "@/shared/components";
 import type { Lecturer } from "@/feature/admin/types";
-import { getFacultyName, getDepartmentName } from "@/feature/admin/mockData";
 
 interface TeacherTableProps {
   teachers: Lecturer[];
@@ -19,6 +18,8 @@ interface TeacherTableProps {
   onFilterDepartmentChange?: (value: string) => void;
   faculties?: { id: string; name: string }[];
   departments?: { id: string; name: string }[];
+  allFaculties?: { id: string; name: string }[];
+  allDepartments?: { id: string; name: string; facultyId: string }[];
   onEdit: (teacher: Lecturer) => void;
   onToggleStatus: (
     teacherId: number,
@@ -44,6 +45,8 @@ export function TeacherTable({
   onFilterDepartmentChange,
   faculties = [],
   departments = [],
+  _allFaculties = [],
+  _allDepartments = [],
   onEdit,
   onToggleStatus,
   onRefresh,
@@ -67,6 +70,17 @@ export function TeacherTable({
     { value: "all", label: "Tất cả Bộ môn" },
     ...departments.map((d) => ({ value: d.id, label: d.name })),
   ];
+
+  // Memoized lookup helpers
+  const getFacultyNameById = useMemo(() => {
+    const map = new Map(faculties.map((f) => [f.id, f.name]));
+    return (id: string) => map.get(id) ?? "Không xác định";
+  }, [faculties]);
+
+  const getDepartmentNameById = useMemo(() => {
+    const map = new Map(departments.map((d) => [d.id, d.name]));
+    return (id: string) => map.get(id) ?? "Không xác định";
+  }, [departments]);
 
   const columns: Column<Lecturer>[] = [
     {
@@ -118,7 +132,7 @@ export function TeacherTable({
       minWidth: 180,
       format: (_, row) => (
         <Typography variant="body2" sx={{ color: textColor }}>
-          {getFacultyName(row.facultyId)}
+          {getFacultyNameById(row.facultyId)}
         </Typography>
       ),
     },
@@ -128,7 +142,7 @@ export function TeacherTable({
       minWidth: 180,
       format: (_, row) => (
         <Typography variant="body2" sx={{ color: textColor }}>
-          {getDepartmentName(row.departmentId)}
+          {getDepartmentNameById(row.departmentId)}
         </Typography>
       ),
     },

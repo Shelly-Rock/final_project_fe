@@ -28,7 +28,17 @@ import {
   AlertCircle,
   Wand2,
 } from "lucide-react";
-import { mockFaculties, mockDepartments } from "@/feature/admin/mockData";
+
+interface Faculty {
+  id: string;
+  name: string;
+}
+
+interface Department {
+  id: string;
+  name: string;
+  facultyId?: string;
+}
 
 interface TeacherImportRow {
   code: string;
@@ -45,32 +55,16 @@ interface ImportExcelDialogProps {
   open: boolean;
   onClose: () => void;
   onImport: (data: TeacherImportRow[]) => void;
-}
-
-// Helper to find faculty by name
-function findFacultyIdByName(name: string): string {
-  const found = mockFaculties.find((f) =>
-    f.name.toLowerCase().includes(name.toLowerCase()),
-  );
-  return found?.id || "";
-}
-
-// Helper to find department by name
-function findDepartmentIdByName(name: string, facultyId?: string): string {
-  const departments = facultyId
-    ? mockDepartments.filter((d) => d.facultyId === facultyId)
-    : mockDepartments;
-
-  const found = departments.find((d) =>
-    d.name.toLowerCase().includes(name.toLowerCase()),
-  );
-  return found?.id || "";
+  faculties: Faculty[];
+  departments: Department[];
 }
 
 export function ImportExcelDialog({
   open,
   onClose,
   onImport,
+  faculties,
+  departments,
 }: ImportExcelDialogProps) {
   const [rows, setRows] = useState<TeacherImportRow[]>([]);
   const [errors, setErrors] = useState<string[]>([]);
@@ -86,6 +80,26 @@ export function ImportExcelDialog({
   const handleClose = () => {
     resetState();
     onClose();
+  };
+
+  // Helper to find faculty by name
+  const findFacultyIdByName = (name: string): string => {
+    const found = faculties.find((f) =>
+      f.name.toLowerCase().includes(name.toLowerCase()),
+    );
+    return found?.id || "";
+  };
+
+  // Helper to find department by name
+  const findDepartmentIdByName = (name: string, facultyId?: string): string => {
+    const depts = facultyId
+      ? departments.filter((d) => d.facultyId === facultyId)
+      : departments;
+
+    const found = depts.find((d) =>
+      d.name.toLowerCase().includes(name.toLowerCase()),
+    );
+    return found?.id || "";
   };
 
   const parseCSV = (text: string): TeacherImportRow[] => {
@@ -145,7 +159,6 @@ export function ImportExcelDialog({
       const line = lines[i].trim();
       if (!line) continue;
 
-      // Simple CSV parsing (handles basic cases)
       const values = line.split(",").map((v) => v.trim().replace(/"/g, ""));
 
       const facultyValue =
@@ -153,7 +166,6 @@ export function ImportExcelDialog({
       const departmentValue =
         headerMap.department !== undefined ? values[headerMap.department] : "";
 
-      // Auto-map faculty and department
       const facultyId = findFacultyIdByName(facultyValue);
       const departmentId = findDepartmentIdByName(departmentValue, facultyId);
 
@@ -217,7 +229,6 @@ export function ImportExcelDialog({
   };
 
   const downloadTemplate = () => {
-    // Sample template - note that Mã GV is optional
     const template =
       "Mã GV,Họ tên,Email,Số điện thoại,Khoa,Bộ môn,Học hàm/Học vị,Chức vụ\n,Nguyễn Văn An,nv.an@ctu.edu.vn,0912345678,Khoa Công nghệ thông tin,Công nghệ phần mềm,Tiến sĩ,Trưởng ngành";
     const blob = new Blob([template], { type: "text/csv;charset=utf-8;" });
@@ -227,6 +238,14 @@ export function ImportExcelDialog({
     link.download = "template_giang_vien.csv";
     link.click();
     URL.revokeObjectURL(url);
+  };
+
+  const getFacultyName = (facultyId: string) => {
+    return faculties.find((f) => f.id === facultyId)?.name || "—";
+  };
+
+  const getDepartmentName = (departmentId: string) => {
+    return departments.find((d) => d.id === departmentId)?.name || "—";
   };
 
   return (
@@ -271,7 +290,6 @@ export function ImportExcelDialog({
       </DialogTitle>
 
       <DialogContent sx={{ pt: 3 }}>
-        {/* File Upload */}
         <Box
           sx={{
             border: "2px dashed",
@@ -316,7 +334,6 @@ export function ImportExcelDialog({
           Tải file mẫu
         </Button>
 
-        {/* Helper text for auto-code generation */}
         <Alert
           severity="info"
           sx={{
@@ -336,7 +353,6 @@ export function ImportExcelDialog({
           </Typography>
         </Alert>
 
-        {/* Errors */}
         {errors.length > 0 && (
           <Alert severity="error" sx={{ mb: 2 }}>
             {errors.map((err, i) => (
@@ -345,7 +361,6 @@ export function ImportExcelDialog({
           </Alert>
         )}
 
-        {/* Preview Table */}
         {rows.length > 0 && (
           <Box>
             <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
@@ -412,13 +427,9 @@ export function ImportExcelDialog({
                       </TableCell>
                       <TableCell>{row.name}</TableCell>
                       <TableCell>{row.email}</TableCell>
+                      <TableCell>{getFacultyName(row.facultyId)}</TableCell>
                       <TableCell>
-                        {mockFaculties.find((f) => f.id === row.facultyId)
-                          ?.name || "—"}
-                      </TableCell>
-                      <TableCell>
-                        {mockDepartments.find((d) => d.id === row.departmentId)
-                          ?.name || "—"}
+                        {getDepartmentName(row.departmentId)}
                       </TableCell>
                       <TableCell>
                         <IconButton
@@ -442,7 +453,6 @@ export function ImportExcelDialog({
           </Box>
         )}
 
-        {/* Empty State */}
         {rows.length === 0 && errors.length === 0 && (
           <Box
             sx={{

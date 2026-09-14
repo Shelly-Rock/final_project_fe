@@ -74,4 +74,11 @@ export const teacherService = {
   async delete(code: string): Promise<void> {
     await teacherApiService.remove(code);
   },
+
+  /**
+   * Lấy mã giảng viên tiếp theo
+   */
+  async getNextCode(): Promise<string> {
+    return teacherApiService.getNextCode();
+  },
 };

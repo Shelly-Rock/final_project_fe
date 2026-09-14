@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { Box } from "@mui/material";
+import { Box, CircularProgress } from "@mui/material";
 import {
   TeacherTable,
   TeacherFormDialog,
@@ -13,15 +13,22 @@ import {
   type CreateLecturerInput,
   type UpdateLecturerInput,
 } from "@/feature/admin/types";
-import {
-  mockFaculties,
-  mockDepartments,
-  getDepartmentsByFaculty,
-} from "@/feature/admin/mockData";
+import { facultyService, departmentService } from "@/feature/admin/services";
 import { teacherService } from "@/feature/teacher/services/teacher.service";
 import { PageHeader } from "@/shared/components";
 import { GraduationCap } from "lucide-react";
 import { toast } from "sonner";
+
+interface Faculty {
+  id: string;
+  name: string;
+}
+
+interface Department {
+  id: string;
+  name: string;
+  facultyId: string;
+}
 
 export default function TeacherManagementPage() {
   // Lecturers state
@@ -36,18 +43,47 @@ export default function TeacherManagementPage() {
   const [filterFaculty, setFilterFaculty] = useState("all");
   const [filterDepartment, setFilterDepartment] = useState("all");
 
+  // Faculty/Department from API
+  const [faculties, setFaculties] = useState<Faculty[]>([]);
+  const [allDepartments, setAllDepartments] = useState<Department[]>([]);
+  const [loadingFaculties, setLoadingFaculties] = useState(true);
+
+  // Load faculties on mount
+  useEffect(() => {
+    facultyService
+      .getAll()
+      .then(setFaculties)
+      .catch(() => {
+        toast.error("Không thể tải danh sách khoa");
+        setFaculties([]);
+      })
+      .finally(() => setLoadingFaculties(false));
+  }, []);
+
+  // Load departments when faculties change
+  useEffect(() => {
+    if (faculties.length === 0) return;
+    departmentService
+      .getAll()
+      .then(setAllDepartments)
+      .catch(() => {
+        toast.error("Không thể tải danh sách bộ môn");
+        setAllDepartments([]);
+      });
+  }, [faculties]);
+
   // Derived departments based on selected faculty
   const availableDepartments = useMemo(() => {
     if (filterFaculty === "all") {
-      return mockDepartments;
+      return allDepartments;
     }
-    return getDepartmentsByFaculty(filterFaculty);
-  }, [filterFaculty]);
+    return allDepartments.filter((d) => d.facultyId === filterFaculty);
+  }, [filterFaculty, allDepartments]);
 
   // Reset department filter when faculty changes
   const handleFacultyChange = (facultyId: string) => {
     setFilterFaculty(facultyId);
-    setFilterDepartment("all"); // Reset department when faculty changes
+    setFilterDepartment("all");
   };
 
   // Refresh teachers list
@@ -157,9 +193,17 @@ export default function TeacherManagementPage() {
   };
 
   const handleExport = () => {
-    exportTeachersToExcel(teachers);
+    exportTeachersToExcel(teachers, faculties, allDepartments);
     toast.success("Đã xuất file Excel");
   };
+
+  if (loadingFaculties) {
+    return (
+      <Box sx={{ p: 3, display: "flex", justifyContent: "center", mt: 4 }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   return (
     <Box sx={{ p: 3, width: "100%" }}>
@@ -177,8 +221,10 @@ export default function TeacherManagementPage() {
         filterDepartment={filterDepartment}
         onFilterFacultyChange={handleFacultyChange}
         onFilterDepartmentChange={setFilterDepartment}
-        faculties={mockFaculties}
+        faculties={faculties}
         departments={availableDepartments}
+        allFaculties={faculties}
+        allDepartments={allDepartments}
         onEdit={handleEditTeacher}
         onToggleStatus={handleToggleStatus}
         onAdd={handleCreateTeacher}
@@ -194,12 +240,16 @@ export default function TeacherManagementPage() {
         onSubmit={handleFormSubmit}
         teacher={selectedTeacher}
         loading={formLoading}
+        faculties={faculties}
+        departments={allDepartments}
       />
 
       <ImportExcelDialog
         open={importDialogOpen}
         onClose={() => setImportDialogOpen(false)}
         onImport={handleImport}
+        faculties={faculties}
+        departments={allDepartments}
       />
     </Box>
   );
