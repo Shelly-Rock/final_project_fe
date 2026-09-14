@@ -29,6 +29,39 @@ interface StatCardProps {
   icon: React.ReactNode;
 }
 
+interface CustomPieTooltipProps {
+  active?: boolean;
+  payload?: Array<{ name: string; value: number }>;
+}
+
+const CustomPieTooltip: React.FC<CustomPieTooltipProps> = ({
+  active,
+  payload,
+}) => {
+  if (active && payload && payload.length) {
+    const { name, value } = payload[0];
+    return (
+      <Box
+        sx={{
+          backgroundColor: "#1f2937",
+          border: "1px solid #374151",
+          borderRadius: "6px",
+          padding: "12px 16px",
+          color: "#f3f4f6",
+        }}
+      >
+        <Typography variant="body2" sx={{ fontWeight: 600, mb: 0.5 }}>
+          {name}
+        </Typography>
+        <Typography variant="body2" sx={{ color: "#10b981", fontWeight: 600 }}>
+          {value}
+        </Typography>
+      </Box>
+    );
+  }
+  return null;
+};
+
 const StatCard = ({ label, value, icon: Icon }: StatCardProps) => (
   <Card variant="elevation">
     <CardHeader
@@ -167,7 +200,7 @@ export const SecretaryDashboard: React.FC = () => {
                             />
                           ))}
                         </Pie>
-                        <Tooltip />
+                        <Tooltip content={<CustomPieTooltip />} />
                       </PieChart>
                     </ResponsiveContainer>
                   </CardContentDiv>
@@ -195,7 +228,7 @@ export const SecretaryDashboard: React.FC = () => {
                             />
                           ))}
                         </Pie>
-                        <Tooltip />
+                        <Tooltip content={<CustomPieTooltip />} />
                       </PieChart>
                     </ResponsiveContainer>
                   </CardContentDiv>
