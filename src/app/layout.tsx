@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { AuthProvider } from "@/core/providers/AuthProvider";
+import { AppProviders } from "@/core/providers/AppProviders";
 import { Sonner } from "@/shared/components/Sonner/Sonner";
 import "@/styles/main.scss";
 import "bootstrap-icons/font/bootstrap-icons.css";
@@ -33,7 +34,9 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full">
-        <AuthProvider>{children}</AuthProvider>
+        <AuthProvider>
+          <AppProviders>{children}</AppProviders>
+        </AuthProvider>
         <Sonner position="top-right" richColors closeButton />
       </body>
     </html>
