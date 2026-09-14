@@ -16,13 +16,13 @@ class DepartmentService {
     }
     const url = `${API_BASE}/departments${params.toString() ? `?${params.toString()}` : ""}`;
     const response: Record<string, unknown> = await apiClient.get(url);
-    const departments = Array.isArray(response)
-      ? response
-      : response.data || [];
+    const departments = (
+      Array.isArray(response) ? response : (response.data as unknown[]) || []
+    ) as Array<Record<string, unknown>>;
     return departments.map((raw: Record<string, unknown>) => ({
-      id: raw.id,
-      name: raw.name,
-      facultyId: raw.faculty_id,
+      id: raw.id as string,
+      name: raw.name as string,
+      facultyId: raw.faculty_id as string,
     }));
   }
 }

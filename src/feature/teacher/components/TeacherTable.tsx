@@ -45,8 +45,6 @@ export function TeacherTable({
   onFilterDepartmentChange,
   faculties = [],
   departments = [],
-  _allFaculties = [],
-  _allDepartments = [],
   onEdit,
   onToggleStatus,
   onRefresh,
