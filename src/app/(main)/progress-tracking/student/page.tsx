@@ -87,7 +87,7 @@ function StudentProgressCard({ studentId }: { studentId: number }) {
       // student progress records. We then filter by studentId since the
       // paginated endpoint does not (yet) accept studentId as a param.
       const result = await progressTrackingService.getStudentProgress({
-        limit: 1000,
+        limit: 100,
       });
       const data = result.data.find((p) => p.studentId === studentId) || null;
       setProgress(data);
@@ -328,7 +328,7 @@ export default function StudentProgressPage() {
       // Filter the paginated list of student progress records by studentId,
       // since the new service no longer exposes getStudentById.
       const result = await progressTrackingService.getStudentProgress({
-        limit: 1000,
+        limit: 100,
       });
       const data =
         result.data.find((p) => p.studentId === MOCK_STUDENT.id) || null;

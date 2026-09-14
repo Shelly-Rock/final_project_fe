@@ -70,7 +70,7 @@ class StudentService {
     }
 
     try {
-      const resp = await studentApiService.getAll({ limit: 1000 });
+      const resp = await studentApiService.getAll({ limit: 100 });
       return resp.students.map(mapApiToStudent);
     } catch (error) {
       throw error;
