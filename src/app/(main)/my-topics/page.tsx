@@ -43,7 +43,17 @@ export default function MyTopicsPage() {
       .then((data) => {
         setAllTopics(data);
       })
-      .catch(() => toast.error("Không thể tải danh sách đề tài"))
+      .catch((error: unknown) => {
+        const errorMessage = error instanceof Error ? error.message : "";
+        if (
+          errorMessage.includes("403") ||
+          errorMessage.includes("Forbidden")
+        ) {
+          toast.error("Bạn không có quyền truy cập chức năng này");
+        } else {
+          toast.error("Không thể tải danh sách đề tài");
+        }
+      })
       .finally(() => setTopicsLoading(false));
   }, []);
 
