@@ -1,4 +1,4 @@
-import axios from "axios";
+import { apiClient } from "@/shared/services/api-client";
 
 export interface AdminDashboardStats {
   summary: {
@@ -39,13 +39,11 @@ export interface DepartmentStats {
 
 class AdminDashboardService {
   async getAdminStats(): Promise<AdminDashboardStats> {
-    const response = await axios.get("/api/dashboard/admin");
-    return response.data;
+    return apiClient.get<AdminDashboardStats>("/dashboard/admin");
   }
 
   async getDepartmentStats(): Promise<DepartmentStats[]> {
-    const response = await axios.get("/api/dashboard/admin/departments");
-    return response.data;
+    return apiClient.get<DepartmentStats[]>("/dashboard/admin/departments");
   }
 }
 
