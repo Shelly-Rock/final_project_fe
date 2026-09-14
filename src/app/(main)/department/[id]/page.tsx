@@ -25,7 +25,7 @@ import {
 } from "recharts";
 import {
   departmentService,
-  DepartmentDetail,
+  DepartmentSummary,
   DepartmentProgressStats,
 } from "@/feature/dashboard/services/department.service";
 
@@ -40,7 +40,7 @@ export default function DepartmentDetailPage() {
   const params = useParams();
   const departmentId = params.id as string;
 
-  const [department, setDepartment] = useState<DepartmentDetail | null>(null);
+  const [department, setDepartment] = useState<DepartmentSummary | null>(null);
   const [progressStats, setProgressStats] =
     useState<DepartmentProgressStats | null>(null);
   const [loading, setLoading] = useState(true);
