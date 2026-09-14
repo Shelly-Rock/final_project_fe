@@ -31,7 +31,7 @@ function getDefaultRouteForRole(role?: string) {
       return "/my-topics";
     case "admin":
     case "secretary":
-      return "/students";
+      return "/department";
     default:
       return "/";
   }
@@ -159,7 +159,6 @@ function LoginForm() {
       }
     } catch (err: unknown) {
       if (process.env.NODE_ENV === "development") {
-         
         console.error("[Login] Credentials sign-in failed", err);
       }
       setError(

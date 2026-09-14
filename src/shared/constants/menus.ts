@@ -110,13 +110,6 @@ export const MENU_SECTIONS: MenuSection[] = [
         roles: ["admin", "secretary"],
       },
       {
-        key: "dashboard",
-        label: "Dashboard Thư ký",
-        icon: Icon.graphUp,
-        path: "/dashboard",
-        roles: ["admin", "secretary"],
-      },
-      {
         key: "department",
         label: "Dashboard Khoa",
         icon: Icon.people,
