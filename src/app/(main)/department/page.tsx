@@ -27,6 +27,7 @@ import {
   Legend,
   Tooltip,
   ResponsiveContainer,
+  Label,
 } from "recharts";
 import {
   departmentService,
@@ -95,132 +96,131 @@ export default function DepartmentPage() {
         </Box>
       }
     >
-      <Box sx={{ width: "100%" }}>
-        <PageHeader
-          title="Dashboard Khoa"
-          subtitle="Quản lý và theo dõi thống kê các khoa"
-          illustration={<Building2 size={56} strokeWidth={1.5} />}
-          showBgImage
-          actions={
-            userRole === "admin" && (
-              <Button
-                variant="contained"
-                startIcon={<Plus size={20} />}
-                onClick={() => setOpenDialog(true)}
-              >
-                Thêm khoa mới
-              </Button>
-            )
-          }
-        />
+      <Box sx={{ p: 3, width: "100%" }}>
+        <Box sx={{ mb: 3 }}>
+          <PageHeader
+            title="Dashboard Khoa"
+            subtitle="Quản lý và theo dõi thống kê các khoa"
+            illustration={<Building2 size={56} strokeWidth={1.5} />}
+            showBgImage
+            actions={
+              userRole === "admin" && (
+                <Button
+                  variant="contained"
+                  startIcon={<Plus size={20} />}
+                  onClick={() => setOpenDialog(true)}
+                >
+                  Thêm khoa mới
+                </Button>
+              )
+            }
+          />
+        </Box>
+        {departments.length === 0 ? (
+          <Box sx={{ p: 4, textAlign: "center" }}>
+            <Typography color="text.secondary">Chưa có dữ liệu khoa</Typography>
+          </Box>
+        ) : (
+          <Grid container spacing={3}>
+            {departments.map((dept) => {
+              const chartData = [
+                { name: "Chờ duyệt", value: dept.projects.pending },
+                { name: "Đã duyệt", value: dept.projects.approved },
+                { name: "Từ chối", value: dept.projects.rejected },
+              ];
+              const COLORS = ["#f59e0b", "#10b981", "#ef4444"];
 
-        <Box sx={{ p: 3 }}>
-          {departments.length === 0 ? (
-            <Box sx={{ p: 4, textAlign: "center" }}>
-              <Typography color="text.secondary">
-                Chưa có dữ liệu khoa
-              </Typography>
-            </Box>
-          ) : (
-            <Grid container spacing={3}>
-              {departments.map((dept) => {
-                const chartData = [
-                  { name: "Chờ duyệt", value: dept.projects.pending },
-                  { name: "Đã duyệt", value: dept.projects.approved },
-                  { name: "Từ chối", value: dept.projects.rejected },
-                ];
-                const COLORS = ["#f59e0b", "#10b981", "#ef4444"];
-
-                return (
-                  <Grid item xs={12} sm={6} md={4} key={dept.department_id}>
-                    <MuiCard
-                      elevation={0}
+              return (
+                <Grid item xs={12} sm={6} md={4} key={dept.department_id}>
+                  <MuiCard
+                    elevation={0}
+                    sx={{
+                      border: "1px solid",
+                      borderColor: "divider",
+                      borderRadius: 2,
+                      height: "100%",
+                      transition: "all 0.3s ease",
+                      "&:hover": {
+                        boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                        transform: "translateY(-2px)",
+                      },
+                    }}
+                  >
+                    <CardActionArea
+                      onClick={() => handleCardClick(dept.department_id)}
                       sx={{
-                        border: "1px solid",
-                        borderColor: "divider",
-                        borderRadius: 2,
                         height: "100%",
-                        transition: "all 0.3s ease",
-                        "&:hover": {
-                          boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-                          transform: "translateY(-2px)",
-                        },
+                        display: "flex",
+                        flexDirection: "column",
                       }}
                     >
-                      <CardActionArea
-                        onClick={() => handleCardClick(dept.department_id)}
-                        sx={{
-                          height: "100%",
-                          display: "flex",
-                          flexDirection: "column",
-                        }}
-                      >
-                        <Box sx={{ p: 3, width: "100%", flexGrow: 1 }}>
-                          <Typography
-                            variant="h6"
-                            sx={{ fontWeight: 700, mb: 2 }}
-                          >
-                            {dept.department_name}
-                          </Typography>
+                      <Box sx={{ p: 3, width: "100%", flexGrow: 1 }}>
+                        <Typography
+                          variant="h6"
+                          sx={{ fontWeight: 700, mb: 2 }}
+                        >
+                          {dept.department_name}
+                        </Typography>
 
-                          {/* Pie Chart */}
-                          <Box
-                            sx={{
-                              display: "flex",
-                              justifyContent: "center",
-                              mb: 2,
-                            }}
-                          >
-                            <ResponsiveContainer width={150} height={150}>
-                              <PieChart>
-                                <Pie
-                                  data={chartData}
-                                  cx="50%"
-                                  cy="50%"
-                                  innerRadius={35}
-                                  outerRadius={60}
-                                  paddingAngle={2}
-                                  dataKey="value"
-                                >
-                                  {chartData.map((entry, index) => (
-                                    <Cell
-                                      key={`cell-${index}`}
-                                      fill={COLORS[index % COLORS.length]}
-                                    />
-                                  ))}
-                                </Pie>
-                              </PieChart>
-                            </ResponsiveContainer>
-                          </Box>
-
-                          {/* Summary Stats */}
-                          <Box
-                            sx={{
-                              display: "flex",
-                              flexDirection: "column",
-                              gap: 1,
-                            }}
-                          >
-                            <StatRow
-                              label="Giảng viên"
-                              value={dept.teachers}
-                              color="#2563EB"
-                            />
-                            <StatRow
-                              label="Tổng đề tài"
-                              value={dept.projects.total}
-                              color="#2563EB"
-                            />
-                          </Box>
+                        {/* Pie Chart */}
+                        <Box
+                          sx={{
+                            display: "flex",
+                            justifyContent: "center",
+                            mb: 2,
+                          }}
+                        >
+                          <ResponsiveContainer width={180} height={180}>
+                            <PieChart>
+                              <Pie
+                                data={chartData}
+                                cx="50%"
+                                cy="50%"
+                                innerRadius={35}
+                                outerRadius={60}
+                                paddingAngle={2}
+                                dataKey="value"
+                                label={({ value }) => value}
+                                labelLine={false}
+                              >
+                                {chartData.map((entry, index) => (
+                                  <Cell
+                                    key={`cell-${index}`}
+                                    fill={COLORS[index % COLORS.length]}
+                                  />
+                                ))}
+                              </Pie>
+                            </PieChart>
+                          </ResponsiveContainer>
                         </Box>
-                      </CardActionArea>
-                    </MuiCard>
-                  </Grid>
-                );
-              })}
-            </Grid>
-          )}
-        </Box>
+
+                        {/* Summary Stats */}
+                        <Box
+                          sx={{
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: 1,
+                          }}
+                        >
+                          <StatRow
+                            label="Giảng viên"
+                            value={dept.teachers}
+                            color="#2563EB"
+                          />
+                          <StatRow
+                            label="Tổng đề tài"
+                            value={dept.projects.total}
+                            color="#2563EB"
+                          />
+                        </Box>
+                      </Box>
+                    </CardActionArea>
+                  </MuiCard>
+                </Grid>
+              );
+            })}
+          </Grid>
+        )}
       </Box>
 
       {/* Add Department Dialog */}
