@@ -53,7 +53,7 @@ export const SecretaryDashboard: React.FC = () => {
 
   const { data: departmentDetails } = useQuery({
     queryKey: ["secretary-department-details"],
-    queryFn: () => secretaryDashboardService.getDepartmentDetails(),
+    queryFn: () => secretaryDashboardService.getSecretaryDepartmentDetails(),
   });
 
   const reportStatusData = dashboardStats
