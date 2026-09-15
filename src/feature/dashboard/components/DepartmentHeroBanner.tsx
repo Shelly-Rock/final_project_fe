@@ -136,15 +136,7 @@ export const DepartmentHeroBanner = ({
               flexDirection: { xs: "column", sm: "row" },
             }}
           >
-            {/* Export & Add Topic Buttons - KEEP THESE */}
-            <Button
-              variant="outlined"
-              startIcon={<Download size={18} />}
-              onClick={onExport}
-              sx={{ borderColor: "divider", color: "text.secondary" }}
-            >
-              Xuất báo cáo
-            </Button>
+            {/* Add Topic Button */}
             <Button
               variant="contained"
               startIcon={<Plus size={18} />}
