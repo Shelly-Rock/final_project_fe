@@ -65,7 +65,7 @@ const StatCard = ({
         p: 3,
         background: isDark
           ? "linear-gradient(135deg, rgba(15, 23, 42, 0.5) 0%, rgba(30, 58, 138, 0.2) 100%)"
-          : "linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(99, 102, 241, 0.05) 100%)",
+          : "#ffffff",
         backdropFilter: "blur(10px)",
         transition: "all 0.3s ease",
         "&:hover": {
