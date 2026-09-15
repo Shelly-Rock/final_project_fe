@@ -20,6 +20,7 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  useTheme,
 } from "@mui/material";
 import { PageHeader } from "@/shared/components";
 import { ArrowLeft, Plus, Download, Clipboard } from "lucide-react";
@@ -50,54 +51,60 @@ const StatCard = ({
   bgColor,
   textColor,
   unit,
-}: StatCardProps) => (
-  <MuiCard
-    elevation={0}
-    sx={{
-      border: "1px solid",
-      borderColor: "divider",
-      borderRadius: 2,
-      p: 3,
-      background:
-        "linear-gradient(135deg, rgba(15, 23, 42, 0.5) 0%, rgba(30, 58, 138, 0.2) 100%)",
-      backdropFilter: "blur(10px)",
-      transition: "all 0.3s ease",
-      "&:hover": {
-        boxShadow: "0 8px 24px rgba(0,0,0,0.15)",
-        transform: "translateY(-2px)",
-      },
-    }}
-  >
-    <Typography variant="body2" sx={{ color: "text.secondary", mb: 1 }}>
-      {label}
-    </Typography>
-    <Box sx={{ display: "flex", alignItems: "baseline", gap: 0.5 }}>
-      <Typography
-        variant="h4"
-        sx={{
-          fontWeight: 700,
-          color: textColor,
-          fontSize: { xs: "28px", sm: "32px" },
-        }}
-      >
-        {value}
-      </Typography>
-      {unit && (
-        <Typography variant="body2" sx={{ color: "text.secondary" }}>
-          {unit}
-        </Typography>
-      )}
-    </Box>
-    <Box
+}: StatCardProps) => {
+  const theme = useTheme();
+  const isDark = theme.palette.mode === "dark";
+
+  return (
+    <MuiCard
+      elevation={0}
       sx={{
-        mt: 2,
-        height: "3px",
-        borderRadius: "2px",
-        background: `linear-gradient(90deg, ${bgColor} 0%, ${bgColor}33 100%)`,
+        border: "1px solid",
+        borderColor: "divider",
+        borderRadius: 2,
+        p: 3,
+        background: isDark
+          ? "linear-gradient(135deg, rgba(15, 23, 42, 0.5) 0%, rgba(30, 58, 138, 0.2) 100%)"
+          : "linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(99, 102, 241, 0.05) 100%)",
+        backdropFilter: "blur(10px)",
+        transition: "all 0.3s ease",
+        "&:hover": {
+          boxShadow: "0 8px 24px rgba(0,0,0,0.15)",
+          transform: "translateY(-2px)",
+        },
       }}
-    />
-  </MuiCard>
-);
+    >
+      <Typography variant="body2" sx={{ color: "text.secondary", mb: 1 }}>
+        {label}
+      </Typography>
+      <Box sx={{ display: "flex", alignItems: "baseline", gap: 0.5 }}>
+        <Typography
+          variant="h4"
+          sx={{
+            fontWeight: 700,
+            color: textColor,
+            fontSize: { xs: "28px", sm: "32px" },
+          }}
+        >
+          {value}
+        </Typography>
+        {unit && (
+          <Typography variant="body2" sx={{ color: "text.secondary" }}>
+            {unit}
+          </Typography>
+        )}
+      </Box>
+      <Box
+        sx={{
+          mt: 2,
+          height: "3px",
+          borderRadius: "2px",
+          background: `linear-gradient(90deg, ${bgColor} 0%, ${bgColor}33 100%)`,
+        }}
+      />
+    </MuiCard>
+  );
+};
 
 export const DepartmentDetailSecretary = () => {
   const router = useRouter();
