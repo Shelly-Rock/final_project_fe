@@ -117,9 +117,31 @@ class SubmissionService {
     return mapSubmission(response);
   }
 
+  /**
+   * Lấy bài nộp của sinh viên đang đăng nhập — gọi endpoint student-scoped,
+   * chỉ trả về dữ liệu của chính người dùng hiện tại.
+   */
   async getMySubmissions(): Promise<Submission[]> {
     const response: any = await apiClient.get(`${API_BASE}/my`);
-    return response.map(mapSubmission);
+    const items = Array.isArray(response) ? response : response.data || [];
+    return items.map(mapSubmission);
+  }
+
+  /**
+   * Kiểm tra điều kiện nộp bài của sinh viên đang đăng nhập.
+   * Gọi endpoint student-scoped — không lộ thông tin sinh viên khác.
+   */
+  async getMyEligibility(): Promise<{
+    eligible: boolean;
+    reason?: string;
+    isLeader?: boolean;
+  }> {
+    const response: any = await apiClient.get(`${API_BASE}/my/eligibility`);
+    return {
+      eligible: !!response.eligible,
+      reason: response.reason,
+      isLeader: response.isLeader,
+    };
   }
 
   async createSubmission(data: {
@@ -157,6 +179,7 @@ class SubmissionService {
     return mapSubmission(response);
   }
 
+  /** Admin/Secretary/Teacher only — danh sách tất cả sinh viên đủ điều kiện. */
   async getEligibleStudents(): Promise<EligibleStudent[]> {
     const response: any = await apiClient.get(`${API_BASE}/eligible-students`);
     const students = Array.isArray(response) ? response : response.data || [];

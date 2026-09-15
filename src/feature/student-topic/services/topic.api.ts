@@ -49,7 +49,7 @@ interface AvailableTopicsResponse {
   } | null;
 }
 
-interface MyRegistrationResponse {
+export interface MyRegistrationResponse {
   student?: {
     id: number;
     studentCode: string;
@@ -67,6 +67,12 @@ interface MyRegistrationResponse {
       code?: string;
       name: string;
       description?: string;
+      rejectionReason?: string | null;
+      maxStudents?: number;
+      periodName?: string | null;
+      /** BE trả về dạng string trực tiếp (teacherName) hoặc array (teachers[]) */
+      teacherName?: string | null;
+      teacherEmail?: string | null;
       teachers?: Array<{ name?: string; email?: string }>;
       teacher?: { name?: string; email?: string };
     };
@@ -161,20 +167,29 @@ class TopicApiService {
     if (!data.registration) return null;
 
     const registration = data.registration;
-    const teacher =
-      registration.topic?.teachers?.[0] || registration.topic?.teacher;
+    const topic = registration.topic;
+
+    // BE trả về teacherName/teacherEmail trực tiếp dạng string.
+    // Nếu thiếu thì fallback sang teachers[0] hoặc teacher (cấu trúc cũ).
+    const fallbackTeacher = topic?.teachers?.[0] ?? topic?.teacher;
+    const teacherName = topic?.teacherName ?? fallbackTeacher?.name ?? "";
+    const teacherEmail = topic?.teacherEmail ?? fallbackTeacher?.email ?? "";
 
     return {
       id: String(registration.projectId),
-      topicId: String(registration.topic?.id ?? ""),
-      topicName: registration.topic?.name || "",
-      teacherName: teacher?.name || "",
-      teacherEmail: teacher?.email || "",
-      studentId: data.student?.studentCode || "",
+      topicId: String(topic?.id ?? ""),
+      topicName: topic?.name ?? "",
+      topicCode: topic?.code ?? undefined,
+      topicDescription: topic?.description ?? undefined,
+      topicRejectionReason: topic?.rejectionReason ?? undefined,
+      periodName: topic?.periodName ?? undefined,
+      teacherName,
+      teacherEmail,
+      studentId: data.student?.studentCode ?? "",
       studentName: "",
       requestedAt: registration.registeredAt,
       status: mapRegistrationUiStatus(registration.status),
-      rejectionReason: registration.moderatorNote || undefined,
+      rejectionReason: registration.moderatorNote ?? undefined,
     };
   }
 

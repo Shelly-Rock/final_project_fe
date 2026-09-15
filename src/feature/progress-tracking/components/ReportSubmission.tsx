@@ -299,7 +299,7 @@ export function ReportHistoryList({
       )}
 
       {reports.length === 0 ? (
-        <Paper sx={{ p: 4, textAlign: "center" }}>
+        <Box sx={{ p: 4, textAlign: "center" }}>
           <DescriptionIcon
             sx={{ fontSize: 64, color: "text.disabled", mb: 2 }}
           />
@@ -309,7 +309,7 @@ export function ReportHistoryList({
           <Typography variant="body2" color="text.disabled">
             Nộp báo cáo đầu tiên của bạn
           </Typography>
-        </Paper>
+        </Box>
       ) : (
         <List>
           {reports.map((report) => (

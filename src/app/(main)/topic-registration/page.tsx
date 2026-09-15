@@ -1,7 +1,15 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Box, Alert, Card, Button, Typography } from "@mui/material";
+import {
+  Box,
+  Alert,
+  Card,
+  Button,
+  Typography,
+  Chip,
+  Divider,
+} from "@mui/material";
 import { BookOpen, Printer, CheckCircle } from "lucide-react";
 import {
   AvailableTopicTable,
@@ -32,7 +40,6 @@ export default function TopicRegistrationPage() {
   const [currentRegistration, setCurrentRegistration] =
     useState<RegistrationRequest | null>(null);
   const [isExpired, setIsExpired] = useState(false);
-  const [isRefreshingToken, setIsRefreshingToken] = useState(false);
 
   const refreshAvailableTopics = useCallback(async () => {
     setTopicsLoading(true);
@@ -42,7 +49,6 @@ export default function TopicRegistrationPage() {
     } catch (err) {
       const message =
         err instanceof Error ? err.message : "Không thể tải danh sách đề tài";
-      console.error("Error loading topics:", err);
       toast.error(message);
     } finally {
       setTopicsLoading(false);
@@ -64,8 +70,7 @@ export default function TopicRegistrationPage() {
         setCurrentRegistration(null);
         setStudentStatus("UNREGISTERED");
       }
-    } catch (err) {
-      console.error("Error loading registration:", err);
+    } catch {
       setCurrentRegistration(null);
       setStudentStatus("UNREGISTERED");
     }
@@ -87,45 +92,6 @@ export default function TopicRegistrationPage() {
       setIsExpired(false);
     }
   }, []);
-
-  const handleRefreshToken = useCallback(async () => {
-    setIsRefreshingToken(true);
-    try {
-      const refreshToken = localStorage.getItem("refreshToken");
-      if (!refreshToken) {
-        toast.error("Không có refresh token. Vui lòng đăng nhập lại.");
-        setIsRefreshingToken(false);
-        return;
-      }
-
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/auth/refresh-token`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ refreshToken }),
-        },
-      );
-
-      if (!response.ok) {
-        throw new Error("Token refresh failed");
-      }
-
-      const data = await response.json();
-      localStorage.setItem("accessToken", data.accessToken);
-      localStorage.setItem("refreshToken", data.refreshToken);
-      toast.success("Token đã được làm mới!");
-
-      await refreshAvailableTopics();
-      await loadMyRegistration();
-      await loadGovernanceState();
-    } catch (err) {
-      console.error("Token refresh error:", err);
-      toast.error("Không thể làm mới token. Vui lòng đăng nhập lại.");
-    } finally {
-      setIsRefreshingToken(false);
-    }
-  }, [refreshAvailableTopics, loadMyRegistration, loadGovernanceState]);
 
   useEffect(() => {
     refreshAvailableTopics();
@@ -259,136 +225,113 @@ export default function TopicRegistrationPage() {
   };
 
   const renderApprovedContent = () => {
-    const approvedTopic = allTopics.find(
-      (t) => t.id === currentRegistration?.topicId,
-    );
+    const reg = currentRegistration;
 
     return (
       <Card
         variant="outlined"
         sx={{
-          p: 3,
           borderRadius: 2,
           border: "1px solid",
           borderColor: "success.main",
-          bgcolor: "success.50",
-          color: "text.primary",
+          overflow: "hidden",
         }}
       >
-        <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
-          <CheckCircle
-            size={32}
-            style={{ color: "#16a34a", marginRight: 12 }}
-          />
-          <Typography variant="h6" fontWeight={700} color="success.dark">
-            Đề tài đã được duyệt thành công
+        {/* Header */}
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            gap: 1.5,
+            px: 3,
+            py: 2,
+            bgcolor: "success.main",
+          }}
+        >
+          <CheckCircle size={28} color="#fff" />
+          <Typography variant="h6" fontWeight={700} color="#fff">
+            Yêu cầu đăng ký đề tài đã được phê duyệt
           </Typography>
         </Box>
 
-        <Box sx={{ mb: 3 }}>
-          <Typography
-            variant="h5"
-            fontWeight={700}
-            gutterBottom
-            color="text.primary"
-          >
-            {currentRegistration?.topicName}
-          </Typography>
-          <Typography variant="body2" color="text.secondary" gutterBottom>
-            Giảng viên hướng dẫn:{" "}
-            <strong color="text.primary">
-              {currentRegistration?.teacherName}
-            </strong>
-          </Typography>
-        </Box>
-
-        {approvedTopic && (
-          <Box sx={{ mb: 3 }}>
-            {approvedTopic.englishName && (
-              <>
-                <Typography
-                  variant="subtitle2"
-                  fontWeight={600}
-                  gutterBottom
-                  color="text.primary"
-                >
-                  Tên tiếng Anh:
-                </Typography>
-                <Typography
-                  variant="body2"
-                  sx={{ mb: 2, pl: 2 }}
-                  color="text.primary"
-                >
-                  {approvedTopic.englishName}
-                </Typography>
-              </>
+        <Box sx={{ p: 3 }}>
+          {/* Tên đề tài + Mã */}
+          <Box sx={{ mb: 2.5 }}>
+            {reg?.topicCode && (
+              <Chip
+                label={`Mã: ${reg.topicCode}`}
+                size="small"
+                color="primary"
+                variant="outlined"
+                sx={{ mb: 1, fontFamily: "monospace", fontWeight: 600 }}
+              />
             )}
+            <Typography variant="h5" fontWeight={700} gutterBottom>
+              {reg?.topicName}
+            </Typography>
+            {reg?.periodName && (
+              <Typography variant="caption" color="text.secondary">
+                Đợt đăng ký: {reg.periodName}
+              </Typography>
+            )}
+          </Box>
 
+          <Divider sx={{ mb: 2.5 }} />
+
+          {/* Giảng viên hướng dẫn */}
+          <Box sx={{ mb: 2.5 }}>
             <Typography
               variant="subtitle2"
               fontWeight={600}
+              color="text.secondary"
               gutterBottom
-              color="text.primary"
             >
-              Mô tả đề tài:
+              GIẢNG VIÊN HƯỚNG DẪN
             </Typography>
-            <Typography
-              variant="body2"
-              sx={{ mb: 2, pl: 2 }}
-              color="text.primary"
-            >
-              {approvedTopic.description}
+            <Typography variant="body1" fontWeight={600}>
+              {reg?.teacherName || "—"}
             </Typography>
-
-            {approvedTopic.objectives && (
-              <>
-                <Typography
-                  variant="subtitle2"
-                  fontWeight={600}
-                  gutterBottom
-                  color="text.primary"
-                >
-                  Mục tiêu đề tài:
-                </Typography>
-                <Typography
-                  variant="body2"
-                  sx={{ mb: 2, pl: 2 }}
-                  color="text.primary"
-                >
-                  {approvedTopic.objectives}
-                </Typography>
-              </>
-            )}
-
-            {approvedTopic.technologies && (
-              <>
-                <Typography
-                  variant="subtitle2"
-                  fontWeight={600}
-                  gutterBottom
-                  color="text.primary"
-                >
-                  Công nghệ sử dụng:
-                </Typography>
-                <Typography variant="body2" sx={{ pl: 2 }} color="text.primary">
-                  {approvedTopic.technologies}
-                </Typography>
-              </>
+            {reg?.teacherEmail && (
+              <Typography variant="body2" color="text.secondary">
+                {reg.teacherEmail}
+              </Typography>
             )}
           </Box>
-        )}
 
-        <Box
-          sx={{ mt: 3, pt: 2, borderTop: "1px solid", borderColor: "divider" }}
-        >
-          <Button
-            variant="contained"
-            color="success"
-            startIcon={<Printer size={18} />}
-            onClick={handlePrintConfirmation}
-          >
-            In phiếu xác nhận
-          </Button>
+          {/* Mô tả đề tài */}
+          {reg?.topicDescription && (
+            <Box sx={{ mb: 2.5 }}>
+              <Typography
+                variant="subtitle2"
+                fontWeight={600}
+                color="text.secondary"
+                gutterBottom
+              >
+                MÔ TẢ ĐỀ TÀI
+              </Typography>
+              <Typography
+                variant="body2"
+                color="text.primary"
+                sx={{ lineHeight: 1.7 }}
+              >
+                {reg.topicDescription}
+              </Typography>
+            </Box>
+          )}
+
+          <Divider sx={{ mb: 2.5 }} />
+
+          {/* Actions */}
+          <Box sx={{ display: "flex", gap: 2 }}>
+            <Button
+              variant="contained"
+              color="success"
+              startIcon={<Printer size={18} />}
+              onClick={handlePrintConfirmation}
+            >
+              In phiếu xác nhận
+            </Button>
+          </Box>
         </Box>
       </Card>
     );
@@ -402,17 +345,6 @@ export default function TopicRegistrationPage() {
         showBgImage={true}
         illustration={<BookOpen size={64} />}
       />
-
-      <Box sx={{ mb: 2 }}>
-        <Button
-          variant="outlined"
-          size="small"
-          onClick={handleRefreshToken}
-          disabled={isRefreshingToken}
-        >
-          {isRefreshingToken ? "Đang làm mới..." : "Làm mới Token"}
-        </Button>
-      </Box>
 
       {renderStatusAlert()}
 

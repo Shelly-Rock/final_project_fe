@@ -7,6 +7,7 @@ import {
   TopicDataTable,
   PendingRequestTable,
   TopicFormDialog,
+  LockAssignmentDialog,
 } from "@/feature/my-topic/components";
 import {
   myTopicService,
@@ -31,6 +32,10 @@ export default function MyTopicsPage() {
   const [formLoading, setFormLoading] = useState(false);
   const [selectedTopic, setSelectedTopic] = useState<MyTopic | null>(null);
   const [isExceptionMode, setIsExceptionMode] = useState(false);
+
+  // Lock assignment dialog state
+  const [lockDialogOpen, setLockDialogOpen] = useState(false);
+  const [topicToLock, setTopicToLock] = useState<MyTopic | null>(null);
 
   // Search state
   const [searchValue, setSearchValue] = useState("");
@@ -114,17 +119,20 @@ export default function MyTopicsPage() {
   };
 
   const handleToggleLock = async (topic: MyTopic) => {
-    try {
-      const newLocked = topic.registrationStatus === "LOCKED";
-      await myTopicService.toggleLock(topic.id, newLocked);
-      refreshTopics();
-      toast.success(
-        newLocked
-          ? "Đã mở khóa đề tài. Sinh viên có thể đăng ký."
-          : "Đã khóa đề tài. Sinh viên không thể đăng ký.",
-      );
-    } catch {
-      toast.error("Không thể thay đổi trạng thái khóa đề tài");
+    const isCurrentlyLocked = topic.registrationStatus === "LOCKED";
+    if (isCurrentlyLocked) {
+      // Mở khóa đơn thuần
+      try {
+        await myTopicService.toggleLock(topic.id, false);
+        refreshTopics();
+        toast.success("Đã mở khóa đề tài. Sinh viên có thể đăng ký.");
+      } catch {
+        toast.error("Không thể thay đổi trạng thái khóa đề tài");
+      }
+    } else {
+      // Khi khóa, yêu cầu phân công nhiệm vụ
+      setTopicToLock(topic);
+      setLockDialogOpen(true);
     }
   };
 
@@ -152,13 +160,25 @@ export default function MyTopicsPage() {
 
   const handleApproveRequest = async (request: PendingRequest) => {
     try {
-      await myTopicService.approveRegistration({
+      const res = await myTopicService.approveRegistration({
         topicId: request.topicId,
         studentId: request.studentId,
       });
       refreshTopics();
       refreshPendingRequests();
       toast.success(`Đã duyệt yêu cầu của ${request.studentName}`);
+
+      if (res?.requiresAssignment) {
+        // Topic just became full! Pop up assignment dialog.
+        const allTopicsAfter = await myTopicService.getAll();
+        const updatedTopic = allTopicsAfter.find(
+          (t) => t.id === request.topicId,
+        );
+        if (updatedTopic) {
+          setTopicToLock(updatedTopic);
+          setLockDialogOpen(true);
+        }
+      }
     } catch {
       toast.error("Duyệt thất bại");
     }
@@ -241,6 +261,22 @@ export default function MyTopicsPage() {
         topic={selectedTopic}
         isException={isExceptionMode}
         loading={formLoading}
+      />
+
+      {/* Lock Assignment Dialog */}
+      <LockAssignmentDialog
+        open={lockDialogOpen}
+        topic={topicToLock}
+        onClose={() => {
+          setLockDialogOpen(false);
+          setTopicToLock(null);
+        }}
+        onSubmit={async (topicId, assignments) => {
+          await myTopicService.lockWithAssignments(topicId, assignments);
+          toast.success("Đã phân công nhiệm vụ và khóa đề tài thành công!");
+          refreshTopics();
+          refreshPendingRequests();
+        }}
       />
     </Box>
   );

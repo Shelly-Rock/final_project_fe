@@ -257,7 +257,9 @@ class MyTopicService {
     return pending;
   }
 
-  async approveRegistration(input: ApproveRegistrationInput): Promise<void> {
+  async approveRegistration(
+    input: ApproveRegistrationInput,
+  ): Promise<{ requiresAssignment?: boolean }> {
     const allTopics = await this.getAll();
     const topic = allTopics.find((t) => t.id === input.topicId);
     if (!topic) throw new Error("Topic not found");
@@ -267,12 +269,26 @@ class MyTopicService {
     );
     if (!registration) throw new Error("Registration not found");
 
-    await apiClient.post(
+    const { data } = await apiClient.post(
       `/topics/${input.topicId}/approvals/${registration.id}`,
       {
         decision: "APPROVE",
       },
     );
+    return data;
+  }
+
+  async lockWithAssignments(
+    topicId: number,
+    assignments: {
+      projectId: number;
+      assignedTask: string;
+      isLeader: boolean;
+    }[],
+  ): Promise<void> {
+    await apiClient.post(`/topics/${topicId}/lock-with-assignments`, {
+      assignments,
+    });
   }
 
   async rejectRegistration(input: RejectRegistrationInput): Promise<void> {

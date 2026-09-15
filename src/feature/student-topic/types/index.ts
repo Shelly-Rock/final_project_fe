@@ -31,13 +31,17 @@ export interface RegistrationRequest {
   id: string;
   topicId: string;
   topicName: string;
+  topicCode?: string; // mã đề tài, ví dụ: DT001
+  topicDescription?: string; // mô tả đề tài
+  topicRejectionReason?: string; // lý do từ chối của đề tài (nếu bị reject)
   teacherName: string;
   teacherEmail: string;
+  periodName?: string; // tên đợt đăng ký
   studentId: string;
   studentName: string;
   requestedAt: string;
   status: "Pending" | "Approved" | "Rejected";
-  rejectionReason?: string;
+  rejectionReason?: string; // lý do từ chối đăng ký (moderator note)
 }
 
 export interface StudentTopicRegistrationState {

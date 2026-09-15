@@ -41,13 +41,10 @@ const ALLOWED_EXTENSIONS = ["PDF", "DOCX", "PPTX"] as const;
 
 // ---------- Props ----------
 
-interface StudentSubmissionProps {
-  studentId: number;
+export interface StudentSubmissionProps {
   projectId: number;
   projectCode: string;
   projectName: string;
-  /** true nếu sinh viên này là Đại diện/Trưởng nhóm — chỉ họ mới được nộp file */
-  isLeader: boolean;
 }
 
 // ---------- Helpers ----------
@@ -60,12 +57,8 @@ function getFileType(ext: AllowedExtension): "PDF" | "WORD" | "POWERPOINT" {
   return "POWERPOINT";
 }
 
-function formatFileSize(bytes: number): string {
-  if (bytes === 0) return "0 Bytes";
-  const k = 1024;
-  const sizes = ["Bytes", "KB", "MB", "GB"];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`;
+function formatFileSize(bytes: number) {
+  return (bytes / 1024 / 1024).toFixed(2) + " MB";
 }
 
 // ---------- Upload Stage ----------
@@ -92,13 +85,12 @@ const STAGE_LABELS: Record<UploadStage, string> = {
 // ============================================================
 
 export default function StudentSubmission({
-  studentId,
   projectId,
   projectCode,
   projectName,
-  isLeader,
 }: StudentSubmissionProps) {
   const [eligible, setEligible] = useState(false);
+  const [isLeader, setIsLeader] = useState(true);
   const [checking, setChecking] = useState(true);
 
   const [file, setFile] = useState<File | null>(null);
@@ -115,25 +107,28 @@ export default function StudentSubmission({
   const checkEligibility = useCallback(async () => {
     setChecking(true);
     try {
-      // 1. Kiểm tra xem sinh viên đã nộp bài chưa
+      // 1. Kiểm tra xem sinh viên đã nộp bài chưa (chỉ lấy dữ liệu của chính mình)
       const mySubmissions = await submissionService.getMySubmissions();
       if (mySubmissions && mySubmissions.length > 0) {
         setSubmission(mySubmissions[0]);
         setStage("done"); // Đã nộp
       }
 
-      // 2. Kiểm tra điều kiện nộp bài
-      const eligibleStudents = await submissionService.getEligibleStudents();
-      const isEligible = eligibleStudents.some((s) => s.id === studentId);
-      setEligible(isEligible);
+      // 2. Kiểm tra điều kiện nộp bài qua endpoint student-scoped
+      const eligibility = await submissionService.getMyEligibility();
+      setEligible(eligibility.eligible);
+      if (eligibility.isLeader !== undefined) {
+        setIsLeader(eligibility.isLeader);
+      }
     } catch {
       toast.error("Không thể kiểm tra điều kiện nộp bài");
       // Fail-open: vẫn cho tương tác UI để không chặn oan
       setEligible(true);
+      setIsLeader(true);
     } finally {
       setChecking(false);
     }
-  }, [studentId]);
+  }, []);
 
   useEffect(() => {
     checkEligibility();
