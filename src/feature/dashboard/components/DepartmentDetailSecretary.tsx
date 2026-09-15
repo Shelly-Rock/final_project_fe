@@ -29,6 +29,7 @@ import {
   departmentService,
   DepartmentSecretaryDetail,
 } from "../services/department.service";
+import { DepartmentHeroBanner } from "./DepartmentHeroBanner";
 
 const STATUS_COLORS = {
   completed: "#10b981",
