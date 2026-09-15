@@ -201,24 +201,6 @@ export const DepartmentDetailSecretary = () => {
         illustration={<Clipboard size={56} />}
         showBackButton
         onBack={() => router.back()}
-        actions={
-          <Box sx={{ display: "flex", gap: 1 }}>
-            <Button
-              variant="outlined"
-              startIcon={<Download size={18} />}
-              onClick={() => toast.info("Xuất báo cáo - tính năng sắp tới")}
-            >
-              Xuất báo cáo
-            </Button>
-            <Button
-              variant="contained"
-              startIcon={<Plus size={18} />}
-              onClick={() => setOpenAddTopic(true)}
-            >
-              Thêm đề tài
-            </Button>
-          </Box>
-        }
         showBgImage
       />
 
