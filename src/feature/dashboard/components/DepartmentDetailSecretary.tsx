@@ -53,7 +53,6 @@ const StatCard = ({
   unit,
 }: StatCardProps) => {
   const theme = useTheme();
-  const isDark = theme.palette.mode === "dark";
 
   return (
     <MuiCard
@@ -63,10 +62,7 @@ const StatCard = ({
         borderColor: "divider",
         borderRadius: 2,
         p: 3,
-        background: isDark
-          ? "linear-gradient(135deg, rgba(15, 23, 42, 0.5) 0%, rgba(30, 58, 138, 0.2) 100%)"
-          : "#ffffff",
-        backdropFilter: "blur(10px)",
+        backgroundColor: theme.palette.background.paper,
         transition: "all 0.3s ease",
         "&:hover": {
           boxShadow: "0 8px 24px rgba(0,0,0,0.15)",
