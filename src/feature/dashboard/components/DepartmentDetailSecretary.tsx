@@ -192,7 +192,7 @@ export const DepartmentDetailSecretary = () => {
       : 0;
 
   return (
-    <Box sx={{ width: "100%" }}>
+    <Box sx={{ p: 3, width: "100%" }}>
       {/* Page Header */}
       <PageHeader
         title={department.departmentName}
