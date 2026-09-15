@@ -37,6 +37,7 @@ export const Icon = {
   pencilSquare: "bi-pencil-square",
   trophy: "bi-trophy",
   gear: "bi-gear",
+  bell: "bi-bell",
 } as const;
 
 export const MENU_ITEMS: MenuItem[] = [
@@ -60,6 +61,13 @@ export const MENU_SECTIONS: MenuSection[] = [
   {
     section: "Quản lý",
     items: [
+      {
+        key: "notifications",
+        label: "Quản lý thông báo",
+        icon: Icon.bell,
+        path: "/notification",
+        roles: ["admin", "secretary"],
+      },
       {
         key: "students",
         label: "Quản lý sinh viên",
