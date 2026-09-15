@@ -33,24 +33,28 @@ import {
   departmentService,
   DepartmentSummary,
 } from "@/feature/dashboard/services/department.service";
+import { useUserRole } from "@/shared/hooks/useUserRole";
 
 export default function DepartmentPage() {
   const router = useRouter();
+  const userRole = useUserRole();
   const [departments, setDepartments] = useState<DepartmentSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [openDialog, setOpenDialog] = useState(false);
   const [newDeptName, setNewDeptName] = useState("");
-  const [userRole, setUserRole] = useState<string>("");
 
   useEffect(() => {
+    // Redirect secretary directly to their department
+    if (userRole === "secretary") {
+      router.push("/department/BM_KTPM");
+      return;
+    }
+
     const fetchData = async () => {
       setLoading(true);
       try {
         const data = await departmentService.getDepartments();
         setDepartments(data);
-        // Get user role from session/context if available
-        const roleFromSession = localStorage.getItem("userRole");
-        setUserRole(roleFromSession || "");
       } catch (e: unknown) {
         const msg =
           e instanceof Error ? e.message : "Không tải được dữ liệu khoa";
@@ -60,7 +64,7 @@ export default function DepartmentPage() {
       }
     };
     fetchData();
-  }, []);
+  }, [userRole, router]);
 
   const handleCardClick = (departmentId: string) => {
     router.push(`/department/${encodeURIComponent(departmentId)}`);
