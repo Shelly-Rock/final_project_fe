@@ -89,8 +89,8 @@ export default function DepartmentDetailPage() {
     );
   }
 
-  if (userRole === "secretary" && secretaryDetail) {
-    return <DepartmentDetailSecretary data={secretaryDetail} />;
+  if (userRole === "secretary") {
+    return <DepartmentDetailSecretary />;
   }
 
   if (!department || !progressStats) {
