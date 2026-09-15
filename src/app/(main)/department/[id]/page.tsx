@@ -24,6 +24,8 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
+import { useUserRole } from "@/shared/hooks/useUserRole";
+import { ROLE } from "@/core/permissions/types";
 import {
   departmentService,
   DepartmentSummary,
@@ -42,6 +44,7 @@ export default function DepartmentDetailPage() {
   const router = useRouter();
   const params = useParams();
   const departmentId = params.id as string;
+  const userRole = useUserRole();
 
   const [department, setDepartment] = useState<DepartmentSummary | null>(null);
   const [secretaryDetail, setSecretaryDetail] =
@@ -49,16 +52,12 @@ export default function DepartmentDetailPage() {
   const [progressStats, setProgressStats] =
     useState<DepartmentProgressStats | null>(null);
   const [loading, setLoading] = useState(true);
-  const [userRole, setUserRole] = useState<string>("");
 
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const role = localStorage.getItem("userRole") || "";
-        setUserRole(role);
-
-        if (role === "secretary") {
+        if (userRole === ROLE.SECRETARY) {
           const detail =
             await departmentService.getDepartmentSecretaryDetail(departmentId);
           setSecretaryDetail(detail);
@@ -79,7 +78,7 @@ export default function DepartmentDetailPage() {
       }
     };
     fetchData();
-  }, [departmentId]);
+  }, [departmentId, userRole]);
 
   if (loading) {
     return (
@@ -89,7 +88,7 @@ export default function DepartmentDetailPage() {
     );
   }
 
-  if (userRole === "secretary") {
+  if (userRole === ROLE.SECRETARY) {
     return <DepartmentDetailSecretary />;
   }
 
