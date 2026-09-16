@@ -1,7 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Box, CircularProgress, Paper, Tab, Tabs } from "@mui/material";
+import {
+  Box,
+  CircularProgress,
+  Paper,
+  Tab,
+  Tabs,
+  useTheme,
+  Theme,
+} from "@mui/material";
 import { ClipboardCheck, Settings } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { PageHeader } from "@/shared/components";
@@ -10,8 +18,16 @@ import { isAnyRole } from "@/core/permissions/helpers/hasPermission";
 import { PeriodConfigForm } from "@/feature/project-governance/components/PeriodConfigForm";
 import { TopicManageTable } from "@/feature/project-governance/components/TopicManageTable";
 
+const getCardBackground = (theme: Theme) => {
+  const isDark = theme.palette.mode === "dark";
+  return isDark
+    ? "linear-gradient(135deg, rgba(15, 23, 42, 0.8) 0%, rgba(30, 58, 138, 0.4) 100%)"
+    : theme.palette.background.paper;
+};
+
 export default function ProjectConfigPage() {
   const router = useRouter();
+  const theme = useTheme();
   const { role } = usePermissionContext();
   const [tab, setTab] = useState(0);
   const allowed = isAnyRole(role, ["admin", "secretary"]);
@@ -44,6 +60,7 @@ export default function ProjectConfigPage() {
           overflow: "hidden",
           border: "1px solid",
           borderColor: "divider",
+          background: getCardBackground(theme),
         }}
       >
         <Tabs

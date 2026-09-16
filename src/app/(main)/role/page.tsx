@@ -21,11 +21,20 @@ import {
   IconButton,
   Tooltip,
   CircularProgress,
+  useTheme as muiUseTheme,
+  Theme,
 } from "@mui/material";
 import { PageHeader } from "@/shared/components";
 import { ShieldCheck, Users, Save, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { useTheme } from "@/shared/theme";
+
+const getCardBackground = (theme: Theme) => {
+  const isDark = theme.palette.mode === "dark";
+  return isDark
+    ? "linear-gradient(135deg, rgba(15, 23, 42, 0.8) 0%, rgba(30, 58, 138, 0.4) 100%)"
+    : theme.palette.background.paper;
+};
 import {
   roleService,
   type RoleItem,
@@ -74,6 +83,7 @@ function MatrixTab({
   onSaved: () => void;
 }) {
   const { resolvedMode } = useTheme();
+  const muiTheme = muiUseTheme();
   const isDark = resolvedMode === "dark";
 
   // Group permissions by module

@@ -21,7 +21,8 @@ import { PageHeader } from "@/shared/components";
 import { RoleGate } from "@/shared/components/PermissionGuard/PermissionGuard";
 import { ClipboardList } from "lucide-react";
 import { toast } from "sonner";
-import { useTheme } from "@/shared/theme";
+import { useTheme, Theme } from "@mui/material";
+import { getCardBackground } from "@/shared/constants/gradients";
 import {
   auditService,
   type AuditLog,
@@ -82,8 +83,8 @@ const getEntityName = (log: AuditLog): string => {
 };
 
 export default function AuditPage() {
-  const { resolvedMode } = useTheme();
-  const isDark = resolvedMode === "dark";
+  const theme = useTheme();
+  const isDark = theme.palette.mode === "dark";
 
   const [logs, setLogs] = useState<AuditLog[]>([]);
   const [total, setTotal] = useState(0);
