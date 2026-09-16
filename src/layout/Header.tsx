@@ -14,17 +14,16 @@ import {
   Avatar,
   Box,
   Divider,
-  Badge as MuiBadge,
 } from "@mui/material";
 import {
   Menu as MenuIcon,
-  Bell,
   User,
   LogOut as LogoutIcon,
   Settings,
 } from "lucide-react";
 import { ThemeSwitcher } from "@/shared/theme";
 import { RoleSwitcher } from "@/shared/components/RoleSwitcher";
+import { NotificationBell } from "@/feature/notification";
 
 export interface HeaderProps {
   onMenuClick?: () => void;
@@ -80,12 +79,7 @@ export function Header({ onMenuClick, showMenuButton = true }: HeaderProps) {
 
         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
           <ThemeSwitcher variant="icon" size="small" />
-
-          <IconButton sx={{ color: "text.secondary" }}>
-            <MuiBadge badgeContent={3} color="error">
-              <Bell size={20} />
-            </MuiBadge>
-          </IconButton>
+          <NotificationBell />
 
           <Box sx={{ position: "relative", ml: 1 }}>
             <Box
