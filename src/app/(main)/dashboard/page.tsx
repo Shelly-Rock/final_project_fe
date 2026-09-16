@@ -9,13 +9,21 @@ import {
   Card,
   CardContent,
   CircularProgress,
+  useTheme,
+  Theme,
 } from "@mui/material";
 import { PageHeader } from "@/shared/components";
 import { RoleGate } from "@/shared/components/PermissionGuard/PermissionGuard";
 import { BarChart3 } from "lucide-react";
 import { toast } from "sonner";
-import {} from "@/shared/theme";
 import { apiClient } from "@/shared/services/api-client";
+
+const getCardBackground = (theme: Theme) => {
+  const isDark = theme.palette.mode === "dark";
+  return isDark
+    ? "linear-gradient(135deg, rgba(15, 23, 42, 0.8) 0%, rgba(30, 58, 138, 0.4) 100%)"
+    : theme.palette.background.paper;
+};
 
 interface SecretaryDashboard {
   students: number;
@@ -36,6 +44,7 @@ interface SecretaryDashboard {
 }
 
 export default function DashboardPage() {
+  const theme = useTheme();
   const [data, setData] = useState<SecretaryDashboard | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -109,6 +118,7 @@ export default function DashboardPage() {
                   border: "1px solid",
                   borderColor: "divider",
                   borderRadius: 2,
+                  background: getCardBackground(theme),
                 }}
               >
                 <CardContent>
@@ -138,6 +148,7 @@ export default function DashboardPage() {
                 border: "1px solid",
                 borderColor: "divider",
                 borderRadius: 2,
+                background: getCardBackground(theme),
               }}
             >
               <Typography variant="h6" sx={{ mb: 2, fontWeight: 700 }}>
@@ -176,6 +187,7 @@ export default function DashboardPage() {
                 border: "1px solid",
                 borderColor: "divider",
                 borderRadius: 2,
+                background: getCardBackground(theme),
               }}
             >
               <Typography variant="h6" sx={{ mb: 2, fontWeight: 700 }}>
