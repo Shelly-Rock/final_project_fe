@@ -176,6 +176,10 @@ const createAppTheme = (mode: "light" | "dark") => {
         styleOverrides: {
           root: {
             backgroundImage: "none",
+            background:
+              mode === "dark"
+                ? "linear-gradient(135deg, rgba(15, 23, 42, 0.8) 0%, rgba(30, 58, 138, 0.4) 100%)"
+                : "#ffffff",
           },
         },
       },
@@ -183,6 +187,10 @@ const createAppTheme = (mode: "light" | "dark") => {
         styleOverrides: {
           root: {
             borderRadius: 12,
+            background:
+              mode === "dark"
+                ? "linear-gradient(135deg, rgba(15, 23, 42, 0.8) 0%, rgba(30, 58, 138, 0.4) 100%)"
+                : "#ffffff",
             boxShadow:
               mode === "dark"
                 ? "0 1px 3px 0 rgb(0 0 0 / 0.3)"
@@ -194,6 +202,10 @@ const createAppTheme = (mode: "light" | "dark") => {
         styleOverrides: {
           paper: {
             borderRadius: 16,
+            background:
+              mode === "dark"
+                ? "linear-gradient(135deg, rgba(15, 23, 42, 0.9) 0%, rgba(30, 58, 138, 0.5) 100%)"
+                : "#ffffff",
           },
         },
       },
@@ -250,7 +262,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
           : "light"
         : initialMode;
 
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+     
     setModeState(initialMode);
     setResolvedMode(resolved);
     setMounted(true);
