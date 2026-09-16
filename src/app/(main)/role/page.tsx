@@ -246,6 +246,7 @@ function MatrixTab({
           borderColor: isDark ? "#334155" : "#e2e8f0",
           borderRadius: 2,
           overflowX: "auto",
+          background: cardBg,
         }}
       >
         <MuiTable size="small" stickyHeader>
