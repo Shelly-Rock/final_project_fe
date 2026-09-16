@@ -1,9 +1,8 @@
 "use client";
 
 import React, { useEffect, useState, useRef, useCallback } from "react";
-import { Bell, X } from "lucide-react";
+import { Bell } from "lucide-react";
 import { useNotificationStore } from "@/shared/store/notification.store";
-import { INotification } from "@/shared/types/notification.types";
 import NotificationDropdown from "./NotificationDropdown";
 
 const NotificationBell: React.FC = () => {
@@ -14,9 +13,11 @@ const NotificationBell: React.FC = () => {
   const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
+    // Initial load
+    fetchNotifications(0, 20);
     fetchUnreadCount();
-    fetchNotifications(0, 5);
 
+    // Poll for new notifications every 30 seconds
     pollIntervalRef.current = setInterval(() => {
       fetchUnreadCount();
     }, 30000);
@@ -26,7 +27,7 @@ const NotificationBell: React.FC = () => {
         clearInterval(pollIntervalRef.current);
       }
     };
-  }, [fetchUnreadCount, fetchNotifications]);
+  }, [fetchNotifications, fetchUnreadCount]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
