@@ -706,6 +706,7 @@ function AllStudentsProgress() {
 // ============================================================
 
 export default function AdminProgressPage() {
+  const theme = useTheme();
   const [tabValue, setTabValue] = useState(0);
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
   const [notificationDialogOpen, setNotificationDialogOpen] = useState(false);
@@ -725,7 +726,7 @@ export default function AdminProgressPage() {
       />
 
       {/* Quick Actions */}
-      <Paper sx={{ p: 2, mb: 3 }}>
+      <Paper sx={{ p: 2, mb: 3, background: getCardBackground(theme) }}>
         <Box
           sx={{
             display: "flex",
@@ -763,7 +764,7 @@ export default function AdminProgressPage() {
       <ProgressStatsCards key={`stats-${refreshKey}`} />
 
       {/* Tabs */}
-      <Paper sx={{ mb: 2 }}>
+      <Paper sx={{ mb: 2, background: getCardBackground(theme) }}>
         <Tabs
           value={tabValue}
           onChange={(_, v) => setTabValue(v)}

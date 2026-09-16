@@ -13,6 +13,8 @@ import {
   Paper,
   TextField,
   Typography,
+  useTheme,
+  Theme,
 } from "@mui/material";
 import { toast } from "sonner";
 import { Switch } from "@/shared/components";
@@ -22,7 +24,6 @@ import { SendAlertDialog } from "./SendAlertDialog";
 import { AlertLogTable } from "./AlertLogTable";
 import { periodService } from "@/feature/registration-period/services/period.service";
 import { adminConfigService } from "../services/adminConfig.service";
-import { useTheme } from "@/shared/theme";
 import {
   ALERT_OFFSET_LABELS,
   ALLOWED_ALERT_OFFSETS,
@@ -44,9 +45,16 @@ import type {
 } from "../types";
 import { Select } from "@/shared/components/Select";
 
+const getCardBackground = (theme: Theme): string => {
+  const isDark = theme.palette.mode === "dark";
+  return isDark
+    ? "linear-gradient(135deg, rgba(15, 23, 42, 0.8) 0%, rgba(30, 58, 138, 0.4) 100%)"
+    : theme.palette.background.paper;
+};
+
 export function PeriodConfigForm() {
-  const { resolvedMode } = useTheme();
-  const isDark = resolvedMode === "dark";
+  const muiTheme = useTheme();
+  const isDark = muiTheme.palette.mode === "dark";
   const [periods, setPeriods] = useState<PeriodOption[]>([]);
   const [selectedPeriodId, setSelectedPeriodId] = useState<number | null>(null);
   const [loadingPeriods, setLoadingPeriods] = useState(true);
