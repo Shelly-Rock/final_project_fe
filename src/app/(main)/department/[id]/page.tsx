@@ -9,6 +9,8 @@ import {
   CircularProgress,
   Typography,
   Button,
+  useTheme,
+  Theme,
 } from "@mui/material";
 import { PageHeader } from "@/shared/components";
 import { RoleGate } from "@/shared/components/PermissionGuard/PermissionGuard";
@@ -30,7 +32,6 @@ import {
   departmentService,
   DepartmentSummary,
   DepartmentProgressStats,
-  DepartmentSecretaryDetail,
 } from "@/feature/dashboard/services/department.service";
 import { DepartmentDetailSecretary } from "@/feature/dashboard/components/DepartmentDetailSecretary";
 
@@ -40,15 +41,21 @@ const STATUS_COLORS = {
   rejected: "#ef4444",
 };
 
+const getCardBackground = (theme: Theme) => {
+  const isDark = theme.palette.mode === "dark";
+  return isDark
+    ? "linear-gradient(135deg, rgba(15, 23, 42, 0.8) 0%, rgba(30, 58, 138, 0.4) 100%)"
+    : theme.palette.background.paper;
+};
+
 export default function DepartmentDetailPage() {
   const router = useRouter();
   const params = useParams();
   const departmentId = params.id as string;
   const userRole = useUserRole();
+  const theme = useTheme();
 
   const [department, setDepartment] = useState<DepartmentSummary | null>(null);
-  const [secretaryDetail, setSecretaryDetail] =
-    useState<DepartmentSecretaryDetail | null>(null);
   const [progressStats, setProgressStats] =
     useState<DepartmentProgressStats | null>(null);
   const [loading, setLoading] = useState(true);
@@ -58,9 +65,7 @@ export default function DepartmentDetailPage() {
       setLoading(true);
       try {
         if (userRole === ROLE.SECRETARY) {
-          const detail =
-            await departmentService.getDepartmentSecretaryDetail(departmentId);
-          setSecretaryDetail(detail);
+          // Secretary view is handled by DepartmentDetailSecretary component
         } else {
           const [deptData, statsData] = await Promise.all([
             departmentService.getDepartmentDetail(departmentId),
@@ -135,6 +140,7 @@ export default function DepartmentDetailPage() {
                 borderColor: "divider",
                 borderRadius: 2,
                 p: 2,
+                background: getCardBackground(theme),
               }}
             >
               <Typography variant="body2" color="text.secondary" gutterBottom>
@@ -157,6 +163,7 @@ export default function DepartmentDetailPage() {
                 borderColor: "divider",
                 borderRadius: 2,
                 p: 2,
+                background: getCardBackground(theme),
               }}
             >
               <Typography variant="body2" color="text.secondary" gutterBottom>
@@ -179,6 +186,7 @@ export default function DepartmentDetailPage() {
                 borderColor: "divider",
                 borderRadius: 2,
                 p: 2,
+                background: getCardBackground(theme),
               }}
             >
               <Typography variant="body2" color="text.secondary" gutterBottom>
@@ -201,6 +209,7 @@ export default function DepartmentDetailPage() {
                 borderColor: "divider",
                 borderRadius: 2,
                 p: 2,
+                background: getCardBackground(theme),
               }}
             >
               <Typography variant="body2" color="text.secondary" gutterBottom>
@@ -224,6 +233,7 @@ export default function DepartmentDetailPage() {
             borderColor: "divider",
             borderRadius: 2,
             p: 3,
+            background: getCardBackground(theme),
           }}
         >
           <Typography variant="h6" sx={{ fontWeight: 700, mb: 3 }}>
@@ -282,6 +292,7 @@ export default function DepartmentDetailPage() {
               borderRadius: 2,
               p: 3,
               mt: 3,
+              background: getCardBackground(theme),
             }}
           >
             <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>

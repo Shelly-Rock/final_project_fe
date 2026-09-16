@@ -15,27 +15,29 @@ import {
   DialogContent,
   DialogActions,
   TextField,
+  useTheme,
+  Theme,
 } from "@mui/material";
 import { PageHeader } from "@/shared/components";
 import { RoleGate } from "@/shared/components/PermissionGuard/PermissionGuard";
 import { Building2, Plus } from "lucide-react";
 import { toast } from "sonner";
-import {
-  PieChart,
-  Pie,
-  Cell,
-  Legend,
-  Tooltip,
-  ResponsiveContainer,
-  Label,
-} from "recharts";
+import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 import {
   departmentService,
   DepartmentSummary,
 } from "@/feature/dashboard/services/department.service";
 import { useUserRole } from "@/shared/hooks/useUserRole";
 
+const getCardBackground = (theme: Theme) => {
+  const isDark = theme.palette.mode === "dark";
+  return isDark
+    ? "linear-gradient(135deg, rgba(15, 23, 42, 0.8) 0%, rgba(30, 58, 138, 0.4) 100%)"
+    : theme.palette.background.paper;
+};
+
 export default function DepartmentPage() {
+  const theme = useTheme();
   const router = useRouter();
   const userRole = useUserRole();
   const [departments, setDepartments] = useState<DepartmentSummary[]>([]);
@@ -144,6 +146,7 @@ export default function DepartmentPage() {
                       borderRadius: 2,
                       height: "100%",
                       transition: "all 0.3s ease",
+                      background: getCardBackground(theme),
                       "&:hover": {
                         boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
                         transform: "translateY(-2px)",

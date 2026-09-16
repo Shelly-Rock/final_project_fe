@@ -21,10 +21,10 @@ import {
   TableHead,
   TableRow,
   useTheme,
+  Theme,
 } from "@mui/material";
 import { PageHeader } from "@/shared/components";
-import { ArrowLeft, Plus, Download, Clipboard } from "lucide-react";
-import { toast } from "sonner";
+import { ArrowLeft } from "lucide-react";
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 import {
   departmentService,
@@ -35,6 +35,14 @@ const STATUS_COLORS = {
   completed: "#10b981",
   pending: "#f59e0b",
   rejected: "#ef4444",
+};
+
+// Helper function to get card background based on theme
+const getCardBackground = (theme: Theme) => {
+  const isDark = theme.palette.mode === "dark";
+  return isDark
+    ? "linear-gradient(135deg, rgba(15, 23, 42, 0.8) 0%, rgba(30, 58, 138, 0.4) 100%)"
+    : theme.palette.background.paper;
 };
 
 interface StatCardProps {
@@ -53,6 +61,7 @@ const StatCard = ({
   unit,
 }: StatCardProps) => {
   const theme = useTheme();
+  const isDark = theme.palette.mode === "dark";
 
   return (
     <MuiCard
@@ -62,7 +71,9 @@ const StatCard = ({
         borderColor: "divider",
         borderRadius: 2,
         p: 3,
-        backgroundColor: theme.palette.background.paper,
+        background: isDark
+          ? "linear-gradient(135deg, rgba(15, 23, 42, 0.5) 0%, rgba(30, 58, 138, 0.2) 100%)"
+          : "#ffffff",
         transition: "all 0.3s ease",
         "&:hover": {
           boxShadow: "0 8px 24px rgba(0,0,0,0.15)",
@@ -106,6 +117,7 @@ export const DepartmentDetailSecretary = () => {
   const router = useRouter();
   const params = useParams();
   const departmentId = params.id as string;
+  const theme = useTheme();
 
   const [department, setDepartment] =
     useState<DepartmentSecretaryDetail | null>(null);
@@ -201,7 +213,6 @@ export const DepartmentDetailSecretary = () => {
         title={department.departmentName}
         subtitle="Cổng quản lý, theo dõi thống kê và báo cáo tiến độ đề tài NCKH, đồ án chuyên ngành cấp khoa."
         badge={`Mã BM: ${department.departmentCode}`}
-        illustration={<Clipboard size={56} />}
         showBackButton
         onBack={() => router.back()}
         showBgImage
@@ -259,6 +270,7 @@ export const DepartmentDetailSecretary = () => {
               borderRadius: 2,
               p: 3,
               height: "100%",
+              background: getCardBackground(theme),
             }}
           >
             <Box
@@ -438,6 +450,7 @@ export const DepartmentDetailSecretary = () => {
               minHeight: 200,
               display: "flex",
               flexDirection: "column",
+              background: getCardBackground(theme),
             }}
           >
             <Box
@@ -525,6 +538,7 @@ export const DepartmentDetailSecretary = () => {
               borderColor: "divider",
               borderRadius: 2,
               p: 3,
+              background: getCardBackground(theme),
             }}
           >
             <Box
