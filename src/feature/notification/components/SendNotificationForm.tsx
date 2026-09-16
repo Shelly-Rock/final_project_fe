@@ -1,11 +1,12 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { notificationApi } from "@/shared/services/api/notification.api";
 import { toast } from "sonner";
+import apiClient from "@/shared/services/api-client";
 
 const SendNotificationSchema = z.object({
   recipientRole: z.enum(["STUDENT", "TEACHER"]),
@@ -24,6 +25,12 @@ const SendNotificationSchema = z.object({
 
 type SendNotificationFormData = z.infer<typeof SendNotificationSchema>;
 
+interface Recipient {
+  id: number;
+  name: string;
+  email: string;
+}
+
 interface SendNotificationFormProps {
   onSuccess?: () => void;
 }
@@ -34,6 +41,7 @@ const SendNotificationForm: React.FC<SendNotificationFormProps> = ({
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors, isSubmitting },
     reset,
     watch,
@@ -47,27 +55,29 @@ const SendNotificationForm: React.FC<SendNotificationFormProps> = ({
   });
 
   const selectedRole = watch("recipientRole");
-  const [recipients, setRecipients] = useState<
-    Array<{ id: number; name: string }>
-  >([]);
+  const selectedIds = watch("recipientIds");
+  const [recipients, setRecipients] = useState<Recipient[]>([]);
   const [loadingRecipients, setLoadingRecipients] = useState(false);
 
   useEffect(() => {
     const loadRecipients = async () => {
       setLoadingRecipients(true);
       try {
-        // This would call an API endpoint to get users by role
-        // For now, we'll leave it for you to implement based on your backend
-        // const data = await userApi.getUsersByRole(selectedRole);
-        // setRecipients(data);
+        const data = await apiClient.get<{ users: Recipient[] }>(
+          `/notification/users-by-role?role=${selectedRole}`,
+        );
+        setRecipients(data.users || []);
       } catch (error) {
         toast.error("Lỗi khi tải danh sách người dùng");
+        setRecipients([]);
       } finally {
         setLoadingRecipients(false);
       }
     };
 
-    loadRecipients();
+    if (selectedRole) {
+      loadRecipients();
+    }
   }, [selectedRole]);
 
   const onSubmit = async (data: SendNotificationFormData) => {
@@ -161,31 +171,46 @@ const SendNotificationForm: React.FC<SendNotificationFormProps> = ({
 
       {/* Recipients Selection */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          Chọn người nhận
-        </label>
+        <div className="flex items-center justify-between mb-2">
+          <label className="block text-sm font-medium text-gray-700">
+            Chọn người nhận
+          </label>
+          {selectedIds.length > 0 && (
+            <span className="text-sm text-blue-600 font-medium">
+              Đã chọn {selectedIds.length}
+            </span>
+          )}
+        </div>
         {loadingRecipients ? (
-          <p className="text-sm text-gray-500">Đang tải danh sách...</p>
+          <div className="border border-gray-300 rounded-lg p-3 text-center">
+            <p className="text-sm text-gray-500">Đang tải danh sách...</p>
+          </div>
         ) : (
-          <div className="border border-gray-300 rounded-lg p-3 max-h-48 overflow-y-auto">
+          <div className="border border-gray-300 rounded-lg p-3 max-h-48 overflow-y-auto space-y-2">
             {recipients.length === 0 ? (
               <p className="text-sm text-gray-500">Không có người dùng nào</p>
             ) : (
-              <div className="space-y-2">
-                {recipients.map((recipient) => (
-                  <label key={recipient.id} className="flex items-center">
-                    <input
-                      type="checkbox"
-                      value={recipient.id}
-                      {...register("recipientIds")}
-                      className="rounded border-gray-300"
-                    />
-                    <span className="ml-2 text-sm text-gray-700">
+              recipients.map((recipient) => (
+                <label
+                  key={recipient.id}
+                  className="flex items-center p-2 hover:bg-gray-50 rounded cursor-pointer"
+                >
+                  <input
+                    type="checkbox"
+                    value={recipient.id}
+                    {...register("recipientIds")}
+                    className="w-4 h-4 rounded border-gray-300 cursor-pointer"
+                  />
+                  <div className="ml-3 flex-1 min-w-0">
+                    <p className="text-sm font-medium text-gray-900">
                       {recipient.name}
-                    </span>
-                  </label>
-                ))}
-              </div>
+                    </p>
+                    <p className="text-xs text-gray-500 truncate">
+                      {recipient.email}
+                    </p>
+                  </div>
+                </label>
+              ))
             )}
           </div>
         )}
@@ -199,7 +224,7 @@ const SendNotificationForm: React.FC<SendNotificationFormProps> = ({
       {/* Submit Button */}
       <button
         type="submit"
-        disabled={isSubmitting}
+        disabled={isSubmitting || loadingRecipients}
         className="w-full px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 disabled:bg-gray-400 transition-colors"
       >
         {isSubmitting ? "Đang gửi..." : "Gửi thông báo"}
