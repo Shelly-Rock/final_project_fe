@@ -54,8 +54,7 @@ const getCardBackground = (theme: Theme): string => {
 
 export function PeriodConfigForm() {
   const muiTheme = useTheme();
-  const { resolvedMode } = useTheme();
-  const isDark = resolvedMode === "dark";
+  const isDark = muiTheme.palette.mode === "dark";
   const [periods, setPeriods] = useState<PeriodOption[]>([]);
   const [selectedPeriodId, setSelectedPeriodId] = useState<number | null>(null);
   const [loadingPeriods, setLoadingPeriods] = useState(true);
