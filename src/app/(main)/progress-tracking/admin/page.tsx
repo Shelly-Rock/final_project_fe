@@ -28,7 +28,16 @@ import {
   InputLabel,
   Divider,
   Grid,
+  useTheme,
+  Theme,
 } from "@mui/material";
+
+const getCardBackground = (theme: Theme) => {
+  const isDark = theme.palette.mode === "dark";
+  return isDark
+    ? "linear-gradient(135deg, rgba(15, 23, 42, 0.8) 0%, rgba(30, 58, 138, 0.4) 100%)"
+    : theme.palette.background.paper;
+};
 import {
   Description as DescriptionIcon,
   CloudUpload as UploadIcon,

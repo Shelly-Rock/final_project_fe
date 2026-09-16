@@ -85,6 +85,7 @@ function MatrixTab({
   const { resolvedMode } = useTheme();
   const muiTheme = muiUseTheme();
   const isDark = resolvedMode === "dark";
+  const cardBg = getCardBackground(muiTheme);
 
   // Group permissions by module
   const modules = useMemo(() => {

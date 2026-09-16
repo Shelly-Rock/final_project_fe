@@ -153,6 +153,7 @@ export default function AuditPage() {
             p: 2.5,
             border: "1px solid",
             borderColor: "divider",
+            background: getCardBackground(theme),
           }}
         >
           {/* Filters */}
