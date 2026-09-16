@@ -18,9 +18,12 @@ import {
   Tooltip,
   Button,
   Checkbox,
+  useTheme,
+  Theme,
 } from "@mui/material";
 import { Search, Filter, Download, Upload, RefreshCw } from "lucide-react";
 import { DropdownMenu } from "@/shared/components";
+import { getCardBackground } from "@/shared/constants/gradients";
 import type { Order } from "@/shared/types";
 
 export interface Column<T> {
@@ -167,6 +170,7 @@ export function DataTable<T extends object>({
   selectedRowKeys = [],
   onSelectionChange,
 }: DataTableProps<T>) {
+  const theme = useTheme();
   const [order, setOrder] = useState<Order>("asc");
   const [orderBy, setOrderBy] = useState<string | null>(null);
   const [filterOpen, setFilterOpen] = useState(false);
@@ -272,8 +276,20 @@ export function DataTable<T extends object>({
     };
   };
 
+  const isDark = theme.palette.mode === "dark";
+  const gradientBg = isDark
+    ? "linear-gradient(135deg, rgba(15, 23, 42, 0.8) 0%, rgba(30, 58, 138, 0.4) 100%)"
+    : theme.palette.background.paper;
+
   return (
-    <Paper sx={{ width: "100%", overflow: "hidden", borderRadius: 2 }}>
+    <Paper
+      sx={{
+        width: "100%",
+        overflow: "hidden",
+        borderRadius: 2,
+        background: gradientBg,
+      }}
+    >
       <Box
         sx={{
           display: "flex",
