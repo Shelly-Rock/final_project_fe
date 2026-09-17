@@ -69,6 +69,8 @@ export default function NotificationPage() {
               "Phòng Quản lý Khoa học • Gửi tới 8 Khoa & 2 Viện trực thuộc",
             type: "STATUS_CHANGED",
             isRead: false,
+            recipientId: 1,
+            senderId: 2,
             createdAt: new Date(Date.now() - 10 * 60000).toISOString(),
           },
           {
@@ -78,6 +80,8 @@ export default function NotificationPage() {
             message: "Ban Giám Hiệu • Trưởng Khoa & Viện trưởng",
             type: "REPORT_APPROVED",
             isRead: true,
+            recipientId: 1,
+            senderId: 3,
             createdAt: new Date(Date.now() - 2 * 3600000).toISOString(),
           },
           {
@@ -88,6 +92,8 @@ export default function NotificationPage() {
               "Khoa Cơ khí & Ngoại ngữ chưa gửi • Hạn chót: 17:00 chiều nay",
             type: "REPORT_REJECTED",
             isRead: false,
+            recipientId: 1,
+            senderId: 4,
             createdAt: new Date(Date.now() - 1 * 86400000).toISOString(),
           },
           {
@@ -97,6 +103,8 @@ export default function NotificationPage() {
             message: "Viện Sau Đại Học • Hội đồng chuyên môn & Giảng viên",
             type: "REPORT_SUBMITTED",
             isRead: true,
+            recipientId: 1,
+            senderId: 5,
             createdAt: new Date(Date.now() - 3 * 86400000).toISOString(),
           },
           {
@@ -106,6 +114,8 @@ export default function NotificationPage() {
             message: "GS.TS Lê Quang Huy • Đã lưu vào bộ nhớ tạm hôm qua",
             type: "BAN_APPLIED",
             isRead: false,
+            recipientId: 1,
+            senderId: 6,
             createdAt: new Date(Date.now() - 2 * 86400000).toISOString(),
           },
         ];
