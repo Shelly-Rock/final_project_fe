@@ -153,29 +153,30 @@ export default function NotificationPage() {
 
   return (
     <div className="min-h-screen bg-surface text-text-primary">
-      <div className="max-w-7xl mx-auto px-6 sm:px-8 py-9 flex flex-col gap-8">
+      <div className="max-w-7xl mx-auto px-6 sm:px-8 py-9 flex flex-col gap-6">
         {/* Header */}
-        <header className="flex flex-col md:flex-row md:items-center justify-between gap-5 border-b border-border-subtle pb-6">
-          <div className="space-y-1">
+        <header className="flex flex-col md:flex-row md:items-start justify-between gap-4">
+          <div className="space-y-2">
             <div className="flex items-center gap-3">
-              <h1 className="text-xl sm:text-2xl font-semibold tracking-tight text-text-primary">
+              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-text-primary">
                 Quản lý Thông báo
               </h1>
               <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary border border-primary/20">
                 <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
-                Notification Center
+                Executive Center
               </span>
             </div>
-            <p className="text-xs sm:text-sm text-text-secondary font-normal">
-              Manage and track all notifications across the system
+            <p className="text-xs sm:text-sm text-text-secondary font-normal max-w-xl">
+              Điều phối chỉ thị học thuật, thông tri khẩn và theo dõi tiến độ
+              tiếp nhận toàn trường
             </p>
           </div>
           <button
             onClick={() => setShowModal(true)}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary hover:bg-sky-400 text-on-primary text-xs sm:text-sm font-semibold tracking-tight shadow-sm shadow-primary/20 hover:shadow-primary/30 active:scale-[0.98] transition-all cursor-pointer"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary hover:bg-sky-400 text-on-primary text-xs sm:text-sm font-semibold tracking-tight shadow-sm shadow-primary/20 hover:shadow-primary/30 active:scale-[0.98] transition-all cursor-pointer whitespace-nowrap"
           >
             <span className="material-symbols-outlined text-[18px]">add</span>
-            <span>Create Notification</span>
+            <span>Soạn thông báo</span>
           </button>
         </header>
 
@@ -250,49 +251,42 @@ export default function NotificationPage() {
         </section>
 
         {/* Toolbar */}
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-2">
-          <div className="inline-flex items-center p-1 rounded-lg bg-surface-subtle border border-border-subtle overflow-x-auto">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+          <div className="flex items-center overflow-x-auto gap-2 pb-2 md:pb-0">
             <button
               onClick={() => {
                 setFilter("all");
                 setCurrentPage(1);
               }}
-              className={`px-3.5 py-1.5 rounded-md text-xs font-medium transition-all ${
+              className={`px-3 py-1.5 rounded-md text-xs font-medium whitespace-nowrap transition-all ${
                 filter === "all"
-                  ? "bg-surface-card text-text-primary shadow-xs border border-border-subtle/80"
+                  ? "text-text-primary"
                   : "text-text-secondary hover:text-text-primary"
               }`}
             >
-              All{" "}
-              <span className="text-text-muted ml-1 font-mono text-[11px]">
-                {totalCount}
-              </span>
+              Tất cả <span className="text-text-muted ml-1">{totalCount}</span>
             </button>
-            <button
-              onClick={() => {
-                setFilter("unread");
-                setCurrentPage(1);
-              }}
-              className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
-                filter === "unread"
-                  ? "bg-surface-card text-text-primary shadow-xs border border-border-subtle/80"
-                  : "text-text-secondary hover:text-text-primary"
-              }`}
-            >
-              Unread{" "}
-              <span className="text-text-muted ml-1 font-mono text-[11px]">
-                {unreadCount}
-              </span>
+            <button className="px-3 py-1.5 rounded-md text-xs font-medium text-text-secondary hover:text-text-primary whitespace-nowrap transition-all">
+              Hỏa tốc <span className="text-text-muted ml-1">5</span>
+            </button>
+            <button className="px-3 py-1.5 rounded-md text-xs font-medium text-text-secondary hover:text-text-primary whitespace-nowrap transition-all">
+              Toàn trường <span className="text-text-muted ml-1">45</span>
+            </button>
+            <button className="px-3 py-1.5 rounded-md text-xs font-medium text-text-secondary hover:text-text-primary whitespace-nowrap transition-all">
+              Khoa / Viện <span className="text-text-muted ml-1">66</span>
+            </button>
+            <button className="px-3 py-1.5 rounded-md text-xs font-medium text-text-secondary hover:text-text-primary whitespace-nowrap transition-all">
+              Bản nháp <span className="text-text-muted ml-1">12</span>
             </button>
           </div>
 
-          <div className="relative w-full sm:w-72 md:w-80">
+          <div className="relative w-full md:w-80">
             <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[17px] text-text-muted pointer-events-none">
               search
             </span>
             <input
               type="text"
-              placeholder="Search notifications..."
+              placeholder="Tìm theo tiêu đề, người gửi..."
               value={searchQuery}
               onChange={(e) => {
                 setSearchQuery(e.target.value);
@@ -319,44 +313,56 @@ export default function NotificationPage() {
             </div>
           ) : (
             <>
-              <div className="hidden md:grid grid-cols-12 gap-4 px-5 py-3 border-b border-border-subtle/80 text-[11px] font-semibold text-text-muted uppercase tracking-wider">
-                <div className="col-span-6">Title & Type</div>
-                <div className="col-span-2">Time</div>
-                <div className="col-span-3">Progress</div>
-                <div className="col-span-1 text-right">Actions</div>
+              <div className="hidden md:grid grid-cols-12 gap-4 px-5 py-3 border-b border-border-subtle/80 text-[10px] font-semibold text-text-muted uppercase tracking-widest">
+                <div className="col-span-5">
+                  Tiêu đề thông báo & Đơn vị phát hành
+                </div>
+                <div className="col-span-2">Thời gian</div>
+                <div className="col-span-4">Tiến độ tiếp nhận</div>
+                <div className="col-span-1 text-right">Thao tác</div>
               </div>
 
               <div className="divide-y divide-border-subtle/60 text-sm">
                 {paginatedNotifications.map((notification) => {
                   const colors = getTypeColor(notification.type);
                   const isUnread = !notification.isRead;
+                  const readPercentage = isUnread ? 0 : 92;
 
                   return (
                     <div
                       key={notification.id}
                       className="p-4 md:px-5 md:py-4 hover:bg-surface-card transition-colors flex flex-col md:grid md:grid-cols-12 gap-3 md:gap-4 items-start md:items-center group"
                     >
-                      <div className="col-span-6 flex items-start gap-3 min-w-0 w-full">
+                      <div className="col-span-5 flex items-start gap-3 min-w-0 w-full">
                         <span
-                          className={`mt-1.5 w-2 h-2 rounded-full shrink-0 ring-4 ${
-                            isUnread
-                              ? `${colors.text.replace("text-", "bg-")} ${colors.text.replace("text-", "ring-")}/10`
-                              : "bg-text-muted ring-text-muted/10"
-                          }`}
+                          className={`mt-1.5 w-2 h-2 rounded-full shrink-0 ring-4 flex-shrink-0 ${colors.text.replace(
+                            "text-",
+                            "bg-",
+                          )} ${colors.text.replace("text-", "ring-")}/10`}
                         ></span>
                         <div className="min-w-0 flex-1">
-                          <div className="flex items-center gap-2 flex-wrap">
+                          <div className="flex items-center gap-2 flex-wrap mb-1">
                             <span
-                              className={`text-xs font-semibold px-2 py-0.5 rounded ${colors.bg} ${colors.text} border ${colors.border}`}
+                              className={`text-xs font-semibold px-2 py-0.5 rounded-md inline-block ${colors.bg} ${colors.text} border ${colors.border}`}
                             >
                               {getTypeLabel(notification.type)}
                             </span>
-                            <h3 className="font-medium text-text-primary group-hover:text-primary transition-colors truncate">
-                              {notification.title}
-                            </h3>
                           </div>
-                          <p className="text-xs text-text-secondary mt-1 line-clamp-1">
-                            {notification.message}
+                          <h3 className="font-medium text-text-primary group-hover:text-primary transition-colors mb-1">
+                            {notification.title}
+                          </h3>
+                          <p className="text-xs text-text-secondary line-clamp-1 flex items-center gap-1.5">
+                            <span className="text-text-muted">
+                              {notification.message.split("•")[0]?.trim()}
+                            </span>
+                            {notification.message.includes("•") && (
+                              <>
+                                <span>•</span>
+                                <span>
+                                  {notification.message.split("•")[1]?.trim()}
+                                </span>
+                              </>
+                            )}
                           </p>
                         </div>
                       </div>
@@ -365,20 +371,22 @@ export default function NotificationPage() {
                         {formatDate(notification.createdAt)}
                       </div>
 
-                      <div className="col-span-3 w-full pl-5 md:pl-0">
-                        <div className="flex items-center justify-between text-xs mb-1">
-                          <span className="text-text-muted">
-                            {isUnread ? "Unread" : "Read"}
-                          </span>
+                      <div className="col-span-4 w-full pl-5 md:pl-0">
+                        <div className="flex items-center justify-between text-xs mb-1.5">
+                          <span className="text-text-muted">Đã đọc</span>
                           <span
                             className={`font-mono font-medium ${isUnread ? "text-error" : "text-secondary"}`}
                           >
-                            {isUnread ? "Pending" : "Completed"}
+                            {readPercentage}%{" "}
+                            <span className="text-text-muted font-sans text-[10px]">
+                              (46/50)
+                            </span>
                           </span>
                         </div>
-                        <div className="w-full h-1 bg-surface-subtle rounded-full overflow-hidden">
+                        <div className="w-full h-1.5 bg-surface-subtle rounded-full overflow-hidden">
                           <div
-                            className={`h-full rounded-full transition-all ${isUnread ? "bg-error w-0" : "bg-secondary w-full"}`}
+                            className={`h-full rounded-full transition-all ${isUnread ? "bg-error" : "bg-secondary"}`}
+                            style={{ width: `${readPercentage}%` }}
                           ></div>
                         </div>
                       </div>
