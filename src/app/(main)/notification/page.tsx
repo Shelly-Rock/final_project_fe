@@ -1,10 +1,43 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import {
+  Box,
+  Paper,
+  Typography,
+  Grid,
+  Card,
+  CardContent,
+  Button,
+  TextField,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Chip,
+  IconButton,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  LinearProgress,
+  CircularProgress,
+  useTheme,
+  Tabs,
+  Tab,
+  Pagination,
+} from "@mui/material";
 import { notificationApi } from "@/shared/services/api/notification.api";
 import { INotification } from "@/shared/types/notification.types";
+import AddIcon from "@mui/icons-material/Add";
+import DeleteIcon from "@mui/icons-material/Delete";
+import CheckIcon from "@mui/icons-material/Check";
+import SearchIcon from "@mui/icons-material/Search";
 
 export default function NotificationPage() {
+  const theme = useTheme();
   const [notifications, setNotifications] = useState<INotification[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -13,6 +46,7 @@ export default function NotificationPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
+  const [formData, setFormData] = useState({ title: "", message: "" });
 
   const fetchNotifications = async () => {
     try {
@@ -58,62 +92,46 @@ export default function NotificationPage() {
       string,
       {
         label: string;
+        color: "error" | "primary" | "success" | "warning" | "info";
         dotColor: string;
-        bgColor: string;
-        textColor: string;
-        borderColor: string;
       }
     > = {
       STATUS_CHANGED: {
         label: "Hỏa tốc",
-        dotColor: "bg-error",
-        bgColor: "bg-error/10",
-        textColor: "text-error",
-        borderColor: "border-error/20",
+        color: "error",
+        dotColor: "#f87171",
       },
       REPORT_SUBMITTED: {
         label: "Toàn trường",
-        dotColor: "bg-primary",
-        bgColor: "bg-primary/10",
-        textColor: "text-primary",
-        borderColor: "border-primary/20",
+        color: "primary",
+        dotColor: "#38bdf8",
       },
       REPORT_APPROVED: {
         label: "Chỉ thị",
-        dotColor: "bg-purple-400",
-        bgColor: "bg-purple-500/10",
-        textColor: "text-purple-400",
-        borderColor: "border-purple-500/20",
+        color: "info",
+        dotColor: "#a78bfa",
       },
       REPORT_REJECTED: {
         label: "Nhắc hạn",
-        dotColor: "bg-warning",
-        bgColor: "bg-warning/10",
-        textColor: "text-warning",
-        borderColor: "border-warning/20",
+        color: "warning",
+        dotColor: "#fbbf24",
       },
       BAN_APPLIED: {
         label: "Bản nháp",
-        dotColor: "bg-slate-400",
-        bgColor: "bg-surface-subtle",
-        textColor: "text-text-secondary",
-        borderColor: "border-border-subtle",
+        color: "success",
+        dotColor: "#34d399",
       },
       BAN_WARNING: {
         label: "Warning",
-        dotColor: "bg-warning",
-        bgColor: "bg-warning/10",
-        textColor: "text-warning",
-        borderColor: "border-warning/20",
+        color: "warning",
+        dotColor: "#fbbf24",
       },
     };
     return (
       typeMap[type] || {
         label: "Thông báo",
-        dotColor: "bg-primary",
-        bgColor: "bg-primary/10",
-        textColor: "text-primary",
-        borderColor: "border-primary/20",
+        color: "primary",
+        dotColor: "#38bdf8",
       }
     );
   };
@@ -135,9 +153,9 @@ export default function NotificationPage() {
       count: getCategoryCount("Toàn trường"),
     },
     {
-      id: "khoa/viện",
-      label: "Khoa / Viện",
-      count: getCategoryCount("Khoa / Viện"),
+      id: "chỉ thị",
+      label: "Chỉ thị",
+      count: getCategoryCount("Chỉ thị"),
     },
     { id: "bản nháp", label: "Bản nháp", count: getCategoryCount("Bản nháp") },
   ];
@@ -185,416 +203,363 @@ export default function NotificationPage() {
     return date.toLocaleDateString("vi-VN");
   };
 
+  const handleSendNotification = async () => {
+    try {
+      if (formData.title && formData.message) {
+        setShowModal(false);
+        setFormData({ title: "", message: "" });
+        fetchNotifications();
+      }
+    } catch (err) {
+      console.error("Failed to send notification");
+    }
+  };
+
+  if (loading) {
+    return (
+      <Box sx={{ display: "flex", justifyContent: "center", py: 8 }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-surface text-text-primary">
-      <div className="max-w-7xl mx-auto px-6 sm:px-8 py-9 flex flex-col gap-8">
-        {/* Header */}
-        <header className="flex flex-col md:flex-row md:items-start justify-between gap-4 md:gap-6">
-          <div className="space-y-2 flex-1">
-            <div className="flex items-center gap-3">
-              <h1 className="text-3xl font-bold text-text-primary">
-                Quản lý Thông báo
-              </h1>
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary border border-primary/20">
-                <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
-                Executive Center
-              </span>
-            </div>
-            <p className="text-sm text-text-secondary">
-              Điều phối chỉ thị học thuật, thông tri khẩn và theo dõi tiến độ
-              tiếp nhận toàn trường
-            </p>
-          </div>
-          <button
-            onClick={() => setShowModal(true)}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary hover:bg-sky-400 text-on-primary text-sm font-semibold tracking-tight shadow-sm shadow-primary/20 hover:shadow-primary/30 active:scale-[0.98] transition-all whitespace-nowrap h-fit"
-          >
-            <span className="material-symbols-outlined text-[18px]">add</span>
-            <span>Soạn thông báo</span>
-          </button>
-        </header>
+    <Box sx={{ p: 3 }}>
+      {/* Header */}
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "flex-start",
+          mb: 4,
+          pb: 2,
+          borderBottom: `1px solid ${theme.palette.divider}`,
+        }}
+      >
+        <Box>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 1 }}>
+            <Typography variant="h4" sx={{ fontWeight: 700 }}>
+              Quản lý Thông báo
+            </Typography>
+            <Chip
+              label="Executive Center"
+              size="small"
+              sx={{
+                bgcolor: theme.palette.primary.main,
+                color: theme.palette.primary.contrastText,
+                fontSize: "0.75rem",
+              }}
+            />
+          </Box>
+          <Typography variant="body2" color="textSecondary">
+            Điều phối chỉ thị học thuật, thông tri khẩn và theo dõi tiến độ tiếp
+            nhận toàn trường
+          </Typography>
+        </Box>
+        <Button
+          variant="contained"
+          startIcon={<AddIcon />}
+          onClick={() => setShowModal(true)}
+          sx={{ whiteSpace: "nowrap" }}
+        >
+          Soạn thông báo
+        </Button>
+      </Box>
 
-        {/* KPI Cards */}
-        <section className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="p-5 rounded-xl bg-surface-card/70 border border-border-subtle/80 hover:border-border-light/60 transition-colors">
-            <div className="flex items-center justify-between text-text-secondary mb-3">
-              <span className="text-xs font-medium tracking-wide">
+      {/* KPI Cards */}
+      <Grid container spacing={2} sx={{ mb: 4 }}>
+        <Grid item xs={12} sm={6} md={3}>
+          <Card>
+            <CardContent>
+              <Typography color="textSecondary" gutterBottom>
                 Tổng thông báo
-              </span>
-              <span className="p-1 text-text-muted">⚡</span>
-            </div>
-            <div className="flex items-baseline gap-2">
-              <span className="text-3xl font-bold font-mono text-text-primary">
+              </Typography>
+              <Typography variant="h5" sx={{ fontWeight: 700 }}>
                 {totalCount}
-              </span>
-              <span className="text-xs text-secondary">+14% tháng này</span>
-            </div>
-          </div>
-
-          <div className="p-5 rounded-xl bg-surface-card/70 border border-border-subtle/80 hover:border-border-light/60 transition-colors">
-            <div className="flex items-center justify-between text-text-secondary mb-3">
-              <span className="text-xs font-medium tracking-wide">
+              </Typography>
+              <Typography variant="caption" color="success.main">
+                +14% tháng này
+              </Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+        <Grid item xs={12} sm={6} md={3}>
+          <Card>
+            <CardContent>
+              <Typography color="textSecondary" gutterBottom>
                 Khẩn cấp & Chỉ thị
-              </span>
-              <span className="p-1 text-error">⚡</span>
-            </div>
-            <div className="flex items-baseline gap-2">
-              <span className="text-3xl font-bold font-mono text-error">
-                {String(urgentCount).padStart(2, "0")}
-              </span>
-              <span className="text-xs text-text-secondary">
+              </Typography>
+              <Typography
+                variant="h5"
+                sx={{ fontWeight: 700, color: theme.palette.error.main }}
+              >
+                {urgentCount}
+              </Typography>
+              <Typography variant="caption" color="textSecondary">
                 100% tiếp nhận
-              </span>
-            </div>
-          </div>
-
-          <div className="p-5 rounded-xl bg-surface-card/70 border border-border-subtle/80 hover:border-border-light/60 transition-colors">
-            <div className="flex items-center justify-between text-text-secondary mb-3">
-              <span className="text-xs font-medium tracking-wide">
+              </Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+        <Grid item xs={12} sm={6} md={3}>
+          <Card>
+            <CardContent>
+              <Typography color="textSecondary" gutterBottom>
                 Tỷ lệ đọc trung bình
-              </span>
-              <span className="p-1 text-secondary">✓</span>
-            </div>
-            <div className="flex items-baseline gap-2">
-              <span className="text-3xl font-bold font-mono text-secondary">
-                {readRate}
-              </span>
-              <span className="text-xs text-secondary">%</span>
-              <span className="text-xs text-text-secondary">~40m phản hồi</span>
-            </div>
-          </div>
-
-          <div className="p-5 rounded-xl bg-surface-card/70 border border-border-subtle/80 hover:border-border-light/60 transition-colors">
-            <div className="flex items-center justify-between text-text-secondary mb-3">
-              <span className="text-xs font-medium tracking-wide">
+              </Typography>
+              <Typography
+                variant="h5"
+                sx={{ fontWeight: 700, color: theme.palette.success.main }}
+              >
+                {readRate}%
+              </Typography>
+              <Typography variant="caption" color="textSecondary">
+                ~40m phản hồi
+              </Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+        <Grid item xs={12} sm={6} md={3}>
+          <Card>
+            <CardContent>
+              <Typography color="textSecondary" gutterBottom>
                 Cần đôn đốc
-              </span>
-              <span className="p-1 text-warning">⏱</span>
-            </div>
-            <div className="flex items-baseline gap-2">
-              <span className="text-3xl font-bold font-mono text-warning">
+              </Typography>
+              <Typography
+                variant="h5"
+                sx={{ fontWeight: 700, color: theme.palette.warning.main }}
+              >
                 {pendingCount}
-              </span>
-              <span className="text-xs font-medium text-error flex items-center gap-1 font-mono">
-                <span className="w-1.5 h-1.5 rounded-full bg-error"></span> 2
-                đơn vị trễ
-              </span>
-            </div>
-          </div>
-        </section>
+              </Typography>
+              <Typography variant="caption" color="error">
+                2 đơn vị trễ
+              </Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
 
-        {/* Main Section: Search, Tabs & Table */}
-        <div className="flex flex-col gap-4">
-          {/* Toolbar: Tabs & Search */}
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-2">
-            {/* Filter Tabs */}
-            <div className="inline-flex items-center p-1 rounded-lg bg-surface-subtle border border-border-subtle overflow-x-auto">
-              {filterTabs.map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => {
-                    setFilter(tab.id);
-                    setCurrentPage(1);
-                  }}
-                  className={`px-3.5 py-1.5 rounded-md text-xs font-medium transition-all whitespace-nowrap ${
-                    filter === tab.id
-                      ? "bg-surface-card text-text-primary shadow-xs border border-border-subtle/80"
-                      : "text-text-secondary hover:text-text-primary"
-                  }`}
-                >
-                  {tab.label}{" "}
-                  <span className="text-text-muted ml-1 font-mono text-[11px]">
-                    {tab.count}
-                  </span>
-                </button>
-              ))}
-            </div>
+      {/* Filter Tabs & Search */}
+      <Box sx={{ mb: 3, display: "flex", gap: 2, flexWrap: "wrap" }}>
+        <Tabs
+          value={filter}
+          onChange={(e, newValue) => {
+            setFilter(newValue);
+            setCurrentPage(1);
+          }}
+          variant="scrollable"
+          scrollButtons="auto"
+        >
+          {filterTabs.map((tab) => (
+            <Tab
+              key={tab.id}
+              label={`${tab.label} ${tab.count}`}
+              value={tab.id}
+            />
+          ))}
+        </Tabs>
+        <TextField
+          placeholder="Tìm theo tiêu đề, người gửi..."
+          size="small"
+          InputProps={{
+            startAdornment: (
+              <SearchIcon sx={{ mr: 1, color: "textSecondary" }} />
+            ),
+          }}
+          value={searchQuery}
+          onChange={(e) => {
+            setSearchQuery(e.target.value);
+            setCurrentPage(1);
+          }}
+          sx={{ ml: "auto", minWidth: 250 }}
+        />
+      </Box>
 
-            {/* Search Bar */}
-            <div className="relative w-full sm:w-72 md:w-80">
-              <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[17px] text-text-muted pointer-events-none">
-                search
-              </span>
-              <input
-                type="text"
-                placeholder="Tìm theo tiêu đề, người gửi..."
-                value={searchQuery}
-                onChange={(e) => {
-                  setSearchQuery(e.target.value);
-                  setCurrentPage(1);
-                }}
-                className="w-full bg-surface-subtle border border-border-subtle focus:border-primary/60 rounded-lg pl-9 pr-3 py-1.5 text-xs text-text-primary placeholder:text-text-muted focus:ring-1 focus:ring-primary/40 focus:outline-none transition-all"
-              />
-            </div>
-          </div>
+      {/* Table */}
+      <TableContainer component={Paper} sx={{ mb: 3 }}>
+        {paginatedNotifications.length === 0 ? (
+          <Box sx={{ p: 3, textAlign: "center", color: "textSecondary" }}>
+            <Typography>No notifications found</Typography>
+          </Box>
+        ) : (
+          <Table>
+            <TableHead>
+              <TableRow sx={{ bgcolor: theme.palette.background.default }}>
+                <TableCell>Tiêu đề thông báo & Đơn vị phát hành</TableCell>
+                <TableCell align="right">Thời gian</TableCell>
+                <TableCell align="center">Tiến độ tiếp nhận</TableCell>
+                <TableCell align="right">Thao tác</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {paginatedNotifications.map((notification) => {
+                const typeInfo = getTypeInfo(notification.type);
+                const isUnread = !notification.isRead;
+                const readPercent = 92; // Mock data
 
-          {/* Table */}
-          <div className="rounded-xl border border-border-subtle bg-surface-card/40 overflow-hidden shadow-sm backdrop-blur-sm">
-            {loading ? (
-              <div className="p-8 text-center text-text-secondary">
-                Loading notifications...
-              </div>
-            ) : error ? (
-              <div className="p-4 bg-error/10 border border-error/20 text-error rounded-lg m-4">
-                {error}
-              </div>
-            ) : paginatedNotifications.length === 0 ? (
-              <div className="p-8 text-center text-text-secondary">
-                No notifications found
-              </div>
-            ) : (
-              <>
-                {/* Table Header */}
-                <div className="hidden md:grid grid-cols-12 gap-4 px-5 py-3 border-b border-border-subtle/80 text-[11px] font-semibold text-text-muted uppercase tracking-wider">
-                  <div className="col-span-6">
-                    Tiêu đề thông báo & Đơn vị phát hành
-                  </div>
-                  <div className="col-span-2">Thời gian</div>
-                  <div className="col-span-3">Tiến độ tiếp nhận</div>
-                  <div className="col-span-1 text-right">Thao tác</div>
-                </div>
-
-                {/* Table Rows */}
-                <div className="divide-y divide-border-subtle/60 text-sm">
-                  {paginatedNotifications.map((notification) => {
-                    const typeInfo = getTypeInfo(notification.type);
-                    const readPercentage = 92;
-
-                    return (
-                      <div
-                        key={notification.id}
-                        className="p-4 md:px-5 md:py-4 hover:bg-surface-card transition-colors flex flex-col md:grid md:grid-cols-12 gap-3 md:gap-4 items-start md:items-center group"
+                return (
+                  <TableRow
+                    key={notification.id}
+                    sx={{ "&:hover": { bgcolor: theme.palette.action.hover } }}
+                  >
+                    <TableCell>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          gap: 2,
+                          alignItems: "flex-start",
+                        }}
                       >
-                        <div className="col-span-6 flex items-start gap-3 min-w-0 w-full">
-                          <span
-                            className={`mt-1.5 w-2 h-2 rounded-full shrink-0 ring-4 ${typeInfo.dotColor} ${typeInfo.dotColor.replace("bg-", "ring-")}/10`}
-                            title={typeInfo.label}
-                          ></span>
-                          <div className="min-w-0 flex-1">
-                            <div className="flex items-center gap-2 flex-wrap">
-                              <span
-                                className={`text-xs font-semibold px-2 py-0.5 rounded ${typeInfo.bgColor} ${typeInfo.textColor} border ${typeInfo.borderColor}`}
-                              >
-                                {typeInfo.label}
-                              </span>
-                              <h3 className="font-medium text-text-primary group-hover:text-primary transition-colors truncate">
-                                {notification.title}
-                              </h3>
-                            </div>
-                            <p className="text-xs text-text-secondary mt-1 line-clamp-1">
-                              {notification.message}
-                            </p>
-                          </div>
-                        </div>
-
-                        <div className="col-span-2 text-xs font-mono text-text-secondary pl-5 md:pl-0">
-                          {formatDate(notification.createdAt)}
-                        </div>
-
-                        <div className="col-span-3 w-full pl-5 md:pl-0">
-                          <div className="flex items-center justify-between text-xs mb-1">
-                            <span className="text-text-muted">
-                              {notification.isRead ? "Đã đọc" : "Chưa đọc"}
-                            </span>
-                            <span className="font-mono text-secondary font-medium">
-                              {readPercentage}%{" "}
-                              <span className="text-text-muted font-sans">
-                                ({readPercentage}/100)
-                              </span>
-                            </span>
-                          </div>
-                          <div className="w-full h-1 bg-surface-subtle rounded-full overflow-hidden">
-                            <div
-                              className="h-full bg-secondary rounded-full transition-all"
-                              style={{ width: `${readPercentage}%` }}
-                            ></div>
-                          </div>
-                        </div>
-
-                        <div className="col-span-1 flex items-center justify-end gap-1 w-full pl-5 md:pl-0 md:opacity-0 group-hover:opacity-100 transition-opacity">
-                          {!notification.isRead && (
-                            <button
-                              onClick={() => handleMarkAsRead(notification.id)}
-                              className="p-1.5 rounded-md hover:bg-surface-subtle text-text-muted hover:text-text-primary transition-colors"
-                              title="Mark as read"
-                            >
-                              <span className="material-symbols-outlined text-[18px]">
-                                done
-                              </span>
-                            </button>
-                          )}
-                          <button
-                            onClick={() => handleDelete(notification.id)}
-                            className="p-1.5 rounded-md hover:bg-surface-subtle text-text-muted hover:text-error transition-colors"
-                            title="Delete"
+                        <Box
+                          sx={{
+                            width: 8,
+                            height: 8,
+                            borderRadius: "50%",
+                            bgcolor: typeInfo.dotColor,
+                            mt: 1,
+                            flexShrink: 0,
+                          }}
+                        />
+                        <Box sx={{ flex: 1, minWidth: 0 }}>
+                          <Box
+                            sx={{
+                              display: "flex",
+                              gap: 1,
+                              alignItems: "center",
+                              mb: 0.5,
+                            }}
                           >
-                            <span className="material-symbols-outlined text-[18px]">
-                              delete
-                            </span>
-                          </button>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-
-                {/* Pagination */}
-                <div className="px-5 py-3.5 border-t border-border-subtle/80 flex items-center justify-between text-xs text-text-secondary">
-                  <span className="font-mono text-text-muted">
-                    Hiển thị {startIndex + 1} -{" "}
-                    {Math.min(
-                      startIndex + itemsPerPage,
-                      filteredNotifications.length,
-                    )}{" "}
-                    trong tổng số {filteredNotifications.length} thông báo
-                  </span>
-                  <div className="flex items-center gap-1">
-                    <button
-                      onClick={() =>
-                        setCurrentPage(Math.max(1, currentPage - 1))
-                      }
-                      disabled={currentPage === 1}
-                      className="px-2 py-1 rounded border border-border-subtle text-text-muted hover:bg-surface-subtle disabled:opacity-40 transition-colors"
-                    >
-                      Trước
-                    </button>
-                    {Array.from({ length: totalPages }).map((_, i) => (
-                      <button
-                        key={i + 1}
-                        onClick={() => setCurrentPage(i + 1)}
-                        className={`w-7 h-7 rounded flex items-center justify-center transition-colors ${
-                          currentPage === i + 1
-                            ? "bg-surface-subtle border border-border-light text-primary font-medium"
-                            : "hover:bg-surface-subtle border border-border-subtle text-text-secondary"
-                        }`}
+                            <Chip
+                              label={typeInfo.label}
+                              size="small"
+                              color={typeInfo.color}
+                              variant="outlined"
+                            />
+                            <Typography
+                              variant="body2"
+                              sx={{ fontWeight: 600, flexShrink: 1 }}
+                              noWrap
+                            >
+                              {notification.title}
+                            </Typography>
+                          </Box>
+                          <Typography
+                            variant="caption"
+                            color="textSecondary"
+                            sx={{ display: "block" }}
+                          >
+                            {notification.message}
+                          </Typography>
+                        </Box>
+                      </Box>
+                    </TableCell>
+                    <TableCell align="right">
+                      <Typography variant="caption">
+                        {formatDate(notification.createdAt)}
+                      </Typography>
+                    </TableCell>
+                    <TableCell align="center">
+                      <Box sx={{ minWidth: 120 }}>
+                        <Box
+                          sx={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            mb: 0.5,
+                          }}
+                        >
+                          <Typography variant="caption">
+                            {isUnread ? "Unread" : "Read"}
+                          </Typography>
+                          <Typography
+                            variant="caption"
+                            color={isUnread ? "error" : "success"}
+                          >
+                            {readPercent}%
+                          </Typography>
+                        </Box>
+                        <LinearProgress
+                          variant="determinate"
+                          value={readPercent}
+                          color={isUnread ? "error" : "success"}
+                        />
+                      </Box>
+                    </TableCell>
+                    <TableCell align="right">
+                      {!notification.isRead && (
+                        <IconButton
+                          size="small"
+                          onClick={() => handleMarkAsRead(notification.id)}
+                          title="Mark as read"
+                        >
+                          <CheckIcon fontSize="small" />
+                        </IconButton>
+                      )}
+                      <IconButton
+                        size="small"
+                        onClick={() => handleDelete(notification.id)}
+                        color="error"
+                        title="Delete"
                       >
-                        {i + 1}
-                      </button>
-                    ))}
-                    <button
-                      onClick={() =>
-                        setCurrentPage(Math.min(totalPages, currentPage + 1))
-                      }
-                      disabled={currentPage === totalPages}
-                      className="px-2 py-1 rounded border border-border-subtle text-text-secondary hover:bg-surface-subtle disabled:opacity-40 transition-colors"
-                    >
-                      Tiếp
-                    </button>
-                  </div>
-                </div>
-              </>
-            )}
-          </div>
-        </div>
-      </div>
+                        <DeleteIcon fontSize="small" />
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        )}
+      </TableContainer>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <Box sx={{ display: "flex", justifyContent: "center" }}>
+          <Pagination
+            count={totalPages}
+            page={currentPage}
+            onChange={(e, page) => setCurrentPage(page)}
+          />
+        </Box>
+      )}
 
       {/* Modal */}
-      {showModal && (
-        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-surface-card border border-border-subtle rounded-xl max-w-xl w-full p-6 shadow-2xl space-y-5">
-            <div className="flex items-center justify-between border-b border-border-subtle pb-4">
-              <div className="flex items-center gap-2.5">
-                <span className="p-1.5 rounded-lg bg-primary/10 text-primary border border-primary/20">
-                  <span className="material-symbols-outlined text-[18px] block">
-                    edit_note
-                  </span>
-                </span>
-                <div>
-                  <h3 className="text-base font-semibold text-text-primary">
-                    Soạn thông báo mới
-                  </h3>
-                  <p className="text-xs text-text-secondary">
-                    Phát hành trực tiếp đến các đơn vị và cán bộ phụ trách
-                  </p>
-                </div>
-              </div>
-              <button
-                onClick={() => setShowModal(false)}
-                className="p-1 text-text-muted hover:text-text-primary rounded-md hover:bg-surface-subtle transition-colors"
-              >
-                <span className="material-symbols-outlined text-[20px]">
-                  close
-                </span>
-              </button>
-            </div>
-
-            <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
-              <div>
-                <label className="block text-xs font-medium text-text-secondary mb-1.5">
-                  Đối tượng tiếp nhận
-                </label>
-                <select className="w-full bg-surface-subtle border border-border-subtle rounded-lg px-3 py-2 text-xs text-text-primary focus:border-primary/60 focus:ring-1 focus:ring-primary/40 focus:outline-none transition-all">
-                  <option>Toàn trường (Tất cả đơn vị & Cán bộ)</option>
-                  <option>Ban Giám Hiệu & Hội đồng Trường</option>
-                  <option>Trưởng các Khoa, Viện & Bộ môn</option>
-                  <option>Khoa Công Nghệ Thông Tin</option>
-                  <option>Khoa Điện - Điện Tử</option>
-                  <option>Khoa Cơ Khí & Tự Động Hóa</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-xs font-medium text-text-secondary mb-1.5">
-                  Tiêu đề thông báo
-                </label>
-                <input
-                  type="text"
-                  placeholder="Ví dụ: Chỉ thị chuẩn bị kế hoạch NCKH đợt 1..."
-                  className="w-full bg-surface-subtle border border-border-subtle rounded-lg px-3 py-2 text-xs text-text-primary placeholder:text-text-muted focus:border-primary/60 focus:ring-1 focus:ring-primary/40 focus:outline-none transition-all"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-medium text-text-secondary mb-1.5">
-                  Nội dung tóm tắt / Chỉ đạo
-                </label>
-                <textarea
-                  placeholder="Ghi rõ nội dung cốt lõi, thời hạn nộp báo cáo hoặc yêu cầu phản hồi..."
-                  rows={4}
-                  className="w-full bg-surface-subtle border border-border-subtle rounded-lg px-3 py-2 text-xs text-text-primary placeholder:text-text-muted focus:border-primary/60 focus:ring-1 focus:ring-primary/40 focus:outline-none resize-none transition-all"
-                ></textarea>
-              </div>
-
-              <div className="flex items-center justify-between pt-1 text-xs text-text-secondary">
-                <label className="flex items-center gap-2 cursor-pointer select-none">
-                  <input
-                    type="checkbox"
-                    defaultChecked
-                    className="w-3.5 h-3.5 rounded bg-surface-subtle border-border-subtle text-primary focus:ring-0 focus:ring-offset-0 cursor-pointer"
-                  />
-                  <span>Ghim lên đầu trang chủ</span>
-                </label>
-                <label className="flex items-center gap-2 text-error cursor-pointer select-none">
-                  <input
-                    type="checkbox"
-                    className="w-3.5 h-3.5 rounded bg-surface-subtle border-border-subtle text-error focus:ring-0 focus:ring-offset-0 cursor-pointer"
-                  />
-                  <span>Yêu cầu ký số xác nhận</span>
-                </label>
-              </div>
-
-              <div className="flex items-center justify-end gap-3 pt-3 border-t border-border-subtle">
-                <button
-                  onClick={() => setShowModal(false)}
-                  type="button"
-                  className="px-4 py-2 rounded-lg border border-border-subtle hover:bg-surface-subtle text-xs font-medium text-text-secondary hover:text-text-primary transition-colors"
-                >
-                  Hủy bỏ
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 rounded-lg bg-primary hover:bg-sky-400 text-on-primary text-xs font-semibold tracking-tight shadow-sm shadow-primary/20 transition-all flex items-center gap-1.5"
-                >
-                  <span className="material-symbols-outlined text-[16px]">
-                    send
-                  </span>
-                  <span>Phát hành ngay</span>
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-    </div>
+      <Dialog
+        open={showModal}
+        onClose={() => setShowModal(false)}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>Soạn thông báo mới</DialogTitle>
+        <DialogContent sx={{ pt: 2 }}>
+          <TextField
+            fullWidth
+            label="Tiêu đề thông báo"
+            placeholder="Ví dụ: Chỉ thị chuẩn bị kế hoạch NCKH đợt 1..."
+            value={formData.title}
+            onChange={(e) =>
+              setFormData({ ...formData, title: e.target.value })
+            }
+            sx={{ mb: 2 }}
+          />
+          <TextField
+            fullWidth
+            label="Nội dung tóm tắt / Chỉ đạo"
+            placeholder="Ghi rõ nội dung cốt lõi, thời hạn nộp báo cáo..."
+            multiline
+            rows={4}
+            value={formData.message}
+            onChange={(e) =>
+              setFormData({ ...formData, message: e.target.value })
+            }
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setShowModal(false)}>Hủy bỏ</Button>
+          <Button onClick={handleSendNotification} variant="contained">
+            Phát hành ngay
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </Box>
   );
 }
