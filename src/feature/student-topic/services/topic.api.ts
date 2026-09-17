@@ -22,6 +22,7 @@ interface AvailableTopicRow {
   registrationStatus?: "OPEN" | "FULL" | "LOCKED";
   teacherName?: string | null;
   teacherEmail?: string | null;
+  locked?: boolean;
   department?: string | null;
   faculty?: string | null;
   students?: Array<{
@@ -61,8 +62,11 @@ interface MyRegistrationResponse {
     statusLabel?: string;
     moderatorNote?: string | null;
     registeredAt: string;
+    isLeader?: boolean;
+    assignedTask?: string;
     decidedAt?: string | null;
     topic?: {
+      locked?: boolean;
       id: number;
       code?: string;
       name: string;
@@ -97,6 +101,7 @@ function mapApiToAvailableTopic(api: AvailableTopicRow): AvailableTopic {
 
   return {
     id: String(api.id),
+    code: api.code || null,
     name: api.name,
     description: api.description || "",
     teacherName: api.teacherName || "",
@@ -124,6 +129,10 @@ function mapApiToAvailableTopic(api: AvailableTopicRow): AvailableTopic {
 }
 
 class TopicApiService {
+  async cancelRegistration(topicId: number): Promise<void> {
+    await apiClient.delete(`/topics/${topicId}/registrations`);
+  }
+
   async getGovernanceState(
     periodId?: number,
   ): Promise<GovernanceStateResponse> {
@@ -167,14 +176,41 @@ class TopicApiService {
     return {
       id: String(registration.projectId),
       topicId: String(registration.topic?.id ?? ""),
+      topicCode: registration.topic?.code || undefined,
       topicName: registration.topic?.name || "",
-      teacherName: teacher?.name || "",
-      teacherEmail: teacher?.email || "",
+      topicEnglishName:
+        (registration.topic as Record<string, string | undefined>)
+          ?.englishName || "",
+      topicObjectives:
+        (registration.topic as Record<string, string | undefined>)
+          ?.objectives || "",
+      topicTechnologies:
+        (registration.topic as Record<string, string | undefined>)
+          ?.technologies || "",
+      topicDescription:
+        (registration.topic as Record<string, string | undefined>)
+          ?.description || "",
+      teacherName:
+        (registration.topic as Record<string, string | undefined>)
+          ?.teacherName ||
+        teacher?.name ||
+        "",
+      teacherEmail:
+        (registration.topic as Record<string, string | undefined>)
+          ?.teacherEmail ||
+        teacher?.email ||
+        "",
       studentId: data.student?.studentCode || "",
       studentName: "",
       requestedAt: registration.registeredAt,
+      isLeader: registration.isLeader,
+      assignedTask: registration.assignedTask,
+      topicLocked: registration.topic?.locked,
       status: mapRegistrationUiStatus(registration.status),
       rejectionReason: registration.moderatorNote || undefined,
+      periodName:
+        (registration.topic as Record<string, string | undefined>)
+          ?.periodName || undefined,
     };
   }
 

@@ -24,7 +24,7 @@ const Transition = forwardRef(function Transition(
 export interface DialogProps {
   open: boolean;
   onClose: () => void;
-  title?: string;
+  title?: React.ReactNode;
   description?: string;
   children?: React.ReactNode;
   actions?: React.ReactNode;

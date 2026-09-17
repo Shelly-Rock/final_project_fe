@@ -11,6 +11,7 @@ export interface RegisteredStudent {
 
 export interface AvailableTopic {
   id: string;
+  code?: string | null;
   name: string;
   englishName?: string; // Tên tiếng Anh
   description: string;
@@ -31,13 +32,23 @@ export interface RegistrationRequest {
   id: string;
   topicId: string;
   topicName: string;
+  topicEnglishName?: string;
+  topicObjectives?: string;
+  topicTechnologies?: string;
+  topicCode?: string; // mã đề tài, ví dụ: DT001
+  topicDescription?: string; // mô tả đề tài
+  topicRejectionReason?: string; // lý do từ chối của đề tài (nếu bị reject)
+  topicLocked?: boolean;
   teacherName: string;
   teacherEmail: string;
+  periodName?: string; // tên đợt đăng ký
   studentId: string;
   studentName: string;
   requestedAt: string;
   status: "Pending" | "Approved" | "Rejected";
-  rejectionReason?: string;
+  rejectionReason?: string; // lý do từ chối đăng ký (moderator note)
+  isLeader?: boolean;
+  assignedTask?: string;
 }
 
 export interface StudentTopicRegistrationState {

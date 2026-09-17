@@ -38,16 +38,28 @@ function getDefaultRouteForRole(role?: string) {
 }
 
 function getSafeRedirectUrl(target: string | null | undefined, role?: string) {
+  if (!target) {
+    return getDefaultRouteForRole(role);
+  }
+
+  // Normalize: extract pathname from absolute URL (e.g. "http://localhost:3000/login" → "/login")
+  let pathname = target;
+  try {
+    const url = new URL(target);
+    pathname = url.pathname;
+  } catch {
+    // target is already a relative path, use as-is
+  }
+
   if (
-    !target ||
-    target === "/login" ||
-    target.startsWith("/api") ||
-    target.startsWith("/auth")
+    pathname === "/login" ||
+    pathname.startsWith("/api") ||
+    pathname.startsWith("/auth")
   ) {
     return getDefaultRouteForRole(role);
   }
 
-  return target;
+  return pathname;
 }
 
 function LoginForm() {

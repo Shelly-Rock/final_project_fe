@@ -30,6 +30,7 @@ import {
 import { errorMessage, formatDateTime } from "../utils/governance";
 import { ForceEditTopicDialog } from "./ForceEditTopicDialog";
 import { ManualAssignDialog } from "./ManualAssignDialog";
+import { GenerateCodeDialog } from "./GenerateCodeDialog";
 import { SupplementalTopicDialog } from "./SupplementalTopicDialog";
 import { TopicAuditDialog } from "./TopicAuditDialog";
 import { BulkModerationDialog } from "./BulkModerationDialog";
@@ -90,6 +91,7 @@ export function TopicManageTable() {
   );
   const [exporting, setExporting] = useState(false);
   const [generatingCodes, setGeneratingCodes] = useState(false);
+  const [genDialogOpen, setGenDialogOpen] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -262,7 +264,7 @@ export function TopicManageTable() {
     }
   };
 
-  const handleGenerateCodes = async () => {
+  const handleGenerateCodes = async (prefix: string) => {
     if (!periodId) return;
     if (generatingCodesRef.current) return;
     generatingCodesRef.current = true;
@@ -271,15 +273,17 @@ export function TopicManageTable() {
       const result = await topicManageService.generateCodes({
         periodId,
         topicIds: selectedIds.length ? selectedIds : undefined,
+        prefix,
       });
       const detail = result.samples.length
-        ? ` Ví dụ: ${result.samples.map((s) => s.code).join(", ")}`
+        ? ` VD: ${result.samples.map((s) => s.code).join(", ")}`
         : "";
       toast.success(
         `Đã sinh ${result.generated} mã, bỏ qua ${result.skipped}.${detail}`,
       );
       setSelectedKeys([]);
       setRefreshKey((v) => v + 1);
+      setGenDialogOpen(false);
     } catch (error) {
       toast.error(errorMessage(error, "Không thể sinh mã đề tài."));
     } finally {
@@ -299,7 +303,7 @@ export function TopicManageTable() {
       format: (_, row) => (
         <Box>
           <Typography variant="body2" sx={{ fontWeight: 700 }}>
-            {row.code ?? "—"}
+            {row.code ?? "Chưa có mã"}
           </Typography>
           <Typography variant="caption" color="text.secondary">
             #{row.id} · {formatDateTime(row.createdAt)}
@@ -347,18 +351,19 @@ export function TopicManageTable() {
               {row.teacher.name}
             </Typography>
             <Typography variant="caption" color="text.secondary">
-              {row.teacher.teacherId} · {row.teacher.departmentName ?? "—"}
+              {row.teacher.teacherId} ·{" "}
+              {row.teacher.departmentName ?? "Chưa rõ bộ môn"}
             </Typography>
             <Typography
               variant="caption"
               color="text.secondary"
               sx={{ display: "block" }}
             >
-              {row.teacher.facultyName ?? "—"}
+              {row.teacher.facultyName ?? "Chưa rõ khoa"}
             </Typography>
           </Box>
         ) : (
-          "—"
+          "Chưa có giảng viên hướng dẫn"
         ),
     },
     {
@@ -384,7 +389,7 @@ export function TopicManageTable() {
             {row.students.map((s) => (
               <Tooltip
                 key={s.projectId}
-                title={`${s.studentCode ?? "—"} · ${s.className ?? "—"} · ${s.statusLabel}`}
+                title={`${s.studentCode ?? "Chưa có MSSV"} · ${s.className ?? "Chưa có lớp"} · ${s.statusLabel}`}
               >
                 <Chip
                   size="small"
@@ -430,7 +435,7 @@ export function TopicManageTable() {
                   ? "REJECTED"
                   : null;
         if (!dominant)
-          return <Chip size="small" label="—" variant="outlined" />;
+          return <Chip size="small" label="Chưa có" variant="outlined" />;
         return (
           <Chip
             size="small"
@@ -655,7 +660,7 @@ export function TopicManageTable() {
               : selectedIds.length
                 ? `Sinh mã (${selectedIds.length})`
                 : "Sinh mã (toàn đợt)",
-            onClick: handleGenerateCodes,
+            onClick: () => setGenDialogOpen(true),
             variant: "outlined",
             disabled: busy,
           },
@@ -692,6 +697,12 @@ export function TopicManageTable() {
         open={!!auditTopic}
         topic={auditTopic}
         onClose={() => setAuditTopic(null)}
+      />
+      <GenerateCodeDialog
+        open={genDialogOpen}
+        onClose={() => setGenDialogOpen(false)}
+        onConfirm={handleGenerateCodes}
+        count={selectedIds.length > 0 ? selectedIds.length : total}
       />
       <SupplementalTopicDialog
         open={supplementalOpen}

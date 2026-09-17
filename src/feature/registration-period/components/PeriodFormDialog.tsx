@@ -51,6 +51,12 @@ export function PeriodFormDialog({
   const [departmentMaxStudents, setDepartmentMaxStudents] = useState("3");
   const [studentsError, setStudentsError] = useState(false);
 
+  // State cho học kỳ và năm học (controlled để tránh conflict với Select component)
+  const [semester, setSemester] = useState<string>(period?.semester || "1");
+  const [schoolYear, setSchoolYear] = useState<string>(
+    period?.schoolYear || "2025-2026",
+  );
+
   // Reset state when dialog opens
   useEffect(() => {
     // Chỉ reset khi dialog vừa được mở (open từ false -> true)
@@ -59,6 +65,8 @@ export function PeriodFormDialog({
       setDepartmentMaxStudents(
         period?.departmentStudentLimits?.[0]?.maxStudents?.toString() || "3",
       );
+      setSemester(period?.semester || "1");
+      setSchoolYear(period?.schoolYear || "2025-2026");
       setQuotaError(false);
       setStudentsError(false);
     }
@@ -145,8 +153,8 @@ export function PeriodFormDialog({
 
     const data: CreatePeriodInput = {
       name: formData.get("name") as string,
-      semester: formData.get("semester") as "1" | "2" | "3",
-      schoolYear: formData.get("schoolYear") as string,
+      semester: semester as "1" | "2" | "3",
+      schoolYear: schoolYear,
       startDate: formData.get("startDate") as string,
       teacherDeadline: formData.get("teacherDeadline") as string,
       studentDeadline: formData.get("studentDeadline") as string,
@@ -211,7 +219,8 @@ export function PeriodFormDialog({
               name="semester"
               label="Học kỳ"
               options={semesterOptions}
-              defaultValue={period?.semester || "1"}
+              value={semester}
+              onChange={(val) => setSemester(val)}
               required
               fullWidth
             />
@@ -219,7 +228,8 @@ export function PeriodFormDialog({
               name="schoolYear"
               label="Năm học"
               options={schoolYearOptions}
-              defaultValue={period?.schoolYear || "2025-2026"}
+              value={schoolYear}
+              onChange={(val) => setSchoolYear(val)}
               required
               fullWidth
             />

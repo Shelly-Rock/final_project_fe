@@ -477,7 +477,7 @@ export interface SupplementalTopicResult {
 export interface GenerateTopicCodesInput {
   periodId: number;
   topicIds?: number[];
-  departmentCode?: string;
+  prefix?: string;
   overwrite?: boolean;
 }
 

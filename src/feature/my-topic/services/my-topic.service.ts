@@ -16,6 +16,7 @@ interface BackendStudent {
   id?: number;
   studentId?: number;
   student_id?: number;
+  name?: string;
   studentName?: string;
   student_name?: string;
   studentCode?: string;
@@ -47,7 +48,15 @@ interface BackendTopic {
   status: string;
   is_exception: boolean;
   period_id: number;
+  periodId?: number;
   period_name?: string;
+  periodName?: string;
+  englishName?: string;
+  maxStudents?: number;
+  isSupplemental?: boolean;
+  isException?: boolean;
+  departmentName?: string;
+  rejectionReason?: string;
   teacher_id: number;
   teacher_name?: string;
   department_name?: string;
@@ -56,8 +65,11 @@ interface BackendTopic {
   registered_students?: BackendStudent[];
   registrations?: BackendStudent[];
   registration_status?: string;
+  registrationStatus?: string;
   created_at: string;
+  createdAt?: string;
   updated_at: string;
+  updatedAt?: string;
 }
 
 interface BackendProject {
@@ -101,23 +113,28 @@ function mapBackendToMyTopic(backend: BackendTopic): MyTopic {
     backend.registrations || backend.registered_students || [];
   return {
     id: backend.id,
-    periodId: backend.period_id,
-    periodName: backend.period_name || "",
+    code: backend.code || null,
+    periodId: backend.period_id || backend.periodId || 0,
+    periodName: backend.period_name || backend.periodName || "",
     name: backend.name,
-    englishName: backend.english_name,
+    englishName: backend.english_name || backend.englishName,
     description: backend.description,
     objectives: backend.objectives,
     technologies: backend.technologies,
-    maxStudents: backend.max_students,
+    maxStudents: backend.max_students || backend.maxStudents || 1,
     status: mapBackendStatusToTopicStatus(backend.status),
-    isException: backend.is_exception || false,
-    department: backend.department_name,
-    rejectionReason: backend.rejection_reason,
+    isException:
+      backend.is_exception ||
+      backend.isSupplemental ||
+      backend.isException ||
+      false,
+    department: backend.department_name || backend.departmentName,
+    rejectionReason: backend.rejection_reason || backend.rejectionReason,
     preAssignedStudents: [],
     registeredStudents: registrations.map((s: BackendStudent) => ({
       id: s.projectId || s.id || 0,
       studentId: s.studentId || s.student_id || 0,
-      studentName: s.studentName || s.student_name || "",
+      studentName: s.name || s.studentName || s.student_name || "",
       studentCode: s.studentCode || s.student_code || "",
       status: mapBackendStatusToRegistrationStatus(s.status || ""),
       registeredAt: s.registeredAt || s.registered_at || "",
@@ -135,12 +152,11 @@ function mapBackendToMyTopic(backend: BackendTopic): MyTopic {
           : undefined,
       rejectionReason: s.rejectionReason || s.rejection_reason,
     })),
-    registrationStatus: (backend.registration_status || "OPEN") as
-      | "OPEN"
-      | "FULL"
-      | "LOCKED",
-    createdAt: backend.created_at,
-    updatedAt: backend.updated_at,
+    registrationStatus: (backend.registration_status ||
+      backend.registrationStatus ||
+      "OPEN") as "OPEN" | "FULL" | "LOCKED",
+    createdAt: backend.created_at || backend.createdAt || "",
+    updatedAt: backend.updated_at || backend.updatedAt || "",
   };
 }
 
@@ -257,7 +273,9 @@ class MyTopicService {
     return pending;
   }
 
-  async approveRegistration(input: ApproveRegistrationInput): Promise<void> {
+  async approveRegistration(
+    input: ApproveRegistrationInput,
+  ): Promise<{ requiresAssignment?: boolean }> {
     const allTopics = await this.getAll();
     const topic = allTopics.find((t) => t.id === input.topicId);
     if (!topic) throw new Error("Topic not found");
@@ -267,12 +285,30 @@ class MyTopicService {
     );
     if (!registration) throw new Error("Registration not found");
 
-    await apiClient.post(
+    const { data } = await apiClient.post(
       `/topics/${input.topicId}/approvals/${registration.id}`,
       {
         decision: "APPROVE",
       },
     );
+    return data;
+  }
+
+  async lockWithAssignments(
+    topicId: number,
+    assignments: {
+      projectId: number;
+      assignedTask: string;
+      isLeader: boolean;
+    }[],
+  ): Promise<void> {
+    await apiClient.post(`/topics/${topicId}/lock-with-assignments`, {
+      assignments,
+    });
+  }
+
+  async changeLeader(topicId: number, projectId: number): Promise<void> {
+    await apiClient.put(`/topics/${topicId}/change-leader`, { projectId });
   }
 
   async rejectRegistration(input: RejectRegistrationInput): Promise<void> {

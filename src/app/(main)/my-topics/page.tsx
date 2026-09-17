@@ -133,14 +133,17 @@ export default function MyTopicsPage() {
 
   const handleToggleLock = async (topic: MyTopic) => {
     try {
-      const newLocked = topic.registrationStatus === "LOCKED";
-      await myTopicService.toggleLock(topic.id, newLocked);
-      refreshTopics();
-      toast.success(
-        newLocked
-          ? "Đã mở khóa đề tài. Sinh viên có thể đăng ký."
-          : "Đã khóa đề tài. Sinh viên không thể đăng ký.",
-      );
+      const isCurrentlyLocked = topic.registrationStatus === "LOCKED";
+
+      if (!isCurrentlyLocked) {
+        await myTopicService.toggleLock(topic.id, true);
+        refreshTopics();
+        toast.success("Đã khóa đề tài");
+      } else {
+        await myTopicService.toggleLock(topic.id, false);
+        refreshTopics();
+        toast.success("Đã mở khóa đề tài. Sinh viên có thể đăng ký.");
+      }
     } catch {
       toast.error("Không thể thay đổi trạng thái khóa đề tài");
     }
@@ -160,8 +163,13 @@ export default function MyTopicsPage() {
       }
       refreshTopics();
       setFormDialogOpen(false);
-    } catch {
-      toast.error(selectedTopic ? "Cập nhật thất bại" : "Tạo mới thất bại");
+    } catch (error: unknown) {
+      const errorMsg =
+        (error as { response?: { data?: { message?: string } } })?.response
+          ?.data?.message ||
+        (error as { message?: string })?.message ||
+        (selectedTopic ? "Cập nhật thất bại" : "Tạo mới thất bại");
+      toast.error(errorMsg);
     } finally {
       setFormLoading(false);
     }

@@ -14,10 +14,14 @@ export type ProgressStatus =
 
 /** Trạng thái báo cáo */
 export type ReportStatus =
+  | "PENDING_TEACHER"
+  | "REVISION_REQUESTED"
+  | "APPROVED_BY_TEACHER"
+  | "ARCHIVED"
   | "PENDING"
   | "APPROVED"
   | "REJECTED"
-  | "REVISION_REQUESTED";
+  | "MISSING";
 
 /** Loại template */
 export type TemplateType =
@@ -26,6 +30,12 @@ export type TemplateType =
   | "FINAL_REPORT"
   | "PROPOSAL"
   | "PRESENTATION";
+
+/** Giai đoạn */
+export type MilestoneType =
+  | "TOPIC_REGISTRATION"
+  | "PROGRESS_REPORT"
+  | "EXCEPTION_REQUEST";
 
 /** Loại thông báo */
 export type NotificationType =
@@ -38,16 +48,19 @@ export type NotificationType =
 
 // ---------- Core Entities ----------
 
-/** Thông tin template do giảng viên cung cấp */
+/** Thông tin template do thư ký cung cấp */
 export interface Template {
   id: number;
   name: string;
   description: string | null;
   type: TemplateType;
+  milestoneType: MilestoneType;
   fileUrl: string;
   fileName: string;
   fileSize: number;
-  teacherId: number;
+  departmentId: string | null;
+  periodId: number | null;
+  isCloned: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -70,6 +83,8 @@ export interface ProgressReport {
   teacherName?: string;
   reviewedBy: number | null;
   reviewedAt: string | null;
+  archivedBy: number | null;
+  archivedAt: string | null;
   createdAt: string;
   updatedAt: string;
 }
