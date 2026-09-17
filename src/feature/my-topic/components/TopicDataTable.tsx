@@ -21,6 +21,15 @@ interface TopicDataTableProps {
   onToggleLock?: (topic: MyTopic) => void;
 }
 
+const handleLockClick = (
+  row: MyTopic,
+  onToggleLock?: (topic: MyTopic) => void,
+) => {
+  if (confirm(`Bạn có chắc muốn khóa đề tài "${row.name}"?`)) {
+    onToggleLock?.(row);
+  }
+};
+
 const statusConfig: Record<
   string,
   { label: string; color: "success" | "warning" | "error" | "default" | "info" }
@@ -211,7 +220,7 @@ export function TopicDataTable({
           if (onToggleLock) onToggleLock(row);
         } else {
           // Khóa - hiện confirmation
-          handleLockClick(row);
+          handleLockClick(row, onToggleLock);
         }
       },
     },

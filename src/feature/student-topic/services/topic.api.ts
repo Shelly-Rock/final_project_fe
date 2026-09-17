@@ -71,6 +71,11 @@ interface MyRegistrationResponse {
       code?: string;
       name: string;
       description?: string;
+      englishName?: string;
+      objectives?: string;
+      technologies?: string;
+      teacherName?: string;
+      periodName?: string;
       teachers?: Array<{ name?: string; email?: string }>;
       teacher?: { name?: string; email?: string };
     };
@@ -178,28 +183,12 @@ class TopicApiService {
       topicId: String(registration.topic?.id ?? ""),
       topicCode: registration.topic?.code || undefined,
       topicName: registration.topic?.name || "",
-      topicEnglishName:
-        (registration.topic as Record<string, string | undefined>)
-          ?.englishName || "",
-      topicObjectives:
-        (registration.topic as Record<string, string | undefined>)
-          ?.objectives || "",
-      topicTechnologies:
-        (registration.topic as Record<string, string | undefined>)
-          ?.technologies || "",
-      topicDescription:
-        (registration.topic as Record<string, string | undefined>)
-          ?.description || "",
-      teacherName:
-        (registration.topic as Record<string, string | undefined>)
-          ?.teacherName ||
-        teacher?.name ||
-        "",
-      teacherEmail:
-        (registration.topic as Record<string, string | undefined>)
-          ?.teacherEmail ||
-        teacher?.email ||
-        "",
+      topicEnglishName: registration.topic?.englishName || "",
+      topicObjectives: registration.topic?.objectives || "",
+      topicTechnologies: registration.topic?.technologies || "",
+      topicDescription: registration.topic?.description || "",
+      teacherName: registration.topic?.teacherName || teacher?.name || "",
+      teacherEmail: teacher?.email || "",
       studentId: data.student?.studentCode || "",
       studentName: "",
       requestedAt: registration.registeredAt,
@@ -208,9 +197,7 @@ class TopicApiService {
       topicLocked: registration.topic?.locked,
       status: mapRegistrationUiStatus(registration.status),
       rejectionReason: registration.moderatorNote || undefined,
-      periodName:
-        (registration.topic as Record<string, string | undefined>)
-          ?.periodName || undefined,
+      periodName: registration.topic?.periodName || undefined,
     };
   }
 
