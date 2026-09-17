@@ -440,9 +440,10 @@ export default function StudentProgressPage() {
           <Box sx={{ p: 2 }}>
             <Alert severity="info" sx={{ mb: 2 }}>
               <Typography variant="body2">
-                <strong>Templates:</strong> Giảng viên hướng dẫn sẽ cung cấp các
-                biểu mẫu chuẩn (Template Word) để bạn viết báo cáo. Hãy tải về
-                và sử dụng theo đúng mẫu quy định.
+                <strong>Templates:</strong> Thư ký ngành sẽ cung cấp các biểu
+                mẫu chuẩn (Template Word) theo từng giai đoạn để bạn viết báo
+                cáo và nộp các biểu mẫu liên quan. Hãy tải về và sử dụng theo
+                đúng mẫu quy định.
               </Typography>
             </Alert>
             <TemplateList

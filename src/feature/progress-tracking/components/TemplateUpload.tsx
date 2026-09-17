@@ -33,13 +33,13 @@ import {
 } from "@mui/icons-material";
 import { toast } from "sonner";
 import { progressTrackingService } from "../services";
-import type { Template, TemplateType } from "../types";
+import type { Template, TemplateType, MilestoneType } from "../types";
+import { apiClient } from "@/shared/services/api-client";
 
 interface TemplateUploadDialogProps {
   open: boolean;
   onClose: () => void;
   onSuccess?: (template: Template) => void;
-  teacherId: number;
 }
 
 const TEMPLATE_TYPE_LABELS: Record<TemplateType, string> = {
@@ -58,13 +58,21 @@ const TEMPLATE_TYPE_DESCRIPTIONS: Record<TemplateType, string> = {
   PRESENTATION: "Template bài trình bày bảo vệ đề tài",
 };
 
+const MILESTONE_TYPE_LABELS: Record<string, string> = {
+  TOPIC_REGISTRATION: "Giai đoạn 1: Đăng ký đề tài",
+  PROGRESS_REPORT: "Giai đoạn 2: Báo cáo tiến độ",
+  EXCEPTION_REQUEST: "Giai đoạn 3: Ngoại lệ (Gia hạn, Hủy...)",
+};
+
 export function TemplateUploadDialog({
   open,
   onClose,
   onSuccess,
-  teacherId,
 }: TemplateUploadDialogProps) {
   const [type, setType] = useState<TemplateType>("MONTHLY_REPORT");
+  const [milestoneType, setMilestoneType] =
+    useState<MilestoneType>("PROGRESS_REPORT");
+  const [periodId, setPeriodId] = useState<number | "">("");
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [file, setFile] = useState<File | null>(null);
@@ -124,14 +132,23 @@ export function TemplateUploadDialog({
 
     setUploading(true);
     try {
-      // Upload file first (mock - in real app, upload to storage)
-      const fileUrl = `/uploads/${file.name}`;
+      // Upload file first using API client instead of mock string
+      const uploadRes = (await apiClient.uploadFile(
+        "/upload",
+        file,
+        "file",
+      )) as {
+        file_url?: string;
+        url?: string;
+      };
+
       const template = await progressTrackingService.createTemplate({
-        teacherId: teacherId,
         name: name.trim(),
         description: description.trim() || undefined,
         type,
-        fileUrl,
+        milestoneType,
+        periodId: periodId ? Number(periodId) : undefined,
+        fileUrl: uploadRes.file_url || uploadRes.url || `/uploads/${file.name}`,
         fileName: file.name,
         fileSize: file.size,
       });
@@ -147,6 +164,8 @@ export function TemplateUploadDialog({
 
   const handleClose = () => {
     setType("MONTHLY_REPORT");
+    setMilestoneType("PROGRESS_REPORT");
+    setPeriodId("");
     setName("");
     setDescription("");
     setFile(null);
@@ -159,16 +178,33 @@ export function TemplateUploadDialog({
       <DialogTitle>
         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
           <UploadIcon color="primary" />
-          Tải lên Template báo cáo
+          Tải lên Template biểu mẫu
         </Box>
       </DialogTitle>
 
       <DialogContent dividers>
         <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
           <Alert severity="info" sx={{ mb: 1 }}>
-            Giảng viên có thể cung cấp biểu mẫu chuẩn (Template Word) cho Sinh
-            viên viết báo cáo.
+            Thư ký ngành upload các biểu mẫu theo từng giai đoạn để Sinh viên
+            tải về và nộp lại.
           </Alert>
+
+          <FormControl fullWidth required>
+            <InputLabel>Giai đoạn</InputLabel>
+            <Select
+              value={milestoneType}
+              label="Giai đoạn"
+              onChange={(e) =>
+                setMilestoneType(e.target.value as MilestoneType)
+              }
+            >
+              {Object.entries(MILESTONE_TYPE_LABELS).map(([value, label]) => (
+                <MenuItem key={value} value={value}>
+                  {label}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
 
           <FormControl fullWidth required>
             <InputLabel>Loại template</InputLabel>
@@ -283,13 +319,15 @@ export function TemplateUploadDialog({
 
 interface TemplateListProps {
   onUploadClick?: () => void;
-  teacherId?: number;
+  departmentId?: string;
+  periodId?: number;
   showUploadButton?: boolean;
 }
 
 export function TemplateList({
   onUploadClick,
-  teacherId,
+  departmentId,
+  periodId,
   showUploadButton = true,
 }: TemplateListProps) {
   const [templates, setTemplates] = useState<Template[]>([]);
@@ -299,16 +337,17 @@ export function TemplateList({
   const loadTemplates = useCallback(async () => {
     setLoading(true);
     try {
-      const result = await progressTrackingService.getTemplates(
-        teacherId ? { teacherId } : undefined,
-      );
+      const result = await progressTrackingService.getTemplates({
+        departmentId: departmentId,
+        periodId: periodId,
+      });
       setTemplates(result.data);
     } catch {
       toast.error("Không thể tải danh sách template");
     } finally {
       setLoading(false);
     }
-  }, [teacherId]);
+  }, [departmentId, periodId]);
 
   useEffect(() => {
     loadTemplates();
@@ -407,6 +446,15 @@ export function TemplateList({
                 secondaryAction={
                   <Box sx={{ display: "flex", gap: 1 }}>
                     <Chip
+                      label={
+                        MILESTONE_TYPE_LABELS[template.milestoneType] ||
+                        template.milestoneType
+                      }
+                      size="small"
+                      color="secondary"
+                      variant="outlined"
+                    />
+                    <Chip
                       label={getTypeLabel(template.type)}
                       size="small"
                       color={getTypeChipColor(template.type)}
@@ -425,6 +473,7 @@ export function TemplateList({
                 </ListItemIcon>
                 <ListItemText
                   primary={template.name}
+                  secondaryTypographyProps={{ component: "div" }}
                   secondary={
                     <Box>
                       <Typography

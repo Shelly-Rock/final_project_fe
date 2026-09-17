@@ -26,6 +26,8 @@ export interface RegisteredStudent {
   studentName: string;
   studentCode: string;
   status: RegistrationStatus;
+  isLeader?: boolean;
+  assignedTask?: string;
   registeredAt: string;
   approvedAt?: string;
   approvedBy?: number;
@@ -50,6 +52,7 @@ export interface PreAssignedStudent {
  */
 export interface MyTopic {
   id: number;
+  code?: string | null;
   periodId: number;
   periodName: string;
   name: string;

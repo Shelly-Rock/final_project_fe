@@ -1,15 +1,6 @@
 "use client";
 
-// ============================================================
-// StudentSubmission — Giao diện nộp bài cuối kỳ (Sinh viên)
-//
-// Luồng upload theo Cách 2: Google Drive Resumable Upload
-//   Bước 1 — initDriveUpload: FE gọi BE → BE xin sessionUrl từ Google → trả về FE
-//   Bước 2 — uploadToDrive  : FE PUT file trực tiếp lên Google qua sessionUrl (có Progress)
-//   Bước 3 — confirmDriveUpload: FE báo BE → BE lưu driveFileId + webViewLink vào DB
-// ============================================================
-
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState } from "react";
 import {
   Box,
   Typography,
@@ -33,24 +24,16 @@ import {
 import { submissionService, type Submission } from "../services";
 import { toast } from "sonner";
 
-// ---------- Constants ----------
-
 const MAX_FILE_SIZE_MB = 150;
 const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
 const ALLOWED_EXTENSIONS = ["PDF", "DOCX", "PPTX"] as const;
 
-// ---------- Props ----------
-
 interface StudentSubmissionProps {
-  studentId: number;
-  projectId: number;
-  projectCode: string;
-  projectName: string;
-  /** true nếu sinh viên này là Đại diện/Trưởng nhóm — chỉ họ mới được nộp file */
-  isLeader: boolean;
+  topicId: number;
+  topicCode: string;
+  topicName: string;
+  isLeader?: boolean;
 }
-
-// ---------- Helpers ----------
 
 type AllowedExtension = (typeof ALLOWED_EXTENSIONS)[number];
 
@@ -68,15 +51,13 @@ function formatFileSize(bytes: number): string {
   return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`;
 }
 
-// ---------- Upload Stage ----------
-
 type UploadStage =
-  | "idle" // Chưa làm gì
-  | "requesting" // Đang gọi BE xin sessionUrl (Bước 1)
-  | "uploading" // Đang PUT file lên Google Drive (Bước 2)
-  | "confirming" // Đang gọi BE lưu vào DB (Bước 3)
-  | "done" // Hoàn tất
-  | "error"; // Thất bại
+  | "idle"
+  | "requesting"
+  | "uploading"
+  | "confirming"
+  | "done"
+  | "error";
 
 const STAGE_LABELS: Record<UploadStage, string> = {
   idle: "",
@@ -87,63 +68,26 @@ const STAGE_LABELS: Record<UploadStage, string> = {
   error: "Đã xảy ra lỗi",
 };
 
-// ============================================================
-// Component
-// ============================================================
-
 export default function StudentSubmission({
-  studentId,
-  projectId,
-  projectCode,
-  projectName,
   isLeader,
+  topicId,
+  topicCode,
+  topicName,
 }: StudentSubmissionProps) {
-  const [eligible, setEligible] = useState(false);
-  const [checking, setChecking] = useState(true);
+  const [eligible] = useState(true);
+  const [checking] = useState(true);
 
   const [file, setFile] = useState<File | null>(null);
   const [fileError, setFileError] = useState<string | null>(null);
 
   const [stage, setStage] = useState<UploadStage>("idle");
-  const [uploadProgress, setUploadProgress] = useState(0); // 0–100
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  // Submission đã được xác nhận thành công (Bước 3 trả về)
   const [submission, setSubmission] = useState<Submission | null>(null);
-
-  // ---- Check eligibility ----
-  const checkEligibility = useCallback(async () => {
-    setChecking(true);
-    try {
-      // 1. Kiểm tra xem sinh viên đã nộp bài chưa
-      const mySubmissions = await submissionService.getMySubmissions();
-      if (mySubmissions && mySubmissions.length > 0) {
-        setSubmission(mySubmissions[0]);
-        setStage("done"); // Đã nộp
-      }
-
-      // 2. Kiểm tra điều kiện nộp bài
-      const eligibleStudents = await submissionService.getEligibleStudents();
-      const isEligible = eligibleStudents.some((s) => s.id === studentId);
-      setEligible(isEligible);
-    } catch {
-      toast.error("Không thể kiểm tra điều kiện nộp bài");
-      // Fail-open: vẫn cho tương tác UI để không chặn oan
-      setEligible(true);
-    } finally {
-      setChecking(false);
-    }
-  }, [studentId]);
-
-  useEffect(() => {
-    checkEligibility();
-  }, [checkEligibility]);
-
-  // ---- File validation ----
   const validateAndSetFile = (selectedFile: File): boolean => {
     setFileError(null);
 
-    // 1. Kiểm tra dung lượng tối đa
     if (selectedFile.size > MAX_FILE_SIZE_BYTES) {
       const msg = `File vượt quá dung lượng tối đa cho phép (${MAX_FILE_SIZE_MB}MB). File của bạn: ${formatFileSize(selectedFile.size)}.`;
       setFileError(msg);
@@ -151,7 +95,6 @@ export default function StudentSubmission({
       return false;
     }
 
-    // 2. Kiểm tra định dạng file
     const rawExt = selectedFile.name.split(".").pop()?.toUpperCase() ?? "";
     if (!ALLOWED_EXTENSIONS.includes(rawExt as AllowedExtension)) {
       const msg = `Định dạng không hợp lệ. Chỉ chấp nhận: ${ALLOWED_EXTENSIONS.join(", ")}.`;
@@ -160,9 +103,7 @@ export default function StudentSubmission({
       return false;
     }
 
-    // 3. Kiểm tra chuẩn tên file: phải bắt đầu bằng [MãĐềTài] (không phân biệt hoa/thường)
-    //    Ví dụ hợp lệ: [DT001].PDF | [DT001].pdf | [DT001].DOCX
-    const expectedPrefix = `[${projectCode}]`;
+    const expectedPrefix = `[${topicCode}]`;
     if (
       !selectedFile.name.toLowerCase().startsWith(expectedPrefix.toLowerCase())
     ) {
@@ -177,7 +118,7 @@ export default function StudentSubmission({
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event.target.files?.[0];
-    event.target.value = ""; // Reset để có thể chọn lại cùng file nếu cần
+    event.target.value = "";
     if (!selectedFile) return;
 
     if (validateAndSetFile(selectedFile)) {
@@ -187,7 +128,6 @@ export default function StudentSubmission({
     }
   };
 
-  // ---- Main upload handler (3-step Resumable Upload) ----
   const handleSubmit = async () => {
     if (!file) {
       toast.error("Vui lòng chọn file để nộp");
@@ -204,16 +144,14 @@ export default function StudentSubmission({
     setUploadProgress(0);
 
     try {
-      // ── Bước 1: Gọi BE xin Google Drive sessionUrl ──────────────────────
       setStage("requesting");
       const session = await submissionService.initDriveUpload({
-        projectId,
+        topicId,
         fileName: file.name,
         fileSize: file.size,
         mimeType: file.type || "application/octet-stream",
       });
 
-      // ── Bước 2: PUT file trực tiếp lên Google qua sessionUrl ────────────
       setStage("uploading");
       await submissionService.uploadToDrive(
         session.sessionUrl,
@@ -221,10 +159,9 @@ export default function StudentSubmission({
         (percent) => setUploadProgress(percent),
       );
 
-      // ── Bước 3: Báo BE xác nhận và lưu vào Database ─────────────────────
       setStage("confirming");
       const confirmed = await submissionService.confirmDriveUpload({
-        projectId,
+        topicId,
         driveFileId: session.driveFileId,
         webViewLink: session.webViewLink,
         fileName: file.name,
@@ -249,9 +186,6 @@ export default function StudentSubmission({
   const isUploading =
     stage === "requesting" || stage === "uploading" || stage === "confirming";
 
-  // ============================================================
-  // Render: Loading trạng thái eligibility
-  // ============================================================
   if (checking) {
     return (
       <Box
@@ -274,9 +208,6 @@ export default function StudentSubmission({
     );
   }
 
-  // ============================================================
-  // Render: Chặn nếu không phải Trưởng nhóm
-  // ============================================================
   if (!isLeader) {
     return (
       <Box sx={{ maxWidth: 600, mx: "auto", mt: 4 }}>
@@ -292,9 +223,9 @@ export default function StudentSubmission({
                 Không có quyền nộp bài
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                Chỉ <strong>Đại diện nhóm</strong> mới được phép tải lên tài
-                liệu báo cáo. Vui lòng liên hệ trưởng nhóm của bạn để thực hiện
-                thao tác này.
+                Chỉ <strong>Trưởng Nhóm</strong> mới được phép tải lên tài liệu
+                báo cáo. Vui lòng liên hệ trưởng nhóm của bạn để thực hiện thao
+                tác này.
               </Typography>
             </Box>
           </CardContentDiv>
@@ -303,9 +234,6 @@ export default function StudentSubmission({
     );
   }
 
-  // ============================================================
-  // Render: Nộp bài thành công
-  // ============================================================
   if (stage === "done" && submission) {
     return (
       <Box sx={{ maxWidth: 600, mx: "auto", mt: 4 }}>
@@ -325,7 +253,6 @@ export default function StudentSubmission({
                 duyệt.
               </Typography>
 
-              {/* Thông tin file đã nộp */}
               <Paper
                 variant="outlined"
                 sx={{ p: 2, textAlign: "left", borderRadius: 2, mb: 3 }}
@@ -343,7 +270,6 @@ export default function StudentSubmission({
                 </Typography>
               </Paper>
 
-              {/* Link xem file trực tiếp trên Google Drive */}
               {submission.fileUrl && (
                 <Button
                   variant="outlined"
@@ -361,15 +287,11 @@ export default function StudentSubmission({
     );
   }
 
-  // ============================================================
-  // Render: Form nộp bài chính
-  // ============================================================
   return (
     <Box sx={{ maxWidth: 600, mx: "auto", mt: 4 }}>
       <Card>
         <CardHeader title="Nộp bài cuối kỳ" />
         <CardContentDiv padding={3}>
-          {/* Cảnh báo chưa đủ điều kiện */}
           {!eligible && (
             <Alert severity="warning" sx={{ mb: 3 }}>
               <Typography variant="body2">
@@ -379,25 +301,23 @@ export default function StudentSubmission({
             </Alert>
           )}
 
-          {/* Thông tin đề tài */}
           <Box sx={{ display: "flex", gap: 3, mb: 3 }}>
             <Box>
               <Typography variant="caption" color="text.secondary">
                 Mã đề tài
               </Typography>
               <Typography variant="body1" sx={{ fontWeight: 700 }}>
-                {projectCode}
+                {topicCode}
               </Typography>
             </Box>
             <Box sx={{ flex: 1 }}>
               <Typography variant="caption" color="text.secondary">
                 Tên đề tài
               </Typography>
-              <Typography variant="body1">{projectName}</Typography>
+              <Typography variant="body1">{topicName}</Typography>
             </Box>
           </Box>
 
-          {/* Hướng dẫn quy cách file */}
           <Alert
             severity="info"
             icon={<AlertTriangle size={18} />}
@@ -410,8 +330,8 @@ export default function StudentSubmission({
               variant="body2"
               sx={{ fontFamily: "monospace", mt: 0.5 }}
             >
-              [{projectCode}].PDF &nbsp;|&nbsp; [{projectCode}].DOCX
-              &nbsp;|&nbsp; [{projectCode}].PPTX
+              [{topicCode}].PDF &nbsp;|&nbsp; [{topicCode}].DOCX &nbsp;|&nbsp; [
+              {topicCode}].PPTX
             </Typography>
             <Typography
               variant="caption"
@@ -422,7 +342,6 @@ export default function StudentSubmission({
             </Typography>
           </Alert>
 
-          {/* Khu vực kéo thả / chọn file */}
           <Paper
             sx={{
               p: 4,
@@ -493,14 +412,12 @@ export default function StudentSubmission({
             )}
           </Paper>
 
-          {/* Lỗi validate file */}
           {fileError && (
             <Alert severity="error" sx={{ mb: 2 }}>
               {fileError}
             </Alert>
           )}
 
-          {/* Progress Bar — chỉ hiển thị khi đang upload */}
           {isUploading && (
             <Box sx={{ mb: 3 }}>
               <Box
@@ -529,7 +446,6 @@ export default function StudentSubmission({
             </Box>
           )}
 
-          {/* Lỗi upload */}
           {stage === "error" && errorMessage && (
             <Alert
               severity="error"
@@ -544,7 +460,6 @@ export default function StudentSubmission({
             </Alert>
           )}
 
-          {/* Nút Nộp bài */}
           <Button
             variant="contained"
             size="large"
@@ -562,7 +477,6 @@ export default function StudentSubmission({
             {isUploading ? STAGE_LABELS[stage] : "Nộp bài"}
           </Button>
 
-          {/* Ghi chú không thể thay đổi sau khi nộp */}
           <Typography
             variant="caption"
             color="text.secondary"

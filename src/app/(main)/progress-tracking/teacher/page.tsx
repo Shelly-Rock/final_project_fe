@@ -22,7 +22,6 @@ import {
 } from "@mui/material";
 import {
   Description as DescriptionIcon,
-  CloudUpload as UploadIcon,
   Refresh as RefreshIcon,
   Notifications as NotificationsIcon,
   Block as BlockIcon,
@@ -30,8 +29,6 @@ import {
 } from "@mui/icons-material";
 import { toast } from "sonner";
 import {
-  TemplateUploadDialog,
-  TemplateList,
   StudentProgressTable,
   ProgressStatsCards,
   BanWarningsList,
@@ -368,7 +365,6 @@ function PendingReportsList({
 
 export default function TeacherProgressPage() {
   const [tabValue, setTabValue] = useState(0);
-  const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
   const [statusDialogOpen, setStatusDialogOpen] = useState(false);
   const [notificationDrawerOpen, setNotificationDrawerOpen] = useState(false);
   const [selectedStudent, setSelectedStudent] =
@@ -414,13 +410,6 @@ export default function TeacherProgressPage() {
             alignItems: "center",
           }}
         >
-          <Button
-            variant="contained"
-            startIcon={<UploadIcon />}
-            onClick={() => setUploadDialogOpen(true)}
-          >
-            Tải lên Template
-          </Button>
           <AutoBanCheckComponent />
           <Button
             variant="outlined"
@@ -467,7 +456,6 @@ export default function TeacherProgressPage() {
             icon={<BlockIcon />}
             iconPosition="start"
           />
-          <Tab label="Templates" icon={<UploadIcon />} iconPosition="start" />
         </Tabs>
 
         <TabPanel value={tabValue} index={0}>
@@ -498,25 +486,7 @@ export default function TeacherProgressPage() {
             }}
           />
         </TabPanel>
-
-        <TabPanel value={tabValue} index={3}>
-          <TemplateList
-            teacherId={MOCK_TEACHER.id}
-            onUploadClick={() => setUploadDialogOpen(true)}
-          />
-        </TabPanel>
       </Paper>
-
-      {/* Upload Template Dialog */}
-      <TemplateUploadDialog
-        open={uploadDialogOpen}
-        onClose={() => setUploadDialogOpen(false)}
-        teacherId={MOCK_TEACHER.id}
-        onSuccess={() => {
-          toast.success("Template đã được tải lên");
-          handleRefresh();
-        }}
-      />
 
       {/* Status Update Dialog */}
       <StatusUpdateDialog

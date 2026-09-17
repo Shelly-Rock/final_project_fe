@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { apiClient } from "@/shared/services/api-client";
+﻿import { apiClient } from "@/shared/services/api-client";
 
 const API_BASE = "/submissions";
 
@@ -9,7 +8,7 @@ export type SubmissionType = "WORD" | "PDF" | "POWERPOINT";
 export interface Submission {
   id: number;
   studentId: number;
-  projectId: number;
+  topicId: number;
   fileUrl: string;
   fileName: string;
   originalName: string;
@@ -57,39 +56,114 @@ export interface DriveUploadSession {
   sessionUrl: string;
   driveFileId: string;
   webViewLink: string;
+  session_url?: string;
+  drive_file_id?: string;
+  web_view_link?: string;
 }
 
-function mapSubmission(raw: any): Submission {
+interface RawSubmission {
+  id: number;
+  student_id?: number;
+  topic_id?: number;
+  file_url?: string;
+  file_name?: string;
+  original_name?: string;
+  file_size?: number;
+  file_type?: SubmissionType;
+  status?: SubmissionStatus;
+  submitted_at?: string;
+  reviewed_by?: number;
+  reviewed_at?: string;
+  rejection_reason?: string;
+  student_name?: string;
+  student_mssv?: string;
+  project_code?: string;
+  project_name?: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
+interface EligibilityResponse {
+  eligible?: boolean;
+  reason?: string;
+  isLeader?: boolean;
+}
+
+interface PaginatedRawSubmissionResponse {
+  data?: RawSubmission[];
+  total?: number;
+  page?: number;
+  limit?: number;
+  totalPages?: number;
+}
+
+interface RawEligibleStudent {
+  id: number;
+  student_id: number;
+  name: string;
+  class_name?: string;
+  project_code?: string;
+  project_name?: string;
+  email?: string;
+}
+
+interface StatsSummaryResponse {
+  total?: number;
+  pending?: number;
+  approved?: number;
+  rejected?: number;
+}
+
+interface EligibleStudentResponse {
+  data?: RawEligibleStudent[];
+}
+
+function mapSubmission(raw: RawSubmission): Submission {
   return {
     id: raw.id,
-    studentId: raw.student_id,
-    projectId: raw.project_id,
-    fileUrl: raw.file_url,
-    fileName: raw.file_name,
-    originalName: raw.original_name,
-    fileSize: raw.file_size,
-    fileType: raw.file_type,
-    status: raw.status,
-    submittedAt: raw.submitted_at,
-    reviewedBy: raw.reviewed_by,
-    reviewedAt: raw.reviewed_at,
-    rejectionReason: raw.rejection_reason,
-    studentName: raw.student_name,
-    studentMssv: raw.student_mssv,
-    projectCode: raw.project_code,
-    projectName: raw.project_name,
-    createdAt: raw.created_at,
-    updatedAt: raw.updated_at,
+    studentId: raw.student_id || 0,
+    topicId: raw.topic_id || 0,
+    fileUrl: raw.file_url || "",
+    fileName: raw.file_name || "",
+    originalName: raw.original_name || "",
+    fileSize: raw.file_size || 0,
+    fileType: raw.file_type as SubmissionType,
+    status: raw.status as SubmissionStatus,
+    submittedAt: raw.submitted_at || "",
+    reviewedBy: raw.reviewed_by ?? null,
+    reviewedAt: raw.reviewed_at ?? null,
+    rejectionReason: raw.rejection_reason ?? null,
+    studentName: raw.student_name || "",
+    studentMssv: raw.student_mssv || "",
+    projectCode: raw.project_code || "",
+    projectName: raw.project_name || "",
+    createdAt: raw.created_at || "",
+    updatedAt: raw.updated_at || "",
   };
 }
 
 class SubmissionService {
+  async getMyEligibility(): Promise<{
+    eligible: boolean;
+    reason?: string;
+    isLeader?: boolean;
+  }> {
+    const response = await apiClient.get<EligibilityResponse>(
+      `${API_BASE}/my/eligibility`,
+    );
+    return {
+      eligible: !!response.eligible,
+      reason: response.reason,
+      isLeader: response.isLeader,
+    };
+  }
+
   async getSubmissions(params?: {
     page?: number;
     limit?: number;
     status?: SubmissionStatus;
     studentId?: number;
-    projectId?: number;
+    topicId?: number;
   }): Promise<PaginatedResult<Submission>> {
     const searchParams = new URLSearchParams();
     if (params?.page) searchParams.set("page", String(params.page));
@@ -97,10 +171,9 @@ class SubmissionService {
     if (params?.status) searchParams.set("status", params.status);
     if (params?.studentId)
       searchParams.set("student_id", String(params.studentId));
-    if (params?.projectId)
-      searchParams.set("project_id", String(params.projectId));
+    if (params?.topicId) searchParams.set("topic_id", String(params.topicId));
 
-    const response: any = await apiClient.get(
+    const response = await apiClient.get<PaginatedRawSubmissionResponse>(
       `${API_BASE}?${searchParams.toString()}`,
     );
     return {
@@ -113,26 +186,26 @@ class SubmissionService {
   }
 
   async getSubmissionById(id: number): Promise<Submission> {
-    const response: any = await apiClient.get(`${API_BASE}/${id}`);
+    const response = await apiClient.get<RawSubmission>(`${API_BASE}/${id}`);
     return mapSubmission(response);
   }
 
   async getMySubmissions(): Promise<Submission[]> {
-    const response: any = await apiClient.get(`${API_BASE}/my`);
+    const response = await apiClient.get<RawSubmission[]>(`${API_BASE}/my`);
     return response.map(mapSubmission);
   }
 
   async createSubmission(data: {
     studentId?: number;
-    projectId: number;
+    topicId: number;
     fileUrl: string;
     fileName: string;
     originalName: string;
     fileSize: number;
     fileType?: SubmissionType;
   }): Promise<Submission> {
-    const response: any = await apiClient.post(API_BASE, {
-      project_id: data.projectId,
+    const response = await apiClient.post<RawSubmission>(API_BASE, {
+      topic_id: data.topicId,
       file_url: data.fileUrl,
       file_name: data.fileName,
       original_name: data.originalName,
@@ -150,29 +223,36 @@ class SubmissionService {
     },
     _reviewerId?: number,
   ): Promise<Submission> {
-    const response: any = await apiClient.put(`${API_BASE}/${id}/review`, {
-      status: data.status,
-      rejection_reason: data.rejectionReason,
-    });
+    const response = await apiClient.put<RawSubmission>(
+      `${API_BASE}/${id}/review`,
+      {
+        status: data.status,
+        rejection_reason: data.rejectionReason,
+      },
+    );
     return mapSubmission(response);
   }
 
   async getEligibleStudents(): Promise<EligibleStudent[]> {
-    const response: any = await apiClient.get(`${API_BASE}/eligible-students`);
+    const response = await apiClient.get<
+      RawEligibleStudent[] | EligibleStudentResponse
+    >(`${API_BASE}/eligible-students`);
     const students = Array.isArray(response) ? response : response.data || [];
-    return students.map((raw: any) => ({
+    return students.map((raw: RawEligibleStudent) => ({
       id: raw.id,
-      studentId: raw.student_id,
+      studentId: String(raw.student_id),
       name: raw.name,
-      className: raw.class_name,
-      projectCode: raw.project_code,
-      projectName: raw.project_name,
-      email: raw.email,
+      className: raw.class_name || "",
+      projectCode: raw.project_code || "",
+      projectName: raw.project_name || "",
+      email: raw.email || "",
     }));
   }
 
   async getStats(): Promise<SubmissionStats> {
-    const response: any = await apiClient.get(`${API_BASE}/stats/summary`);
+    const response = await apiClient.get<StatsSummaryResponse>(
+      `${API_BASE}/stats/summary`,
+    );
     return {
       total: response.total || 0,
       pending: response.pending || 0,
@@ -182,30 +262,30 @@ class SubmissionService {
   }
 
   async initDriveUpload(data: {
-    projectId: number;
+    topicId: number;
     fileName: string;
     fileSize: number;
     mimeType: string;
   }): Promise<DriveUploadSession> {
-    const response: any = await apiClient.post(
+    const response = await apiClient.post<DriveUploadSession>(
       `${API_BASE}/drive/init-upload`,
       {
-        projectId: data.projectId,
+        topicId: data.topicId,
         fileName: data.fileName,
         fileSize: data.fileSize,
         mimeType: data.mimeType,
       },
     );
     return {
-      sessionUrl: response.sessionUrl || response.session_url,
-      driveFileId: response.driveFileId || response.drive_file_id,
-      webViewLink: response.webViewLink || response.web_view_link,
+      sessionUrl: response.sessionUrl || response.session_url || "",
+      driveFileId: response.driveFileId || response.drive_file_id || "",
+      webViewLink: response.webViewLink || response.web_view_link || "",
     };
   }
 
   /**
    * Bước 2: FE tự PUT file trực tiếp lên Google Drive qua sessionUrl.
-   * Dùng XMLHttpRequest thay vì fetch để có thể lắng nghe sự kiện upload progress.
+   * Dùng XMLHttpRequest thay vì fetch để có thỒ lắng nghe sự kiện upload progress.
    * @param onProgress Callback nhận vào % đã upload (0–100)
    */
   uploadToDrive(
@@ -215,8 +295,6 @@ class SubmissionService {
   ): Promise<void> {
     return new Promise((resolve, reject) => {
       const xhr = new XMLHttpRequest();
-
-      // Lắng nghe sự kiện progress để cập nhật thanh % cho UI
       xhr.upload.addEventListener("progress", (event) => {
         if (event.lengthComputable && onProgress) {
           const percent = Math.round((event.loaded / event.total) * 100);
@@ -225,7 +303,6 @@ class SubmissionService {
       });
 
       xhr.addEventListener("load", () => {
-        // Google Drive trả 200 hoặc 308 là thành công
         if (xhr.status === 200 || xhr.status === 308) {
           resolve();
         } else {
@@ -243,37 +320,34 @@ class SubmissionService {
         reject(new Error("Upload đã bị hủy."));
       });
 
-      // PUT trực tiếp lên sessionUrl của Google (không cần Auth header — URL đã chứa token tạm)
       xhr.open("PUT", sessionUrl);
       xhr.setRequestHeader("Content-Type", file.type);
       xhr.send(file);
     });
   }
 
-  /**
-   * Bước 3: Sau khi file đã lên Drive, gọi BE để lưu thông tin vào Database.
-   * BE sẽ map driveFileId với projectId và lưu webViewLink để Giám khảo có thể xem file.
-   */
   async confirmDriveUpload(data: {
-    projectId: number;
+    topicId: number;
     driveFileId: string;
     webViewLink: string;
     fileName: string;
     fileSize: number;
     fileType?: SubmissionType;
   }): Promise<Submission> {
-    const response: any = await apiClient.post(`${API_BASE}/drive/confirm`, {
-      projectId: data.projectId,
-      driveFileId: data.driveFileId,
-      webViewLink: data.webViewLink,
-      fileName: data.fileName,
-      fileSize: data.fileSize,
-      fileType: data.fileType,
-    });
+    const response = await apiClient.post<RawSubmission>(
+      `${API_BASE}/drive/confirm`,
+      {
+        topicId: data.topicId,
+        driveFileId: data.driveFileId,
+        webViewLink: data.webViewLink,
+        fileName: data.fileName,
+        fileSize: data.fileSize,
+        fileType: data.fileType,
+      },
+    );
     return mapSubmission(response);
   }
 }
 
-// ---------- Singleton Export ----------
 export const submissionService = new SubmissionService();
 export default submissionService;

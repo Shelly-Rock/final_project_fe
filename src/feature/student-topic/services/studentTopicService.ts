@@ -24,7 +24,11 @@ export const studentTopicService = {
     return topicApiService.registerTopic(Number(topicId));
   },
 
-  async exportConfirmationPdf(registrationId: string): Promise<void> {
+  async cancelRegistration(topicId: string): Promise<void> {
+    await topicApiService.cancelRegistration(Number(topicId));
+  },
+
+  async exportConfirmationPdf(_registrationId: string): Promise<void> {
     await new Promise((resolve) => setTimeout(resolve, 1500));
   },
 

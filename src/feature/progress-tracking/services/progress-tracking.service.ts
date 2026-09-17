@@ -16,11 +16,19 @@ export type TemplateType =
   | "FINAL_REPORT"
   | "PROPOSAL"
   | "PRESENTATION";
+export type MilestoneType =
+  | "TOPIC_REGISTRATION"
+  | "PROGRESS_REPORT"
+  | "EXCEPTION_REQUEST";
 export type ReportStatus =
+  | "PENDING_TEACHER"
+  | "REVISION_REQUESTED"
+  | "APPROVED_BY_TEACHER"
+  | "ARCHIVED"
   | "PENDING"
   | "APPROVED"
   | "REJECTED"
-  | "REVISION_REQUESTED";
+  | "MISSING";
 export type ProgressStatus =
   | "ON_TRACK"
   | "EXTENDED"
@@ -39,10 +47,13 @@ export interface Template {
   name: string;
   description: string | null;
   type: TemplateType;
+  milestoneType: MilestoneType;
   fileUrl: string;
   fileName: string;
   fileSize: number;
-  teacherId: number;
+  departmentId: string | null;
+  periodId: number | null;
+  isCloned: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -64,6 +75,8 @@ export interface ProgressReport {
   teacherName?: string;
   reviewedBy: number | null;
   reviewedAt: string | null;
+  archivedBy: number | null;
+  archivedAt: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -137,10 +150,13 @@ function mapTemplate(raw: any): Template {
     name: raw.name,
     description: raw.description,
     type: raw.type,
+    milestoneType: raw.milestone_type || "PROGRESS_REPORT",
     fileUrl: raw.file_url,
     fileName: raw.file_name,
     fileSize: raw.file_size,
-    teacherId: raw.teacher_id,
+    departmentId: raw.department_id,
+    periodId: raw.period_id,
+    isCloned: raw.is_cloned,
     createdAt: raw.created_at,
     updatedAt: raw.updated_at,
   };
@@ -164,6 +180,8 @@ function mapReport(raw: any): ProgressReport {
     teacherName: raw.teacher_name,
     reviewedBy: raw.reviewed_by,
     reviewedAt: raw.reviewed_at,
+    archivedBy: raw.archived_by,
+    archivedAt: raw.archived_at,
     createdAt: raw.created_at,
     updatedAt: raw.updated_at,
   };
@@ -229,14 +247,20 @@ class ProgressTrackingService {
     page?: number;
     limit?: number;
     type?: TemplateType;
-    teacherId?: number;
+    milestoneType?: MilestoneType;
+    departmentId?: string;
+    periodId?: number;
   }): Promise<PaginatedResult<Template>> {
     const searchParams = new URLSearchParams();
     if (params?.page) searchParams.set("page", String(params.page));
     if (params?.limit) searchParams.set("limit", String(params.limit));
     if (params?.type) searchParams.set("type", params.type);
-    if (params?.teacherId)
-      searchParams.set("teacher_id", String(params.teacherId));
+    if (params?.milestoneType)
+      searchParams.set("milestone_type", params.milestoneType);
+    if (params?.departmentId)
+      searchParams.set("department_id", params.departmentId);
+    if (params?.periodId)
+      searchParams.set("period_id", String(params.periodId));
 
     const response: any = await apiClient.get(
       `${API_BASE}/templates?${searchParams.toString()}`,
@@ -256,10 +280,11 @@ class ProgressTrackingService {
   }
 
   async createTemplate(data: {
-    teacherId?: number;
     name: string;
     description?: string;
     type: TemplateType;
+    milestoneType?: MilestoneType;
+    periodId?: number;
     fileUrl: string;
     fileName: string;
     fileSize: number;
@@ -268,11 +293,23 @@ class ProgressTrackingService {
       name: data.name,
       description: data.description,
       type: data.type,
+      milestone_type: data.milestoneType,
+      period_id: data.periodId,
       file_url: data.fileUrl,
       file_name: data.fileName,
       file_size: data.fileSize,
     });
     return mapTemplate(response);
+  }
+
+  async cloneTemplates(data: {
+    fromPeriodId: number;
+    toPeriodId: number;
+  }): Promise<{ message: string }> {
+    return apiClient.post(`${API_BASE}/templates/clone`, {
+      from_period_id: data.fromPeriodId,
+      to_period_id: data.toPeriodId,
+    });
   }
 
   async deleteTemplate(id: number): Promise<void> {
@@ -337,16 +374,28 @@ class ProgressTrackingService {
   async reviewReport(data: {
     reportId: number;
     reviewerId?: number;
-    status: ReportStatus;
+    action?: "APPROVE" | "REJECT";
+    status?: ReportStatus;
     feedback?: string;
     score?: number;
   }): Promise<ProgressReport> {
     const response: any = await apiClient.put(
       `${API_BASE}/reports/${data.reportId}/review`,
       {
+        action: data.action,
         status: data.status,
         feedback: data.feedback,
         score: data.score,
+      },
+    );
+    return mapReport(response);
+  }
+
+  async archiveReport(reportId: number): Promise<ProgressReport> {
+    const response: any = await apiClient.put(
+      `${API_BASE}/reports/${reportId}/archive`,
+      {
+        action: "ARCHIVE",
       },
     );
     return mapReport(response);

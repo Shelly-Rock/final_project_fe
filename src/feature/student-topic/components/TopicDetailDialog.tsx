@@ -1,7 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { Box, Typography, Divider, Alert, Tabs, Tab } from "@mui/material";
+import {
+  Box,
+  Typography,
+  Divider,
+  Alert,
+  Tabs,
+  Tab,
+  Chip,
+} from "@mui/material";
 import {
   User,
   Mail,
@@ -16,6 +24,7 @@ import {
 } from "lucide-react";
 import { Dialog, Button, Badge } from "@/shared/components";
 import type { AvailableTopic, RegistrationRequest } from "../types";
+import { TopicDetailBlock } from "./TopicDetailBlock";
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -172,7 +181,20 @@ export function TopicDetailDialog({
     <Dialog
       open={open}
       onClose={onClose}
-      title={topic.name}
+      title={
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          {topic.code && (
+            <Chip
+              label={`Mã: ${topic.code}`}
+              size="small"
+              color="primary"
+              variant="outlined"
+              sx={{ fontFamily: "monospace", fontWeight: 600 }}
+            />
+          )}
+          <span>{topic.name}</span>
+        </Box>
+      }
       description={
         topic.englishName
           ? `English: ${topic.englishName}`
@@ -255,50 +277,26 @@ export function TopicDetailDialog({
         {/* Tab 1: Thông tin đề tài */}
         <TabPanel value={activeTab} index={0}>
           <Box sx={{ display: "flex", flexDirection: "column", gap: 2.5 }}>
-            {/* Giảng viên */}
-            <Box>
-              <Box
-                sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}
-              >
-                <User size={14} style={{ color: "#2563eb" }} />
-                <Typography variant="caption" color="text.secondary">
-                  Giảng viên hướng dẫn
-                </Typography>
-              </Box>
-              <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                {topic.teacherName}
-              </Typography>
-            </Box>
+            <TopicDetailBlock
+              icon={<User size={14} style={{ color: "#2563eb" }} />}
+              label="Giảng viên hướng dẫn"
+              content={topic.teacherName}
+              valueFontWeight={500}
+            />
 
-            {/* Email */}
-            <Box>
-              <Box
-                sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}
-              >
-                <Mail size={14} style={{ color: "#2563eb" }} />
-                <Typography variant="caption" color="text.secondary">
-                  Email giảng viên
-                </Typography>
-              </Box>
-              <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                {topic.teacherEmail}
-              </Typography>
-            </Box>
+            <TopicDetailBlock
+              icon={<Mail size={14} style={{ color: "#2563eb" }} />}
+              label="Email giảng viên"
+              content={topic.teacherEmail}
+              valueFontWeight={500}
+            />
 
-            {/* Khoa */}
-            <Box>
-              <Box
-                sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}
-              >
-                <Building2 size={14} style={{ color: "#2563eb" }} />
-                <Typography variant="caption" color="text.secondary">
-                  Khoa
-                </Typography>
-              </Box>
-              <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                {topic.department}
-              </Typography>
-            </Box>
+            <TopicDetailBlock
+              icon={<Building2 size={14} style={{ color: "#2563eb" }} />}
+              label="Khoa"
+              content={topic.department}
+              valueFontWeight={500}
+            />
 
             {/* Sĩ số */}
             <Box>
@@ -338,63 +336,25 @@ export function TopicDetailDialog({
 
             <Divider />
 
-            {/* Mô tả đề tài */}
-            <Box>
-              <Box
-                sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}
-              >
-                <BookOpen size={14} style={{ color: "#2563eb" }} />
-                <Typography variant="caption" color="text.secondary">
-                  Mô tả đề tài
-                </Typography>
-              </Box>
-              <Typography
-                variant="body2"
-                sx={{ lineHeight: 1.6, whiteSpace: "pre-wrap" }}
-              >
-                {topic.description || "Chưa có mô tả"}
-              </Typography>
-            </Box>
+            <TopicDetailBlock
+              icon={<BookOpen size={14} style={{ color: "#2563eb" }} />}
+              label="Mô tả đề tài"
+              content={topic.description || "Chưa có mô tả"}
+            />
 
-            {/* Mục tiêu đề tài */}
-            {topic.objectives && (
-              <Box>
-                <Box
-                  sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}
-                >
-                  <Target size={14} style={{ color: "#2563eb" }} />
-                  <Typography variant="caption" color="text.secondary">
-                    Mục tiêu đề tài
-                  </Typography>
-                </Box>
-                <Typography
-                  variant="body2"
-                  sx={{ lineHeight: 1.6, whiteSpace: "pre-wrap" }}
-                >
-                  {topic.objectives}
-                </Typography>
-              </Box>
-            )}
+            <TopicDetailBlock
+              icon={<Target size={14} style={{ color: "#2563eb" }} />}
+              label="Mục tiêu đề tài"
+              content={topic.objectives}
+              isHtml={true}
+            />
 
-            {/* Công nghệ sử dụng */}
-            {topic.technologies && (
-              <Box>
-                <Box
-                  sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}
-                >
-                  <Monitor size={14} style={{ color: "#2563eb" }} />
-                  <Typography variant="caption" color="text.secondary">
-                    Công nghệ sử dụng
-                  </Typography>
-                </Box>
-                <Typography
-                  variant="body2"
-                  sx={{ lineHeight: 1.6, whiteSpace: "pre-wrap" }}
-                >
-                  {topic.technologies}
-                </Typography>
-              </Box>
-            )}
+            <TopicDetailBlock
+              icon={<Monitor size={14} style={{ color: "#2563eb" }} />}
+              label="Công nghệ sử dụng"
+              content={topic.technologies}
+              isHtml={true}
+            />
           </Box>
         </TabPanel>
 
