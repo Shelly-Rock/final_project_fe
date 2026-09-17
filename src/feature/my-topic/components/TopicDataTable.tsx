@@ -1,17 +1,8 @@
 "use client";
 
-import { useState } from "react";
 import { Edit as EditIcon, Delete as DeleteIcon } from "@mui/icons-material";
 import { RefreshCw, Plus, AlertTriangle, Lock, Unlock } from "lucide-react";
-import {
-  Box,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
-  Typography,
-} from "@mui/material";
+import { Chip, Box } from "@mui/material";
 import { DataTable } from "@/shared/components";
 import { Badge } from "@/shared/components";
 import type { Column, Action, HeaderAction } from "@/shared/components";
@@ -29,6 +20,15 @@ interface TopicDataTableProps {
   onRefresh: () => void;
   onToggleLock?: (topic: MyTopic) => void;
 }
+
+const handleLockClick = (
+  row: MyTopic,
+  onToggleLock?: (topic: MyTopic) => void,
+) => {
+  if (confirm(`Bạn có chắc muốn khóa đề tài "${row.name}"?`)) {
+    onToggleLock?.(row);
+  }
+};
 
 const statusConfig: Record<
   string,
@@ -60,29 +60,6 @@ export function TopicDataTable({
   onRefresh,
   onToggleLock,
 }: TopicDataTableProps) {
-  // Confirmation modal state
-  const [confirmDialog, setConfirmDialog] = useState<{
-    open: boolean;
-    topic: MyTopic | null;
-  }>({ open: false, topic: null });
-
-  // Handle lock button click
-  const handleLockClick = (topic: MyTopic) => {
-    setConfirmDialog({ open: true, topic });
-  };
-
-  // Confirm lock
-  const handleConfirmLock = () => {
-    if (confirmDialog.topic && onToggleLock) {
-      onToggleLock(confirmDialog.topic);
-    }
-    setConfirmDialog({ open: false, topic: null });
-  };
-
-  // Cancel lock
-  const handleCancelLock = () => {
-    setConfirmDialog({ open: false, topic: null });
-  };
   const headerActions: HeaderAction[] = [
     {
       id: "refresh",
@@ -108,6 +85,22 @@ export function TopicDataTable({
     },
   ];
   const columns: Column<MyTopic>[] = [
+    {
+      id: "code",
+      label: "Mã Đề Tài",
+      minWidth: 100,
+      format: (_, row) =>
+        row.code ? (
+          <span style={{ fontWeight: 600 }}>{row.code}</span>
+        ) : (
+          <Chip
+            label="Chờ cấp mã"
+            size="small"
+            variant="outlined"
+            color="warning"
+          />
+        ),
+    },
     {
       id: "name",
       label: "Tên đề tài",
@@ -189,8 +182,9 @@ export function TopicDataTable({
       label: "Ngày tạo",
       minWidth: 110,
       format: (val) => {
+        if (!val) return "—";
         const date = new Date(val as string);
-        return date.toLocaleDateString("vi-VN");
+        return isNaN(date.getTime()) ? "—" : date.toLocaleDateString("vi-VN");
       },
     },
   ];
@@ -226,7 +220,7 @@ export function TopicDataTable({
           if (onToggleLock) onToggleLock(row);
         } else {
           // Khóa - hiện confirmation
-          handleLockClick(row);
+          handleLockClick(row, onToggleLock);
         }
       },
     },
@@ -256,56 +250,6 @@ export function TopicDataTable({
         showImportButton={false}
         showFilterButton={false}
       />
-
-      {/* Confirmation Dialog for Lock */}
-      <Dialog
-        open={confirmDialog.open}
-        onClose={handleCancelLock}
-        maxWidth={false}
-        fullWidth
-        PaperProps={{
-          sx: {
-            width: 700,
-            maxWidth: "calc(100vw - 32px)",
-            maxHeight: "calc(100vh - 64px)",
-          },
-        }}
-      >
-        <DialogTitle sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-          <Lock size={24} color="#f59e0b" />
-          Xác nhận khóa đề tài
-        </DialogTitle>
-        <DialogContent>
-          <Typography variant="body1" sx={{ mb: 2 }}>
-            Đề tài <strong>&quot;{confirmDialog.topic?.name}&quot;</strong> đang
-            có{" "}
-            <strong>
-              {confirmDialog.topic?.registeredStudents?.filter(
-                (s) => s.status === "Approved",
-              ).length || 0}
-              /{confirmDialog.topic?.maxStudents}
-            </strong>{" "}
-            sinh viên đăng ký.
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            Nếu khóa, các sinh viên khác sẽ không thể tiếp tục đăng ký đề tài
-            này. Bạn có chắc chắn muốn khóa đề tài này?
-          </Typography>
-        </DialogContent>
-        <DialogActions sx={{ px: 3, pb: 2 }}>
-          <Button variant="outlined" onClick={handleCancelLock}>
-            Hủy
-          </Button>
-          <Button
-            variant="contained"
-            color="warning"
-            onClick={handleConfirmLock}
-            startIcon={<Lock size={18} />}
-          >
-            Xác nhận khóa
-          </Button>
-        </DialogActions>
-      </Dialog>
     </>
   );
 }

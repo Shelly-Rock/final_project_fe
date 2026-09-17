@@ -22,6 +22,7 @@ interface AvailableTopicRow {
   registrationStatus?: "OPEN" | "FULL" | "LOCKED";
   teacherName?: string | null;
   teacherEmail?: string | null;
+  locked?: boolean;
   department?: string | null;
   faculty?: string | null;
   students?: Array<{
@@ -61,12 +62,20 @@ interface MyRegistrationResponse {
     statusLabel?: string;
     moderatorNote?: string | null;
     registeredAt: string;
+    isLeader?: boolean;
+    assignedTask?: string;
     decidedAt?: string | null;
     topic?: {
+      locked?: boolean;
       id: number;
       code?: string;
       name: string;
       description?: string;
+      englishName?: string;
+      objectives?: string;
+      technologies?: string;
+      teacherName?: string;
+      periodName?: string;
       teachers?: Array<{ name?: string; email?: string }>;
       teacher?: { name?: string; email?: string };
     };
@@ -97,6 +106,7 @@ function mapApiToAvailableTopic(api: AvailableTopicRow): AvailableTopic {
 
   return {
     id: String(api.id),
+    code: api.code || null,
     name: api.name,
     description: api.description || "",
     teacherName: api.teacherName || "",
@@ -124,6 +134,10 @@ function mapApiToAvailableTopic(api: AvailableTopicRow): AvailableTopic {
 }
 
 class TopicApiService {
+  async cancelRegistration(topicId: number): Promise<void> {
+    await apiClient.delete(`/topics/${topicId}/registrations`);
+  }
+
   async getGovernanceState(
     periodId?: number,
   ): Promise<GovernanceStateResponse> {
@@ -167,14 +181,23 @@ class TopicApiService {
     return {
       id: String(registration.projectId),
       topicId: String(registration.topic?.id ?? ""),
+      topicCode: registration.topic?.code || undefined,
       topicName: registration.topic?.name || "",
-      teacherName: teacher?.name || "",
+      topicEnglishName: registration.topic?.englishName || "",
+      topicObjectives: registration.topic?.objectives || "",
+      topicTechnologies: registration.topic?.technologies || "",
+      topicDescription: registration.topic?.description || "",
+      teacherName: registration.topic?.teacherName || teacher?.name || "",
       teacherEmail: teacher?.email || "",
       studentId: data.student?.studentCode || "",
       studentName: "",
       requestedAt: registration.registeredAt,
+      isLeader: registration.isLeader,
+      assignedTask: registration.assignedTask,
+      topicLocked: registration.topic?.locked,
       status: mapRegistrationUiStatus(registration.status),
       rejectionReason: registration.moderatorNote || undefined,
+      periodName: registration.topic?.periodName || undefined,
     };
   }
 

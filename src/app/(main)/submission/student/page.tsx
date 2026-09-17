@@ -4,110 +4,66 @@ import { useState, useEffect } from "react";
 import { Box, CircularProgress, Alert } from "@mui/material";
 import StudentSubmission from "@/feature/submission/components/StudentSubmission";
 import { submissionService } from "@/feature/submission/services";
-import { useSession } from "next-auth/react";
+import { studentTopicService } from "@/feature/student-topic/services/studentTopicService";
+import { toast } from "sonner";
 
 export default function StudentSubmissionPage() {
-  const { data: session, status } = useSession();
-  const [projectData, setProjectData] = useState<{
-    studentId: number;
-    projectId: number;
-    projectCode: string;
-    projectName: string;
+  const [topicData, setTopicData] = useState<{
+    topicId: number;
+    topicCode: string;
+    topicName: string;
     isLeader: boolean;
   } | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (status !== "authenticated") return;
-
-    const loadProjectData = async () => {
+    const fetchInitData = async () => {
       try {
-        setLoading(true);
-        setError(null);
-
-        const mySubmissions = await submissionService.getMySubmissions();
-
-        if (!mySubmissions || mySubmissions.length === 0) {
-          setProjectData(null);
-          return;
+        const reg = await studentTopicService.getMyRegistration();
+        if (reg?.topicId) {
+          const elig = await submissionService.getMyEligibility();
+          setTopicData({
+            topicId: Number(reg.topicId),
+            topicCode: "",
+            topicName: reg.topicName,
+            isLeader: !!elig.isLeader,
+          });
         }
-
-        const firstSubmission = mySubmissions[0];
-        setProjectData({
-          studentId: firstSubmission.studentId,
-          projectId: firstSubmission.projectId,
-          projectCode: firstSubmission.projectCode || "",
-          projectName: firstSubmission.projectName || "",
-          isLeader: true,
-        });
-      } catch (err) {
-        setError(
-          err instanceof Error ? err.message : "Không thể tải thông tin đề tài",
+      } catch {
+        toast.error(
+          "Không thể tải thông tin đăng ký đề tài. Vui lòng thử lại!",
         );
-        setProjectData(null);
       } finally {
         setLoading(false);
       }
     };
+    fetchInitData();
+  }, []);
 
-    loadProjectData();
-  }, [status]);
-
-  // Loading state
-  if (status === "loading" || loading) {
+  if (loading) {
     return (
-      <Box
-        sx={{
-          p: 3,
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          minHeight: 400,
-        }}
-      >
+      <Box sx={{ display: "flex", justifyContent: "center", mt: 10 }}>
         <CircularProgress />
       </Box>
     );
   }
 
-  // Not authenticated
-  if (status !== "authenticated") {
+  if (!topicData) {
     return (
       <Box sx={{ p: 3 }}>
-        <Alert severity="error">
-          Vui lòng đăng nhập để truy cập trang này.
-        </Alert>
-      </Box>
-    );
-  }
-
-  // No project assigned
-  if (error) {
-    return (
-      <Box sx={{ p: 3 }}>
-        <Alert severity="error">{error}</Alert>
-      </Box>
-    );
-  }
-
-  if (!projectData) {
-    return (
-      <Box sx={{ p: 3 }}>
-        <Alert severity="warning">
-          Bạn chưa được gán đề tài. Vui lòng liên hệ giáo vụ để được cấp đề tài.
-        </Alert>
+        <Alert severity="warning">Bạn chưa đăng ký đề tài nào.</Alert>
       </Box>
     );
   }
 
   return (
-    <StudentSubmission
-      studentId={projectData.studentId}
-      projectId={projectData.projectId}
-      projectCode={projectData.projectCode}
-      projectName={projectData.projectName}
-      isLeader={projectData.isLeader}
-    />
+    <Box sx={{ p: 3, width: "100%" }}>
+      <StudentSubmission
+        topicId={topicData.topicId}
+        topicCode={topicData.topicCode}
+        topicName={topicData.topicName}
+        isLeader={topicData.isLeader}
+      />
+    </Box>
   );
 }

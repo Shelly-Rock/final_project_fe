@@ -33,7 +33,7 @@ export const Icon = {
   upload: "bi-upload",
   peopleTeam: "bi-people-team",
   calendar: "bi-calendar-event",
-  scorecard: "bi-scorecard",
+  scorecard: "bi-journal-check",
   pencilSquare: "bi-pencil-square",
   trophy: "bi-trophy",
   gear: "bi-gear",
@@ -101,7 +101,7 @@ export const MENU_SECTIONS: MenuSection[] = [
         label: "Theo dõi tiến trình",
         icon: Icon.graphUp,
         path: "/progress-tracking/admin",
-        roles: ["admin"],
+        roles: ["admin", "secretary"],
       },
       {
         key: "role",

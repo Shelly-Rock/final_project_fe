@@ -8,24 +8,13 @@ import {
   Tabs,
   Tab,
   Button,
-  CircularProgress,
   Alert,
   Chip,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
   TextField,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
   Divider,
   Grid,
   useTheme,
@@ -66,7 +55,13 @@ import type {
   ProgressStatus,
   ReportStatus,
 } from "@/feature/progress-tracking/types";
-import { PageHeader } from "@/shared/components";
+import {
+  PageHeader,
+  DataTable,
+  type Column,
+  type Action,
+  type FilterOption,
+} from "@/shared/components";
 import { TrendingUp } from "lucide-react";
 
 // Mock admin data - replace with actual auth
@@ -182,124 +177,104 @@ function AllReportsReview() {
     }
   };
 
-  if (loading) {
-    return (
-      <Box sx={{ p: 4, textAlign: "center" }}>
-        <CircularProgress />
-      </Box>
-    );
-  }
+  const columns: Column<ProgressReport>[] = [
+    {
+      id: "title",
+      label: "Tiêu đề",
+      format: (value, row) => (
+        <Typography variant="body2" fontWeight={500}>
+          {row.title}
+        </Typography>
+      ),
+    },
+    {
+      id: "studentName",
+      label: "Sinh viên",
+      format: (value, row) => (
+        <Typography variant="body2">{row.studentName || "-"}</Typography>
+      ),
+    },
+    {
+      id: "teacherName",
+      label: "Giảng viên",
+      format: (value, row) => (
+        <Typography variant="body2">{row.teacherName || "-"}</Typography>
+      ),
+    },
+    {
+      id: "monthYear",
+      label: "Tháng",
+      format: (value, row) => (
+        <Typography variant="body2">
+          Tháng {row.month}/{row.year}
+        </Typography>
+      ),
+    },
+    {
+      id: "status",
+      label: "Trạng thái",
+      format: (value, row) => getStatusChip(row.status),
+    },
+    {
+      id: "score",
+      label: "Điểm",
+      format: (value, row) => (
+        <Typography
+          variant="body2"
+          color={row.score ? "success.main" : "text.disabled"}
+        >
+          {row.score ?? "-"}
+        </Typography>
+      ),
+    },
+  ];
+
+  const actions: Action<ProgressReport>[] = [
+    {
+      id: "review",
+      label: "Xem / Duyệt",
+      icon: <ReviewIcon fontSize="small" />,
+      onClick: (row) => setSelectedReport(row),
+      color: "primary",
+    },
+  ];
+
+  const filterOptions: FilterOption[] = [
+    { value: "ALL", label: "Tất cả" },
+    { value: "PENDING", label: "Chờ duyệt" },
+    { value: "APPROVED", label: "Đã duyệt" },
+    { value: "REJECTED", label: "Từ chối" },
+  ];
 
   return (
     <Box>
-      <Box
-        sx={{
-          mb: 2,
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
-      >
-        <Typography variant="h6">
+      <Box sx={{ mb: 2, px: 1 }}>
+        <Typography variant="h6" fontWeight={600} color="text.primary">
           Tất cả báo cáo ({filteredReports.length})
         </Typography>
-        <Box sx={{ display: "flex", gap: 2 }}>
-          <FormControl size="small" sx={{ minWidth: 150 }}>
-            <InputLabel>Lọc theo trạng thái</InputLabel>
-            <Select
-              value={statusFilter}
-              label="Lọc theo trạng thái"
-              onChange={(e) =>
-                setStatusFilter(e.target.value as ReportStatus | "ALL")
-              }
-            >
-              <MenuItem value="ALL">Tất cả</MenuItem>
-              <MenuItem value="PENDING">Chờ duyệt</MenuItem>
-              <MenuItem value="APPROVED">Đã duyệt</MenuItem>
-              <MenuItem value="REJECTED">Từ chối</MenuItem>
-            </Select>
-          </FormControl>
-          <Button
-            startIcon={<RefreshIcon />}
-            onClick={loadReports}
-            variant="outlined"
-          >
-            Làm mới
-          </Button>
-        </Box>
       </Box>
 
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow sx={{ bgcolor: "background.default" }}>
-              <TableCell sx={{ fontWeight: 600 }}>Tiêu đề</TableCell>
-              <TableCell sx={{ fontWeight: 600 }}>Sinh viên</TableCell>
-              <TableCell sx={{ fontWeight: 600 }}>Giảng viên</TableCell>
-              <TableCell sx={{ fontWeight: 600 }}>Tháng</TableCell>
-              <TableCell sx={{ fontWeight: 600 }}>Trạng thái</TableCell>
-              <TableCell sx={{ fontWeight: 600 }}>Điểm</TableCell>
-              <TableCell sx={{ fontWeight: 600 }} align="center">
-                Hành động
-              </TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {filteredReports.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={7} align="center" sx={{ py: 4 }}>
-                  <Typography color="text.secondary">
-                    Không có báo cáo nào
-                  </Typography>
-                </TableCell>
-              </TableRow>
-            ) : (
-              filteredReports.map((report) => (
-                <TableRow key={report.id} hover>
-                  <TableCell>
-                    <Typography variant="body2" fontWeight={500}>
-                      {report.title}
-                    </Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Typography variant="body2">
-                      {report.studentName || "-"}
-                    </Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Typography variant="body2">
-                      {report.teacherName || "-"}
-                    </Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Typography variant="body2">
-                      Tháng {report.month}/{report.year}
-                    </Typography>
-                  </TableCell>
-                  <TableCell>{getStatusChip(report.status)}</TableCell>
-                  <TableCell>
-                    <Typography
-                      variant="body2"
-                      color={report.score ? "success.main" : "text.disabled"}
-                    >
-                      {report.score ?? "-"}
-                    </Typography>
-                  </TableCell>
-                  <TableCell align="center">
-                    <Button
-                      size="small"
-                      variant="outlined"
-                      onClick={() => setSelectedReport(report)}
-                    >
-                      Xem / Duyệt
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </TableContainer>
+      <DataTable
+        columns={columns}
+        rows={filteredReports}
+        rowKey="id"
+        actions={actions}
+        filterOptions={filterOptions}
+        filterValue={statusFilter}
+        onFilterChange={(v) => setStatusFilter(v as ReportStatus | "ALL")}
+        showFilterButton={true}
+        loading={loading}
+        emptyMessage="Không có báo cáo nào"
+        headerActions={[
+          {
+            id: "refresh",
+            label: "Làm mới",
+            icon: <RefreshIcon fontSize="small" />,
+            onClick: loadReports,
+            variant: "outlined",
+          },
+        ]}
+      />
 
       {/* Review Dialog */}
       <Dialog
@@ -494,133 +469,106 @@ function AllStudentsProgress() {
     }
   };
 
-  if (loading) {
-    return (
-      <Box sx={{ p: 4, textAlign: "center" }}>
-        <CircularProgress />
-      </Box>
-    );
-  }
+  const columns: Column<StudentProgress>[] = [
+    {
+      id: "studentName",
+      label: "Sinh viên",
+      format: (value, row) => (
+        <Typography variant="body2" fontWeight={500}>
+          {row.studentName || "-"}
+        </Typography>
+      ),
+    },
+    {
+      id: "studentMssv",
+      label: "MSSV",
+      format: (value, row) => (
+        <Typography variant="body2" color="text.secondary">
+          {row.studentMssv || "-"}
+        </Typography>
+      ),
+    },
+    {
+      id: "topicName",
+      label: "Đề tài",
+      format: (value, row) => (
+        <Typography variant="body2" sx={{ maxWidth: 200 }}>
+          {row.topicName || "-"}
+        </Typography>
+      ),
+    },
+    {
+      id: "teacherName",
+      label: "Giảng viên",
+      format: (value, row) => (
+        <Typography variant="body2">{row.teacherName || "-"}</Typography>
+      ),
+    },
+    {
+      id: "reports",
+      label: "Báo cáo",
+      align: "center",
+      format: (value, row) => (
+        <Typography variant="body2" fontWeight={500}>
+          {row.totalReportsSubmitted}/{row.totalReportsRequired}
+        </Typography>
+      ),
+    },
+    {
+      id: "status",
+      label: "Trạng thái",
+      align: "center",
+      format: (value, row) => getStatusChip(row.status, row.isBanned),
+    },
+  ];
+
+  const actions: Action<StudentProgress>[] = [
+    {
+      id: "detail",
+      label: "Chi tiết",
+      icon: <InfoIcon fontSize="small" />,
+      onClick: (row) => setSelectedStudent(row),
+      color: "primary",
+    },
+  ];
+
+  const filterOptions: FilterOption[] = [
+    { value: "ALL", label: "Tất cả" },
+    { value: "ON_TRACK", label: "Tiến hành" },
+    { value: "EXTENDED", label: "Gia hạn" },
+    { value: "TOPIC_CHANGED", label: "Đổi đề tài" },
+    { value: "BANNED", label: "Cấm thi" },
+  ];
 
   return (
     <Box>
-      <Box
-        sx={{
-          mb: 2,
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
-      >
-        <Typography variant="h6">
+      <Box sx={{ mb: 2, px: 1 }}>
+        <Typography variant="h6" fontWeight={600} color="text.primary">
           Tiến độ tất cả sinh viên ({filteredList.length})
         </Typography>
-        <Box sx={{ display: "flex", gap: 2 }}>
-          <FormControl size="small" sx={{ minWidth: 150 }}>
-            <InputLabel>Lọc theo trạng thái</InputLabel>
-            <Select
-              value={statusFilter}
-              label="Lọc theo trạng thái"
-              onChange={(e) =>
-                setStatusFilter(e.target.value as ProgressStatus | "ALL")
-              }
-            >
-              <MenuItem value="ALL">Tất cả</MenuItem>
-              <MenuItem value="ON_TRACK">Tiến hành</MenuItem>
-              <MenuItem value="EXTENDED">Gia hạn</MenuItem>
-              <MenuItem value="TOPIC_CHANGED">Đổi đề tài</MenuItem>
-              <MenuItem value="BANNED">Cấm thi</MenuItem>
-            </Select>
-          </FormControl>
-          <Button
-            startIcon={<RefreshIcon />}
-            onClick={loadProgress}
-            variant="outlined"
-          >
-            Làm mới
-          </Button>
-        </Box>
       </Box>
 
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow sx={{ bgcolor: "background.default" }}>
-              <TableCell sx={{ fontWeight: 600 }}>Sinh viên</TableCell>
-              <TableCell sx={{ fontWeight: 600 }}>MSSV</TableCell>
-              <TableCell sx={{ fontWeight: 600 }}>Đề tài</TableCell>
-              <TableCell sx={{ fontWeight: 600 }}>Giảng viên</TableCell>
-              <TableCell sx={{ fontWeight: 600 }} align="center">
-                Báo cáo
-              </TableCell>
-              <TableCell sx={{ fontWeight: 600 }} align="center">
-                Trạng thái
-              </TableCell>
-              <TableCell sx={{ fontWeight: 600 }} align="center">
-                Hành động
-              </TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {filteredList.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={7} align="center" sx={{ py: 4 }}>
-                  <Typography color="text.secondary">
-                    Không có sinh viên nào
-                  </Typography>
-                </TableCell>
-              </TableRow>
-            ) : (
-              filteredList.map((progress) => (
-                <TableRow
-                  key={progress.studentId}
-                  hover
-                  sx={{ bgcolor: progress.isBanned ? "error.50" : "inherit" }}
-                >
-                  <TableCell>
-                    <Typography variant="body2" fontWeight={500}>
-                      {progress.studentName || "-"}
-                    </Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Typography variant="body2" color="text.secondary">
-                      {progress.studentMssv || "-"}
-                    </Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Typography variant="body2" sx={{ maxWidth: 200 }}>
-                      {progress.topicName || "-"}
-                    </Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Typography variant="body2">
-                      {progress.teacherName || "-"}
-                    </Typography>
-                  </TableCell>
-                  <TableCell align="center">
-                    <Typography variant="body2" fontWeight={500}>
-                      {progress.totalReportsSubmitted}/
-                      {progress.totalReportsRequired}
-                    </Typography>
-                  </TableCell>
-                  <TableCell align="center">
-                    {getStatusChip(progress.status, progress.isBanned)}
-                  </TableCell>
-                  <TableCell align="center">
-                    <Button
-                      size="small"
-                      variant="outlined"
-                      onClick={() => setSelectedStudent(progress)}
-                    >
-                      Chi tiết
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </TableContainer>
+      <DataTable
+        columns={columns}
+        rows={filteredList}
+        rowKey="studentId"
+        actions={actions}
+        filterOptions={filterOptions}
+        filterValue={statusFilter}
+        onFilterChange={(v) => setStatusFilter(v as ProgressStatus | "ALL")}
+        showFilterButton={true}
+        loading={loading}
+        emptyMessage="Không có sinh viên nào"
+        headerActions={[
+          {
+            id: "refresh",
+            label: "Làm mới",
+            icon: <RefreshIcon fontSize="small" />,
+            onClick: loadProgress,
+            variant: "outlined",
+          },
+        ]}
+      />
 
       {/* Detail Dialog */}
       <Dialog
@@ -809,7 +757,6 @@ export default function AdminProgressPage() {
       <TemplateUploadDialog
         open={uploadDialogOpen}
         onClose={() => setUploadDialogOpen(false)}
-        teacherId={MOCK_ADMIN.id}
         onSuccess={() => {
           toast.success("Template đã được tải lên");
           handleRefresh();

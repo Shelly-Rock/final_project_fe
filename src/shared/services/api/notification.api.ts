@@ -1,6 +1,15 @@
 import apiClient from "@/shared/services/api-client";
 import { INotification } from "@/shared/types/notification.types";
 
+interface NotificationListResponse {
+  notifications?: INotification[];
+  total?: number;
+}
+
+interface UnreadCountResponse {
+  count?: number;
+}
+
 export const notificationApi = {
   getNotifications: async (params?: {
     skip?: number;
@@ -11,29 +20,47 @@ export const notificationApi = {
     total: number;
     unreadCount: number;
   }> => {
-    return apiClient.get("/notification", { params });
+    const limit = params?.take || 20;
+    const page =
+      params?.skip !== undefined ? Math.floor(params.skip / limit) + 1 : 1;
+
+    const [res, countRes] = await Promise.all([
+      apiClient.get<NotificationListResponse>("/notifications", {
+        params: { page, limit },
+      }),
+      apiClient.get<UnreadCountResponse>("/notifications/unread-count"),
+    ]);
+
+    return {
+      notifications: res?.notifications || [],
+      total: res?.total || 0,
+      unreadCount: countRes?.count || 0,
+    };
   },
 
   getUnreadCount: async (): Promise<{ unreadCount: number }> => {
-    return apiClient.get("/notification/unread-count");
+    const res = await apiClient.get<UnreadCountResponse>(
+      "/notifications/unread-count",
+    );
+    return { unreadCount: res?.count || 0 };
   },
 
   markAsRead: async (notificationIds: number[]): Promise<void> => {
-    await apiClient.patch("/notification/mark-read", {
-      notificationIds,
+    await apiClient.post("/notifications/mark-as-read", {
+      notification_ids: notificationIds,
     });
   },
 
   markAllAsRead: async (): Promise<void> => {
-    await apiClient.patch("/notification/mark-all-read");
+    await apiClient.post("/notifications/mark-all-as-read");
   },
 
   deleteNotification: async (notificationId: number): Promise<void> => {
-    await apiClient.delete(`/notification/${notificationId}`);
+    await apiClient.delete(`/notifications/${notificationId}`);
   },
 
   deleteAllNotifications: async (): Promise<void> => {
-    await apiClient.delete("/notification/all");
+    await apiClient.delete("/notifications/all");
   },
 
   sendNotification: async (data: {
@@ -47,7 +74,16 @@ export const notificationApi = {
     isPinned?: boolean;
     requiresSignature?: boolean;
   }): Promise<INotification[]> => {
-    return apiClient.post("/notification/send", data);
+    // Map recipientIds to a batch payload matching CreateNotificationDto
+    const payload = data.recipientIds.map((id) => ({
+      title: data.title,
+      message: data.message,
+      type: data.type,
+      recipient_id: id,
+      related_student_id: data.relatedStudentId,
+      related_report_id: data.relatedReportId,
+    }));
+    return apiClient.post("/notifications/batch", payload);
   },
 
   // Bulk operations
@@ -72,14 +108,17 @@ export const notificationApi = {
     scheduledAt: string;
     isPinned?: boolean;
     requiresSignature?: boolean;
-  }): Promise<any> => {
+  }): Promise<{ id: number; [key: string]: unknown }> => {
     return apiClient.post("/notification/schedule", data);
   },
 
   getScheduledNotifications: async (params?: {
     skip?: number;
     take?: number;
-  }): Promise<any> => {
+  }): Promise<{
+    data: { id: number; [key: string]: unknown }[];
+    total: number;
+  }> => {
     return apiClient.get("/notification/scheduled", { params });
   },
 
@@ -88,7 +127,9 @@ export const notificationApi = {
   },
 
   // Templates
-  getTemplates: async (): Promise<any[]> => {
+  getTemplates: async (): Promise<
+    { id: number; name: string; title: string; message: string; type: string }[]
+  > => {
     return apiClient.get("/notification/templates");
   },
 
@@ -97,7 +138,13 @@ export const notificationApi = {
     title: string;
     message: string;
     type: string;
-  }): Promise<any> => {
+  }): Promise<{
+    id: number;
+    name: string;
+    title: string;
+    message: string;
+    type: string;
+  }> => {
     return apiClient.post("/notification/templates", data);
   },
 
@@ -117,7 +164,9 @@ export const notificationApi = {
     return apiClient.get("/notification/stats");
   },
 
-  getDeliveryStatus: async (notificationId: number): Promise<{
+  getDeliveryStatus: async (
+    notificationId: number,
+  ): Promise<{
     total: number;
     delivered: number;
     read: number;

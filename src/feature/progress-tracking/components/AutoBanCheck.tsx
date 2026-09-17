@@ -15,7 +15,6 @@ import {
   Button,
   Alert,
   CircularProgress,
-  IconButton,
   Tooltip,
   Dialog,
   DialogTitle,
@@ -35,6 +34,7 @@ import {
   Schedule as ScheduleIcon,
 } from "@mui/icons-material";
 import { toast } from "sonner";
+import { DataTable, type Column, type Action } from "@/shared/components";
 import { progressTrackingService } from "../services";
 import type {
   StudentProgress,
@@ -249,132 +249,103 @@ export function StudentProgressTable({
     }
   };
 
-  if (loading) {
-    return (
-      <Box sx={{ p: 3, textAlign: "center" }}>
-        <CircularProgress />
-      </Box>
-    );
+  const columns: Column<StudentProgress>[] = [
+    {
+      id: "studentName",
+      label: "Sinh viên",
+      format: (value, row) => (
+        <Typography variant="body2" fontWeight={500}>
+          {row.studentName ?? "-"}
+        </Typography>
+      ),
+    },
+    {
+      id: "studentMssv",
+      label: "MSSV",
+      format: (value, row) => (
+        <Typography variant="body2" color="text.secondary">
+          {row.studentMssv ?? "-"}
+        </Typography>
+      ),
+    },
+    {
+      id: "topicName",
+      label: "Đề tài",
+      format: (value, row) => (
+        <Typography variant="body2" sx={{ maxWidth: 200 }}>
+          {row.topicName ?? "-"}
+        </Typography>
+      ),
+    },
+    {
+      id: "reports",
+      label: "Báo cáo",
+      align: "center",
+      format: (value, row) => (
+        <Typography variant="body2" fontWeight={600}>
+          {row.totalReportsSubmitted}/{row.totalReportsRequired}
+        </Typography>
+      ),
+    },
+    {
+      id: "status",
+      label: "Trạng thái",
+      align: "center",
+      format: (value, row) => getStatusChip(row.status, row.isBanned),
+    },
+  ];
+
+  const actions: Action<StudentProgress>[] = [
+    {
+      id: "detail",
+      label: "Chi tiết",
+      icon: <InfoIcon fontSize="small" />,
+      onClick: (row) => onViewDetails?.(row),
+      color: "primary",
+    },
+  ];
+
+  if (onStatusChange) {
+    actions.push({
+      id: "updateStatus",
+      label: "Cập nhật",
+      icon: <CheckCircleIcon fontSize="small" />,
+      onClick: (row) => {
+        if (!row.isBanned) {
+          onStatusChange(row.studentId, row.id);
+        } else {
+          toast.info("Sinh viên này đã bị cấm thi.");
+        }
+      },
+      color: "secondary",
+    });
   }
 
   return (
     <Box>
-      <Box
-        sx={{
-          mb: 2,
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
-      >
-        <Typography variant="h6">
+      <Box sx={{ mb: 2, px: 1 }}>
+        <Typography variant="h6" fontWeight={600} color="text.primary">
           Danh sách tiến độ sinh viên ({progressList.length})
         </Typography>
-        <Button
-          startIcon={<RefreshIcon />}
-          onClick={loadProgress}
-          variant="outlined"
-          size="small"
-        >
-          Làm mới
-        </Button>
       </Box>
 
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow sx={{ bgcolor: "background.default" }}>
-              <TableCell sx={{ fontWeight: 600 }}>Sinh viên</TableCell>
-              <TableCell sx={{ fontWeight: 600 }}>MSSV</TableCell>
-              <TableCell sx={{ fontWeight: 600 }}>Đề tài</TableCell>
-              <TableCell sx={{ fontWeight: 600 }} align="center">
-                Báo cáo
-              </TableCell>
-              <TableCell sx={{ fontWeight: 600 }} align="center">
-                Trạng thái
-              </TableCell>
-              <TableCell sx={{ fontWeight: 600 }} align="center">
-                Hành động
-              </TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {progressList.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={6} align="center" sx={{ py: 4 }}>
-                  <Typography color="text.secondary">
-                    Không có sinh viên nào
-                  </Typography>
-                </TableCell>
-              </TableRow>
-            ) : (
-              progressList.map((progress) => (
-                <TableRow
-                  key={progress.studentId}
-                  hover
-                  sx={{
-                    bgcolor: progress.isBanned ? "error.50" : "inherit",
-                  }}
-                >
-                  <TableCell>
-                    <Typography variant="body2" fontWeight={500}>
-                      {progress.studentName ?? "-"}
-                    </Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Typography variant="body2" color="text.secondary">
-                      {progress.studentMssv ?? "-"}
-                    </Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Typography variant="body2" sx={{ maxWidth: 200 }}>
-                      {progress.topicName ?? "-"}
-                    </Typography>
-                  </TableCell>
-                  <TableCell align="center">
-                    <Typography variant="body2" fontWeight={600}>
-                      {progress.totalReportsSubmitted}/
-                      {progress.totalReportsRequired}
-                    </Typography>
-                  </TableCell>
-                  <TableCell align="center">
-                    {getStatusChip(progress.status, progress.isBanned)}
-                  </TableCell>
-                  <TableCell align="center">
-                    <Box
-                      sx={{
-                        display: "flex",
-                        gap: 0.5,
-                        justifyContent: "center",
-                      }}
-                    >
-                      <Tooltip title="Xem chi tiết">
-                        <IconButton
-                          size="small"
-                          onClick={() => onViewDetails?.(progress)}
-                        >
-                          <InfoIcon fontSize="small" />
-                        </IconButton>
-                      </Tooltip>
-                      {!progress.isBanned && onStatusChange && (
-                        <Button
-                          size="small"
-                          variant="outlined"
-                          onClick={() =>
-                            onStatusChange(progress.studentId, progress.id)
-                          }
-                        >
-                          Cập nhật
-                        </Button>
-                      )}
-                    </Box>
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </TableContainer>
+      <DataTable
+        columns={columns}
+        rows={progressList}
+        rowKey="studentId"
+        actions={actions}
+        loading={loading}
+        emptyMessage="Không có sinh viên nào"
+        headerActions={[
+          {
+            id: "refresh",
+            label: "Làm mới",
+            icon: <RefreshIcon fontSize="small" />,
+            onClick: loadProgress,
+            variant: "outlined",
+          },
+        ]}
+      />
     </Box>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { Eye } from "lucide-react";
-import { Box } from "@mui/material";
+import { Box, Chip } from "@mui/material";
 import { DataTable } from "@/shared/components";
 import type { Column, Action } from "@/shared/components";
 import type { AvailableTopic } from "../types";
@@ -45,6 +45,22 @@ export function AvailableTopicTable({
   disabled = false,
 }: AvailableTopicTableProps) {
   const columns: Column<AvailableTopic>[] = [
+    {
+      id: "code",
+      label: "Mã Đề Tài",
+      minWidth: 100,
+      format: (_, row) =>
+        row.code ? (
+          <span style={{ fontWeight: 600 }}>{row.code}</span>
+        ) : (
+          <Chip
+            label="Chờ cấp mã"
+            size="small"
+            variant="outlined"
+            color="warning"
+          />
+        ),
+    },
     {
       id: "name",
       label: "Tên đề tài",
