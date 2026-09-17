@@ -179,24 +179,24 @@ class TopicApiService {
       topicCode: registration.topic?.code || undefined,
       topicName: registration.topic?.name || "",
       topicEnglishName:
-        (registration.topic as Record<string, string | undefined>)
+        (registration.topic as unknown as Record<string, string | undefined>)
           ?.englishName || "",
       topicObjectives:
-        (registration.topic as Record<string, string | undefined>)
+        (registration.topic as unknown as Record<string, string | undefined>)
           ?.objectives || "",
       topicTechnologies:
-        (registration.topic as Record<string, string | undefined>)
+        (registration.topic as unknown as Record<string, string | undefined>)
           ?.technologies || "",
       topicDescription:
-        (registration.topic as Record<string, string | undefined>)
+        (registration.topic as unknown as Record<string, string | undefined>)
           ?.description || "",
       teacherName:
-        (registration.topic as Record<string, string | undefined>)
+        (registration.topic as unknown as Record<string, string | undefined>)
           ?.teacherName ||
         teacher?.name ||
         "",
       teacherEmail:
-        (registration.topic as Record<string, string | undefined>)
+        (registration.topic as unknown as Record<string, string | undefined>)
           ?.teacherEmail ||
         teacher?.email ||
         "",
@@ -209,7 +209,7 @@ class TopicApiService {
       status: mapRegistrationUiStatus(registration.status),
       rejectionReason: registration.moderatorNote || undefined,
       periodName:
-        (registration.topic as Record<string, string | undefined>)
+        (registration.topic as unknown as Record<string, string | undefined>)
           ?.periodName || undefined,
     };
   }

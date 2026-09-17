@@ -210,8 +210,8 @@ export function TopicDataTable({
           // Mở khóa trực tiếp
           if (onToggleLock) onToggleLock(row);
         } else {
-          // Khóa - hiện confirmation
-          handleLockClick(row);
+          // Khóa
+          if (onToggleLock) onToggleLock(row);
         }
       },
     },
