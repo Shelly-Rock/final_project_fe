@@ -19,6 +19,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import InputAdornment from "@mui/material/InputAdornment";
 import IconButton from "@mui/material/IconButton";
 import LockResetIcon from "@mui/icons-material/LockReset";
+import ChangePasswordBackground from "@/assets/image/png/changepass.png";
 import { authService } from "@/core/auth/auth.service";
 
 function getDefaultRouteForRole(role?: string) {
@@ -140,8 +141,48 @@ function ChangePasswordForm() {
   );
 
   return (
-    <Box className="login-root">
-      <Box className="login-panel login-panel--right" sx={{ maxWidth: 480 }}>
+    <Box
+      className="login-root"
+      sx={{
+        backgroundImage: `url(${ChangePasswordBackground.src})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        justifyContent: "center",
+        padding: "clamp(2rem, 5vw, 5rem)",
+      }}
+    >
+      <IconButton
+        size="small"
+        aria-label={token ? "Quay lại đăng nhập" : "Quay lại hệ thống"}
+        onClick={() => {
+          if (token) router.push("/login");
+          else if (session?.user)
+            router.push(getDefaultRouteForRole(session.user.role));
+          else router.push("/login");
+        }}
+        sx={{
+          position: "fixed",
+          left: 24,
+          top: 24,
+          zIndex: 1,
+          width: 32,
+          height: 32,
+          bgcolor: "transparent",
+          border: "none",
+          boxShadow: "none",
+          "&:hover": { bgcolor: "rgba(0,0,0,0.04)" },
+        }}
+      >
+        <span
+          className="bi bi-arrow-left"
+          aria-hidden="true"
+          style={{ fontSize: "1rem" }}
+        />
+      </IconButton>
+      <Box
+        className="login-panel login-panel--right"
+        sx={{ maxWidth: 480, mx: "auto" }}
+      >
         <Paper
           elevation={3}
           sx={{
@@ -288,17 +329,6 @@ function ChangePasswordForm() {
                   "Xác nhận"
                 )}
               </Button>
-
-              {token && (
-                <Button
-                  variant="text"
-                  fullWidth
-                  sx={{ mt: 1 }}
-                  onClick={() => router.push("/login")}
-                >
-                  Quay lại đăng nhập
-                </Button>
-              )}
             </Box>
           )}
         </Paper>
