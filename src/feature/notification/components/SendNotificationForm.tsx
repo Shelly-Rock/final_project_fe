@@ -212,7 +212,7 @@ const SendNotificationForm: React.FC<SendNotificationFormProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
-      <div className="bg-[#0f1422] border border-[#1e293b] rounded-2xl w-full max-w-2xl shadow-2xl shadow-black/90 my-auto overflow-hidden ring-1 ring-white/5">
+      <div className="bg-[#0f1422] border border-[#1e293b] rounded-2xl w-full max-w-4xl shadow-2xl shadow-black/90 my-auto overflow-hidden ring-1 ring-white/5">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-[#1e293b]/70 bg-[#131b2c]/40 backdrop-blur-sm">
           <div className="flex items-center gap-3">
