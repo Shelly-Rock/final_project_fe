@@ -96,7 +96,7 @@ const SendNotificationForm: React.FC<SendNotificationFormProps> = ({
 
   const selectedPriority = watch("priority");
   const selectedIds = watch("recipientIds");
-  const wordCount = watch("message").length;
+  const wordCount = (watch("message") || "").length;
 
   const [departments, setDepartments] = useState<Department[]>([]);
   const [recipients, setRecipients] = useState<Recipient[]>([]);
