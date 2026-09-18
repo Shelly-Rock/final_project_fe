@@ -1,39 +1,22 @@
 "use client";
 
 import React, { useState, useEffect, useCallback, useMemo } from "react";
-import {
-  Send,
-  Download,
-  Settings,
-  BarChart3,
-  Mail,
-  Users,
-  Plus,
-  Search,
-  Filter,
-  Sun,
-  Moon,
-} from "lucide-react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
+import { Send, Download, Search, Sun, Moon } from "lucide-react";
 import { toast } from "sonner";
 import apiClient from "@/shared/services/api-client";
 
 import NotificationScheduler from "./NotificationScheduler";
 import BulkActionsBar from "./BulkActionsBar";
 import NotificationTemplates from "./NotificationTemplates";
-import RecipientAnalytics from "./RecipientAnalytics";
 import NotificationPreviewModal from "./NotificationPreviewModal";
-import ThemeToggle from "./ThemeToggle";
 import NotificationDragDrop from "./NotificationDragDrop";
 import NotificationSettings from "./NotificationSettings";
 import RecipientGroupManager from "./RecipientGroupManager";
 import AnalyticsDashboard from "./AnalyticsDashboard";
 import EmailTemplateDesigner from "./EmailTemplateDesigner";
-import { exportNotifications, downloadAsCSV, downloadAsJSON } from "../utils/export";
-import { memoize, debounce } from "../utils/performance";
-import { announceToScreenReader, A11Y_LABELS } from "../utils/accessibility";
+import SendNotificationForm from "./SendNotificationForm";
+import { downloadAsCSV, downloadAsJSON } from "../utils/export";
+import { announceToScreenReader } from "../utils/accessibility";
 
 interface Notification {
   id: number;
@@ -59,19 +42,6 @@ interface NotificationStats {
   scheduled: number;
   drafts: number;
 }
-
-const SendNotificationSchema = z.object({
-  recipientRole: z.string().min(1, "Chọn đối tượng tiếp nhận"),
-  title: z.string().min(5, "Tiêu đề phải ít nhất 5 ký tự"),
-  message: z.string().min(10, "Nội dung phải ít nhất 10 ký tự"),
-  type: z.enum(["URGENT", "DIRECTIVE", "GENERAL", "REMINDER"]),
-  isPinned: z.boolean().optional(),
-  requiresSignature: z.boolean().optional(),
-  scheduledAt: z.date().optional(),
-  templateId: z.number().optional(),
-});
-
-type SendNotificationFormData = z.infer<typeof SendNotificationSchema>;
 
 type TabType =
   | "overview"
@@ -100,29 +70,12 @@ const AdminNotificationPageEnhanced: React.FC = () => {
     "all" | "urgent" | "draft" | "scheduled"
   >("all");
   const [searchTerm, setSearchTerm] = useState("");
-  const [page, setPage] = useState(1);
-  const [selectedNotifications, setSelectedNotifications] = useState<number[]>([]);
+  const [selectedNotifications, setSelectedNotifications] = useState<number[]>(
+    [],
+  );
   const [previewNotification, setPreviewNotification] =
     useState<Notification | null>(null);
-  const [showSettings, setShowSettings] = useState(false);
-  const [showGroupManager, setShowGroupManager] = useState(false);
-  const [showAnalytics, setShowAnalytics] = useState(false);
-
-  const {
-    register,
-    handleSubmit,
-    control,
-    formState: { errors, isSubmitting },
-    reset,
-    watch,
-  } = useForm<SendNotificationFormData>({
-    resolver: zodResolver(SendNotificationSchema),
-    defaultValues: {
-      type: "GENERAL",
-      isPinned: true,
-      requiresSignature: false,
-    },
-  });
+  const [showComposeModal, setShowComposeModal] = useState(false);
 
   // Fetch notifications
   const fetchNotifications = useCallback(async () => {
@@ -133,7 +86,7 @@ const AdminNotificationPageEnhanced: React.FC = () => {
         stats: NotificationStats;
       }>("/notification/admin/list", {
         params: {
-          page,
+          page: 1,
           limit: 10,
           filter,
           search: searchTerm,
@@ -141,78 +94,32 @@ const AdminNotificationPageEnhanced: React.FC = () => {
       });
       setNotifications(response.notifications);
       setStats(response.stats);
-        announceToScreenReader(`${response.notifications.length} notifications loaded`);
-      } catch (error) {
-        toast.error("Lỗi khi tải danh sách thông báo");
-        announceToScreenReader("Error loading notifications", "assertive");
-      } finally {
-        setLoading(false);
-      }
-    }, [page, filter, searchTerm]
-  );
+      announceToScreenReader(
+        `${response.notifications.length} notifications loaded`,
+      );
+    } catch {
+      toast.error("Lỗi khi tải danh sách thông báo");
+      announceToScreenReader("Error loading notifications", "assertive");
+    } finally {
+      setLoading(false);
+    }
+  }, [filter, searchTerm]);
 
   useEffect(() => {
     fetchNotifications();
   }, [fetchNotifications]);
 
-  // Handle send notification
-  const onSubmit = async (data: SendNotificationFormData) => {
-    try {
-      await apiClient.post("/notification/send", data);
-      toast.success("Thông báo đã được gửi thành công");
-      announceToScreenReader("Notification sent successfully");
-      reset();
-      setActiveTab("overview");
-      fetchNotifications();
-    } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : "Lỗi khi gửi thông báo"
-      );
-      announceToScreenReader("Error sending notification", "assertive");
-    }
-  };
-
-  // Handle bulk actions
-  const handleBulkAction = async (action: string) => {
-    if (selectedNotifications.length === 0) {
-      toast.error("Chọn ít nhất một thông báo");
-      return;
-    }
-
-    try {
-      switch (action) {
-        case "delete":
-          await apiClient.post("/notification/admin/bulk-delete", {
-            ids: selectedNotifications,
-          });
-          toast.success("Đã xóa thông báo");
-          break;
-        case "remind":
-          await apiClient.post("/notification/admin/bulk-remind", {
-            ids: selectedNotifications,
-          });
-          toast.success("Đã gửi nhắc nhở");
-          break;
-      }
-      announceToScreenReader(`Bulk action ${action} completed`);
-      setSelectedNotifications([]);
-      fetchNotifications();
-    } catch (error) {
-      toast.error("Lỗi khi thực hiện hành động");
-    }
-  };
-
   // Handle export
-  const handleExport = async (format: "csv" | "json" | "pdf") => {
+  const handleExport = async (format: "csv" | "json") => {
     try {
       if (format === "csv") {
-        downloadAsCSV(notifications as any);
+        downloadAsCSV(notifications);
       } else {
-        downloadAsJSON(notifications as any);
+        downloadAsJSON(notifications);
       }
       toast.success(`Đã xuất sang ${format.toUpperCase()}`);
       announceToScreenReader(`Exported to ${format}`);
-    } catch (error) {
+    } catch {
       toast.error("Lỗi khi xuất dữ liệu");
     }
   };
@@ -266,11 +173,7 @@ const AdminNotificationPageEnhanced: React.FC = () => {
               }`}
               aria-label="Toggle theme"
             >
-              {theme === "dark" ? (
-                <Sun size={20} />
-              ) : (
-                <Moon size={20} />
-              )}
+              {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
             </button>
           </div>
         </div>
@@ -284,25 +187,21 @@ const AdminNotificationPageEnhanced: React.FC = () => {
               label: "Tổng thông báo",
               value: stats.total,
               icon: "📢",
-              color: "primary",
             },
             {
               label: "Khẩn cấp",
               value: stats.urgent,
               icon: "⚡",
-              color: "error",
             },
             {
               label: "Tỷ lệ đọc",
               value: `${stats.readRate}%`,
               icon: "✓",
-              color: "secondary",
             },
             {
               label: "Cần đôn đốc",
               value: stats.pending,
               icon: "⏰",
-              color: "warning",
             },
           ].map((card) => (
             <div
@@ -325,9 +224,7 @@ const AdminNotificationPageEnhanced: React.FC = () => {
       <section className="max-w-7xl mx-auto px-6">
         <div
           className={`flex overflow-x-auto gap-2 pb-4 border-b ${
-            theme === "dark"
-              ? "border-border-subtle"
-              : "border-gray-200"
+            theme === "dark" ? "border-border-subtle" : "border-gray-200"
           }`}
         >
           {[
@@ -342,7 +239,12 @@ const AdminNotificationPageEnhanced: React.FC = () => {
           ].map((tab) => (
             <button
               key={tab.id}
-              onClick={() => setActiveTab(tab.id as TabType)}
+              onClick={() => {
+                setActiveTab(tab.id as TabType);
+                if (tab.id === "compose") {
+                  setShowComposeModal(true);
+                }
+              }}
               className={`px-4 py-2 rounded-lg whitespace-nowrap text-sm font-medium transition-colors ${
                 activeTab === tab.id
                   ? theme === "dark"
@@ -388,7 +290,7 @@ const AdminNotificationPageEnhanced: React.FC = () => {
                 value={filter}
                 onChange={(e) =>
                   setFilter(
-                    e.target.value as "all" | "urgent" | "draft" | "scheduled"
+                    e.target.value as "all" | "urgent" | "draft" | "scheduled",
                   )
                 }
                 className={`px-4 py-2 rounded-lg border ${
@@ -413,14 +315,14 @@ const AdminNotificationPageEnhanced: React.FC = () => {
                 <Download size={18} /> CSV
               </button>
               <button
-                onClick={() => handleExport("pdf")}
+                onClick={() => handleExport("json")}
                 className={`px-4 py-2 rounded-lg border font-medium flex items-center gap-2 transition-colors ${
                   theme === "dark"
                     ? "border-border-subtle hover:bg-surface-subtle"
                     : "border-gray-200 hover:bg-gray-100"
                 }`}
               >
-                <Download size={18} /> PDF
+                <Download size={18} /> JSON
               </button>
             </div>
 
@@ -453,10 +355,12 @@ const AdminNotificationPageEnhanced: React.FC = () => {
                 </div>
               ) : (
                 <NotificationDragDrop
-                  notifications={filteredNotifications as any}
+                  notifications={filteredNotifications}
                   onReorder={() => fetchNotifications()}
                   onNotificationSelect={(id) => {
-                    const notification = filteredNotifications.find(n => n.id === id);
+                    const notification = filteredNotifications.find(
+                      (n) => n.id === id,
+                    );
                     if (notification) setPreviewNotification(notification);
                   }}
                 />
@@ -465,160 +369,47 @@ const AdminNotificationPageEnhanced: React.FC = () => {
           </div>
         )}
 
-        {/* Compose Tab */}
-        {activeTab === "compose" && (
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 max-w-2xl">
-            <div>
-              <label className="block text-sm font-medium mb-2">
-                Đối tượng tiếp nhận
-              </label>
-              <select
-                {...register("recipientRole")}
-                className={`w-full px-4 py-2 rounded-lg border ${
-                  theme === "dark"
-                    ? "bg-surface-subtle border-border-subtle"
-                    : "bg-white border-gray-200"
-                } focus:outline-none`}
-              >
-                <option>Toàn trường</option>
-                <option>Khoa/Viện</option>
-                <option>Giảng viên</option>
-                <option>Sinh viên</option>
-              </select>
-              {errors.recipientRole && (
-                <p className="text-error text-sm mt-1">
-                  {errors.recipientRole.message}
-                </p>
-              )}
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-2">
-                Loại thông báo
-              </label>
-              <select
-                {...register("type")}
-                className={`w-full px-4 py-2 rounded-lg border ${
-                  theme === "dark"
-                    ? "bg-surface-subtle border-border-subtle"
-                    : "bg-white border-gray-200"
-                } focus:outline-none`}
-              >
-                <option value="GENERAL">Thông thường</option>
-                <option value="DIRECTIVE">Chỉ thị</option>
-                <option value="URGENT">Khẩn cấp</option>
-                <option value="REMINDER">Nhắc nhở</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-2">Tiêu đề</label>
-              <input
-                type="text"
-                {...register("title")}
-                placeholder="Nhập tiêu đề thông báo"
-                className={`w-full px-4 py-2 rounded-lg border ${
-                  theme === "dark"
-                    ? "bg-surface-subtle border-border-subtle"
-                    : "bg-white border-gray-200"
-                } focus:outline-none`}
-              />
-              {errors.title && (
-                <p className="text-error text-sm mt-1">{errors.title.message}</p>
-              )}
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-2">
-                Nội dung
-              </label>
-              <textarea
-                {...register("message")}
-                rows={6}
-                placeholder="Nhập nội dung thông báo"
-                className={`w-full px-4 py-2 rounded-lg border ${
-                  theme === "dark"
-                    ? "bg-surface-subtle border-border-subtle"
-                    : "bg-white border-gray-200"
-                } focus:outline-none resize-none`}
-              />
-              {errors.message && (
-                <p className="text-error text-sm mt-1">
-                  {errors.message.message}
-                </p>
-              )}
-            </div>
-
-            <div className="flex items-center gap-4">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  {...register("isPinned")}
-                  className="w-4 h-4 rounded"
-                />
-                <span>Ghim lên đầu trang</span>
-              </label>
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  {...register("requiresSignature")}
-                  className="w-4 h-4 rounded"
-                />
-                <span>Yêu cầu ký số xác nhận</span>
-              </label>
-            </div>
-
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className={`w-full px-4 py-2 rounded-lg font-semibold flex items-center justify-center gap-2 transition-colors ${
-                isSubmitting
-                  ? "opacity-50 cursor-not-allowed"
-                  : "bg-primary hover:bg-primary-strong text-on-primary"
-              }`}
-            >
-              <Send size={18} />
-              {isSubmitting ? "Đang gửi..." : "Phát hành ngay"}
-            </button>
-          </form>
-        )}
-
         {/* Scheduler Tab */}
         {activeTab === "scheduler" && (
-          <NotificationScheduler isOpen={activeTab === "scheduler"} onClose={() => {}} onSuccess={fetchNotifications} />
+          <NotificationScheduler
+            isOpen={activeTab === "scheduler"}
+            onClose={() => {}}
+            onSuccess={fetchNotifications}
+          />
         )}
 
         {/* Templates Tab */}
-        {activeTab === "templates" && (
-          <NotificationTemplates />
-        )}
+        {activeTab === "templates" && <NotificationTemplates />}
 
         {/* Analytics Tab */}
-        {activeTab === "analytics" && (
-          <AnalyticsDashboard />
-        )}
+        {activeTab === "analytics" && <AnalyticsDashboard />}
 
         {/* Settings Tab */}
-        {activeTab === "settings" && (
-          <NotificationSettings />
-        )}
+        {activeTab === "settings" && <NotificationSettings />}
 
         {/* Groups Tab */}
-        {activeTab === "groups" && (
-          <RecipientGroupManager />
-        )}
+        {activeTab === "groups" && <RecipientGroupManager />}
 
         {/* Email Tab */}
-        {activeTab === "emails" && (
-          <EmailTemplateDesigner />
-        )}
+        {activeTab === "emails" && <EmailTemplateDesigner />}
       </section>
+
+      {/* Compose Modal */}
+      {showComposeModal && (
+        <SendNotificationForm
+          onSuccess={() => {
+            fetchNotifications();
+            setShowComposeModal(false);
+          }}
+          onClose={() => setShowComposeModal(false)}
+        />
+      )}
 
       {/* Preview Modal */}
       {previewNotification && (
         <NotificationPreviewModal
           isOpen={!!previewNotification}
-          notification={previewNotification as any}
+          notification={previewNotification}
           onClose={() => setPreviewNotification(null)}
         />
       )}
