@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, useMemo } from "react";
-import { Send, Download, Search, Sun, Moon } from "lucide-react";
+import React, { useState, useCallback, useMemo } from "react";
+import { Download, Search, Sun, Moon } from "lucide-react";
 import { toast } from "sonner";
 import apiClient from "@/shared/services/api-client";
 import { INotification } from "@/shared/types/notification.types";
@@ -9,7 +9,6 @@ import { INotification } from "@/shared/types/notification.types";
 import NotificationScheduler from "./NotificationScheduler";
 import BulkActionsBar from "./BulkActionsBar";
 import NotificationTemplates from "./NotificationTemplates";
-import NotificationPreviewModal from "./NotificationPreviewModal";
 import NotificationDragDrop from "./NotificationDragDrop";
 import NotificationSettings from "./NotificationSettings";
 import RecipientGroupManager from "./RecipientGroupManager";
@@ -58,11 +57,8 @@ const AdminNotificationPageEnhanced: React.FC = () => {
   const [selectedNotifications, setSelectedNotifications] = useState<number[]>(
     [],
   );
-  const [previewNotification, setPreviewNotification] =
-    useState<INotification | null>(null);
   const [showComposeModal, setShowComposeModal] = useState(false);
 
-  // Fetch notifications
   const fetchNotifications = useCallback(async () => {
     setLoading(true);
     try {
@@ -90,11 +86,6 @@ const AdminNotificationPageEnhanced: React.FC = () => {
     }
   }, [filter, searchTerm]);
 
-  useEffect(() => {
-    fetchNotifications();
-  }, [fetchNotifications]);
-
-  // Handle export
   const handleExport = async (format: "csv" | "json") => {
     try {
       if (format === "csv") {
@@ -109,21 +100,15 @@ const AdminNotificationPageEnhanced: React.FC = () => {
     }
   };
 
-  // Filter notifications
   const filteredNotifications = useMemo(() => {
     return notifications.filter((n) => {
       const matchesSearch =
         n.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         n.message.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesFilter =
-        filter === "all" ||
-        (filter === "urgent" && n.type === "STATUS_CHANGED") ||
-        (filter === "draft" && !n.isRead) ||
-        (filter === "scheduled" && n.type === "REPORT_SUBMITTED");
 
-      return matchesSearch && matchesFilter;
+      return matchesSearch;
     });
-  }, [notifications, searchTerm, filter]);
+  }, [notifications, searchTerm]);
 
   return (
     <div
@@ -331,7 +316,7 @@ const AdminNotificationPageEnhanced: React.FC = () => {
             >
               {loading ? (
                 <div className="p-8 text-center">
-                  <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary mb-4"></div>
+                  <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary mb-4" />
                   <p className="opacity-70">Đang tải...</p>
                 </div>
               ) : filteredNotifications.length === 0 ? (
@@ -342,15 +327,22 @@ const AdminNotificationPageEnhanced: React.FC = () => {
                 <NotificationDragDrop
                   notifications={filteredNotifications}
                   onReorder={() => fetchNotifications()}
-                  onNotificationSelect={(id) => {
-                    const notification = filteredNotifications.find(
-                      (n) => n.id === id,
-                    );
-                    if (notification) setPreviewNotification(notification);
+                  onNotificationSelect={() => {
+                    // Handle notification selection
                   }}
                 />
               )}
             </div>
+          </div>
+        )}
+
+        {/* Compose Tab - Message to user */}
+        {activeTab === "compose" && (
+          <div className="text-center py-12">
+            <p className="text-text-secondary mb-4">
+              Click &quot;Soạn thông báo&quot; button above to compose a new
+              notification
+            </p>
           </div>
         )}
 
@@ -385,17 +377,6 @@ const AdminNotificationPageEnhanced: React.FC = () => {
           onSuccess={() => {
             fetchNotifications();
             setShowComposeModal(false);
-          }}
-          onClose={() => setShowComposeModal(false)}
-        />
-      )}
-
-      {/* Compose Modal */}
-      {showComposeModal && (
-        <SendNotificationForm
-          onSuccess={() => {
-            setShowComposeModal(false);
-            fetchNotifications();
           }}
           onClose={() => setShowComposeModal(false)}
         />
