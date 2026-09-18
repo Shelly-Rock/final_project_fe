@@ -16,6 +16,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import InputAdornment from "@mui/material/InputAdornment";
 import IconButton from "@mui/material/IconButton";
 import { default as Logo } from "@/assets/image/png/logo.png";
+import LoginBackground from "@/assets/image/png/login.png";
 import { toast } from "@/shared/components/Sonner/Sonner";
 
 const BACKEND_ERRORS = {
@@ -184,74 +185,30 @@ function LoginForm() {
   }
 
   return (
-    <Box className="login-root">
-      {/* Left panel */}
-      <Box className="login-panel login-panel--left">
-        <Box className="login-panel-content">
-          <Box className="login-brand">
-            <Box className="login-brand-logo-wrap">
-              <Image
-                src={Logo}
-                alt="Logo"
-                width={80}
-                height={80}
-                className="login-brand-logo"
-              />
-            </Box>
-            <Typography className="login-brand-text">Thesis Manager</Typography>
-          </Box>
-
-          <Box className="login-hero">
-            <Typography className="login-hero-title">
-              Quản lý đồ án sinh viên
-            </Typography>
-            <Typography className="login-hero-desc">
-              Nền tảng hỗ trợ quản lý toàn diện: từ đăng ký đề tài, phân công
-              giảng viên, theo dõi tiến độ, đến đánh giá kết quả bảo vệ.
-            </Typography>
-          </Box>
-
-          <Box className="login-features">
-            {[
-              {
-                icon: "bi-mortarboard",
-                text: "Quản lý đồ án & đề tài",
-              },
-              {
-                icon: "bi-people",
-                text: "Phân công giảng viên hướng dẫn",
-              },
-              {
-                icon: "bi-bar-chart",
-                text: "Thống kê & báo cáo chi tiết",
-              },
-              {
-                icon: "bi-shield-lock",
-                text: "Phân quyền người dùng chặt chẽ",
-              },
-            ].map((f) => (
-              <Box key={f.text} className="login-feature-item">
-                <Box className="login-feature-icon-wrap">
-                  <span className={`bi ${f.icon} login-feature-icon`} />
-                </Box>
-                <Typography className="login-feature-text">{f.text}</Typography>
-              </Box>
-            ))}
-          </Box>
-        </Box>
-
-        <Box className="login-deco login-deco--circle1" />
-        <Box className="login-deco login-deco--circle2" />
-        <Box className="login-deco login-deco--circle3" />
-      </Box>
-
-      {/* Right panel — form */}
-      <Box className="login-panel login-panel--right">
+    <Box
+      className="login-root"
+      sx={{
+        backgroundImage: `url(${LoginBackground.src})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }}
+    >
+      <Box className="login-card">
         <Box className="login-form-wrap">
+          <Box className="login-card-brand">
+            <Image
+              src={Logo}
+              alt="Logo"
+              width={110}
+              height={42}
+              className="login-card-logo"
+            />
+          </Box>
+
           <Box className="login-form-header">
             <Typography className="login-form-title">Đăng nhập</Typography>
             <Typography className="login-form-subtitle">
-              Chào mừng bạn quay trở lại. Vui lòng nhập thông tin.
+              Vui lòng đăng nhập để tiếp tục sử dụng hệ thống
             </Typography>
           </Box>
 
@@ -325,6 +282,16 @@ function LoginForm() {
                 },
               }}
             />
+
+            <Box className="login-options">
+              <label className="login-remember">
+                <input type="checkbox" />
+                <span>Ghi nhớ đăng nhập</span>
+              </label>
+              <button type="button" className="login-forgot-password">
+                Quên mật khẩu?
+              </button>
+            </Box>
 
             <Button
               type="submit"
