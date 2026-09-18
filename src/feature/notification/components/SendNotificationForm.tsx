@@ -26,8 +26,8 @@ const SendNotificationSchema = z.object({
   title: z.string().min(1, "Tiêu đề không được để trống").max(255),
   message: z.string().min(1, "Nội dung không được để trống"),
   recipientIds: z.array(z.number()).min(1, "Chọn ít nhất 1 người nhận"),
-  requireRead24h: z.boolean().default(false),
-  pinToTop: z.boolean().default(false),
+  requireRead24h: z.boolean(),
+  pinToTop: z.boolean(),
 });
 
 type SendNotificationFormData = z.infer<typeof SendNotificationSchema>;
