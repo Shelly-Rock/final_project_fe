@@ -215,16 +215,56 @@ $sidebar-collapsed-width: 72px;
 
 // ---------- Sidebar Sections ----------
 .sidebar-section {
-  margin-bottom: variables.$spacing-4;
+  margin-bottom: variables.$spacing-2;
+}
+
+.sidebar-section-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: variables.$spacing-2 variables.$spacing-5;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+
+  &:hover .sidebar-section-title {
+    color: variables.$neutral-100;
+  }
 }
 
 .sidebar-section-title {
-  padding: variables.$spacing-2 variables.$spacing-5;
   font-size: variables.$font-size-xs;
   font-weight: variables.$font-weight-semibold;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: $sidebar-section-color;
+}
+
+.sidebar-section-chevron {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.65);
+  flex-shrink: 0;
+}
+
+.sidebar-section--collapsed .sidebar-section-title {
+  padding: variables.$spacing-2 variables.$spacing-5;
+}
+
+.sidebar-section--open .sidebar-menu {
+  animation: sidebarSectionIn 180ms ease;
+}
+
+@keyframes sidebarSectionIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 // ---------- Sidebar Menu ----------
