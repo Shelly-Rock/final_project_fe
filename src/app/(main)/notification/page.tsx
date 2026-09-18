@@ -10,10 +10,6 @@ import {
   CardContent,
   Button,
   TextField,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
   Chip,
   IconButton,
   Table,
@@ -31,6 +27,7 @@ import {
 } from "@mui/material";
 import { notificationApi } from "@/shared/services/api/notification.api";
 import { INotification } from "@/shared/types/notification.types";
+import SendNotificationForm from "@/feature/notification/components/SendNotificationForm";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 import CheckIcon from "@mui/icons-material/Check";
@@ -587,44 +584,16 @@ export default function NotificationPage() {
         </Box>
       )}
 
-      {/* Modal */}
-      <Dialog
-        open={showModal}
-        onClose={() => setShowModal(false)}
-        maxWidth="sm"
-        fullWidth
-      >
-        <DialogTitle>Soạn thông báo mới</DialogTitle>
-        <DialogContent sx={{ pt: 2 }}>
-          <TextField
-            fullWidth
-            label="Tiêu đề thông báo"
-            placeholder="Ví dụ: Chỉ thị chuẩn bị kế hoạch NCKH đợt 1..."
-            value={formData.title}
-            onChange={(e) =>
-              setFormData({ ...formData, title: e.target.value })
-            }
-            sx={{ mb: 2 }}
-          />
-          <TextField
-            fullWidth
-            label="Nội dung tóm tắt / Chỉ đạo"
-            placeholder="Ghi rõ nội dung cốt lõi, thời hạn nộp báo cáo..."
-            multiline
-            rows={4}
-            value={formData.message}
-            onChange={(e) =>
-              setFormData({ ...formData, message: e.target.value })
-            }
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setShowModal(false)}>Hủy bỏ</Button>
-          <Button onClick={handleSendNotification} variant="contained">
-            Phát hành ngay
-          </Button>
-        </DialogActions>
-      </Dialog>
+      {/* Compose Modal */}
+      {showModal && (
+        <SendNotificationForm
+          onSuccess={() => {
+            setShowModal(false);
+            fetchNotifications();
+          }}
+          onClose={() => setShowModal(false)}
+        />
+      )}
     </Box>
   );
 }
