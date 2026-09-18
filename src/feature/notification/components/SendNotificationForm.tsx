@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useForm, Controller } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
@@ -10,15 +10,12 @@ import {
   Send,
   Save,
   X,
-  Plus,
   FileText,
-  Trash2,
   Bold,
   Italic,
   List,
   Link2,
   Code,
-  Paperclip,
 } from "lucide-react";
 
 const SendNotificationSchema = z.object({
@@ -79,7 +76,6 @@ const SendNotificationForm: React.FC<SendNotificationFormProps> = ({
   const {
     register,
     handleSubmit,
-    control,
     formState: { errors, isSubmitting },
     reset,
     watch,
