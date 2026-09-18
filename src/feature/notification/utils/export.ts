@@ -110,8 +110,24 @@ const exportAsJSON = (data: FormattedNotification[]): string => {
 };
 
 // Download helpers
-export const downloadAsCSV = (data: FormattedNotification[]): void => {
-  const csv = exportAsCSV(data);
+export const downloadAsCSV = (
+  data: FormattedNotification[] | INotification[],
+): void => {
+  let formatted: FormattedNotification[];
+
+  if (data.length === 0) return;
+
+  // Check if already formatted or needs formatting
+  if ("title" in data[0] && !("ID" in data[0])) {
+    formatted = formatNotificationsForExport(data as INotification[], {
+      format: "csv",
+      includeReadStatus: true,
+    });
+  } else {
+    formatted = data as FormattedNotification[];
+  }
+
+  const csv = exportAsCSV(formatted);
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
   const link = document.createElement("a");
   const url = URL.createObjectURL(blob);
@@ -125,8 +141,10 @@ export const downloadAsCSV = (data: FormattedNotification[]): void => {
   document.body.removeChild(link);
 };
 
-export const downloadAsJSON = (notifications: INotification[]): void => {
-  const json = JSON.stringify(notifications, null, 2);
+export const downloadAsJSON = (
+  data: INotification[] | FormattedNotification[],
+): void => {
+  const json = JSON.stringify(data, null, 2);
   const blob = new Blob([json], { type: "application/json;charset=utf-8;" });
   const link = document.createElement("a");
   const url = URL.createObjectURL(blob);

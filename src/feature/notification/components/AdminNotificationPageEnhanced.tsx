@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { Send, Download, Search, Sun, Moon } from "lucide-react";
 import { toast } from "sonner";
 import apiClient from "@/shared/services/api-client";
+import { INotification } from "@/shared/types/notification.types";
 
 import NotificationScheduler from "./NotificationScheduler";
 import BulkActionsBar from "./BulkActionsBar";
@@ -17,22 +18,6 @@ import EmailTemplateDesigner from "./EmailTemplateDesigner";
 import SendNotificationForm from "./SendNotificationForm";
 import { downloadAsCSV, downloadAsJSON } from "../utils/export";
 import { announceToScreenReader } from "../utils/accessibility";
-
-interface Notification {
-  id: number;
-  title: string;
-  message: string;
-  type: "URGENT" | "DIRECTIVE" | "GENERAL" | "REMINDER";
-  status: "PUBLISHED" | "DRAFT" | "SCHEDULED";
-  readCount: number;
-  totalRecipients: number;
-  recipients: string;
-  createdAt: string;
-  updatedAt: string;
-  scheduledAt?: string;
-  isPinned?: boolean;
-  requiresSignature?: boolean;
-}
 
 interface NotificationStats {
   total: number;
@@ -55,7 +40,7 @@ type TabType =
 
 const AdminNotificationPageEnhanced: React.FC = () => {
   const [theme, setTheme] = useState<"light" | "dark">("dark");
-  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [notifications, setNotifications] = useState<INotification[]>([]);
   const [stats, setStats] = useState<NotificationStats>({
     total: 0,
     urgent: 0,
@@ -74,7 +59,7 @@ const AdminNotificationPageEnhanced: React.FC = () => {
     [],
   );
   const [previewNotification, setPreviewNotification] =
-    useState<Notification | null>(null);
+    useState<INotification | null>(null);
   const [showComposeModal, setShowComposeModal] = useState(false);
 
   // Fetch notifications
@@ -82,7 +67,7 @@ const AdminNotificationPageEnhanced: React.FC = () => {
     setLoading(true);
     try {
       const response = await apiClient.get<{
-        notifications: Notification[];
+        notifications: INotification[];
         stats: NotificationStats;
       }>("/notification/admin/list", {
         params: {
@@ -132,9 +117,9 @@ const AdminNotificationPageEnhanced: React.FC = () => {
         n.message.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesFilter =
         filter === "all" ||
-        (filter === "urgent" && n.type === "URGENT") ||
-        (filter === "draft" && n.status === "DRAFT") ||
-        (filter === "scheduled" && n.status === "SCHEDULED");
+        (filter === "urgent" && n.type === "STATUS_CHANGED") ||
+        (filter === "draft" && !n.isRead) ||
+        (filter === "scheduled" && n.type === "REPORT_SUBMITTED");
 
       return matchesSearch && matchesFilter;
     });
@@ -405,12 +390,14 @@ const AdminNotificationPageEnhanced: React.FC = () => {
         />
       )}
 
-      {/* Preview Modal */}
-      {previewNotification && (
-        <NotificationPreviewModal
-          isOpen={!!previewNotification}
-          notification={previewNotification}
-          onClose={() => setPreviewNotification(null)}
+      {/* Compose Modal */}
+      {showComposeModal && (
+        <SendNotificationForm
+          onSuccess={() => {
+            setShowComposeModal(false);
+            fetchNotifications();
+          }}
+          onClose={() => setShowComposeModal(false)}
         />
       )}
     </div>
