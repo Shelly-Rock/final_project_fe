@@ -242,7 +242,7 @@ const SendNotificationForm: React.FC<SendNotificationFormProps> = ({
             e.preventDefault();
             handleSubmit((data) => onSubmit(data, false))(e);
           }}
-          className="p-6 space-y-4"
+          className="p-8 space-y-5"
         >
           {/* Priority Selection */}
           <div>
