@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
-import { useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { usePermissionContext } from "@/core/providers/PermissionProvider";
 import { ROLE_LABELS } from "@/core/permissions/types";
 import { getMenuSectionsForRole } from "@/shared/constants/menus";
@@ -48,10 +48,47 @@ export function Sidebar({
     router.push("/login");
   }, [router]);
 
-  const isActive = (path?: string) => {
-    if (!path) return false;
-    return pathname === path || pathname.startsWith(path + "/");
-  };
+  const isActive = useCallback(
+    (path?: string) => {
+      if (!path) return false;
+      return pathname === path || pathname.startsWith(path + "/");
+    },
+    [pathname],
+  );
+
+  const isSectionActive = useCallback(
+    (paths: (string | undefined)[]) => paths.some((p) => isActive(p)),
+    [isActive],
+  );
+
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
+
+  const initialOpenSections = useMemo(() => {
+    const init: Record<string, boolean> = {};
+    for (const section of menuSections) {
+      if (isSectionActive(section.items.map((i) => i.path)))
+        init[section.section] = true;
+    }
+    return init;
+  }, [menuSections, isSectionActive]);
+
+  useEffect(() => {
+    setOpenSections((prev) => {
+      const next = { ...prev };
+      let changed = false;
+      for (const key of Object.keys(initialOpenSections)) {
+        if (!prev[key]) {
+          next[key] = true;
+          changed = true;
+        }
+      }
+      return changed ? next : prev;
+    });
+  }, [initialOpenSections]);
+
+  const toggleSection = useCallback((key: string) => {
+    setOpenSections((prev) => ({ ...prev, [key]: !prev[key] }));
+  }, []);
 
   return (
     <>
@@ -110,36 +147,67 @@ export function Sidebar({
           </div>
           {/* Navigation */}
           <nav className="sidebar-nav" aria-label="Main navigation">
-            {menuSections.map((section) => (
-              <div key={section.section} className="sidebar-section">
-                {!collapsed && (
-                  <div className="sidebar-section-title">{section.section}</div>
-                )}
-                <ul className="sidebar-menu">
-                  {section.items.map((item) => (
-                    <li
-                      key={item.key}
-                      className={`sidebar-menu-item ${isActive(item.path) ? "active" : ""}`}
+            {menuSections.map((section) => {
+              const expanded = collapsed
+                ? true
+                : (openSections[section.section] ?? false);
+              return (
+                <div
+                  key={section.section}
+                  className={`sidebar-section ${expanded ? "sidebar-section--open" : "sidebar-section--collapsed"}`}
+                >
+                  {!collapsed ? (
+                    <button
+                      type="button"
+                      className="sidebar-section-toggle"
+                      onClick={() => toggleSection(section.section)}
+                      aria-expanded={expanded}
+                      aria-controls={`section-${section.section}`}
                     >
-                      <Link
-                        href={item.path || "#"}
-                        className="sidebar-menu-link"
-                        title={item.label}
-                      >
-                        <span
-                          className={`sidebar-menu-icon bi ${item.icon || "bi-circle"}`}
-                        />
-                        {!collapsed && (
-                          <span className="sidebar-menu-label">
-                            {item.label}
-                          </span>
-                        )}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
+                      <span className="sidebar-section-title">
+                        {section.section}
+                      </span>
+                      <span
+                        className={`bi ${expanded ? "bi-chevron-up" : "bi-chevron-down"} sidebar-section-chevron`}
+                        aria-hidden="true"
+                      />
+                    </button>
+                  ) : (
+                    <div className="sidebar-section-title">
+                      {section.section}
+                    </div>
+                  )}
+                  {(collapsed || expanded) && (
+                    <ul
+                      id={`section-${section.section}`}
+                      className="sidebar-menu"
+                    >
+                      {section.items.map((item) => (
+                        <li
+                          key={item.key}
+                          className={`sidebar-menu-item ${isActive(item.path) ? "active" : ""}`}
+                        >
+                          <Link
+                            href={item.path || "#"}
+                            className="sidebar-menu-link"
+                            title={item.label}
+                          >
+                            <span
+                              className={`sidebar-menu-icon bi ${item.icon || "bi-circle"}`}
+                            />
+                            {!collapsed && (
+                              <span className="sidebar-menu-label">
+                                {item.label}
+                              </span>
+                            )}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              );
+            })}
           </nav>
 
           {/* User info */}
