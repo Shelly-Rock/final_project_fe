@@ -91,12 +91,7 @@ function LoginForm() {
   }, []);
 
   useEffect(() => {
-    const timer = setTimeout(() => setShowFeatures(false), 5000);
-    return () => clearTimeout(timer);
-  }, []);
-
-  useEffect(() => {
-    const timer = setTimeout(() => setShowFeatures(false), 5000);
+    const timer = setTimeout(() => setShowFeatures(false), 7000);
     return () => clearTimeout(timer);
   }, []);
 
@@ -244,6 +239,7 @@ function LoginForm() {
             gap: 4,
             maxWidth: 300,
             flex: 1,
+            marginRight: "10%",
           }}
         >
           <Box sx={{ display: "flex", alignItems: "flex-start", gap: 2 }}>
@@ -293,6 +289,7 @@ function LoginForm() {
             gap: 4,
             maxWidth: 300,
             flex: 1,
+            marginLeft: "10%",
           }}
         >
           <Box sx={{ display: "flex", alignItems: "flex-start", gap: 2 }}>
