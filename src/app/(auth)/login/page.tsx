@@ -83,9 +83,25 @@ function LoginForm() {
   const [error, setError] = useState("");
   const [emailError, setEmailError] = useState("");
   const [videoLoading, setVideoLoading] = useState(true);
+  const [showFeatures, setShowFeatures] = useState(true);
 
   useEffect(() => {
     const timer = setTimeout(() => setVideoLoading(false), 1000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setShowFeatures(false), 5000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setShowFeatures(false), 5000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setShowLoadingText(false), 5000);
     return () => clearTimeout(timer);
   }, []);
 
