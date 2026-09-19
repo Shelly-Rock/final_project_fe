@@ -218,7 +218,7 @@ function LoginForm() {
             display: "flex",
             alignItems: "center",
             justifyContent: "space-around",
-            background: "linear-gradient(135deg, #0066cc 0%, #0099ff 100%)",
+            background: "linear-gradient(135deg, #003d99 0%, #0052b3 100%)",
             zIndex: 1,
             padding: 4,
           }}
@@ -351,7 +351,7 @@ function LoginForm() {
         loop
         preload="auto"
         onLoadStart={() => setVideoLoading(true)}
-        onCanPlay={() => setVideoLoading(false)}
+        onLoadedData={() => setVideoLoading(false)}
         style={{
           position: "fixed",
           top: 0,
