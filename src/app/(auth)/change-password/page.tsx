@@ -54,6 +54,7 @@ function ChangePasswordForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
+  const [videoLoading, setVideoLoading] = useState(true);
 
   // Validate token only for email-link flow
   useEffect(() => {
@@ -149,10 +150,31 @@ function ChangePasswordForm() {
         overflow: "hidden",
       }}
     >
+      {videoLoading && (
+        <Box
+          sx={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+            zIndex: 1,
+          }}
+        >
+          <CircularProgress size={60} sx={{ color: "white" }} />
+        </Box>
+      )}
       <video
         autoPlay
         muted
         loop
+        preload="auto"
+        onLoadStart={() => setVideoLoading(true)}
+        onCanPlay={() => setVideoLoading(false)}
         style={{
           position: "fixed",
           top: 0,
