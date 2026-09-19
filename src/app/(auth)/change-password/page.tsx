@@ -151,20 +151,22 @@ function ChangePasswordForm() {
       }}
     >
       <iframe
-        width="100%"
-        height="100%"
-        src="https://www.youtube.com/embed/K1wjuKAugzY?autoplay=1&mute=1&loop=1&playlist=K1wjuKAugzY&controls=0&modestbranding=1"
+        src="https://www.youtube.com/embed/K1wjuKAugzY?autoplay=1&mute=1&loop=1&playlist=K1wjuKAugzY&controls=0&modestbranding=1&fs=0&rel=0&cc_load_policy=0"
         title="Background Video"
         style={{
           position: "fixed",
           top: 0,
           left: 0,
-          width: "100%",
-          height: "100%",
+          width: "100vw",
+          height: "100vh",
           border: "none",
           zIndex: 0,
           pointerEvents: "none",
+          margin: 0,
+          padding: 0,
         }}
+        allow="autoplay"
+        frameBorder="0"
       />
       <IconButton
         size="small"

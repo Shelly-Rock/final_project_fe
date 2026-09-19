@@ -194,19 +194,22 @@ function LoginForm() {
       }}
     >
       <iframe
-        src="https://www.youtube.com/embed/K1wjuKAugzY?autoplay=1&mute=1&controls=0&loop=1&modestbranding=1&playlist=K1wjuKAugzY"
+        src="https://www.youtube.com/embed/K1wjuKAugzY?autoplay=1&mute=1&controls=0&loop=1&modestbranding=1&fs=0&rel=0&playlist=K1wjuKAugzY&cc_load_policy=0"
         style={{
-          position: "absolute",
+          position: "fixed",
           top: 0,
           left: 0,
-          width: "100%",
-          height: "100%",
+          width: "100vw",
+          height: "100vh",
           border: "none",
           zIndex: 0,
           pointerEvents: "none",
+          margin: 0,
+          padding: 0,
         }}
         allow="autoplay"
         title="Background Video"
+        frameBorder="0"
       />
       <Box className="login-card" sx={{ position: "relative", zIndex: 1 }}>
         <Box className="login-form-wrap">
