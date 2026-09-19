@@ -256,8 +256,18 @@ function LoginForm() {
             width: "100%",
           }}
         >
-          <Box sx={{ display: "flex", justifyContent: "center", mb: 3 }}>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              mb: 3,
+            }}
+          >
             <Image src={Logo} alt="Logo" width={80} height={80} />
+            <Typography variant="h5" fontWeight={700} sx={{ mt: 2 }}>
+              Đăng nhập
+            </Typography>
           </Box>
 
           {error && (
