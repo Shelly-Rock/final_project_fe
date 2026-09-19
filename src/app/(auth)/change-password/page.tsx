@@ -144,13 +144,28 @@ function ChangePasswordForm() {
     <Box
       className="login-root"
       sx={{
-        backgroundImage: `url(${ChangePasswordBackground.src})`,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
+        position: "relative",
         justifyContent: "center",
         padding: "clamp(2rem, 5vw, 5rem)",
+        overflow: "hidden",
       }}
     >
+      <iframe
+        width="100%"
+        height="100%"
+        src="https://www.youtube.com/embed/K1wjuKAugzY?autoplay=1&mute=1&loop=1&playlist=K1wjuKAugzY&controls=0&modestbranding=1"
+        title="Background Video"
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          width: "100%",
+          height: "100%",
+          border: "none",
+          zIndex: 0,
+          pointerEvents: "none",
+        }}
+      />
       <IconButton
         size="small"
         aria-label={token ? "Quay lại đăng nhập" : "Quay lại hệ thống"}
@@ -164,7 +179,7 @@ function ChangePasswordForm() {
           position: "fixed",
           left: 24,
           top: 24,
-          zIndex: 1,
+          zIndex: 10,
           width: 32,
           height: 32,
           bgcolor: "transparent",
@@ -181,7 +196,7 @@ function ChangePasswordForm() {
       </IconButton>
       <Box
         className="login-panel login-panel--right"
-        sx={{ maxWidth: 480, mx: "auto" }}
+        sx={{ maxWidth: 480, mx: "auto", position: "relative", zIndex: 5 }}
       >
         <Paper
           elevation={3}

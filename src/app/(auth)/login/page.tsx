@@ -16,7 +16,6 @@ import CircularProgress from "@mui/material/CircularProgress";
 import InputAdornment from "@mui/material/InputAdornment";
 import IconButton from "@mui/material/IconButton";
 import { default as Logo } from "@/assets/image/png/logo.png";
-import LoginBackground from "@/assets/image/jpg/pageHeader.jpg";
 import { toast } from "@/shared/components/Sonner/Sonner";
 
 const BACKEND_ERRORS = {
@@ -188,12 +187,28 @@ function LoginForm() {
     <Box
       className="login-root"
       sx={{
-        backgroundImage: `url(${LoginBackground.src})`,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
+        position: "relative",
+        overflow: "hidden",
+        width: "100%",
+        minHeight: "100vh",
       }}
     >
-      <Box className="login-card">
+      <iframe
+        src="https://www.youtube.com/embed/K1wjuKAugzY?autoplay=1&mute=1&controls=0&loop=1&modestbranding=1&playlist=K1wjuKAugzY"
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          width: "100%",
+          height: "100%",
+          border: "none",
+          zIndex: 0,
+          pointerEvents: "none",
+        }}
+        allow="autoplay"
+        title="Background Video"
+      />
+      <Box className="login-card" sx={{ position: "relative", zIndex: 1 }}>
         <Box className="login-form-wrap">
           <Box className="login-card-brand">
             <Image
