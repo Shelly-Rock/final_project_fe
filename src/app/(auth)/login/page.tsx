@@ -86,7 +86,7 @@ function LoginForm() {
   const [showFeatures, setShowFeatures] = useState(true);
 
   useEffect(() => {
-    const timer = setTimeout(() => setVideoLoading(false), 10000);
+    const timer = setTimeout(() => setVideoLoading(false), 15000);
     return () => clearTimeout(timer);
   }, []);
 
@@ -410,7 +410,12 @@ function LoginForm() {
               autoFocus
               disabled={loading}
               variant="outlined"
-              sx={{ mb: 2 }}
+              sx={{
+                mb: 2,
+                "& .MuiOutlinedInput-root.Mui-focused fieldset": {
+                  boxShadow: username ? "none" : undefined,
+                },
+              }}
             />
 
             <TextField
