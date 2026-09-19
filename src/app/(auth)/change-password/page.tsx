@@ -150,24 +150,25 @@ function ChangePasswordForm() {
         overflow: "hidden",
       }}
     >
-      <iframe
-        src="https://www.youtube.com/embed/K1wjuKAugzY?autoplay=1&mute=1&loop=1&playlist=K1wjuKAugzY&controls=0&modestbranding=1&fs=0&rel=0&cc_load_policy=0"
-        title="Background Video"
+      <video
+        autoPlay
+        muted
+        loop
         style={{
           position: "fixed",
           top: 0,
           left: 0,
           width: "100vw",
           height: "100vh",
-          border: "none",
+          objectFit: "cover",
           zIndex: 0,
           pointerEvents: "none",
           margin: 0,
           padding: 0,
         }}
-        allow="autoplay"
-        frameBorder="0"
-      />
+      >
+        <source src="/assets/video/video-introduce.mp4" type="video/mp4" />
+      </video>
       <IconButton
         size="small"
         aria-label={token ? "Quay lại đăng nhập" : "Quay lại hệ thống"}
