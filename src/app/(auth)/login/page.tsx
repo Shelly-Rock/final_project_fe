@@ -19,8 +19,7 @@ import IconButton from "@mui/material/IconButton";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
 import Link from "@mui/material/Link";
-import LoginIcon from "@mui/icons-material/Login";
-import { default as Logo } from "@/assets/image/png/logo.png";
+import { default as Logo } from "@/assets/image/png/logo02.png";
 import { toast } from "@/shared/components/Sonner/Sonner";
 
 const BACKEND_ERRORS = {
@@ -257,16 +256,8 @@ function LoginForm() {
             width: "100%",
           }}
         >
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 3 }}>
-            <LoginIcon color="primary" sx={{ fontSize: 40 }} />
-            <Box>
-              <Typography variant="h5" fontWeight={700}>
-                Đăng nhập
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Vui lòng đăng nhập để tiếp tục sử dụng hệ thống
-              </Typography>
-            </Box>
+          <Box sx={{ display: "flex", justifyContent: "center", mb: 3 }}>
+            <Image src={Logo} alt="Logo" width={80} height={80} />
           </Box>
 
           {error && (
@@ -287,7 +278,7 @@ function LoginForm() {
 
           <Box component="form" onSubmit={handleSubmit} noValidate>
             <TextField
-              label="Tài khoản (MSSV)"
+              placeholder="Tài khoản (MSSV)"
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
@@ -296,11 +287,12 @@ function LoginForm() {
               autoComplete="username"
               autoFocus
               disabled={loading}
+              variant="outlined"
               sx={{ mb: 2 }}
             />
 
             <TextField
-              label="Mật khẩu"
+              placeholder="Mật khẩu"
               type={showPassword ? "text" : "password"}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -308,6 +300,7 @@ function LoginForm() {
               required
               autoComplete="current-password"
               disabled={loading}
+              variant="outlined"
               sx={{ mb: 2 }}
               slotProps={{
                 input: {
