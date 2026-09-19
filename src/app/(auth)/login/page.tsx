@@ -213,7 +213,9 @@ function LoginForm() {
         alignItems: "center",
         padding: "clamp(2rem, 5vw, 5rem)",
         overflow: "hidden",
-        gap: 4,
+        gap: 8,
+        width: "100%",
+        minHeight: "100vh",
       }}
     >
       <Box
