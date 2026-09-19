@@ -8,6 +8,7 @@ import { getSession, signIn, useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import Box from "@mui/material/Box";
+import Paper from "@mui/material/Paper";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
@@ -15,6 +16,10 @@ import Alert from "@mui/material/Alert";
 import CircularProgress from "@mui/material/CircularProgress";
 import InputAdornment from "@mui/material/InputAdornment";
 import IconButton from "@mui/material/IconButton";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Checkbox from "@mui/material/Checkbox";
+import Link from "@mui/material/Link";
+import LoginIcon from "@mui/icons-material/Login";
 import { default as Logo } from "@/assets/image/png/logo.png";
 import { toast } from "@/shared/components/Sonner/Sonner";
 
@@ -194,9 +199,9 @@ function LoginForm() {
       className="login-root"
       sx={{
         position: "relative",
+        justifyContent: "center",
+        padding: "clamp(2rem, 5vw, 5rem)",
         overflow: "hidden",
-        width: "100%",
-        minHeight: "100vh",
       }}
     >
       {videoLoading && (
@@ -239,31 +244,33 @@ function LoginForm() {
       >
         <source src="/videos/video-introduce.mp4" type="video/mp4" />
       </video>
-      <Box className="login-card" sx={{ position: "relative", zIndex: 1 }}>
-        <Box className="login-form-wrap">
-          <Box className="login-card-brand">
-            <Image
-              src={Logo}
-              alt="Logo"
-              width={110}
-              height={42}
-              className="login-card-logo"
-            />
-          </Box>
-
-          <Box className="login-form-header">
-            <Typography className="login-form-title">Đăng nhập</Typography>
-            <Typography className="login-form-subtitle">
-              Vui lòng đăng nhập để tiếp tục sử dụng hệ thống
-            </Typography>
+      <Box
+        className="login-panel login-panel--right"
+        sx={{ maxWidth: 480, mx: "auto", position: "relative", zIndex: 5 }}
+      >
+        <Paper
+          elevation={3}
+          sx={{
+            p: 4,
+            borderRadius: 3,
+            maxWidth: 440,
+            width: "100%",
+          }}
+        >
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 3 }}>
+            <LoginIcon color="primary" sx={{ fontSize: 40 }} />
+            <Box>
+              <Typography variant="h5" fontWeight={700}>
+                Đăng nhập
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Vui lòng đăng nhập để tiếp tục sử dụng hệ thống
+              </Typography>
+            </Box>
           </Box>
 
           {error && (
-            <Alert
-              severity="error"
-              className="login-alert"
-              onClose={() => setError("")}
-            >
+            <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError("")}>
               {error}
             </Alert>
           )}
@@ -271,31 +278,25 @@ function LoginForm() {
           {emailError && (
             <Alert
               severity="warning"
-              className="login-alert"
+              sx={{ mb: 2 }}
               onClose={() => setEmailError("")}
             >
               {emailError}
             </Alert>
           )}
 
-          <Box
-            component="form"
-            className="login-form"
-            onSubmit={handleSubmit}
-            noValidate
-          >
+          <Box component="form" onSubmit={handleSubmit} noValidate>
             <TextField
               label="Tài khoản (MSSV)"
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              required
               fullWidth
+              required
               autoComplete="username"
               autoFocus
-              slotProps={{
-                input: { className: "login-field-input" },
-              }}
+              disabled={loading}
+              sx={{ mb: 2 }}
             />
 
             <TextField
@@ -303,12 +304,13 @@ function LoginForm() {
               type={showPassword ? "text" : "password"}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              required
               fullWidth
+              required
               autoComplete="current-password"
+              disabled={loading}
+              sx={{ mb: 2 }}
               slotProps={{
                 input: {
-                  className: "login-field-input",
                   endAdornment: (
                     <InputAdornment position="end">
                       <IconButton
@@ -317,7 +319,6 @@ function LoginForm() {
                         aria-label={
                           showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"
                         }
-                        className="login-password-toggle"
                       >
                         <span
                           className={`bi ${showPassword ? "bi-eye-slash" : "bi-eye"}`}
@@ -329,40 +330,53 @@ function LoginForm() {
               }}
             />
 
-            <Box className="login-options">
-              <label className="login-remember">
-                <input type="checkbox" />
-                <span>Ghi nhớ đăng nhập</span>
-              </label>
-              <button type="button" className="login-forgot-password">
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                mb: 3,
+              }}
+            >
+              <FormControlLabel
+                control={<Checkbox disabled={loading} size="small" />}
+                label={
+                  <Typography variant="body2">Ghi nhớ đăng nhập</Typography>
+                }
+              />
+              <Link
+                component="button"
+                type="button"
+                variant="body2"
+                onClick={() => {}}
+                sx={{ cursor: "pointer" }}
+              >
                 Quên mật khẩu?
-              </button>
+              </Link>
             </Box>
 
             <Button
               type="submit"
               variant="contained"
               fullWidth
+              size="large"
               disabled={loading || !username || !password}
-              className="login-submit-btn"
+              startIcon={<span className="bi bi-box-arrow-in-right" />}
             >
               {loading ? (
                 <CircularProgress size={20} color="inherit" />
               ) : (
-                <>
-                  <span className="bi bi-box-arrow-in-right login-btn-icon" />
-                  Đăng nhập
-                </>
+                "Đăng nhập"
               )}
             </Button>
           </Box>
 
-          <Box className="login-footer">
-            <Typography className="login-footer-text">
+          <Box sx={{ mt: 2, textAlign: "center" }}>
+            <Typography variant="caption" color="text.secondary">
               Hệ thống QTQ — Quản lý Đồ án Sinh viên
             </Typography>
           </Box>
-        </Box>
+        </Paper>
       </Box>
     </Box>
   );
