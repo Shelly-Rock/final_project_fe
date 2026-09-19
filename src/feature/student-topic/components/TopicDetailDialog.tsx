@@ -9,6 +9,7 @@ import {
   Tabs,
   Tab,
   Chip,
+  TextField,
 } from "@mui/material";
 import {
   User,
@@ -92,7 +93,7 @@ interface TopicDetailDialogProps {
   onClose: () => void;
   topic: AvailableTopic | null;
   registration?: RegistrationRequest | null;
-  onRegister: (topicId: string) => Promise<void>;
+  onRegister: (topicId: string, studentMessage?: string) => Promise<void>;
   onPrintConfirmation?: (registration: RegistrationRequest) => void;
   isExpired?: boolean;
 }
@@ -108,13 +109,14 @@ export function TopicDetailDialog({
 }: TopicDetailDialogProps) {
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState(0);
+  const [studentMessage, setStudentMessage] = useState("");
 
   if (!topic) return null;
 
   const handleRegister = async () => {
     setLoading(true);
     try {
-      await onRegister(topic.id);
+      await onRegister(topic.id, studentMessage);
       onClose();
     } finally {
       setLoading(false);
@@ -428,6 +430,34 @@ export function TopicDetailDialog({
             </Box>
           )}
         </TabPanel>
+
+        {!isExpired &&
+          !registration &&
+          topic.registrationStatus === "OPEN" &&
+          topic.registeredCount < topic.maxStudents && (
+            <Box
+              sx={{
+                mt: 3,
+                pt: 3,
+                borderTop: "1px solid",
+                borderColor: "divider",
+              }}
+            >
+              <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
+                Nguyện vọng phân công công việc (Tùy chọn)
+              </Typography>
+              <TextField
+                fullWidth
+                multiline
+                rows={3}
+                placeholder="Ví dụ: Em có thế mạnh về NodeJS, mong muốn được đảm nhận phần API..."
+                value={studentMessage}
+                onChange={(e) => setStudentMessage(e.target.value)}
+                variant="outlined"
+                size="small"
+              />
+            </Box>
+          )}
       </Box>
     </Dialog>
   );

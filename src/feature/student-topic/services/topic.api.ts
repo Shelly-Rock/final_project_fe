@@ -203,8 +203,11 @@ class TopicApiService {
 
   async registerTopic(
     topicId: number,
+    studentMessage?: string,
   ): Promise<{ success: boolean; message: string }> {
-    await apiClient.post(`/topics/${topicId}/registrations`);
+    await apiClient.post(`/topics/${topicId}/registrations`, {
+      studentMessage,
+    });
     return {
       success: true,
       message: "Yêu cầu đăng ký đã được gửi thành công",

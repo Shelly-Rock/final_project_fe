@@ -3,9 +3,9 @@
 /**
  * Debounce function to prevent excessive API calls during user input
  */
-export function debounce<T extends (...args: any[]) => any>(
+export function debounce<T extends (...args: unknown[]) => unknown>(
   func: T,
-  wait: number
+  wait: number,
 ): (...args: Parameters<T>) => void {
   let timeout: NodeJS.Timeout;
   return function (...args: Parameters<T>) {
@@ -17,9 +17,9 @@ export function debounce<T extends (...args: any[]) => any>(
 /**
  * Throttle function for scroll/resize events
  */
-export function throttle<T extends (...args: any[]) => any>(
+export function throttle<T extends (...args: unknown[]) => unknown>(
   func: T,
-  limit: number
+  limit: number,
 ): (...args: Parameters<T>) => void {
   let inThrottle: boolean;
   return function (...args: Parameters<T>) {
@@ -34,14 +34,14 @@ export function throttle<T extends (...args: any[]) => any>(
 /**
  * Memoization decorator for expensive computations
  */
-export function memoize<T extends (...args: any[]) => any>(fn: T): T {
-  const cache = new Map();
+export function memoize<T extends (...args: unknown[]) => unknown>(fn: T): T {
+  const cache = new Map<string, unknown>();
   return ((...args: Parameters<T>) => {
     const key = JSON.stringify(args);
     if (cache.has(key)) {
-      return cache.get(key);
+      return cache.get(key) as ReturnType<T>;
     }
-    const result = fn(...args);
+    const result = fn(...args) as ReturnType<T>;
     cache.set(key, result);
     return result;
   }) as T;
@@ -54,7 +54,7 @@ export function calculateVisibleRange(
   scrollTop: number,
   containerHeight: number,
   itemHeight: number,
-  totalItems: number
+  totalItems: number,
 ): { start: number; end: number } {
   const start = Math.floor(scrollTop / itemHeight);
   const visibleCount = Math.ceil(containerHeight / itemHeight);
@@ -101,7 +101,9 @@ export const performanceMonitor = {
     try {
       performance.measure(label, `${label}-start`, `${label}-end`);
       const measure = performance.getEntriesByName(label)[0];
-      console.log(`⏱️ ${label}: ${measure.duration.toFixed(2)}ms`);
+      if (measure) {
+        console.log(`⏱️ ${label}: ${measure.duration.toFixed(2)}ms`);
+      }
     } catch (error) {
       console.error(`Failed to measure ${label}:`, error);
     }
@@ -109,8 +111,17 @@ export const performanceMonitor = {
 
   // Get memory usage (if available)
   getMemory: () => {
-    if ((performance as any).memory) {
-      const memory = (performance as any).memory;
+    const memory = (
+      performance as typeof performance & {
+        memory?: {
+          usedJSHeapSize: number;
+          totalJSHeapSize: number;
+          jsHeapSizeLimit: number;
+        };
+      }
+    ).memory;
+
+    if (memory) {
       return {
         usedJSHeapSize: `${(memory.usedJSHeapSize / 1048576).toFixed(2)}MB`,
         totalJSHeapSize: `${(memory.totalJSHeapSize / 1048576).toFixed(2)}MB`,
@@ -125,7 +136,7 @@ export const performanceMonitor = {
  * Request batching for multiple API calls
  */
 export class RequestBatcher {
-  private queue: Map<string, any[]> = new Map();
+  private queue: Map<string, unknown[]> = new Map();
   private timers: Map<string, NodeJS.Timeout> = new Map();
   private batchSize: number = 50;
   private batchDelay: number = 100;
@@ -135,7 +146,7 @@ export class RequestBatcher {
     this.batchDelay = batchDelay;
   }
 
-  add(key: string, item: any): void {
+  add(key: string, item: unknown): void {
     if (!this.queue.has(key)) {
       this.queue.set(key, []);
     }
@@ -178,7 +189,7 @@ export class RequestBatcher {
  * Cache management utility
  */
 export class CacheManager {
-  private cache: Map<string, { data: any; timestamp: number }> = new Map();
+  private cache: Map<string, { data: unknown; timestamp: number }> = new Map();
   private ttl: number; // milliseconds
 
   constructor(ttl: number = 5 * 60 * 1000) {
@@ -186,11 +197,11 @@ export class CacheManager {
     this.ttl = ttl;
   }
 
-  set(key: string, data: any): void {
+  set(key: string, data: unknown): void {
     this.cache.set(key, { data, timestamp: Date.now() });
   }
 
-  get(key: string): any | null {
+  get(key: string): unknown | null {
     const item = this.cache.get(key);
     if (!item) return null;
 

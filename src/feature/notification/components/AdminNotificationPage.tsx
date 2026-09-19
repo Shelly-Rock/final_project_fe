@@ -124,7 +124,7 @@ const AdminNotificationPage: React.FC = () => {
       fetchNotifications();
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Lỗi khi phát hành thông báo"
+        error instanceof Error ? error.message : "Lỗi khi phát hành thông báo",
       );
     }
   };
@@ -196,7 +196,7 @@ const AdminNotificationPage: React.FC = () => {
   const filteredNotifications = notifications.filter(
     (n) =>
       n.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      n.message.toLowerCase().includes(searchTerm.toLowerCase())
+      n.message.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   return (
@@ -213,7 +213,8 @@ const AdminNotificationPage: React.FC = () => {
                 </h1>
               </div>
               <p className="text-slate-600 dark:text-slate-400">
-                Điều phối chỉ thị học thuật, thông tri khẩn và theo dõi tiến độ tiếp nhận toàn trường
+                Điều phối chỉ thị học thuật, thông tri khẩn và theo dõi tiến độ
+                tiếp nhận toàn trường
               </p>
             </div>
             <button
@@ -291,7 +292,7 @@ const AdminNotificationPage: React.FC = () => {
               <button
                 key={f}
                 onClick={() => {
-                  setFilter(f as any);
+                  setFilter(f as "all" | "urgent" | "draft");
                   setPage(1);
                 }}
                 className={`px-4 py-2 rounded-lg font-medium transition-colors ${
@@ -377,12 +378,13 @@ const AdminNotificationPage: React.FC = () => {
                         </div>
                         <div className="text-right flex-shrink-0">
                           <p className="text-xs font-mono text-slate-500 dark:text-slate-400 mb-1">
-                            {new Date(notification.createdAt).toLocaleDateString(
-                              "vi-VN"
-                            )}
+                            {new Date(
+                              notification.createdAt,
+                            ).toLocaleDateString("vi-VN")}
                           </p>
                           <p className="text-xs text-slate-600 dark:text-slate-400">
-                            {notification.readCount}/{notification.totalRecipients}
+                            {notification.readCount}/
+                            {notification.totalRecipients}
                           </p>
                         </div>
                       </div>
@@ -496,10 +498,10 @@ const AdminNotificationPage: React.FC = () => {
                   <option value="all">
                     Toàn trường (Tất cả đơn vị & Cán bộ)
                   </option>
-                  <option value="leadership">Ban Giám Hiệu & Hội đồng Trường</option>
-                  <option value="heads">
-                    Trưởng các Khoa, Viện & Bộ môn
+                  <option value="leadership">
+                    Ban Giám Hiệu & Hội đồng Trường
                   </option>
+                  <option value="heads">Trưởng các Khoa, Viện & Bộ môn</option>
                   <option value="it">Khoa Công Nghệ Thông Tin</option>
                   <option value="ee">Khoa Điện - Điện Tử</option>
                   <option value="me">Khoa Cơ Khí & Tự Động Hóa</option>
@@ -526,7 +528,9 @@ const AdminNotificationPage: React.FC = () => {
                   <option value="REMINDER">Nhắc hạn</option>
                 </select>
                 {errors.type && (
-                  <p className="mt-1 text-sm text-red-600">{errors.type.message}</p>
+                  <p className="mt-1 text-sm text-red-600">
+                    {errors.type.message}
+                  </p>
                 )}
               </div>
 

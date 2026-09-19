@@ -10,13 +10,19 @@ import {
   useTheme,
   Theme,
 } from "@mui/material";
-import { ClipboardCheck, Settings } from "lucide-react";
+import { ClipboardCheck, Settings, FileText } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { PageHeader } from "@/shared/components";
 import { usePermissionContext } from "@/core/providers/PermissionProvider";
 import { isAnyRole } from "@/core/permissions/helpers/hasPermission";
 import { PeriodConfigForm } from "@/feature/project-governance/components/PeriodConfigForm";
 import { TopicManageTable } from "@/feature/project-governance/components/TopicManageTable";
+import {
+  TemplateList,
+  TemplateUploadDialog,
+} from "@/feature/progress-tracking/components";
+import type { Template } from "@/feature/progress-tracking/types";
+import { toast } from "sonner";
 
 const getCardBackground = (theme: Theme) => {
   const isDark = theme.palette.mode === "dark";
@@ -30,6 +36,9 @@ export default function ProjectConfigPage() {
   const theme = useTheme();
   const { role } = usePermissionContext();
   const [tab, setTab] = useState(0);
+  const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
+  const [replaceTemplate, setReplaceTemplate] = useState<Template | null>(null);
+  const [refreshKey, setRefreshKey] = useState(0);
   const allowed = isAnyRole(role, ["admin", "secretary"]);
 
   useEffect(() => {
@@ -74,6 +83,11 @@ export default function ProjectConfigPage() {
             label="Cấu hình Đợt Đồ án"
           />
           <Tab
+            icon={<FileText size={16} />}
+            iconPosition="start"
+            label="Biểu mẫu (Templates)"
+          />
+          <Tab
             icon={<ClipboardCheck size={16} />}
             iconPosition="start"
             label="Danh sách & Duyệt Đề tài"
@@ -81,9 +95,31 @@ export default function ProjectConfigPage() {
         </Tabs>
         <Box sx={{ p: 2.5, overflowX: "auto" }}>
           {tab === 0 && <PeriodConfigForm />}
-          {tab === 1 && <TopicManageTable />}
+          {tab === 1 && (
+            <TemplateList
+              key={`templates-${refreshKey}`}
+              onUploadClick={() => setUploadDialogOpen(true)}
+              onReplaceClick={(t) => {
+                setReplaceTemplate(t);
+                setUploadDialogOpen(true);
+              }}
+            />
+          )}
+          {tab === 2 && <TopicManageTable />}
         </Box>
       </Paper>
+
+      <TemplateUploadDialog
+        open={uploadDialogOpen}
+        replaceTemplate={replaceTemplate}
+        onClose={() => {
+          setUploadDialogOpen(false);
+          setReplaceTemplate(null);
+        }}
+        onSuccess={() => {
+          setRefreshKey((k) => k + 1);
+        }}
+      />
     </Box>
   );
 }

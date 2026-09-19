@@ -13,9 +13,9 @@ interface Notification {
   recipients: string;
   totalRecipients: number;
   readCount: number;
-  unreadCount: number;
-  isPinned: boolean;
-  requiresSignature: boolean;
+  unreadCount?: number;
+  isPinned?: boolean;
+  requiresSignature?: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -55,10 +55,22 @@ const NotificationPreviewModal: React.FC<NotificationPreviewModalProps> = ({
   };
 
   const typeConfig = {
-    URGENT: { label: "Hỏa tốc", color: "text-error bg-error/10 border-error/20" },
-    DIRECTIVE: { label: "Chỉ thị", color: "text-purple-400 bg-purple-500/10 border-purple-500/20" },
-    GENERAL: { label: "Toàn trường", color: "text-primary bg-primary/10 border-primary/20" },
-    REMINDER: { label: "Nhắc hạn", color: "text-warning bg-warning/10 border-warning/20" },
+    URGENT: {
+      label: "Hỏa tốc",
+      color: "text-error bg-error/10 border-error/20",
+    },
+    DIRECTIVE: {
+      label: "Chỉ thị",
+      color: "text-purple-400 bg-purple-500/10 border-purple-500/20",
+    },
+    GENERAL: {
+      label: "Toàn trường",
+      color: "text-primary bg-primary/10 border-primary/20",
+    },
+    REMINDER: {
+      label: "Nhắc hạn",
+      color: "text-warning bg-warning/10 border-warning/20",
+    },
   };
 
   const config = typeConfig[notification.type];
@@ -139,7 +151,9 @@ const NotificationPreviewModal: React.FC<NotificationPreviewModalProps> = ({
                 {/* Recipients Stats */}
                 <div className="grid grid-cols-3 gap-3">
                   <div className="p-3 rounded-lg bg-surface-subtle border border-border-subtle/80 text-center">
-                    <p className="text-xs text-text-muted mb-1">Tổng người nhận</p>
+                    <p className="text-xs text-text-muted mb-1">
+                      Tổng người nhận
+                    </p>
                     <p className="text-xl font-bold text-primary">
                       {notification.totalRecipients}
                     </p>
@@ -153,7 +167,11 @@ const NotificationPreviewModal: React.FC<NotificationPreviewModalProps> = ({
                   <div className="p-3 rounded-lg bg-surface-subtle border border-border-subtle/80 text-center">
                     <p className="text-xs text-text-muted mb-1">Chưa đọc</p>
                     <p className="text-xl font-bold text-error">
-                      {notification.unreadCount}
+                      {notification.unreadCount ??
+                        Math.max(
+                          notification.totalRecipients - notification.readCount,
+                          0,
+                        )}
                     </p>
                   </div>
                 </div>
@@ -180,7 +198,12 @@ const NotificationPreviewModal: React.FC<NotificationPreviewModalProps> = ({
                     sentAt: notification.createdAt,
                     totalRecipients: notification.totalRecipients,
                     readCount: notification.readCount,
-                    unreadCount: notification.unreadCount,
+                    unreadCount:
+                      notification.unreadCount ??
+                      Math.max(
+                        notification.totalRecipients - notification.readCount,
+                        0,
+                      ),
                     byDepartment: [
                       {
                         department: "Khoa CNTT",

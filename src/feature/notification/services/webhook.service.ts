@@ -27,7 +27,7 @@ export interface WebhookLog {
   id: number;
   webhookId: number;
   event: WebhookEvent;
-  payload: Record<string, any>;
+  payload: Record<string, unknown>;
   statusCode?: number;
   responseBody?: string;
   error?: string;
@@ -38,7 +38,7 @@ export interface WebhookLog {
 export interface WebhookTestRequest {
   url: string;
   event: WebhookEvent;
-  payload?: Record<string, any>;
+  payload?: Record<string, unknown>;
 }
 
 export const webhookService = {
@@ -63,7 +63,10 @@ export const webhookService = {
   },
 
   // Update webhook
-  updateWebhook: async (webhookId: number, data: Partial<Webhook>): Promise<Webhook> => {
+  updateWebhook: async (
+    webhookId: number,
+    data: Partial<Webhook>,
+  ): Promise<Webhook> => {
     return apiClient.patch(`/webhooks/${webhookId}`, data);
   },
 
@@ -78,22 +81,30 @@ export const webhookService = {
   },
 
   // Get webhook logs
-  getWebhookLogs: async (webhookId: number, options?: {
-    page?: number;
-    limit?: number;
-    event?: WebhookEvent;
-    status?: "success" | "failed";
-  }): Promise<{ logs: WebhookLog[]; total: number }> => {
+  getWebhookLogs: async (
+    webhookId: number,
+    options?: {
+      page?: number;
+      limit?: number;
+      event?: WebhookEvent;
+      status?: "success" | "failed";
+    },
+  ): Promise<{ logs: WebhookLog[]; total: number }> => {
     return apiClient.get(`/webhooks/${webhookId}/logs`, { params: options });
   },
 
   // Get webhook log detail
-  getWebhookLogDetail: async (webhookId: number, logId: number): Promise<WebhookLog> => {
+  getWebhookLogDetail: async (
+    webhookId: number,
+    logId: number,
+  ): Promise<WebhookLog> => {
     return apiClient.get(`/webhooks/${webhookId}/logs/${logId}`);
   },
 
   // Test webhook
-  testWebhook: async (request: WebhookTestRequest): Promise<{
+  testWebhook: async (
+    request: WebhookTestRequest,
+  ): Promise<{
     statusCode: number;
     responseBody: string;
     duration: number;
@@ -102,12 +113,17 @@ export const webhookService = {
   },
 
   // Retry failed webhook delivery
-  retryWebhookDelivery: async (webhookId: number, logId: number): Promise<WebhookLog> => {
+  retryWebhookDelivery: async (
+    webhookId: number,
+    logId: number,
+  ): Promise<WebhookLog> => {
     return apiClient.post(`/webhooks/${webhookId}/logs/${logId}/retry`);
   },
 
   // Clear webhook logs
-  clearWebhookLogs: async (webhookId: number): Promise<{ deletedCount: number }> => {
+  clearWebhookLogs: async (
+    webhookId: number,
+  ): Promise<{ deletedCount: number }> => {
     return apiClient.delete(`/webhooks/${webhookId}/logs`);
   },
 };

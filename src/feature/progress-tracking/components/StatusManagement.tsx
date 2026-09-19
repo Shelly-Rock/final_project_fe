@@ -412,11 +412,21 @@ export function StudentStatusCard({
   return (
     <Box
       sx={{
-        p: 2,
+        p: 2.5,
         border: "1px solid",
         borderColor: student.isBanned ? "error.main" : "divider",
-        borderRadius: 1,
+        borderRadius: 2,
         bgcolor: student.isBanned ? "error.50" : "background.paper",
+        boxShadow: student.isBanned
+          ? "0 4px 12px rgba(211, 47, 47, 0.08)"
+          : "0 4px 20px rgba(0, 0, 0, 0.03)",
+        transition: "transform 0.2s ease, box-shadow 0.2s ease",
+        "&:hover": {
+          transform: "translateY(-2px)",
+          boxShadow: student.isBanned
+            ? "0 6px 16px rgba(211, 47, 47, 0.12)"
+            : "0 8px 24px rgba(0, 0, 0, 0.06)",
+        },
       }}
     >
       <Box

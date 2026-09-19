@@ -56,18 +56,15 @@ const RecipientGroupManager: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
-  const [selectedGroup, setSelectedGroup] = useState<RecipientGroup | null>(null);
+  const [selectedGroup, setSelectedGroup] = useState<RecipientGroup | null>(
+    null,
+  );
   const [formData, setFormData] = useState({
     name: "",
     description: "",
     members: [] as number[],
     isDefault: false,
   });
-
-  useEffect(() => {
-    loadGroups();
-    loadUsers();
-  }, []);
 
   const loadGroups = async () => {
     setLoading(true);
@@ -91,6 +88,11 @@ const RecipientGroupManager: React.FC = () => {
       toast.error("Failed to load users");
     }
   };
+
+  useEffect(() => {
+    loadGroups();
+    loadUsers();
+  }, []);
 
   const handleOpenDialog = (group?: RecipientGroup) => {
     if (group) {
@@ -176,7 +178,14 @@ const RecipientGroupManager: React.FC = () => {
 
   return (
     <Box sx={{ p: 3, maxWidth: 1200, mx: "auto" }}>
-      <Box sx={{ mb: 4, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+      <Box
+        sx={{
+          mb: 4,
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
           <PeopleIcon sx={{ fontSize: 28 }} color="primary" />
           <Typography variant="h4" fontWeight={600}>
@@ -304,7 +313,9 @@ const RecipientGroupManager: React.FC = () => {
         fullWidth
       >
         <DialogTitle>
-          {selectedGroup ? `Edit Group: ${selectedGroup.name}` : "Create New Group"}
+          {selectedGroup
+            ? `Edit Group: ${selectedGroup.name}`
+            : "Create New Group"}
         </DialogTitle>
         <DialogContent dividers>
           <Box sx={{ display: "flex", flexDirection: "column", gap: 3, pt: 2 }}>
@@ -360,7 +371,9 @@ const RecipientGroupManager: React.FC = () => {
                 }}
               >
                 {users.length === 0 ? (
-                  <Typography color="text.secondary">No users available</Typography>
+                  <Typography color="text.secondary">
+                    No users available
+                  </Typography>
                 ) : (
                   users.map((user) => (
                     <FormControlLabel

@@ -20,8 +20,9 @@ export const studentTopicService = {
 
   async registerTopic(
     topicId: string,
+    studentMessage?: string,
   ): Promise<{ success: boolean; message: string }> {
-    return topicApiService.registerTopic(Number(topicId));
+    return topicApiService.registerTopic(Number(topicId), studentMessage);
   },
 
   async cancelRegistration(topicId: string): Promise<void> {

@@ -1,6 +1,7 @@
-﻿export { TopicDataTable } from "./TopicDataTable";
-export { PendingRequestTable } from "./PendingRequestTable";
-export { TopicFormDialog } from "./TopicFormDialog";
-export { LockAssignmentDialog } from "./LockAssignmentDialog";
-
+export * from "./TopicDataTable";
+export * from "./PendingRequestTable";
+export * from "./TopicFormDialog";
+export * from "./LockAssignmentDialog";
 export * from "./ChangeLeaderDialog";
+export * from "./ApproveConfirmDialog";
+export * from "./RejectConfirmDialog";

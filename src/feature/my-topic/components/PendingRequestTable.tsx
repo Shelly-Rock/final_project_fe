@@ -1,13 +1,13 @@
 "use client";
 
 import { Check as CheckIcon, Close as CloseIcon } from "@mui/icons-material";
+import { Tooltip, Typography, Box } from "@mui/material";
 import { DataTable } from "@/shared/components";
 import type { Column, Action } from "@/shared/components";
 import type { PendingRequest, MyTopic } from "../types";
 
 interface PendingRequestTableProps {
   requests: PendingRequest[];
-  topics: MyTopic[];
   loading?: boolean;
   onApprove: (request: PendingRequest) => void;
   onReject: (request: PendingRequest) => void;
@@ -15,37 +15,40 @@ interface PendingRequestTableProps {
 
 export function PendingRequestTable({
   requests,
-  topics,
   loading = false,
   onApprove,
   onReject,
 }: PendingRequestTableProps) {
-  // Lấy sĩ số hiện tại của đề tài
-  const getTopicEnrollment = (
-    topicId: number,
-  ): { current: number; max: number; isFull: boolean } => {
-    const topic = topics.find((t) => t.id === topicId);
-    if (!topic) return { current: 0, max: 0, isFull: false };
-
-    const approvedCount =
-      topic.registeredStudents?.filter((s) => s.status === "Approved").length ||
-      0;
-    const max = topic.maxStudents;
-
-    return {
-      current: approvedCount,
-      max,
-      isFull: approvedCount >= max,
-    };
-  };
-
   const columns: Column<PendingRequest>[] = [
     {
       id: "studentName",
       label: "Tên sinh viên",
       minWidth: 180,
       format: (_, row) => (
-        <span style={{ fontWeight: 500 }}>{row.studentName}</span>
+        <Box>
+          <Typography variant="body2" sx={{ fontWeight: 500 }}>
+            {row.studentName}
+          </Typography>
+          {row.studentMessage && (
+            <Tooltip title={row.studentMessage} placement="top" arrow>
+              <Typography
+                variant="caption"
+                sx={{
+                  color: "text.secondary",
+                  fontStyle: "italic",
+                  display: "-webkit-box",
+                  WebkitLineClamp: 1,
+                  WebkitBoxOrient: "vertical",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  maxWidth: "200px",
+                }}
+              >
+                {row.studentMessage}
+              </Typography>
+            </Tooltip>
+          )}
+        </Box>
       ),
     },
     {

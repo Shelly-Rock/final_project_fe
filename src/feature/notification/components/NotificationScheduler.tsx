@@ -18,7 +18,9 @@ const NotificationScheduler: React.FC<NotificationSchedulerProps> = ({
 }) => {
   const [title, setTitle] = useState("");
   const [message, setMessage] = useState("");
-  const [type, setType] = useState<"URGENT" | "DIRECTIVE" | "GENERAL" | "REMINDER">("GENERAL");
+  const [type, setType] = useState<
+    "URGENT" | "DIRECTIVE" | "GENERAL" | "REMINDER"
+  >("GENERAL");
   const [scheduledDate, setScheduledDate] = useState("");
   const [scheduledTime, setScheduledTime] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -33,7 +35,9 @@ const NotificationScheduler: React.FC<NotificationSchedulerProps> = ({
 
     setIsSubmitting(true);
     try {
-      const scheduledAt = new Date(`${scheduledDate}T${scheduledTime}`).toISOString();
+      const scheduledAt = new Date(
+        `${scheduledDate}T${scheduledTime}`,
+      ).toISOString();
 
       await notificationApi.scheduleNotification({
         title,
@@ -52,7 +56,7 @@ const NotificationScheduler: React.FC<NotificationSchedulerProps> = ({
       onClose();
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Lỗi khi lên lịch thông báo"
+        error instanceof Error ? error.message : "Lỗi khi lên lịch thông báo",
       );
     } finally {
       setIsSubmitting(false);
@@ -114,7 +118,15 @@ const NotificationScheduler: React.FC<NotificationSchedulerProps> = ({
             </label>
             <select
               value={type}
-              onChange={(e) => setType(e.target.value as any)}
+              onChange={(e) =>
+                setType(
+                  e.target.value as
+                    | "URGENT"
+                    | "DIRECTIVE"
+                    | "GENERAL"
+                    | "REMINDER",
+                )
+              }
               className="w-full bg-surface-subtle border border-border-subtle rounded-lg px-3 py-2 text-xs text-text-primary focus:border-primary/60 focus:ring-1 focus:ring-primary/40 focus:outline-none transition-all"
             >
               <option value="GENERAL">Thông thường</option>

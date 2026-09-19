@@ -12,7 +12,7 @@ export interface DeliveryLog {
   failureReason?: string;
   retryCount: number;
   lastRetryAt?: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 export interface DeliveryStats {
@@ -52,14 +52,20 @@ export const deliveryService = {
   },
 
   // Mark as opened (webhook callback)
-  markAsOpened: async (notificationId: number, recipientId: number): Promise<void> => {
+  markAsOpened: async (
+    notificationId: number,
+    recipientId: number,
+  ): Promise<void> => {
     return apiClient.post(`/notification/${notificationId}/mark-opened`, {
       recipientId,
     });
   },
 
   // Mark as clicked (webhook callback)
-  markAsClicked: async (notificationId: number, recipientId: number): Promise<void> => {
+  markAsClicked: async (
+    notificationId: number,
+    recipientId: number,
+  ): Promise<void> => {
     return apiClient.post(`/notification/${notificationId}/mark-clicked`, {
       recipientId,
     });

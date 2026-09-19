@@ -5,21 +5,12 @@
 // ============================================================
 
 import { apiClient } from "@/shared/services/api-client";
+import type { TimelineNode } from "../types";
 
 const API_BASE = "/progress-tracking";
 
 // ---------- Type Definitions ----------
 
-export type TemplateType =
-  | "MONTHLY_REPORT"
-  | "MIDTERM_REPORT"
-  | "FINAL_REPORT"
-  | "PROPOSAL"
-  | "PRESENTATION";
-export type MilestoneType =
-  | "TOPIC_REGISTRATION"
-  | "PROGRESS_REPORT"
-  | "EXCEPTION_REQUEST";
 export type ReportStatus =
   | "PENDING_TEACHER"
   | "REVISION_REQUESTED"
@@ -46,8 +37,6 @@ export interface Template {
   id: number;
   name: string;
   description: string | null;
-  type: TemplateType;
-  milestoneType: MilestoneType;
   fileUrl: string;
   fileName: string;
   fileSize: number;
@@ -149,8 +138,6 @@ function mapTemplate(raw: any): Template {
     id: raw.id,
     name: raw.name,
     description: raw.description,
-    type: raw.type,
-    milestoneType: raw.milestone_type || "PROGRESS_REPORT",
     fileUrl: raw.file_url,
     fileName: raw.file_name,
     fileSize: raw.file_size,
@@ -246,21 +233,19 @@ class ProgressTrackingService {
   async getTemplates(params?: {
     page?: number;
     limit?: number;
-    type?: TemplateType;
-    milestoneType?: MilestoneType;
     departmentId?: string;
     periodId?: number;
+    isException?: boolean;
   }): Promise<PaginatedResult<Template>> {
     const searchParams = new URLSearchParams();
     if (params?.page) searchParams.set("page", String(params.page));
     if (params?.limit) searchParams.set("limit", String(params.limit));
-    if (params?.type) searchParams.set("type", params.type);
-    if (params?.milestoneType)
-      searchParams.set("milestone_type", params.milestoneType);
     if (params?.departmentId)
       searchParams.set("department_id", params.departmentId);
     if (params?.periodId)
       searchParams.set("period_id", String(params.periodId));
+    if (params?.isException !== undefined)
+      searchParams.set("is_exception", String(params.isException));
 
     const response: any = await apiClient.get(
       `${API_BASE}/templates?${searchParams.toString()}`,
@@ -282,9 +267,8 @@ class ProgressTrackingService {
   async createTemplate(data: {
     name: string;
     description?: string;
-    type: TemplateType;
-    milestoneType?: MilestoneType;
     periodId?: number;
+    deadlineIds?: number[];
     fileUrl: string;
     fileName: string;
     fileSize: number;
@@ -292,9 +276,8 @@ class ProgressTrackingService {
     const response: any = await apiClient.post(`${API_BASE}/templates`, {
       name: data.name,
       description: data.description,
-      type: data.type,
-      milestone_type: data.milestoneType,
       period_id: data.periodId,
+      deadline_ids: data.deadlineIds,
       file_url: data.fileUrl,
       file_name: data.fileName,
       file_size: data.fileSize,
@@ -354,11 +337,12 @@ class ProgressTrackingService {
   async submitReport(data: {
     studentId?: number;
     title: string;
-    content: string;
-    month: number;
-    year: number;
+    content?: string;
+    month?: number;
+    year?: number;
     fileUrl?: string;
     fileName?: string;
+    deadlineId?: number;
   }): Promise<ProgressReport> {
     const response: any = await apiClient.post(`${API_BASE}/reports`, {
       title: data.title,
@@ -367,6 +351,7 @@ class ProgressTrackingService {
       year: data.year,
       file_url: data.fileUrl,
       file_name: data.fileName,
+      deadline_id: data.deadlineId,
     });
     return mapReport(response);
   }
@@ -416,7 +401,7 @@ class ProgressTrackingService {
     if (params?.status) searchParams.set("status", params.status);
     if (params?.isBanned !== undefined)
       searchParams.set("is_banned", String(params.isBanned));
-    if (params?.teacherId)
+    if (params?.teacherId !== undefined)
       searchParams.set("teacher_id", String(params.teacherId));
 
     const response: any = await apiClient.get(
@@ -429,6 +414,13 @@ class ProgressTrackingService {
       limit: response.limit || 20,
       totalPages: response.totalPages || 1,
     };
+  }
+
+  async getMyProgress(): Promise<StudentProgress> {
+    const response: any = await apiClient.get(
+      `${API_BASE}/students/my-progress`,
+    );
+    return mapProgress(response);
   }
 
   async getStudentProgressById(studentId: number): Promise<StudentProgress> {
@@ -470,6 +462,8 @@ class ProgressTrackingService {
 
   // ==================== NOTIFICATIONS ====================
 
+  // ========== Notifications Methods ==========
+
   async getNotifications(params?: {
     recipientId?: number;
     page?: number;
@@ -478,6 +472,8 @@ class ProgressTrackingService {
     type?: NotificationType;
   }): Promise<PaginatedResult<Notification>> {
     const searchParams = new URLSearchParams();
+    if (params?.recipientId)
+      searchParams.set("recipient_id", String(params.recipientId));
     if (params?.page) searchParams.set("page", String(params.page));
     if (params?.limit) searchParams.set("limit", String(params.limit));
     if (params?.isRead !== undefined)
@@ -485,7 +481,7 @@ class ProgressTrackingService {
     if (params?.type) searchParams.set("type", params.type);
 
     const response: any = await apiClient.get(
-      `${API_BASE}/notifications?${searchParams.toString()}`,
+      `${API_BASE}/notification?${searchParams.toString()}`,
     );
     return {
       data: (response.data || []).map(mapNotification),
@@ -497,16 +493,16 @@ class ProgressTrackingService {
   }
 
   async markNotificationAsRead(id: number): Promise<void> {
-    await apiClient.put(`${API_BASE}/notifications/${id}/read`);
+    await apiClient.put(`${API_BASE}/notification/${id}/read`);
   }
 
   async markAllNotificationsAsRead(_recipientId?: number): Promise<void> {
-    await apiClient.put(`${API_BASE}/notifications/read-all`);
+    await apiClient.put(`${API_BASE}/notification/read-all`);
   }
 
   async getUnreadNotificationCount(_recipientId?: number): Promise<number> {
     const response: any = await apiClient.get(
-      `${API_BASE}/notifications/unread-count`,
+      `${API_BASE}/notification/unread-count`,
     );
     if (typeof response === "number") return response;
     if (typeof response?.count === "number") return response.count;
@@ -523,7 +519,7 @@ class ProgressTrackingService {
     relatedStudentId?: number;
     relatedReportId?: number;
   }): Promise<Notification> {
-    const response: any = await apiClient.post(`${API_BASE}/notifications`, {
+    const response: any = await apiClient.post(`${API_BASE}/notification`, {
       type: data.type,
       title: data.title,
       message: data.message,
@@ -533,6 +529,54 @@ class ProgressTrackingService {
       related_report_id: data.relatedReportId,
     });
     return mapNotification(response);
+  }
+
+  // ==================== TIMELINE ====================
+
+  async getTimeline(params?: {
+    periodId?: number;
+    studentId?: number;
+  }): Promise<TimelineNode[]> {
+    const searchParams = new URLSearchParams();
+    if (params?.periodId)
+      searchParams.set("period_id", String(params.periodId));
+    if (params?.studentId)
+      searchParams.set("student_id", String(params.studentId));
+
+    const response: any = await apiClient.get(
+      `${API_BASE}/timeline?${searchParams.toString()}`,
+    );
+
+    // Map response keys
+    return (response || []).map((node: any) => ({
+      id: node.id,
+      periodId: node.period_id,
+      type: node.type,
+      seq: node.seq,
+      label: node.label,
+      deadlineAt: node.deadline_at,
+      template: node.template
+        ? {
+            id: node.template.id,
+            name: node.template.name,
+            type: node.template.type,
+            fileUrl: node.template.file_url,
+            fileName: node.template.file_name,
+          }
+        : null,
+      submission: node.submission
+        ? {
+            id: node.submission.id,
+            title: node.submission.title,
+            status: node.submission.status,
+            fileUrl: node.submission.file_url,
+            fileName: node.submission.file_name,
+            score: node.submission.score,
+            feedback: node.submission.feedback,
+            submittedAt: node.submission.submitted_at,
+          }
+        : null,
+    }));
   }
 
   // ==================== STATISTICS ====================

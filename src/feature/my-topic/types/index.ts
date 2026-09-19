@@ -28,6 +28,7 @@ export interface RegisteredStudent {
   status: RegistrationStatus;
   isLeader?: boolean;
   assignedTask?: string;
+  studentMessage?: string;
   registeredAt: string;
   approvedAt?: string;
   approvedBy?: number;
@@ -84,6 +85,8 @@ export interface PendingRequest {
   topicName: string;
   requestedAt: string;
   status: "Pending";
+  studentMessage?: string;
+  isLeader?: boolean;
 }
 
 /**

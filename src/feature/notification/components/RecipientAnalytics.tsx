@@ -1,7 +1,19 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+} from "recharts";
 import { Download } from "lucide-react";
 import { toast } from "sonner";
 
@@ -34,14 +46,10 @@ const RecipientAnalytics: React.FC<RecipientAnalyticsProps> = ({
   notificationId,
   analytics,
 }) => {
-  const [data, setData] = useState<NotificationAnalytics | null>(analytics || null);
+  const [data, setData] = useState<NotificationAnalytics | null>(
+    analytics || null,
+  );
   const [loading, setLoading] = useState(!analytics);
-
-  useEffect(() => {
-    if (!analytics && notificationId) {
-      loadAnalytics();
-    }
-  }, [notificationId, analytics]);
 
   const loadAnalytics = async () => {
     setLoading(true);
@@ -55,10 +63,34 @@ const RecipientAnalytics: React.FC<RecipientAnalyticsProps> = ({
         readCount: 46,
         unreadCount: 4,
         byDepartment: [
-          { department: "Khoa CNTT", total: 10, read: 10, unread: 0, readPercentage: 100 },
-          { department: "Khoa Điện-Điện tử", total: 12, read: 11, unread: 1, readPercentage: 92 },
-          { department: "Khoa Cơ khí", total: 8, read: 6, unread: 2, readPercentage: 75 },
-          { department: "Viện Sau ĐH", total: 20, read: 19, unread: 1, readPercentage: 95 },
+          {
+            department: "Khoa CNTT",
+            total: 10,
+            read: 10,
+            unread: 0,
+            readPercentage: 100,
+          },
+          {
+            department: "Khoa Điện-Điện tử",
+            total: 12,
+            read: 11,
+            unread: 1,
+            readPercentage: 92,
+          },
+          {
+            department: "Khoa Cơ khí",
+            total: 8,
+            read: 6,
+            unread: 2,
+            readPercentage: 75,
+          },
+          {
+            department: "Viện Sau ĐH",
+            total: 20,
+            read: 19,
+            unread: 1,
+            readPercentage: 95,
+          },
         ],
       };
       setData(mockData);
@@ -68,6 +100,12 @@ const RecipientAnalytics: React.FC<RecipientAnalyticsProps> = ({
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (!analytics && notificationId) {
+      loadAnalytics();
+    }
+  }, [notificationId, analytics]);
 
   const exportToCSV = () => {
     if (!data) return;
@@ -99,7 +137,9 @@ const RecipientAnalytics: React.FC<RecipientAnalyticsProps> = ({
   }
 
   if (!data) {
-    return <div className="text-center py-8 text-text-muted">Không có dữ liệu</div>;
+    return (
+      <div className="text-center py-8 text-text-muted">Không có dữ liệu</div>
+    );
   }
 
   const summaryData = [
@@ -132,7 +172,9 @@ const RecipientAnalytics: React.FC<RecipientAnalyticsProps> = ({
       <div className="grid grid-cols-3 gap-4">
         <div className="p-4 rounded-lg bg-surface-subtle border border-border-subtle">
           <p className="text-xs text-text-muted mb-1">Tổng người nhận</p>
-          <p className="text-2xl font-bold text-primary">{data.totalRecipients}</p>
+          <p className="text-2xl font-bold text-primary">
+            {data.totalRecipients}
+          </p>
         </div>
         <div className="p-4 rounded-lg bg-surface-subtle border border-border-subtle">
           <p className="text-xs text-text-muted mb-1">Đã đọc</p>
@@ -199,7 +241,13 @@ const RecipientAnalytics: React.FC<RecipientAnalyticsProps> = ({
           <ResponsiveContainer width="100%" height={200}>
             <BarChart data={data.byDepartment}>
               <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-              <XAxis dataKey="department" tick={{ fontSize: 12 }} angle={-45} textAnchor="end" height={80} />
+              <XAxis
+                dataKey="department"
+                tick={{ fontSize: 12 }}
+                angle={-45}
+                textAnchor="end"
+                height={80}
+              />
               <YAxis tick={{ fontSize: 12 }} />
               <Tooltip
                 contentStyle={{
@@ -209,7 +257,11 @@ const RecipientAnalytics: React.FC<RecipientAnalyticsProps> = ({
                   color: "#f1f5f9",
                 }}
               />
-              <Bar dataKey="readPercentage" fill="#34d399" radius={[4, 4, 0, 0]} />
+              <Bar
+                dataKey="readPercentage"
+                fill="#34d399"
+                radius={[4, 4, 0, 0]}
+              />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -240,8 +292,13 @@ const RecipientAnalytics: React.FC<RecipientAnalyticsProps> = ({
             </thead>
             <tbody className="divide-y divide-border-subtle/60">
               {data.byDepartment.map((dept) => (
-                <tr key={dept.department} className="hover:bg-surface-card transition-colors">
-                  <td className="px-4 py-3 text-text-primary">{dept.department}</td>
+                <tr
+                  key={dept.department}
+                  className="hover:bg-surface-card transition-colors"
+                >
+                  <td className="px-4 py-3 text-text-primary">
+                    {dept.department}
+                  </td>
                   <td className="px-4 py-3 text-center text-text-secondary">
                     {dept.total}
                   </td>

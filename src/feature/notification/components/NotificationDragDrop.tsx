@@ -8,6 +8,7 @@ import {
   PointerSensor,
   useSensor,
   useSensors,
+  DragEndEvent,
 } from "@dnd-kit/core";
 import {
   arrayMove,
@@ -17,11 +18,19 @@ import {
   useSortable,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { INotification } from "@/shared/types/notification.types";
 import { GripVertical } from "lucide-react";
 
+interface NotificationItem {
+  id: number;
+  type: string;
+  title: string;
+  message: string;
+  isRead?: boolean;
+  createdAt: string;
+}
+
 interface SortableNotificationItemProps {
-  notification: INotification;
+  notification: NotificationItem;
   index: number;
   onSelect?: (id: number) => void;
 }
@@ -107,8 +116,8 @@ function SortableNotificationItem({
 }
 
 interface NotificationDragDropProps {
-  notifications: INotification[];
-  onReorder: (reorderedNotifications: INotification[]) => void;
+  notifications: NotificationItem[];
+  onReorder: (reorderedNotifications: NotificationItem[]) => void;
   onNotificationSelect?: (id: number) => void;
 }
 
@@ -126,7 +135,7 @@ const NotificationDragDrop: React.FC<NotificationDragDropProps> = ({
     }),
   );
 
-  const handleDragEnd = (event: any) => {
+  const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
 
     if (over && active.id !== over.id) {

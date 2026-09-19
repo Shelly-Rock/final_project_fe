@@ -36,6 +36,7 @@ import {
   StatusUpdateDialog,
   NotificationList,
   AutoBanCheckComponent,
+  StudentDetailDialog,
 } from "@/feature/progress-tracking/components";
 import { progressTrackingService } from "@/feature/progress-tracking/services";
 import type {
@@ -45,13 +46,7 @@ import type {
 } from "@/feature/progress-tracking/types";
 import { PageHeader } from "@/shared/components";
 import { TrendingUp } from "lucide-react";
-
-// Mock teacher data - replace with actual auth
-const MOCK_TEACHER = {
-  id: 3,
-  name: "PGS.TS. Lê Văn Giảng",
-  email: "teacher@qnq.edu.vn",
-};
+import { useSession } from "next-auth/react";
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -208,7 +203,7 @@ function PendingReportsList({
                     </Box>
                   }
                   secondary={
-                    <Box>
+                    <>
                       <Typography
                         variant="caption"
                         component="span"
@@ -218,10 +213,15 @@ function PendingReportsList({
                         {report.month}/{report.year} • Nộp lúc:{" "}
                         {new Date(report.createdAt).toLocaleDateString("vi-VN")}
                       </Typography>
-                      <Typography variant="caption" color="text.secondary">
+                      <Typography
+                        variant="caption"
+                        component="span"
+                        color="text.secondary"
+                        sx={{ display: "block" }}
+                      >
                         Mã SV: {report.studentId}
                       </Typography>
-                    </Box>
+                    </>
                   }
                 />
                 <Button
@@ -364,8 +364,17 @@ function PendingReportsList({
 // ============================================================
 
 export default function TeacherProgressPage() {
+  const { data: session } = useSession();
+  const user = session?.user;
+  const parsedTeacherId = user?.id ? Number.parseInt(user.id, 10) : NaN;
+  const teacherId =
+    Number.isInteger(parsedTeacherId) && parsedTeacherId > 0
+      ? parsedTeacherId
+      : undefined;
+
   const [tabValue, setTabValue] = useState(0);
   const [statusDialogOpen, setStatusDialogOpen] = useState(false);
+  const [detailDialogOpen, setDetailDialogOpen] = useState(false);
   const [notificationDrawerOpen, setNotificationDrawerOpen] = useState(false);
   const [selectedStudent, setSelectedStudent] =
     useState<StudentProgress | null>(null);
@@ -377,7 +386,7 @@ export default function TeacherProgressPage() {
 
   const handleStatusUpdate = (studentId: number, _topicId: number) => {
     progressTrackingService
-      .getStudentProgress({ teacherId: MOCK_TEACHER.id })
+      .getStudentProgress({ teacherId: teacherId })
       .then((result) => {
         const student = result.data.find((s) => s.studentId === studentId);
         if (student) {
@@ -389,6 +398,7 @@ export default function TeacherProgressPage() {
 
   const handleViewDetails = (student: StudentProgress) => {
     setSelectedStudent(student);
+    setDetailDialogOpen(true);
   };
 
   return (
@@ -420,19 +430,16 @@ export default function TeacherProgressPage() {
           </Button>
           <Box sx={{ flex: 1 }} />
           <Typography variant="body2" color="text.secondary">
-            Giảng viên: <strong>{MOCK_TEACHER.name}</strong>
+            Giảng viên: <strong>{user?.name}</strong>
           </Typography>
         </Box>
       </Paper>
 
       {/* Ban Warnings */}
-      <BanWarningsList teacherId={MOCK_TEACHER.id} />
+      <BanWarningsList teacherId={teacherId} />
 
       {/* Statistics Cards */}
-      <ProgressStatsCards
-        teacherId={MOCK_TEACHER.id}
-        key={`stats-${refreshKey}`}
-      />
+      <ProgressStatsCards teacherId={teacherId} key={`stats-${refreshKey}`} />
 
       {/* Tabs */}
       <Paper sx={{ mb: 2 }}>
@@ -460,7 +467,7 @@ export default function TeacherProgressPage() {
 
         <TabPanel value={tabValue} index={0}>
           <StudentProgressTable
-            teacherId={MOCK_TEACHER.id}
+            teacherId={teacherId}
             onStatusChange={handleStatusUpdate}
             onViewDetails={handleViewDetails}
             key={`table-${refreshKey}`}
@@ -468,15 +475,17 @@ export default function TeacherProgressPage() {
         </TabPanel>
 
         <TabPanel value={tabValue} index={1}>
-          <PendingReportsList
-            teacherId={MOCK_TEACHER.id}
-            onReviewComplete={handleRefresh}
-          />
+          {teacherId !== undefined && (
+            <PendingReportsList
+              teacherId={teacherId}
+              onReviewComplete={handleRefresh}
+            />
+          )}
         </TabPanel>
 
         <TabPanel value={tabValue} index={2}>
           <BannedStudentsList
-            teacherId={MOCK_TEACHER.id}
+            teacherId={teacherId}
             onUnban={(studentId: number) => {
               progressTrackingService.updateStudentProgress(studentId, {
                 status: "ON_TRACK",
@@ -489,20 +498,45 @@ export default function TeacherProgressPage() {
       </Paper>
 
       {/* Status Update Dialog */}
-      <StatusUpdateDialog
-        open={statusDialogOpen}
-        onClose={() => {
-          setStatusDialogOpen(false);
-          setSelectedStudent(null);
-        }}
-        student={selectedStudent}
-        userId={MOCK_TEACHER.id}
-        userName={MOCK_TEACHER.name}
-        userRole="teacher"
-        onSuccess={() => {
-          handleRefresh();
-        }}
-      />
+      {teacherId !== undefined && (
+        <StatusUpdateDialog
+          open={statusDialogOpen}
+          onClose={() => {
+            setStatusDialogOpen(false);
+            setSelectedStudent(null);
+          }}
+          student={selectedStudent}
+          userId={teacherId}
+          userName={user?.name || ""}
+          userRole="teacher"
+          onSuccess={() => {
+            handleRefresh();
+          }}
+        />
+      )}
+
+      {/* Detail Dialog */}
+      {detailDialogOpen && selectedStudent && (
+        <StudentDetailDialog
+          student={selectedStudent}
+          onClose={() => {
+            setDetailDialogOpen(false);
+            setSelectedStudent(null);
+          }}
+          onUnban={(studentId: number) => {
+            progressTrackingService.updateStudentProgress(studentId, {
+              status: "ON_TRACK",
+            });
+            toast.success("Đã bỏ cấm thi cho sinh viên");
+            handleRefresh();
+          }}
+          onReviewClick={(reportId) => {
+            setDetailDialogOpen(false);
+            setTabValue(1); // Chuyển sang Tab Báo cáo chờ duyệt
+            // Ideally we could select this specific report, but Tab 1 lists all pending
+          }}
+        />
+      )}
 
       {/* Notification Drawer */}
       <Dialog
@@ -512,7 +546,9 @@ export default function TeacherProgressPage() {
         fullWidth
         sx={{ "& .MuiDialog-paper": { maxHeight: "80vh" } }}
       >
-        <NotificationList recipientId={MOCK_TEACHER.id} maxHeight={500} />
+        {teacherId !== undefined && (
+          <NotificationList recipientId={teacherId} maxHeight={500} />
+        )}
       </Dialog>
     </Box>
   );

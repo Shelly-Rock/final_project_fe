@@ -25,10 +25,10 @@ export const notificationApi = {
       params?.skip !== undefined ? Math.floor(params.skip / limit) + 1 : 1;
 
     const [res, countRes] = await Promise.all([
-      apiClient.get<NotificationListResponse>("/notifications", {
+      apiClient.get<NotificationListResponse>("/notification", {
         params: { page, limit },
       }),
-      apiClient.get<UnreadCountResponse>("/notifications/unread-count"),
+      apiClient.get<UnreadCountResponse>("/notification/unread-count"),
     ]);
 
     return {
@@ -40,27 +40,27 @@ export const notificationApi = {
 
   getUnreadCount: async (): Promise<{ unreadCount: number }> => {
     const res = await apiClient.get<UnreadCountResponse>(
-      "/notifications/unread-count",
+      "/notification/unread-count",
     );
     return { unreadCount: res?.count || 0 };
   },
 
   markAsRead: async (notificationIds: number[]): Promise<void> => {
-    await apiClient.post("/notifications/mark-as-read", {
+    await apiClient.post("/notification/mark-as-read", {
       notification_ids: notificationIds,
     });
   },
 
   markAllAsRead: async (): Promise<void> => {
-    await apiClient.post("/notifications/mark-all-as-read");
+    await apiClient.post("/notification/mark-all-as-read");
   },
 
   deleteNotification: async (notificationId: number): Promise<void> => {
-    await apiClient.delete(`/notifications/${notificationId}`);
+    await apiClient.delete(`/notification/${notificationId}`);
   },
 
   deleteAllNotifications: async (): Promise<void> => {
-    await apiClient.delete("/notifications/all");
+    await apiClient.delete("/notification/all");
   },
 
   sendNotification: async (data: {
@@ -83,7 +83,7 @@ export const notificationApi = {
       related_student_id: data.relatedStudentId,
       related_report_id: data.relatedReportId,
     }));
-    return apiClient.post("/notifications/batch", payload);
+    return apiClient.post("/notification/batch", payload);
   },
 
   // Bulk operations

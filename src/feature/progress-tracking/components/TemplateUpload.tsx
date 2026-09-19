@@ -12,6 +12,7 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
+  FormHelperText,
   Box,
   Typography,
   List,
@@ -24,60 +25,73 @@ import {
   Alert,
   CircularProgress,
 } from "@mui/material";
+
+interface DeadlineOption {
+  id: number;
+  label: string;
+}
 import {
   Upload as UploadIcon,
   Description as DescriptionIcon,
   Delete as DeleteIcon,
   CloudUpload as CloudUploadIcon,
   CheckCircle as CheckCircleIcon,
+  Visibility as VisibilityIcon,
+  Sync as SyncIcon,
 } from "@mui/icons-material";
 import { toast } from "sonner";
 import { progressTrackingService } from "../services";
-import type { Template, TemplateType, MilestoneType } from "../types";
+import type { Template } from "../types";
 import { apiClient } from "@/shared/services/api-client";
 
 interface TemplateUploadDialogProps {
   open: boolean;
   onClose: () => void;
   onSuccess?: (template: Template) => void;
+  replaceTemplate?: Template | null;
 }
-
-const TEMPLATE_TYPE_LABELS: Record<TemplateType, string> = {
-  MONTHLY_REPORT: "Báo cáo tháng",
-  MIDTERM_REPORT: "Báo cáo giữa kỳ",
-  FINAL_REPORT: "Báo cáo cuối kỳ",
-  PROPOSAL: "Đề xuất đề tài",
-  PRESENTATION: "Bài trình bày",
-};
-
-const TEMPLATE_TYPE_DESCRIPTIONS: Record<TemplateType, string> = {
-  MONTHLY_REPORT: "Template báo cáo tiến độ hàng tháng",
-  MIDTERM_REPORT: "Template báo cáo kiểm tra giữa kỳ",
-  FINAL_REPORT: "Template báo cáo tổng kết cuối kỳ",
-  PROPOSAL: "Template đề xuất và phê duyệt đề tài",
-  PRESENTATION: "Template bài trình bày bảo vệ đề tài",
-};
-
-const MILESTONE_TYPE_LABELS: Record<string, string> = {
-  TOPIC_REGISTRATION: "Giai đoạn 1: Đăng ký đề tài",
-  PROGRESS_REPORT: "Giai đoạn 2: Báo cáo tiến độ",
-  EXCEPTION_REQUEST: "Giai đoạn 3: Ngoại lệ (Gia hạn, Hủy...)",
-};
 
 export function TemplateUploadDialog({
   open,
   onClose,
   onSuccess,
+  replaceTemplate,
 }: TemplateUploadDialogProps) {
-  const [type, setType] = useState<TemplateType>("MONTHLY_REPORT");
-  const [milestoneType, setMilestoneType] =
-    useState<MilestoneType>("PROGRESS_REPORT");
   const [periodId, setPeriodId] = useState<number | "">("");
+  const [deadlineIds, setDeadlineIds] = useState<number[]>([]);
+  const [deadlines, setDeadlines] = useState<DeadlineOption[]>([]);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const [dragActive, setDragActive] = useState(false);
+
+  useEffect(() => {
+    if (open) {
+      if (replaceTemplate) {
+        setName(replaceTemplate.name);
+        setDescription(replaceTemplate.description || "");
+      } else {
+        setName("");
+        setDescription("");
+      }
+      setFile(null);
+      setDeadlineIds([]);
+
+      // Load deadlines for mapping
+      const loadDeadlines = async () => {
+        try {
+          const result = await progressTrackingService.getTimeline({
+            periodId: periodId as number,
+          });
+          setDeadlines(result);
+        } catch (error) {
+          console.error("Failed to load timelines", error);
+        }
+      };
+      loadDeadlines();
+    }
+  }, [open, replaceTemplate, periodId]);
 
   const isValidFile = (file: File): boolean => {
     const validTypes = [".doc", ".docx", ".pdf"];
@@ -134,7 +148,7 @@ export function TemplateUploadDialog({
     try {
       // Upload file first using API client instead of mock string
       const uploadRes = (await apiClient.uploadFile(
-        "/upload",
+        "/upload/templates",
         file,
         "file",
       )) as {
@@ -145,14 +159,26 @@ export function TemplateUploadDialog({
       const template = await progressTrackingService.createTemplate({
         name: name.trim(),
         description: description.trim() || undefined,
-        type,
-        milestoneType,
         periodId: periodId ? Number(periodId) : undefined,
+        deadlineIds: deadlineIds.length > 0 ? deadlineIds : undefined,
         fileUrl: uploadRes.file_url || uploadRes.url || `/uploads/${file.name}`,
         fileName: file.name,
         fileSize: file.size,
       });
-      toast.success("Tải lên template thành công!");
+
+      if (replaceTemplate) {
+        try {
+          await progressTrackingService.deleteTemplate(replaceTemplate.id);
+        } catch (e) {
+          console.error("Lỗi xóa file cũ:", e);
+        }
+      }
+
+      toast.success(
+        replaceTemplate
+          ? "Thay thế template thành công!"
+          : "Tải lên template thành công!",
+      );
       onSuccess?.(template);
       handleClose();
     } catch {
@@ -163,8 +189,6 @@ export function TemplateUploadDialog({
   };
 
   const handleClose = () => {
-    setType("MONTHLY_REPORT");
-    setMilestoneType("PROGRESS_REPORT");
     setPeriodId("");
     setName("");
     setDescription("");
@@ -189,41 +213,45 @@ export function TemplateUploadDialog({
             tải về và nộp lại.
           </Alert>
 
-          <FormControl fullWidth required>
-            <InputLabel>Giai đoạn</InputLabel>
+          <FormControl fullWidth>
+            <InputLabel>Áp dụng cho mốc tiến độ</InputLabel>
             <Select
-              value={milestoneType}
-              label="Giai đoạn"
-              onChange={(e) =>
-                setMilestoneType(e.target.value as MilestoneType)
-              }
+              multiple
+              value={deadlineIds}
+              label="Áp dụng cho mốc tiến độ"
+              onChange={(e) => {
+                const value = e.target.value;
+                setDeadlineIds(
+                  typeof value === "string"
+                    ? value.split(",").map(Number)
+                    : (value as number[]),
+                );
+              }}
+              renderValue={(selected) => (
+                <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+                  {(selected as number[]).map((value) => {
+                    const dl = deadlines.find((d) => d.id === value);
+                    return (
+                      <Chip
+                        key={value}
+                        label={dl ? dl.label : value}
+                        size="small"
+                      />
+                    );
+                  })}
+                </Box>
+              )}
             >
-              {Object.entries(MILESTONE_TYPE_LABELS).map(([value, label]) => (
-                <MenuItem key={value} value={value}>
-                  {label}
+              {deadlines.map((deadline) => (
+                <MenuItem key={deadline.id} value={deadline.id}>
+                  {deadline.label}
                 </MenuItem>
               ))}
             </Select>
-          </FormControl>
-
-          <FormControl fullWidth required>
-            <InputLabel>Loại template</InputLabel>
-            <Select
-              value={type}
-              label="Loại template"
-              onChange={(e) => setType(e.target.value as TemplateType)}
-            >
-              {Object.entries(TEMPLATE_TYPE_LABELS).map(([value, label]) => (
-                <MenuItem key={value} value={value}>
-                  <Box>
-                    <Typography variant="body1">{label}</Typography>
-                    <Typography variant="caption" color="text.secondary">
-                      {TEMPLATE_TYPE_DESCRIPTIONS[value as TemplateType]}
-                    </Typography>
-                  </Box>
-                </MenuItem>
-              ))}
-            </Select>
+            <FormHelperText>
+              Các biểu mẫu không được gán giai đoạn sẽ tự động được lưu vào danh
+              sách biểu mẫu ngoại lệ
+            </FormHelperText>
           </FormControl>
 
           <TextField
@@ -319,6 +347,7 @@ export function TemplateUploadDialog({
 
 interface TemplateListProps {
   onUploadClick?: () => void;
+  onReplaceClick?: (template: Template) => void;
   departmentId?: string;
   periodId?: number;
   showUploadButton?: boolean;
@@ -326,6 +355,7 @@ interface TemplateListProps {
 
 export function TemplateList({
   onUploadClick,
+  onReplaceClick,
   departmentId,
   periodId,
   showUploadButton = true,
@@ -333,6 +363,7 @@ export function TemplateList({
   const [templates, setTemplates] = useState<Template[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleteConfirm, setDeleteConfirm] = useState<number | null>(null);
+  const [previewTemplate, setPreviewTemplate] = useState<Template | null>(null);
 
   const loadTemplates = useCallback(async () => {
     setLoading(true);
@@ -362,29 +393,6 @@ export function TemplateList({
     } catch {
       toast.error("Không thể xóa template");
     }
-  };
-
-  const getTypeChipColor = (
-    type: TemplateType,
-  ): "primary" | "warning" | "success" | "info" | "default" => {
-    switch (type) {
-      case "MONTHLY_REPORT":
-        return "primary";
-      case "MIDTERM_REPORT":
-        return "warning";
-      case "FINAL_REPORT":
-        return "success";
-      case "PROPOSAL":
-        return "info";
-      case "PRESENTATION":
-        return "default";
-      default:
-        return "default";
-    }
-  };
-
-  const getTypeLabel = (type: TemplateType): string => {
-    return TEMPLATE_TYPE_LABELS[type] || type;
   };
 
   if (loading) {
@@ -425,18 +433,8 @@ export function TemplateList({
             sx={{ fontSize: 64, color: "text.disabled", mb: 2 }}
           />
           <Typography variant="h6" color="text.secondary">
-            Chưa có Template nào
+            Chưa có Template nào được tải lên
           </Typography>
-          {showUploadButton && onUploadClick && (
-            <Button
-              sx={{ mt: 2 }}
-              startIcon={<UploadIcon />}
-              onClick={onUploadClick}
-              variant="contained"
-            >
-              Tải lên Template đầu tiên
-            </Button>
-          )}
         </Paper>
       ) : (
         <List>
@@ -444,27 +442,31 @@ export function TemplateList({
             <Paper key={template.id} sx={{ mb: 1 }}>
               <ListItem
                 secondaryAction={
-                  <Box sx={{ display: "flex", gap: 1 }}>
-                    <Chip
-                      label={
-                        MILESTONE_TYPE_LABELS[template.milestoneType] ||
-                        template.milestoneType
-                      }
-                      size="small"
-                      color="secondary"
-                      variant="outlined"
-                    />
-                    <Chip
-                      label={getTypeLabel(template.type)}
-                      size="small"
-                      color={getTypeChipColor(template.type)}
-                    />
-                    <IconButton
-                      edge="end"
-                      onClick={() => setDeleteConfirm(template.id)}
-                    >
-                      <DeleteIcon />
-                    </IconButton>
+                  <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
+                    <Box sx={{ ml: 1 }}>
+                      <IconButton
+                        title="Xem trước"
+                        onClick={() => setPreviewTemplate(template)}
+                      >
+                        <VisibilityIcon />
+                      </IconButton>
+                      {onReplaceClick && (
+                        <IconButton
+                          title="Thay thế"
+                          color="primary"
+                          onClick={() => onReplaceClick(template)}
+                        >
+                          <SyncIcon />
+                        </IconButton>
+                      )}
+                      <IconButton
+                        title="Xóa"
+                        color="error"
+                        onClick={() => setDeleteConfirm(template.id)}
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    </Box>
                   </Box>
                 }
               >
@@ -516,6 +518,46 @@ export function TemplateList({
             Xóa
           </Button>
         </DialogActions>
+      </Dialog>
+
+      {/* Preview Dialog */}
+      <Dialog
+        open={previewTemplate !== null}
+        onClose={() => setPreviewTemplate(null)}
+        maxWidth="lg"
+        fullWidth
+        sx={{ "& .MuiDialog-paper": { height: "90vh" } }}
+      >
+        <DialogTitle
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          Xem trước Biểu mẫu: {previewTemplate?.name}
+          <Button onClick={() => setPreviewTemplate(null)}>Đóng</Button>
+        </DialogTitle>
+        <DialogContent dividers sx={{ p: 0, overflow: "hidden" }}>
+          {previewTemplate &&
+            (previewTemplate.fileUrl.toLowerCase().endsWith(".pdf") ? (
+              <iframe
+                src={previewTemplate.fileUrl}
+                width="100%"
+                height="100%"
+                style={{ border: "none" }}
+                title="PDF Preview"
+              />
+            ) : (
+              <iframe
+                src={`https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(previewTemplate.fileUrl)}`}
+                width="100%"
+                height="100%"
+                style={{ border: "none" }}
+                title="Office Preview"
+              />
+            ))}
+        </DialogContent>
       </Dialog>
     </Box>
   );

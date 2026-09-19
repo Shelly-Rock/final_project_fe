@@ -1,7 +1,14 @@
 "use client";
 
 import { Edit as EditIcon, Delete as DeleteIcon } from "@mui/icons-material";
-import { RefreshCw, Plus, AlertTriangle, Lock, Unlock } from "lucide-react";
+import {
+  RefreshCw,
+  Plus,
+  AlertTriangle,
+  Lock,
+  Unlock,
+  Users,
+} from "lucide-react";
 import { Chip, Box } from "@mui/material";
 import { DataTable } from "@/shared/components";
 import { Badge } from "@/shared/components";
@@ -19,16 +26,8 @@ interface TopicDataTableProps {
   onCreateException: () => void;
   onRefresh: () => void;
   onToggleLock?: (topic: MyTopic) => void;
+  onManageTeam?: (topic: MyTopic) => void;
 }
-
-const handleLockClick = (
-  row: MyTopic,
-  onToggleLock?: (topic: MyTopic) => void,
-) => {
-  if (confirm(`Bạn có chắc muốn khóa đề tài "${row.name}"?`)) {
-    onToggleLock?.(row);
-  }
-};
 
 const statusConfig: Record<
   string,
@@ -59,6 +58,7 @@ export function TopicDataTable({
   onCreateException,
   onRefresh,
   onToggleLock,
+  onManageTeam,
 }: TopicDataTableProps) {
   const headerActions: HeaderAction[] = [
     {
@@ -215,13 +215,16 @@ export function TopicDataTable({
           | "success"
           | "warning",
       onClick: (row) => {
-        if (row.registrationStatus === "LOCKED") {
-          // Mở khóa trực tiếp
-          if (onToggleLock) onToggleLock(row);
-        } else {
-          // Khóa - hiện confirmation
-          handleLockClick(row, onToggleLock);
-        }
+        if (onToggleLock) onToggleLock(row);
+      },
+    },
+    {
+      id: "group",
+      icon: <Users size={16} />,
+      label: "Nhóm SV",
+      color: "primary" as const,
+      onClick: (row) => {
+        if (onManageTeam) onManageTeam(row);
       },
     },
     {

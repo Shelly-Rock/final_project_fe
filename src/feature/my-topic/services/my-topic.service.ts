@@ -16,12 +16,16 @@ interface BackendStudent {
   id?: number;
   studentId?: number;
   student_id?: number;
+  studentDbId?: number;
   name?: string;
   studentName?: string;
   student_name?: string;
   studentCode?: string;
   student_code?: string;
   status?: string;
+  studentMessage?: string;
+  isLeader?: boolean;
+  assignedTask?: string;
   registeredAt?: string;
   registered_at?: string;
   approvedAt?: string;
@@ -81,6 +85,9 @@ interface BackendProject {
   topic_name: string;
   status: string;
   registered_at: string;
+  student_message?: string;
+  is_leader?: boolean;
+  assigned_task?: string;
   approved_at?: string;
   rejected_at?: string;
   rejection_reason?: string;
@@ -133,10 +140,13 @@ function mapBackendToMyTopic(backend: BackendTopic): MyTopic {
     preAssignedStudents: [],
     registeredStudents: registrations.map((s: BackendStudent) => ({
       id: s.projectId || s.id || 0,
-      studentId: s.studentId || s.student_id || 0,
+      studentId: s.studentDbId || s.studentId || s.student_id || 0,
       studentName: s.name || s.studentName || s.student_name || "",
       studentCode: s.studentCode || s.student_code || "",
       status: mapBackendStatusToRegistrationStatus(s.status || ""),
+      studentMessage: s.studentMessage || undefined,
+      isLeader: s.isLeader,
+      assignedTask: s.assignedTask,
       registeredAt: s.registeredAt || s.registered_at || "",
       approvedAt: s.approvedAt || s.approved_at,
       approvedBy: s.approvedBy
@@ -170,6 +180,8 @@ function _mapBackendToPendingRequest(project: BackendProject): PendingRequest {
     topicName: project.topic_name,
     requestedAt: project.registered_at,
     status: "Pending",
+    studentMessage: project.student_message || undefined,
+    isLeader: project.is_leader,
   };
 }
 

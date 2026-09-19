@@ -7,6 +7,10 @@ import {
   TopicDataTable,
   PendingRequestTable,
   TopicFormDialog,
+  ApproveConfirmDialog,
+  RejectConfirmDialog,
+  LockAssignmentDialog,
+  ChangeLeaderDialog,
 } from "@/feature/my-topic/components";
 import {
   myTopicService,
@@ -21,16 +25,26 @@ export default function MyTopicsPage() {
   // Topics state
   const [allTopics, setAllTopics] = useState<MyTopic[]>([]);
   const [topicsLoading, setTopicsLoading] = useState(true);
-
   // Pending requests state
   const [pendingRequests, setPendingRequests] = useState<PendingRequest[]>([]);
   const [requestsLoading, setRequestsLoading] = useState(true);
+
+  // Approve dialog state
+  const [approveDialogRequest, setApproveDialogRequest] =
+    useState<PendingRequest | null>(null);
+  const [approving, setApproving] = useState(false);
 
   // Form dialog state
   const [formDialogOpen, setFormDialogOpen] = useState(false);
   const [formLoading, setFormLoading] = useState(false);
   const [selectedTopic, setSelectedTopic] = useState<MyTopic | null>(null);
   const [isExceptionMode, setIsExceptionMode] = useState(false);
+
+  // Lock and Team management state
+  const [lockDialogTopic, setLockDialogTopic] = useState<MyTopic | null>(null);
+  const [teamDialogTopic, setTeamDialogTopic] = useState<MyTopic | null>(null);
+  const [lockingTopic, setLockingTopic] = useState(false);
+  const [changingLeader, setChangingLeader] = useState(false);
 
   // Search state
   const [searchValue, setSearchValue] = useState("");
@@ -56,6 +70,7 @@ export default function MyTopicsPage() {
                 topicName: topic.name,
                 requestedAt: s.registeredAt,
                 status: "Pending" as const,
+                studentMessage: s.studentMessage,
               })),
           ),
         );
@@ -136,16 +151,60 @@ export default function MyTopicsPage() {
       const isCurrentlyLocked = topic.registrationStatus === "LOCKED";
 
       if (!isCurrentlyLocked) {
-        await myTopicService.toggleLock(topic.id, true);
-        refreshTopics();
-        toast.success("Đã khóa đề tài");
+        setLockDialogTopic(topic);
       } else {
-        await myTopicService.toggleLock(topic.id, false);
-        refreshTopics();
-        toast.success("Đã mở khóa đề tài. Sinh viên có thể đăng ký.");
+        if (
+          confirm(
+            `Bạn có chắc muốn mở khóa đề tài "${topic.name}"? Sinh viên có thể tiếp tục đăng ký.`,
+          )
+        ) {
+          await myTopicService.toggleLock(topic.id, false);
+          refreshTopics();
+          toast.success("Đã mở khóa đề tài. Sinh viên có thể đăng ký.");
+        }
       }
     } catch {
       toast.error("Không thể thay đổi trạng thái khóa đề tài");
+    }
+  };
+
+  const handleManageTeam = (topic: MyTopic) => {
+    setTeamDialogTopic(topic);
+  };
+
+  const submitLockAssignments = async (
+    topicId: number,
+    assignments: {
+      projectId: number;
+      assignedTask: string;
+      isLeader: boolean;
+    }[],
+  ) => {
+    setLockingTopic(true);
+    try {
+      await myTopicService.lockWithAssignments(topicId, assignments);
+      refreshTopics();
+      toast.success("Đã khóa và phân công nhiệm vụ thành công");
+      setLockDialogTopic(null);
+    } catch {
+      toast.error("Khóa và phân công thất bại");
+    } finally {
+      setLockingTopic(false);
+    }
+  };
+
+  const submitChangeLeader = async (projectId: number) => {
+    if (!teamDialogTopic) return;
+    setChangingLeader(true);
+    try {
+      await myTopicService.changeLeader(teamDialogTopic.id, projectId);
+      refreshTopics();
+      toast.success("Thay đổi trưởng nhóm thành công");
+      setTeamDialogTopic(null);
+    } catch {
+      toast.error("Thay đổi trưởng nhóm thất bại");
+    } finally {
+      setChangingLeader(false);
     }
   };
 
@@ -175,35 +234,55 @@ export default function MyTopicsPage() {
     }
   };
 
-  const handleApproveRequest = async (request: PendingRequest) => {
+  // States for reject confirm dialog
+  const [rejectDialogRequest, setRejectDialogRequest] =
+    useState<PendingRequest | null>(null);
+  const [rejecting, setRejecting] = useState(false);
+
+  const handleApproveRequest = (request: PendingRequest) => {
+    setApproveDialogRequest(request);
+  };
+
+  const handleConfirmApprove = async () => {
+    if (!approveDialogRequest) return;
+    setApproving(true);
     try {
       await myTopicService.approveRegistration({
-        topicId: request.topicId,
-        studentId: request.studentId,
+        topicId: approveDialogRequest.topicId,
+        studentId: approveDialogRequest.studentId,
       });
       refreshTopics();
-      toast.success(`Đã duyệt yêu cầu của ${request.studentName}`);
+      toast.success(`Đã duyệt yêu cầu của ${approveDialogRequest.studentName}`);
+      setApproveDialogRequest(null);
     } catch {
       toast.error("Duyệt thất bại");
+    } finally {
+      setApproving(false);
     }
   };
 
-  const handleRejectRequest = async (request: PendingRequest) => {
-    const reason = window.prompt(
-      `Nhập lý do từ chối yêu cầu của "${request.studentName}":`,
-    );
-    if (reason === null) return; // User cancelled
+  const handleRejectRequest = (request: PendingRequest) => {
+    setRejectDialogRequest(request);
+  };
 
+  const handleConfirmReject = async (reason: string) => {
+    if (!rejectDialogRequest) return;
+    setRejecting(true);
     try {
       await myTopicService.rejectRegistration({
-        topicId: request.topicId,
-        studentId: request.studentId,
-        reason: reason || "Không đạt yêu cầu",
+        topicId: rejectDialogRequest.topicId,
+        studentId: rejectDialogRequest.studentId,
+        reason,
       });
       refreshTopics();
-      toast.success(`Đã từ chối yêu cầu của ${request.studentName}`);
+      toast.success(
+        `Đã từ chối yêu cầu của ${rejectDialogRequest.studentName}`,
+      );
+      setRejectDialogRequest(null);
     } catch {
       toast.error("Từ chối thất bại");
+    } finally {
+      setRejecting(false);
     }
   };
 
@@ -224,6 +303,7 @@ export default function MyTopicsPage() {
           onCreateException={handleCreateException}
           onRefresh={refreshTopics}
           onToggleLock={handleToggleLock}
+          onManageTeam={handleManageTeam}
         />
       ),
     },
@@ -232,7 +312,6 @@ export default function MyTopicsPage() {
       content: (
         <PendingRequestTable
           requests={pendingRequests}
-          topics={allTopics}
           loading={requestsLoading}
           onApprove={handleApproveRequest}
           onReject={handleRejectRequest}
@@ -264,6 +343,40 @@ export default function MyTopicsPage() {
         topic={selectedTopic}
         isException={isExceptionMode}
         loading={formLoading}
+      />
+
+      {/* Approve Confirm Dialog */}
+      <ApproveConfirmDialog
+        open={!!approveDialogRequest}
+        onClose={() => setApproveDialogRequest(null)}
+        onConfirm={handleConfirmApprove}
+        request={approveDialogRequest}
+        loading={approving}
+      />
+
+      {/* Reject Confirm Dialog */}
+      <RejectConfirmDialog
+        open={!!rejectDialogRequest}
+        onClose={() => setRejectDialogRequest(null)}
+        onConfirm={handleConfirmReject}
+        request={rejectDialogRequest}
+        loading={rejecting}
+      />
+
+      {/* Lock and Assignment Dialog */}
+      <LockAssignmentDialog
+        open={!!lockDialogTopic}
+        onClose={() => setLockDialogTopic(null)}
+        topic={lockDialogTopic}
+        onSubmit={submitLockAssignments}
+      />
+
+      {/* Change Leader Dialog */}
+      <ChangeLeaderDialog
+        open={!!teamDialogTopic}
+        onClose={() => setTeamDialogTopic(null)}
+        topic={teamDialogTopic}
+        onSubmit={submitChangeLeader}
       />
     </Box>
   );

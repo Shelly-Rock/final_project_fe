@@ -20,7 +20,6 @@ import {
   Description as DescriptionIcon,
   CloudUpload as UploadIcon,
   Refresh as RefreshIcon,
-  Notifications as NotificationsIcon,
   Block as BlockIcon,
   CheckCircle as CheckCircleIcon,
   Schedule as ScheduleIcon,
@@ -31,7 +30,9 @@ import {
   ReportSubmissionDialog,
   ReportHistoryList,
   TemplateList,
-  NotificationList,
+  StudentStatusCard,
+  ProgressTimeline,
+  ExceptionRequests,
 } from "@/feature/progress-tracking/components";
 import { progressTrackingService } from "@/feature/progress-tracking/services";
 import type {
@@ -40,15 +41,6 @@ import type {
 } from "@/feature/progress-tracking/types";
 import { PageHeader } from "@/shared/components";
 import { TrendingUp } from "lucide-react";
-
-// Mock student data - replace with actual auth
-// Note: id is a number to match the new service types.
-const MOCK_STUDENT = {
-  id: 4,
-  name: "Nguyễn Hoàng Sinh Viên",
-  email: "student@qnq.edu.vn",
-  mssv: "B22DCCN001",
-};
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -310,33 +302,44 @@ function StudentProgressCard({ studentId }: { studentId: number }) {
   );
 }
 
+import { useSession } from "next-auth/react";
+
 // ============================================================
 // Main Student Progress Page
 // ============================================================
 
 export default function StudentProgressPage() {
+  const { data: session } = useSession();
+  const user = session?.user;
+  const userId = user?.id;
+
   const [tabValue, setTabValue] = useState(0);
   const [submitDialogOpen, setSubmitDialogOpen] = useState(false);
-  const [notificationDialogOpen, setNotificationDialogOpen] = useState(false);
+  const [activeDeadlineId, setActiveDeadlineId] = useState<
+    number | undefined
+  >();
+  const [activeDeadlineLabel, setActiveDeadlineLabel] = useState<
+    string | undefined
+  >();
   const [refreshKey, setRefreshKey] = useState(0);
 
   const [studentProgress, setStudentProgress] =
     useState<StudentProgress | null>(null);
+  const [loading, setLoading] = useState(true);
 
   const loadStudentProgress = useCallback(async () => {
     try {
-      // Filter the paginated list of student progress records by studentId,
-      // since the new service no longer exposes getStudentById.
-      const result = await progressTrackingService.getStudentProgress({
-        limit: 100,
-      });
-      const data =
-        result.data.find((p) => p.studentId === MOCK_STUDENT.id) || null;
+      if (!userId) return;
+      setLoading(true);
+      const data = await progressTrackingService.getMyProgress();
       setStudentProgress(data);
     } catch {
       // Silently fail
+      setStudentProgress(null);
+    } finally {
+      setLoading(false);
     }
-  }, []);
+  }, [userId]);
 
   useEffect(() => {
     loadStudentProgress();
@@ -356,133 +359,85 @@ export default function StudentProgressPage() {
         showBgImage={true}
       />
 
-      {/* Quick Actions */}
-      <Paper sx={{ p: 2, mb: 3 }}>
-        <Box
-          sx={{
-            display: "flex",
-            gap: 2,
-            flexWrap: "wrap",
-            alignItems: "center",
-          }}
-        >
-          <Button
-            variant="contained"
-            color="primary"
-            startIcon={<DescriptionIcon />}
-            onClick={() => setSubmitDialogOpen(true)}
-            disabled={studentProgress?.isBanned}
-          >
-            Nộp báo cáo mới
-          </Button>
-          <Button
-            variant="outlined"
-            startIcon={<NotificationsIcon />}
-            onClick={() => setNotificationDialogOpen(true)}
-          >
-            Thông báo
-          </Button>
-          <Button
-            variant="outlined"
-            startIcon={<RefreshIcon />}
-            onClick={handleRefresh}
-          >
-            Làm mới
-          </Button>
-          <Box sx={{ flex: 1 }} />
-          <Typography variant="body2" color="text.secondary">
-            Sinh viên: <strong>{MOCK_STUDENT.name}</strong> • MSSV:{" "}
-            {MOCK_STUDENT.mssv}
-          </Typography>
+      {loading ? (
+        <Box sx={{ p: 4, textAlign: "center" }}>
+          <CircularProgress />
         </Box>
-      </Paper>
-
-      {/* Progress Status Card */}
-      <StudentProgressCard
-        studentId={MOCK_STUDENT.id}
-        key={`progress-card-${refreshKey}`}
-      />
-
-      {/* Tabs */}
-      <Paper sx={{ mt: 3 }}>
-        <Tabs
-          value={tabValue}
-          onChange={(_, v) => setTabValue(v)}
-          sx={{ borderBottom: 1, borderColor: "divider" }}
-        >
-          <Tab
-            label="Lịch sử báo cáo"
-            icon={<DescriptionIcon />}
-            iconPosition="start"
-          />
-          <Tab
-            label="Templates & Biểu mẫu"
-            icon={<UploadIcon />}
-            iconPosition="start"
-          />
-          <Tab
-            label="Thông báo"
-            icon={<NotificationsIcon />}
-            iconPosition="start"
-          />
-        </Tabs>
-
-        <TabPanel value={tabValue} index={0}>
-          <ReportHistoryList
-            studentId={MOCK_STUDENT.id}
-            canSubmit={!studentProgress?.isBanned}
-            onSubmitClick={() => setSubmitDialogOpen(true)}
-            key={`reports-${refreshKey}`}
-          />
-        </TabPanel>
-
-        <TabPanel value={tabValue} index={1}>
-          <Box sx={{ p: 2 }}>
-            <Alert severity="info" sx={{ mb: 2 }}>
-              <Typography variant="body2">
-                <strong>Templates:</strong> Thư ký ngành sẽ cung cấp các biểu
-                mẫu chuẩn (Template Word) theo từng giai đoạn để bạn viết báo
-                cáo và nộp các biểu mẫu liên quan. Hãy tải về và sử dụng theo
-                đúng mẫu quy định.
-              </Typography>
-            </Alert>
-            <TemplateList
-              showUploadButton={false}
-              key={`templates-${refreshKey}`}
-            />
+      ) : !studentProgress ? (
+        <Alert severity="info" sx={{ mt: 3 }}>
+          <Typography variant="body1">
+            Bạn chưa đăng ký đề tài hoặc yêu cầu đăng ký chưa được phê duyệt nên
+            chưa có tiến độ thực hiện.
+          </Typography>
+        </Alert>
+      ) : (
+        <>
+          {/* Progress Status Card */}
+          <Box sx={{ mt: 3 }}>
+            <StudentStatusCard student={studentProgress} />
           </Box>
-        </TabPanel>
 
-        <TabPanel value={tabValue} index={2}>
-          <NotificationList
-            recipientId={MOCK_STUDENT.id}
-            maxHeight={600}
-            key={`notifications-${refreshKey}`}
+          {/* Tabs */}
+          <Paper sx={{ mt: 3 }}>
+            <Tabs
+              value={tabValue}
+              onChange={(_, v) => setTabValue(v)}
+              sx={{ borderBottom: 1, borderColor: "divider" }}
+            >
+              <Tab
+                label="Tiến trình thực hiện"
+                icon={<ScheduleIcon />}
+                iconPosition="start"
+              />
+              <Tab
+                label="Biểu mẫu ngoại lệ"
+                icon={<DescriptionIcon />}
+                iconPosition="start"
+              />
+            </Tabs>
+
+            <TabPanel value={tabValue} index={0}>
+              <Box sx={{ p: 2 }}>
+                <ProgressTimeline
+                  studentId={studentProgress.studentId}
+                  key={`timeline-${refreshKey}`}
+                  onUploadClick={(deadlineId: number, label: string) => {
+                    setActiveDeadlineId(deadlineId);
+                    setActiveDeadlineLabel(label);
+                    setSubmitDialogOpen(true);
+                  }}
+                />
+              </Box>
+            </TabPanel>
+
+            <TabPanel value={tabValue} index={1}>
+              <Box sx={{ p: 2 }}>
+                <ExceptionRequests
+                  studentId={studentProgress.studentId}
+                  onRefresh={handleRefresh}
+                />
+              </Box>
+            </TabPanel>
+          </Paper>
+
+          {/* Submit Report Dialog */}
+          <ReportSubmissionDialog
+            open={submitDialogOpen}
+            onClose={() => {
+              setSubmitDialogOpen(false);
+              setActiveDeadlineId(undefined);
+              setActiveDeadlineLabel(undefined);
+            }}
+            studentId={studentProgress.studentId}
+            deadlineId={activeDeadlineId}
+            deadlineLabel={activeDeadlineLabel}
+            onSuccess={() => {
+              toast.success("Nộp báo cáo thành công!");
+              handleRefresh();
+            }}
           />
-        </TabPanel>
-      </Paper>
-
-      {/* Submit Report Dialog */}
-      <ReportSubmissionDialog
-        open={submitDialogOpen}
-        onClose={() => setSubmitDialogOpen(false)}
-        studentId={MOCK_STUDENT.id}
-        onSuccess={() => {
-          toast.success("Nộp báo cáo thành công!");
-          handleRefresh();
-        }}
-      />
-
-      {/* Notification Dialog */}
-      <Dialog
-        open={notificationDialogOpen}
-        onClose={() => setNotificationDialogOpen(false)}
-        maxWidth="sm"
-        fullWidth
-        sx={{ "& .MuiDialog-paper": { maxHeight: "80vh" } }}
-      >
-        <NotificationList recipientId={MOCK_STUDENT.id} maxHeight={500} />
-      </Dialog>
+        </>
+      )}
     </Box>
   );
 }

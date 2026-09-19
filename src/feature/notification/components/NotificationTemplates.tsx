@@ -1,14 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import {
-  Save,
-  Trash2,
-  Plus,
-  Copy,
-  Edit2,
-  X,
-} from "lucide-react";
+import { Save, Trash2, Plus, Copy, Edit2, X } from "lucide-react";
 import { toast } from "sonner";
 
 interface NotificationTemplate {
@@ -21,6 +14,8 @@ interface NotificationTemplate {
   createdAt: string;
 }
 
+type NotificationTemplateType = NotificationTemplate["type"];
+
 interface NotificationTemplatesProps {
   onUseTemplate?: (template: NotificationTemplate) => void;
 }
@@ -31,17 +26,19 @@ const NotificationTemplates: React.FC<NotificationTemplatesProps> = ({
   const [templates, setTemplates] = useState<NotificationTemplate[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    name: string;
+    type: NotificationTemplateType;
+    recipientRole: string;
+    title: string;
+    message: string;
+  }>({
     name: "",
     type: "GENERAL" as const,
     recipientRole: "ALL",
     title: "",
     message: "",
   });
-
-  useEffect(() => {
-    loadTemplates();
-  }, []);
 
   const loadTemplates = () => {
     const stored = localStorage.getItem("notificationTemplates");
@@ -53,6 +50,10 @@ const NotificationTemplates: React.FC<NotificationTemplatesProps> = ({
       }
     }
   };
+
+  useEffect(() => {
+    loadTemplates();
+  }, []);
 
   const saveTemplate = () => {
     if (!formData.name || !formData.title || !formData.message) {
@@ -69,8 +70,8 @@ const NotificationTemplates: React.FC<NotificationTemplatesProps> = ({
                 ...formData,
                 updatedAt: new Date().toISOString(),
               }
-            : t
-        )
+            : t,
+        ),
       );
       toast.success("Đã cập nhật template");
       setEditingId(null);
@@ -101,7 +102,7 @@ const NotificationTemplates: React.FC<NotificationTemplatesProps> = ({
   const editTemplate = (template: NotificationTemplate) => {
     setFormData({
       name: template.name,
-      type: template.type as any,
+      type: template.type,
       recipientRole: template.recipientRole,
       title: template.title,
       message: template.message,
@@ -153,9 +154,7 @@ const NotificationTemplates: React.FC<NotificationTemplatesProps> = ({
             type="text"
             placeholder="Tên mẫu"
             value={formData.name}
-            onChange={(e) =>
-              setFormData({ ...formData, name: e.target.value })
-            }
+            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
             className="w-full bg-surface-card border border-border-subtle rounded-lg px-3 py-2 text-xs text-text-primary placeholder:text-text-muted focus:border-primary/60 focus:outline-none transition-colors"
           />
 

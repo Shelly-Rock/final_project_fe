@@ -24,6 +24,7 @@ import {
   Card,
   CardContent,
   Grid,
+  Divider,
 } from "@mui/material";
 import {
   Warning as WarningIcon,
@@ -34,6 +35,7 @@ import {
   Schedule as ScheduleIcon,
 } from "@mui/icons-material";
 import { toast } from "sonner";
+import { ProgressTimeline } from "./ProgressTimeline";
 import { DataTable, type Column, type Action } from "@/shared/components";
 import { progressTrackingService } from "../services";
 import type {
@@ -192,6 +194,13 @@ export function StudentProgressTable({
 
   const loadProgress = useCallback(async () => {
     setLoading(true);
+
+    if (teacherId === undefined || teacherId <= 0) {
+      setProgressList([]);
+      setLoading(false);
+      return;
+    }
+
     try {
       const result = await progressTrackingService.getStudentProgress({
         teacherId,
@@ -567,18 +576,18 @@ export function BannedStudentsList({
 
 // ============================================================
 // Student Detail Dialog
-// ============================================================
-
 interface StudentDetailDialogProps {
   student: StudentProgress | null;
   onClose: () => void;
   onUnban?: (studentId: number) => void;
+  onReviewClick?: (reportId: number) => void;
 }
 
 export function StudentDetailDialog({
   student,
   onClose,
   onUnban,
+  onReviewClick,
 }: StudentDetailDialogProps) {
   if (!student) return null;
 
@@ -656,28 +665,15 @@ export function StudentDetailDialog({
           )}
 
           <Grid item xs={12}>
-            <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-              Báo cáo đã nộp ({student.totalReportsSubmitted}/
-              {student.totalReportsRequired})
+            <Divider sx={{ my: 2 }} />
+            <Typography variant="subtitle1" fontWeight={600} gutterBottom>
+              Tiến trình & Báo cáo
             </Typography>
-            {student.totalReportsSubmitted === 0 ? (
-              <Alert severity="warning">Chưa có báo cáo nào</Alert>
-            ) : (
-              <Alert severity="info">
-                Sinh viên đã nộp {student.totalReportsSubmitted} /{" "}
-                {student.totalReportsRequired} báo cáo.
-                {student.lastReportDate && (
-                  <>
-                    {" "}
-                    Báo cáo gần nhất:{" "}
-                    {new Date(student.lastReportDate).toLocaleDateString(
-                      "vi-VN",
-                    )}
-                    .
-                  </>
-                )}
-              </Alert>
-            )}
+            <ProgressTimeline
+              studentId={student.studentId}
+              isTeacherView={true}
+              onReviewClick={onReviewClick}
+            />
           </Grid>
         </Grid>
       </DialogContent>

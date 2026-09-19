@@ -21,8 +21,13 @@ import type {
   RegistrationRequest,
 } from "@/feature/student-topic/types";
 import { studentTopicService } from "@/feature/student-topic/services/studentTopicService";
+import type { GovernanceStateResponse } from "@/feature/student-topic/services/topic.api";
 import { PageHeader } from "@/shared/components";
 import { toast } from "sonner";
+
+type GovernanceStateWithLegacy = GovernanceStateResponse & {
+  locks?: { registrationOpen?: boolean };
+};
 
 type StudentStatus = "UNREGISTERED" | "PENDING" | "REJECTED" | "APPROVED";
 
@@ -79,8 +84,12 @@ export default function TopicRegistrationPage() {
 
   const loadGovernanceState = useCallback(async () => {
     try {
-      const state = await studentTopicService.getGovernanceState();
-      if (state.isExpired !== undefined) {
+      const state: GovernanceStateWithLegacy =
+        await studentTopicService.getGovernanceState();
+
+      if (state.locks && typeof state.locks.registrationOpen === "boolean") {
+        setIsExpired(!state.locks.registrationOpen);
+      } else if (state.isExpired !== undefined) {
         setIsExpired(state.isExpired);
       } else if (state.deadline) {
         const now = new Date();
@@ -114,9 +123,9 @@ export default function TopicRegistrationPage() {
     setDetailDialogOpen(true);
   };
 
-  const handleRegister = async (topicId: string) => {
+  const handleRegister = async (topicId: string, studentMessage?: string) => {
     try {
-      await studentTopicService.registerTopic(topicId);
+      await studentTopicService.registerTopic(topicId, studentMessage);
       toast.success("Yêu cầu đăng ký đã được gửi thành công!");
       await loadMyRegistration();
       await refreshAvailableTopics();
@@ -148,6 +157,73 @@ export default function TopicRegistrationPage() {
   };
 
   const renderStatusAlert = () => {
+    if (
+      isExpired &&
+      (studentStatus === "UNREGISTERED" || studentStatus === "REJECTED")
+    ) {
+      return (
+        <>
+          {studentStatus === "REJECTED" && (
+            <Alert
+              severity="error"
+              sx={{
+                mb: 2,
+                borderRadius: 2,
+                border: "1px solid",
+                borderColor: "error.main",
+                bgcolor: "error.50",
+                color: "text.primary",
+                "& .MuiAlert-icon": { color: "error.dark" },
+              }}
+            >
+              <Typography
+                variant="body1"
+                fontWeight={600}
+                gutterBottom
+                color="text.primary"
+              >
+                Yêu cầu đăng ký đã bị từ chối
+              </Typography>
+              <Typography variant="body2" color="text.primary">
+                Yêu cầu đăng ký đề tài{" "}
+                <strong>&quot;{currentRegistration?.topicName}&quot;</strong>{" "}
+                của bạn đã bị từ chối.
+              </Typography>
+              <Typography variant="body2" sx={{ mt: 1 }} color="text.primary">
+                <strong>Lý do:</strong> {currentRegistration?.rejectionReason}
+              </Typography>
+            </Alert>
+          )}
+          <Alert
+            severity="error"
+            sx={{
+              mb: 3,
+              borderRadius: 2,
+              border: "1px solid",
+              borderColor: "error.main",
+              bgcolor: "error.50",
+              color: "text.primary",
+              "& .MuiAlert-icon": { color: "error.dark", mt: 0.5 },
+            }}
+          >
+            <Typography
+              variant="body1"
+              fontWeight={600}
+              gutterBottom
+              color="text.primary"
+            >
+              Đã hết thời gian đăng ký đề tài
+            </Typography>
+            <Typography variant="body2" color="text.primary">
+              Đã hết thời gian đăng ký đề tài trong đợt này, vui lòng liên hệ
+              giảng viên hướng dẫn để gửi yêu cầu đăng ký ngoại lệ đến thư ký
+              ngành.
+            </Typography>
+          </Alert>
+        </>
+      );
+    }
+
     switch (studentStatus) {
       case "PENDING":
         return (

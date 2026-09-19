@@ -24,19 +24,7 @@ export type ReportStatus =
   | "MISSING";
 
 /** Loại template */
-export type TemplateType =
-  | "MONTHLY_REPORT"
-  | "MIDTERM_REPORT"
-  | "FINAL_REPORT"
-  | "PROPOSAL"
-  | "PRESENTATION";
-
 /** Giai đoạn */
-export type MilestoneType =
-  | "TOPIC_REGISTRATION"
-  | "PROGRESS_REPORT"
-  | "EXCEPTION_REQUEST";
-
 /** Loại thông báo */
 export type NotificationType =
   | "STATUS_CHANGED"
@@ -53,8 +41,6 @@ export interface Template {
   id: number;
   name: string;
   description: string | null;
-  type: TemplateType;
-  milestoneType: MilestoneType;
   fileUrl: string;
   fileName: string;
   fileSize: number;
@@ -131,6 +117,38 @@ export interface BanWarning {
   daysUntilBan: number;
   reportsSubmitted: number;
   reportsRequired: number;
+}
+
+export type DeadlineType =
+  | "TOPIC_CREATION"
+  | "STUDENT_REGISTRATION"
+  | "TEACHER_APPROVAL"
+  | "PERIODIC_REPORT"
+  | "FINAL_SUBMISSION";
+
+export interface TimelineNode {
+  id: number;
+  periodId: number;
+  type: DeadlineType;
+  seq: number;
+  label: string;
+  deadlineAt: string;
+  template: {
+    id: number;
+    name: string;
+    fileUrl: string;
+    fileName: string;
+  } | null;
+  submission: {
+    id: number;
+    title: string;
+    status: ReportStatus;
+    fileUrl: string | null;
+    fileName: string | null;
+    score: number | null;
+    feedback: string | null;
+    submittedAt: string;
+  } | null;
 }
 
 // ---------- Statistics ----------

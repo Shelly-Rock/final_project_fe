@@ -32,69 +32,96 @@ import {
   Cancel as RejectIcon,
   Edit as RevisionIcon,
   Warning as WarningIcon,
+  CloudUpload as CloudUploadIcon,
+  Upload as UploadIcon,
 } from "@mui/icons-material";
 import { toast } from "sonner";
 import { progressTrackingService } from "../services";
 import type { ProgressReport, ReportStatus } from "../types";
+import { apiClient } from "@/shared/services/api-client";
 
 interface ReportSubmissionDialogProps {
   open: boolean;
   onClose: () => void;
   onSuccess?: (report: ProgressReport) => void;
   studentId: number;
+  deadlineId?: number;
+  deadlineLabel?: string;
 }
-
-const MONTHS = [
-  { value: 1, label: "Tháng 1" },
-  { value: 2, label: "Tháng 2" },
-  { value: 3, label: "Tháng 3" },
-  { value: 4, label: "Tháng 4" },
-  { value: 5, label: "Tháng 5" },
-  { value: 6, label: "Tháng 6" },
-  { value: 7, label: "Tháng 7" },
-  { value: 8, label: "Tháng 8" },
-  { value: 9, label: "Tháng 9" },
-  { value: 10, label: "Tháng 10" },
-  { value: 11, label: "Tháng 11" },
-  { value: 12, label: "Tháng 12" },
-];
 
 export function ReportSubmissionDialog({
   open,
   onClose,
   onSuccess,
   studentId,
+  deadlineId,
+  deadlineLabel,
 }: ReportSubmissionDialogProps) {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [month, setMonth] = useState(new Date().getMonth() + 1);
-  const [year] = useState(new Date().getFullYear());
   const [uploading, setUploading] = useState(false);
+
+  const [file, setFile] = useState<File | null>(null);
+
+  useEffect(() => {
+    if (open) {
+      if (deadlineId && deadlineLabel) {
+        setTitle(deadlineLabel);
+      } else {
+        setTitle("");
+      }
+      setContent("");
+      setFile(null);
+    }
+  }, [open, deadlineId, deadlineLabel]);
 
   const handleSubmit = async () => {
     if (!title.trim()) {
       toast.error("Vui lòng nhập tiêu đề báo cáo");
       return;
     }
-    if (!content.trim()) {
-      toast.error("Vui lòng nhập nội dung báo cáo");
+    if (!file) {
+      toast.error("Vui lòng đính kèm file báo cáo/biểu mẫu");
       return;
     }
 
     setUploading(true);
     try {
+      let fileUrl = "";
+      let fileName = "";
+      if (file) {
+        const uploadRes = (await apiClient.uploadFile(
+          "/upload/reports",
+          file,
+          "file",
+        )) as { file_url?: string; url?: string };
+        fileUrl =
+          uploadRes.file_url || uploadRes.url || `/uploads/${file.name}`;
+        fileName = file.name;
+      }
+
       const report = await progressTrackingService.submitReport({
         studentId,
         title: title.trim(),
         content: content.trim(),
-        month,
-        year,
+        deadlineId,
+        fileUrl,
+        fileName,
       });
-      toast.success("Nộp báo cáo thành công!");
-      onSuccess?.(report);
+
+      if (onSuccess) {
+        onSuccess(report);
+      }
       handleClose();
-    } catch {
-      toast.error("Có lỗi xảy ra khi nộp báo cáo");
+    } catch (err: unknown) {
+      const error = err as {
+        response?: {
+          data?: {
+            message?: string;
+          };
+        };
+      };
+      toast.error(error.response?.data?.message || "Lỗi khi nộp báo cáo");
     } finally {
       setUploading(false);
     }
@@ -103,7 +130,7 @@ export function ReportSubmissionDialog({
   const handleClose = () => {
     setTitle("");
     setContent("");
-    setMonth(new Date().getMonth() + 1);
+    setFile(null);
     onClose();
   };
 
@@ -112,7 +139,7 @@ export function ReportSubmissionDialog({
       <DialogTitle>
         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
           <DescriptionIcon color="primary" />
-          Nộp báo cáo tiến độ
+          {deadlineId ? "Nộp báo cáo tiến độ" : "Nộp biểu mẫu ngoại lệ"}
         </Box>
       </DialogTitle>
 
@@ -120,50 +147,94 @@ export function ReportSubmissionDialog({
         <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
           <Alert severity="info">
             <Typography variant="body2">
-              <strong>Quy định:</strong> Sinh viên phải nộp ít nhất 1 báo cáo cá
-              nhân mỗi tháng. Hệ thống sẽ tự động đánh dấu cấm thi (bảo vệ) đối
-              với Sinh viên có 0 báo cáo.
+              {deadlineId ? (
+                <>
+                  <strong>Quy định:</strong> Sinh viên phải nộp báo cáo đúng hạn
+                  theo đợt. Hệ thống sẽ ghi nhận lịch sử nộp bài của bạn.
+                </>
+              ) : (
+                <>
+                  Giảng viên hướng dẫn sẽ xem xét và phản hồi đơn yêu cầu của
+                  bạn.
+                </>
+              )}
             </Typography>
           </Alert>
-
-          <Box sx={{ display: "flex", gap: 2 }}>
-            <FormControl sx={{ minWidth: 150 }}>
-              <InputLabel>Tháng</InputLabel>
-              <Select
-                value={month}
-                label="Tháng"
-                onChange={(e) => setMonth(e.target.value as number)}
-              >
-                {MONTHS.map((m) => (
-                  <MenuItem key={m.value} value={m.value}>
-                    {m.label}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-
-            <TextField label="Năm" value={year} disabled sx={{ width: 120 }} />
-          </Box>
 
           <TextField
             label="Tiêu đề báo cáo"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="VD: Báo cáo tiến độ tháng 8/2026"
+            placeholder={deadlineId ? "" : "VD: Đơn xin đổi đề tài"}
             fullWidth
             required
+            disabled={!!deadlineId && !!deadlineLabel}
           />
 
+          <Box
+            sx={{
+              border: "2px dashed",
+              borderColor: file ? "success.main" : "divider",
+              borderRadius: 1,
+              p: 3,
+              textAlign: "center",
+              cursor: "pointer",
+              bgcolor: file ? "success.lighter" : "background.default",
+              "&:hover": { bgcolor: "action.hover" },
+            }}
+            onClick={() =>
+              document.getElementById("report-file-upload")?.click()
+            }
+          >
+            <input
+              id="report-file-upload"
+              type="file"
+              hidden
+              accept=".doc,.docx,.pdf"
+              onChange={(e) => {
+                if (e.target.files && e.target.files[0]) {
+                  setFile(e.target.files[0]);
+                }
+              }}
+            />
+            {file ? (
+              <Box>
+                <CheckCircleIcon color="success" sx={{ fontSize: 40, mb: 1 }} />
+                <Typography
+                  variant="body1"
+                  fontWeight={500}
+                  color="success.main"
+                >
+                  Đã chọn: {file.name}
+                </Typography>
+                <Typography variant="caption" color="text.secondary">
+                  ({(file.size / 1024 / 1024).toFixed(2)} MB) - Click để chọn
+                  lại
+                </Typography>
+              </Box>
+            ) : (
+              <Box>
+                <CloudUploadIcon
+                  sx={{ fontSize: 40, color: "text.disabled", mb: 1 }}
+                />
+                <Typography variant="body1" fontWeight={500}>
+                  Click để đính kèm file báo cáo/biểu mẫu
+                </Typography>
+                <Typography variant="caption" color="text.secondary">
+                  Hỗ trợ: .doc, .docx, .pdf
+                </Typography>
+              </Box>
+            )}
+          </Box>
+
           <TextField
-            label="Nội dung báo cáo"
+            label="Ghi chú thêm (Không bắt buộc)"
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            placeholder="Mô tả chi tiết tiến độ thực hiện..."
+            placeholder="Bạn có thể để lại lời nhắn ngắn gọn cho Giảng viên hướng dẫn..."
             multiline
-            rows={10}
+            rows={3}
             fullWidth
-            required
-            helperText="Có thể sử dụng HTML để định dạng: <p>, <strong>, <ul>, <li>"
           />
         </Box>
       </DialogContent>
@@ -175,9 +246,9 @@ export function ReportSubmissionDialog({
         <Button
           variant="contained"
           onClick={handleSubmit}
-          disabled={uploading || !title.trim() || !content.trim()}
+          disabled={uploading || !title.trim() || !file}
           startIcon={
-            uploading ? <CircularProgress size={20} /> : <DescriptionIcon />
+            uploading ? <CircularProgress size={20} /> : <UploadIcon />
           }
         >
           {uploading ? "Đang nộp..." : "Nộp báo cáo"}

@@ -17,6 +17,25 @@ import EmailTemplateDesigner from "./EmailTemplateDesigner";
 import SendNotificationForm from "./SendNotificationForm";
 import { downloadAsCSV, downloadAsJSON } from "../utils/export";
 import { announceToScreenReader } from "../utils/accessibility";
+import { memoize, debounce } from "../utils/performance";
+
+interface AdminNotification {
+  id: number;
+  title: string;
+  message: string;
+  type: "URGENT" | "DIRECTIVE" | "GENERAL" | "REMINDER";
+  status: "PUBLISHED" | "DRAFT" | "SCHEDULED";
+  readCount: number;
+  totalRecipients: number;
+  recipients: string;
+  isRead?: boolean;
+  unreadCount?: number;
+  createdAt: string;
+  updatedAt: string;
+  scheduledAt?: string;
+  isPinned?: boolean;
+  requiresSignature?: boolean;
+}
 
 interface NotificationStats {
   total: number;
@@ -58,7 +77,6 @@ const AdminNotificationPageEnhanced: React.FC = () => {
     [],
   );
   const [showComposeModal, setShowComposeModal] = useState(false);
-
   const fetchNotifications = useCallback(async () => {
     setLoading(true);
     try {

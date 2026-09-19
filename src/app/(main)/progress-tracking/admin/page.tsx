@@ -40,8 +40,6 @@ import {
 } from "@mui/icons-material";
 import { toast } from "sonner";
 import {
-  TemplateUploadDialog,
-  TemplateList,
   ProgressStatsCards,
   BanWarningsList,
   BannedStudentsList,
@@ -656,7 +654,6 @@ function AllStudentsProgress() {
 export default function AdminProgressPage() {
   const theme = useTheme();
   const [tabValue, setTabValue] = useState(0);
-  const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
   const [notificationDialogOpen, setNotificationDialogOpen] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
 
@@ -683,13 +680,6 @@ export default function AdminProgressPage() {
             alignItems: "center",
           }}
         >
-          <Button
-            variant="contained"
-            startIcon={<UploadIcon />}
-            onClick={() => setUploadDialogOpen(true)}
-          >
-            Tải lên Template
-          </Button>
           <AutoBanCheckComponent />
           <Button
             variant="outlined"
@@ -733,7 +723,6 @@ export default function AdminProgressPage() {
             icon={<BlockIcon />}
             iconPosition="start"
           />
-          <Tab label="Templates" icon={<UploadIcon />} iconPosition="start" />
         </Tabs>
 
         <TabPanel value={tabValue} index={0}>
@@ -747,21 +736,7 @@ export default function AdminProgressPage() {
         <TabPanel value={tabValue} index={2}>
           <BannedStudentsList />
         </TabPanel>
-
-        <TabPanel value={tabValue} index={3}>
-          <TemplateList onUploadClick={() => setUploadDialogOpen(true)} />
-        </TabPanel>
       </Paper>
-
-      {/* Upload Template Dialog */}
-      <TemplateUploadDialog
-        open={uploadDialogOpen}
-        onClose={() => setUploadDialogOpen(false)}
-        onSuccess={() => {
-          toast.success("Template đã được tải lên");
-          handleRefresh();
-        }}
-      />
 
       {/* Notification Dialog */}
       <Dialog
