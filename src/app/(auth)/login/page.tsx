@@ -101,11 +101,6 @@ function LoginForm() {
   }, []);
 
   useEffect(() => {
-    const timer = setTimeout(() => setShowLoadingText(false), 5000);
-    return () => clearTimeout(timer);
-  }, []);
-
-  useEffect(() => {
     if (session?.user) {
       const destination = session.user.mustChangePassword
         ? "/change-password?mustChangePassword=1"
