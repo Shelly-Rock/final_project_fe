@@ -16,7 +16,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import InputAdornment from "@mui/material/InputAdornment";
 import IconButton from "@mui/material/IconButton";
 import { default as Logo } from "@/assets/image/png/logo.png";
-import LoginBackground from "@/assets/image/png/login.png";
+import LoginBackground from "@/assets/image/jpg/pageHeader.jpg";
 import { toast } from "@/shared/components/Sonner/Sonner";
 
 const BACKEND_ERRORS = {
