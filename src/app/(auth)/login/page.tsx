@@ -16,6 +16,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import InputAdornment from "@mui/material/InputAdornment";
 import IconButton from "@mui/material/IconButton";
 import { default as Logo } from "@/assets/image/png/logo.png";
+import BackgroundVideo from "@/assets/video/video-introduce.mp4";
 import { toast } from "@/shared/components/Sonner/Sonner";
 
 const BACKEND_ERRORS = {
@@ -210,7 +211,7 @@ function LoginForm() {
           padding: 0,
         }}
       >
-        <source src="/assets/video/video-introduce.mp4" type="video/mp4" />
+        <source src="/videos/video-introduce.mp4" type="video/mp4" />
       </video>
       <Box className="login-card" sx={{ position: "relative", zIndex: 1 }}>
         <Box className="login-form-wrap">
