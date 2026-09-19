@@ -412,8 +412,8 @@ function LoginForm() {
               variant="outlined"
               sx={{
                 mb: 2,
-                "& .MuiOutlinedInput-root.Mui-focused fieldset": {
-                  boxShadow: username ? "none" : undefined,
+                "& input:-webkit-autofill": {
+                  WebkitBoxShadow: "0 0 0 100px white inset !important",
                 },
               }}
             />
