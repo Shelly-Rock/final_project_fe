@@ -77,6 +77,11 @@ function LoginForm() {
   const [videoLoading, setVideoLoading] = useState(true);
 
   useEffect(() => {
+    const timer = setTimeout(() => setVideoLoading(false), 1000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
     if (session?.user) {
       const destination = session.user.mustChangePassword
         ? "/change-password?mustChangePassword=1"

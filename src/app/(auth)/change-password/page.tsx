@@ -56,6 +56,11 @@ function ChangePasswordForm() {
   const [success, setSuccess] = useState(false);
   const [videoLoading, setVideoLoading] = useState(true);
 
+  useEffect(() => {
+    const timer = setTimeout(() => setVideoLoading(false), 1000);
+    return () => clearTimeout(timer);
+  }, []);
+
   // Validate token only for email-link flow
   useEffect(() => {
     if (!token && !mustChangePassword && !session?.user) {
