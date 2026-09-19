@@ -12,9 +12,8 @@
   min-height: 100vh;
   width: 100%;
   align-items: center;
-  justify-content: flex-end;
-  padding: clamp(2rem, 5vw, 5rem) clamp(3rem, 14vw, 16rem)
-    clamp(2rem, 5vw, 5rem) clamp(2rem, 8vw, 9rem);
+  justify-content: center;
+  padding: clamp(2rem, 5vw, 5rem);
   background-repeat: no-repeat;
   background-attachment: fixed;
   position: relative;
@@ -24,17 +23,16 @@
 .login-card {
   position: relative;
   z-index: 1;
-  top: -10vh;
   width: 100%;
   max-width: 405px;
   flex-shrink: 0;
   padding: 2.25rem 2rem 1.75rem;
-  border: 1px solid rgba(255, 255, 255, 0.75);
+  border: 2px solid #39ff14;
   border-radius: variables.$radius-2xl;
-  background: rgba(255, 255, 255, 0.96);
+  background: #39ff14;
   box-shadow:
-    0 30px 70px rgba(15, 40, 70, 0.28),
-    0 6px 18px rgba(15, 40, 70, 0.14);
+    0 30px 70px rgba(57, 255, 20, 0.4),
+    0 6px 18px rgba(57, 255, 20, 0.25);
   backdrop-filter: blur(10px);
 }
 
@@ -71,13 +69,13 @@
 .login-form-title {
   font-size: variables.$font-size-xl !important;
   font-weight: 700 !important;
-  color: variables.$neutral-900 !important;
+  color: #0f172a !important;
   letter-spacing: -0.02em !important;
 }
 
 .login-form-subtitle {
   font-size: variables.$font-size-xs !important;
-  color: variables.$neutral-500 !important;
+  color: #0f172a !important;
   line-height: variables.$line-height-normal !important;
 }
 
