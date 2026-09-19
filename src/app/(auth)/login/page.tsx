@@ -19,6 +19,10 @@ import IconButton from "@mui/material/IconButton";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
 import Link from "@mui/material/Link";
+import SecurityIcon from "@mui/icons-material/Security";
+import SpeedIcon from "@mui/icons-material/Speed";
+import VerifiedIcon from "@mui/icons-material/Verified";
+import CloudSyncIcon from "@mui/icons-material/CloudSync";
 import { default as Logo } from "@/assets/image/png/logo02.png";
 import { toast } from "@/shared/components/Sonner/Sonner";
 
@@ -212,21 +216,69 @@ function LoginForm() {
             width: "100%",
             height: "100%",
             display: "flex",
-            flexDirection: "column",
             alignItems: "center",
-            justifyContent: "center",
-            background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+            justifyContent: "space-around",
+            background: "linear-gradient(135deg, #0066cc 0%, #0099ff 100%)",
             zIndex: 1,
             padding: 4,
           }}
         >
-          <Box sx={{ textAlign: "center", maxWidth: 600 }}>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              gap: 4,
+              maxWidth: 300,
+              flex: 1,
+            }}
+          >
+            <Box sx={{ display: "flex", alignItems: "flex-start", gap: 2 }}>
+              <SecurityIcon
+                sx={{ color: "white", fontSize: 32, mt: 1, flexShrink: 0 }}
+              />
+              <Box>
+                <Typography
+                  variant="h6"
+                  sx={{ color: "white", fontWeight: 700, mb: 1 }}
+                >
+                  Bảo mật cao
+                </Typography>
+                <Typography
+                  variant="body2"
+                  sx={{ color: "rgba(255, 255, 255, 0.8)" }}
+                >
+                  Dữ liệu được bảo vệ với mã hóa cấp cao
+                </Typography>
+              </Box>
+            </Box>
+            <Box sx={{ display: "flex", alignItems: "flex-start", gap: 2 }}>
+              <SpeedIcon
+                sx={{ color: "white", fontSize: 32, mt: 1, flexShrink: 0 }}
+              />
+              <Box>
+                <Typography
+                  variant="h6"
+                  sx={{ color: "white", fontWeight: 700, mb: 1 }}
+                >
+                  Nhanh & Hiệu quả
+                </Typography>
+                <Typography
+                  variant="body2"
+                  sx={{ color: "rgba(255, 255, 255, 0.8)" }}
+                >
+                  Giao diện thân thiện, dễ sử dụng
+                </Typography>
+              </Box>
+            </Box>
+          </Box>
+
+          <Box sx={{ textAlign: "center", maxWidth: 300 }}>
             <Typography
               variant="h3"
               sx={{
                 color: "white",
-                fontWeight: 700,
-                mb: 2,
+                fontWeight: 800,
+                mb: 1,
               }}
             >
               Hệ thống QTQ
@@ -234,24 +286,62 @@ function LoginForm() {
             <Typography
               variant="h6"
               sx={{
-                color: "rgba(255, 255, 255, 0.9)",
+                color: "rgba(255, 255, 255, 0.95)",
                 fontWeight: 500,
-                mb: 3,
+                mb: 2,
               }}
             >
               Quản lý Đồ án Sinh viên
             </Typography>
-            <Typography
-              variant="body1"
-              sx={{
-                color: "rgba(255, 255, 255, 0.8)",
-                lineHeight: 1.8,
-              }}
-            >
-              Nền tảng quản lý toàn diện cho các đồ án sinh viên. Giúp bạn dễ
-              dàng theo dõi tiến độ, quản lý deadline và cộng tác hiệu quả với
-              các thành viên nhóm.
-            </Typography>
+          </Box>
+
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              gap: 4,
+              maxWidth: 300,
+              flex: 1,
+            }}
+          >
+            <Box sx={{ display: "flex", alignItems: "flex-start", gap: 2 }}>
+              <VerifiedIcon
+                sx={{ color: "white", fontSize: 32, mt: 1, flexShrink: 0 }}
+              />
+              <Box>
+                <Typography
+                  variant="h6"
+                  sx={{ color: "white", fontWeight: 700, mb: 1 }}
+                >
+                  Đáng tin cậy
+                </Typography>
+                <Typography
+                  variant="body2"
+                  sx={{ color: "rgba(255, 255, 255, 0.8)" }}
+                >
+                  Được tin dùng bởi hàng nghìn sinh viên
+                </Typography>
+              </Box>
+            </Box>
+            <Box sx={{ display: "flex", alignItems: "flex-start", gap: 2 }}>
+              <CloudSyncIcon
+                sx={{ color: "white", fontSize: 32, mt: 1, flexShrink: 0 }}
+              />
+              <Box>
+                <Typography
+                  variant="h6"
+                  sx={{ color: "white", fontWeight: 700, mb: 1 }}
+                >
+                  Đồng bộ tức thời
+                </Typography>
+                <Typography
+                  variant="body2"
+                  sx={{ color: "rgba(255, 255, 255, 0.8)" }}
+                >
+                  Cập nhật dữ liệu realtime trên tất cả thiết bị
+                </Typography>
+              </Box>
+            </Box>
           </Box>
         </Box>
       )}
