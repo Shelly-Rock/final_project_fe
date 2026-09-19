@@ -262,7 +262,7 @@ class SubmissionService {
   }
 
   async initDriveUpload(data: {
-    topicId: number;
+    projectId: number;
     fileName: string;
     fileSize: number;
     mimeType: string;
@@ -270,7 +270,7 @@ class SubmissionService {
     const response = await apiClient.post<DriveUploadSession>(
       `${API_BASE}/drive/init-upload`,
       {
-        topicId: data.topicId,
+        projectId: data.projectId,
         fileName: data.fileName,
         fileSize: data.fileSize,
         mimeType: data.mimeType,
@@ -327,7 +327,7 @@ class SubmissionService {
   }
 
   async confirmDriveUpload(data: {
-    topicId: number;
+    projectId: number;
     driveFileId: string;
     webViewLink: string;
     fileName: string;
@@ -337,7 +337,7 @@ class SubmissionService {
     const response = await apiClient.post<RawSubmission>(
       `${API_BASE}/drive/confirm`,
       {
-        topicId: data.topicId,
+        projectId: data.projectId,
         driveFileId: data.driveFileId,
         webViewLink: data.webViewLink,
         fileName: data.fileName,

@@ -9,10 +9,10 @@ import { toast } from "sonner";
 
 export default function StudentSubmissionPage() {
   const [topicData, setTopicData] = useState<{
+    projectId: number;
     topicId: number;
     topicCode: string;
     topicName: string;
-    isLeader: boolean;
   } | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -20,13 +20,12 @@ export default function StudentSubmissionPage() {
     const fetchInitData = async () => {
       try {
         const reg = await studentTopicService.getMyRegistration();
-        if (reg?.topicId) {
-          const elig = await submissionService.getMyEligibility();
+        if (reg?.id) {
           setTopicData({
+            projectId: Number(reg.id), // Use projectId from registration
             topicId: Number(reg.topicId),
-            topicCode: "",
+            topicCode: reg.topicCode || "",
             topicName: reg.topicName,
-            isLeader: !!elig.isLeader,
           });
         }
       } catch {
@@ -59,10 +58,10 @@ export default function StudentSubmissionPage() {
   return (
     <Box sx={{ p: 3, width: "100%" }}>
       <StudentSubmission
+        projectId={topicData.projectId}
         topicId={topicData.topicId}
         topicCode={topicData.topicCode}
         topicName={topicData.topicName}
-        isLeader={topicData.isLeader}
       />
     </Box>
   );

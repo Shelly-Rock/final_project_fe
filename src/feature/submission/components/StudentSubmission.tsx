@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Typography,
@@ -29,10 +29,10 @@ const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
 const ALLOWED_EXTENSIONS = ["PDF", "DOCX", "PPTX"] as const;
 
 interface StudentSubmissionProps {
+  projectId: number;
   topicId: number;
   topicCode: string;
   topicName: string;
-  isLeader?: boolean;
 }
 
 type AllowedExtension = (typeof ALLOWED_EXTENSIONS)[number];
@@ -69,13 +69,17 @@ const STAGE_LABELS: Record<UploadStage, string> = {
 };
 
 export default function StudentSubmission({
-  isLeader,
+  projectId,
   topicId,
   topicCode,
   topicName,
 }: StudentSubmissionProps) {
-  const [eligible] = useState(true);
-  const [checking] = useState(true);
+  const [eligibility, setEligibility] = useState<{
+    eligible: boolean;
+    reason?: string;
+    isLeader?: boolean;
+  } | null>(null);
+  const [checkingEligibility, setCheckingEligibility] = useState(false);
 
   const [file, setFile] = useState<File | null>(null);
   const [fileError, setFileError] = useState<string | null>(null);
@@ -85,6 +89,27 @@ export default function StudentSubmission({
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const [submission, setSubmission] = useState<Submission | null>(null);
+
+  // Check eligibility when component mounts
+  useEffect(() => {
+    const checkEligibility = async () => {
+      setCheckingEligibility(true);
+      try {
+        const result = await submissionService.getMyEligibility();
+        setEligibility(result);
+      } catch (error) {
+        console.error("Error checking eligibility:", error);
+        setEligibility({
+          eligible: false,
+          reason: "Không thể kiểm tra điều kiện nộp bài. Vui lòng thử lại.",
+        });
+      } finally {
+        setCheckingEligibility(false);
+      }
+    };
+
+    checkEligibility();
+  }, []);
   const validateAndSetFile = (selectedFile: File): boolean => {
     setFileError(null);
 
@@ -133,7 +158,7 @@ export default function StudentSubmission({
       toast.error("Vui lòng chọn file để nộp");
       return;
     }
-    if (!eligible) {
+    if (!eligibility?.eligible) {
       toast.error("Bạn chưa đủ điều kiện nộp bài");
       return;
     }
@@ -146,7 +171,7 @@ export default function StudentSubmission({
     try {
       setStage("requesting");
       const session = await submissionService.initDriveUpload({
-        topicId,
+        projectId,
         fileName: file.name,
         fileSize: file.size,
         mimeType: file.type || "application/octet-stream",
@@ -161,7 +186,7 @@ export default function StudentSubmission({
 
       setStage("confirming");
       const confirmed = await submissionService.confirmDriveUpload({
-        topicId,
+        projectId,
         driveFileId: session.driveFileId,
         webViewLink: session.webViewLink,
         fileName: file.name,
@@ -186,7 +211,7 @@ export default function StudentSubmission({
   const isUploading =
     stage === "requesting" || stage === "uploading" || stage === "confirming";
 
-  if (checking) {
+  if (checkingEligibility) {
     return (
       <Box
         sx={{
@@ -202,13 +227,13 @@ export default function StudentSubmission({
       >
         <CircularProgress size={28} />
         <Typography color="text.secondary">
-          Đang kiểm tra điều kiện...
+          Đang kiểm tra điều kiện nộp bài...
         </Typography>
       </Box>
     );
   }
 
-  if (!isLeader) {
+  if (!eligibility?.eligible) {
     return (
       <Box sx={{ maxWidth: 600, mx: "auto", mt: 4 }}>
         <Card>
@@ -220,12 +245,10 @@ export default function StudentSubmission({
                 style={{ marginBottom: 16 }}
               />
               <Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }}>
-                Không có quyền nộp bài
+                Không đủ điều kiện nộp bài
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                Chỉ <strong>Trưởng Nhóm</strong> mới được phép tải lên tài liệu
-                báo cáo. Vui lòng liên hệ trưởng nhóm của bạn để thực hiện thao
-                tác này.
+                {eligibility?.reason || "Không thể xác định điều kiện nộp bài"}
               </Typography>
             </Box>
           </CardContentDiv>
@@ -292,15 +315,6 @@ export default function StudentSubmission({
       <Card>
         <CardHeader title="Nộp bài cuối kỳ" />
         <CardContentDiv padding={3}>
-          {!eligible && (
-            <Alert severity="warning" sx={{ mb: 3 }}>
-              <Typography variant="body2">
-                <strong>Chưa đủ điều kiện:</strong> Bạn cần hoàn thành tất cả
-                báo cáo tiến độ và không bị cấm thi để có thể nộp bài.
-              </Typography>
-            </Alert>
-          )}
-
           <Box sx={{ display: "flex", gap: 3, mb: 3 }}>
             <Box>
               <Typography variant="caption" color="text.secondary">
@@ -472,7 +486,7 @@ export default function StudentSubmission({
               )
             }
             onClick={handleSubmit}
-            disabled={!file || !eligible || isUploading}
+            disabled={!file || !eligibility?.eligible || isUploading}
           >
             {isUploading ? STAGE_LABELS[stage] : "Nộp bài"}
           </Button>
