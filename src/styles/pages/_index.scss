@@ -27,13 +27,13 @@
   max-width: 405px;
   flex-shrink: 0;
   padding: 2.25rem 2rem 1.75rem;
-  border: 2px solid #39ff14;
+  border: 2px solid #00d4ff;
   border-radius: variables.$radius-2xl;
-  background: rgba(57, 255, 20, 0.1);
+  background: rgba(0, 212, 255, 0.1);
   box-shadow:
-    0 30px 70px rgba(57, 255, 20, 0.2),
-    0 6px 18px rgba(57, 255, 20, 0.1),
-    inset 0 0 20px rgba(57, 255, 20, 0.15);
+    0 30px 70px rgba(0, 212, 255, 0.2),
+    0 6px 18px rgba(0, 212, 255, 0.1),
+    inset 0 0 20px rgba(0, 212, 255, 0.15);
   backdrop-filter: blur(10px);
 }
 
