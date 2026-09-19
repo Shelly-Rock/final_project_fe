@@ -208,9 +208,12 @@ function LoginForm() {
       className="login-root"
       sx={{
         position: "relative",
-        justifyContent: "center",
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
         padding: "clamp(2rem, 5vw, 5rem)",
         overflow: "hidden",
+        gap: 4,
       }}
     >
       <Box
