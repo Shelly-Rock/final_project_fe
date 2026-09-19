@@ -19,7 +19,6 @@ import CircularProgress from "@mui/material/CircularProgress";
 import InputAdornment from "@mui/material/InputAdornment";
 import IconButton from "@mui/material/IconButton";
 import LockResetIcon from "@mui/icons-material/LockReset";
-import BackgroundVideo from "@/assets/video/video-introduce.mp4";
 import { authService } from "@/core/auth/auth.service";
 
 function getDefaultRouteForRole(role?: string) {
