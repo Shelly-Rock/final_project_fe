@@ -413,7 +413,8 @@ function LoginForm() {
               sx={{
                 mb: 2,
                 "& input:-webkit-autofill": {
-                  WebkitBoxShadow: "0 0 0 100px white inset !important",
+                  WebkitBoxShadow: "0 0 0 100px transparent inset !important",
+                  WebkitTextFillColor: "inherit !important",
                 },
               }}
             />
@@ -428,7 +429,13 @@ function LoginForm() {
               autoComplete="current-password"
               disabled={loading}
               variant="outlined"
-              sx={{ mb: 2 }}
+              sx={{
+                mb: 2,
+                "& input:-webkit-autofill": {
+                  WebkitBoxShadow: "0 0 0 100px transparent inset !important",
+                  WebkitTextFillColor: "inherit !important",
+                },
+              }}
               slotProps={{
                 input: {
                   endAdornment: (
