@@ -212,13 +212,47 @@ function LoginForm() {
             width: "100%",
             height: "100%",
             display: "flex",
+            flexDirection: "column",
             alignItems: "center",
             justifyContent: "center",
             background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
             zIndex: 1,
+            padding: 4,
           }}
         >
-          <CircularProgress size={60} sx={{ color: "white" }} />
+          <Box sx={{ textAlign: "center", maxWidth: 600 }}>
+            <Typography
+              variant="h3"
+              sx={{
+                color: "white",
+                fontWeight: 700,
+                mb: 2,
+              }}
+            >
+              Hệ thống QTQ
+            </Typography>
+            <Typography
+              variant="h6"
+              sx={{
+                color: "rgba(255, 255, 255, 0.9)",
+                fontWeight: 500,
+                mb: 3,
+              }}
+            >
+              Quản lý Đồ án Sinh viên
+            </Typography>
+            <Typography
+              variant="body1"
+              sx={{
+                color: "rgba(255, 255, 255, 0.8)",
+                lineHeight: 1.8,
+              }}
+            >
+              Nền tảng quản lý toàn diện cho các đồ án sinh viên. Giúp bạn dễ
+              dàng theo dõi tiến độ, quản lý deadline và cộng tác hiệu quả với
+              các thành viên nhóm.
+            </Typography>
+          </Box>
         </Box>
       )}
       <video
