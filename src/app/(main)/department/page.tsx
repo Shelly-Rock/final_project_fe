@@ -129,7 +129,14 @@ export default function DepartmentPage() {
               const COLORS = ["#f59e0b", "#10b981", "#ef4444"];
 
               return (
-                <Grid item xs={12} sm={6} md={4} key={dept.department_id}>
+                <Grid
+                  item
+                  xs={12}
+                  sm={6}
+                  md={3}
+                  lg={2.4}
+                  key={dept.department_id}
+                >
                   <MuiCard
                     elevation={0}
                     sx={{
