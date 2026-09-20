@@ -20,7 +20,6 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
 import Link from "@mui/material/Link";
 import { useTheme } from "@mui/material/styles";
-import { useTheme } from "@mui/material/styles";
 import SecurityIcon from "@mui/icons-material/Security";
 import SpeedIcon from "@mui/icons-material/Speed";
 import VerifiedIcon from "@mui/icons-material/Verified";
@@ -77,7 +76,6 @@ function LoginForm() {
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/";
   const { data: session } = useSession();
-  const theme = useTheme();
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
 
@@ -265,7 +263,7 @@ function LoginForm() {
           <Typography
             variant="h5"
             sx={{
-              color: "white",
+              color: isDark ? "white" : theme.palette.text.primary,
               fontWeight: 700,
               mb: 3,
               lineHeight: 1.4,
@@ -277,18 +275,31 @@ function LoginForm() {
 
         <Box sx={{ display: "flex", alignItems: "flex-start", gap: 2 }}>
           <SecurityIcon
-            sx={{ color: "white", fontSize: 32, mt: 1, flexShrink: 0 }}
+            sx={{
+              color: isDark ? "white" : theme.palette.text.primary,
+              fontSize: 32,
+              mt: 1,
+              flexShrink: 0,
+            }}
           />
           <Box>
             <Typography
               variant="h6"
-              sx={{ color: "white", fontWeight: 700, mb: 1 }}
+              sx={{
+                color: isDark ? "white" : theme.palette.text.primary,
+                fontWeight: 700,
+                mb: 1,
+              }}
             >
               Bảo mật cao
             </Typography>
             <Typography
               variant="body2"
-              sx={{ color: "rgba(255, 255, 255, 0.8)" }}
+              sx={{
+                color: isDark
+                  ? "rgba(255, 255, 255, 0.8)"
+                  : theme.palette.text.secondary,
+              }}
             >
               Dữ liệu được bảo vệ với mã hóa cấp cao
             </Typography>
@@ -296,18 +307,31 @@ function LoginForm() {
         </Box>
         <Box sx={{ display: "flex", alignItems: "flex-start", gap: 2 }}>
           <SpeedIcon
-            sx={{ color: "white", fontSize: 32, mt: 1, flexShrink: 0 }}
+            sx={{
+              color: isDark ? "white" : theme.palette.text.primary,
+              fontSize: 32,
+              mt: 1,
+              flexShrink: 0,
+            }}
           />
           <Box>
             <Typography
               variant="h6"
-              sx={{ color: "white", fontWeight: 700, mb: 1 }}
+              sx={{
+                color: isDark ? "white" : theme.palette.text.primary,
+                fontWeight: 700,
+                mb: 1,
+              }}
             >
               Nhanh & Hiệu quả
             </Typography>
             <Typography
               variant="body2"
-              sx={{ color: "rgba(255, 255, 255, 0.8)" }}
+              sx={{
+                color: isDark
+                  ? "rgba(255, 255, 255, 0.8)"
+                  : theme.palette.text.secondary,
+              }}
             >
               Giao diện thân thiện, dễ sử dụng
             </Typography>
@@ -315,18 +339,31 @@ function LoginForm() {
         </Box>
         <Box sx={{ display: "flex", alignItems: "flex-start", gap: 2 }}>
           <VerifiedIcon
-            sx={{ color: "white", fontSize: 32, mt: 1, flexShrink: 0 }}
+            sx={{
+              color: isDark ? "white" : theme.palette.text.primary,
+              fontSize: 32,
+              mt: 1,
+              flexShrink: 0,
+            }}
           />
           <Box>
             <Typography
               variant="h6"
-              sx={{ color: "white", fontWeight: 700, mb: 1 }}
+              sx={{
+                color: isDark ? "white" : theme.palette.text.primary,
+                fontWeight: 700,
+                mb: 1,
+              }}
             >
               Đáng tin cậy
             </Typography>
             <Typography
               variant="body2"
-              sx={{ color: "rgba(255, 255, 255, 0.8)" }}
+              sx={{
+                color: isDark
+                  ? "rgba(255, 255, 255, 0.8)"
+                  : theme.palette.text.secondary,
+              }}
             >
               Được tin dùng bởi hàng nghìn sinh viên
             </Typography>
@@ -334,18 +371,31 @@ function LoginForm() {
         </Box>
         <Box sx={{ display: "flex", alignItems: "flex-start", gap: 2 }}>
           <CloudSyncIcon
-            sx={{ color: "white", fontSize: 32, mt: 1, flexShrink: 0 }}
+            sx={{
+              color: isDark ? "white" : theme.palette.text.primary,
+              fontSize: 32,
+              mt: 1,
+              flexShrink: 0,
+            }}
           />
           <Box>
             <Typography
               variant="h6"
-              sx={{ color: "white", fontWeight: 700, mb: 1 }}
+              sx={{
+                color: isDark ? "white" : theme.palette.text.primary,
+                fontWeight: 700,
+                mb: 1,
+              }}
             >
               Đồng bộ tức thời
             </Typography>
             <Typography
               variant="body2"
-              sx={{ color: "rgba(255, 255, 255, 0.8)" }}
+              sx={{
+                color: isDark
+                  ? "rgba(255, 255, 255, 0.8)"
+                  : theme.palette.text.secondary,
+              }}
             >
               Cập nhật dữ liệu realtime trên tất cả thiết bị
             </Typography>
