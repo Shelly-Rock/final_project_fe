@@ -352,13 +352,6 @@ export default function StudentProgressPage() {
 
   return (
     <Box sx={{ p: 3, width: "100%" }}>
-      <PageHeader
-        title="Theo dõi tiến trình thực hiện"
-        subtitle="Theo dõi tiến độ thực hiện đề tài và nộp báo cáo"
-        illustration={<TrendingUp size={56} strokeWidth={1.5} />}
-        showBgImage={true}
-      />
-
       {loading ? (
         <Box sx={{ p: 4, textAlign: "center" }}>
           <CircularProgress />

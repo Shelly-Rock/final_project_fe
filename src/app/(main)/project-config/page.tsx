@@ -55,13 +55,6 @@ export default function ProjectConfigPage() {
 
   return (
     <Box sx={{ p: 3, width: "100%" }}>
-      <PageHeader
-        title="Cấu hình & Duyệt đề tài"
-        subtitle="Quản lý quy tắc theo đợt, thời hạn, cảnh báo và kiểm duyệt đề tài"
-        illustration={<Settings size={56} strokeWidth={1.5} />}
-        showBgImage
-      />
-
       <Paper
         elevation={0}
         sx={{

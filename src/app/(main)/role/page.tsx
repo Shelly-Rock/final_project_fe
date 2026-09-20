@@ -696,13 +696,6 @@ export default function RolePermissionsPage() {
 
   return (
     <Box sx={{ p: 3, width: "100%" }}>
-      <PageHeader
-        title="Quản lý phân quyền"
-        subtitle="Ma trận quyền theo vai trò và gán vai trò cho tài khoản"
-        illustration={<ShieldCheck size={56} strokeWidth={1.5} />}
-        showBgImage
-      />
-
       <Paper
         elevation={0}
         sx={{

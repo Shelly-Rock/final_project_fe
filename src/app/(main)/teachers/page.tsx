@@ -207,13 +207,6 @@ export default function TeacherManagementPage() {
 
   return (
     <Box sx={{ p: 3, width: "100%" }}>
-      <PageHeader
-        title="Danh sách giảng viên"
-        subtitle="Quản lý thông tin và trạng thái nhân sự giảng dạy"
-        illustration={<GraduationCap size={56} strokeWidth={1.5} />}
-        showBgImage={true}
-      />
-
       <TeacherTable
         teachers={teachers}
         loading={loading}

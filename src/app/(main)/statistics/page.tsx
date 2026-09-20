@@ -17,12 +17,6 @@ export default function StatisticsRoute() {
       }
     >
       <Box sx={{ p: 3, width: "100%" }}>
-        <PageHeader
-          title="Thống kê và báo cáo"
-          subtitle="Tỷ lệ đậu/rớt, năng suất giảng viên và xuất Excel phục vụ học vụ"
-          illustration={<BarChart3 size={56} strokeWidth={1.5} />}
-          showBgImage={true}
-        />
         <StatisticsDashboardPage />
       </Box>
     </RoleGate>

@@ -139,13 +139,6 @@ export default function AuditPage() {
       }
     >
       <Box sx={{ p: 3, width: "100%" }}>
-        <PageHeader
-          title="Nhật ký Audit"
-          subtitle="Theo dõi mọi thao tác quan trọng trong hệ thống"
-          illustration={<ClipboardList size={56} strokeWidth={1.5} />}
-          showBgImage
-        />
-
         <Paper
           elevation={0}
           sx={{
