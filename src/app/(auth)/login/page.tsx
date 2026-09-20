@@ -276,9 +276,7 @@ function LoginForm() {
           >
             Nền tảng hỗ trợ nhà trường quản lý toàn bộ quy trình từ đăng ký đề
             tài, phân công giảng viên hướng dẫn, theo dõi tiến độ, nộp bài, tổ
-            chức bảo vệ đến chấm và công bố điểm. Hệ thống phân quyền theo từng
-            vai trò như Admin, Giảng viên, Sinh viên và Thư ký khoa, giúp quản
-            lý dữ liệu tập trung, minh bạch và hiệu quả.
+            chức bảo vệ đến chấm và công bố điểm.
           </Typography>
         </Box>
 
