@@ -218,126 +218,6 @@ function LoginForm() {
         minHeight: "100vh",
       }}
     >
-      <Box
-        sx={{
-          position: "fixed",
-          top: 0,
-          left: 0,
-          width: "100%",
-          height: "100%",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-around",
-          background: "#0d1117",
-          zIndex: 1,
-          padding: 4,
-          opacity: videoLoading ? 1 : 0,
-          visibility: videoLoading ? "visible" : "hidden",
-          transition: "opacity 0.8s ease-out, visibility 0.8s ease-out",
-          pointerEvents: videoLoading ? "auto" : "none",
-        }}
-      >
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            gap: 4,
-            maxWidth: 300,
-            flex: 1,
-            marginRight: "10%",
-          }}
-        >
-          <Box sx={{ display: "flex", alignItems: "flex-start", gap: 2 }}>
-            <SecurityIcon
-              sx={{ color: "white", fontSize: 32, mt: 1, flexShrink: 0 }}
-            />
-            <Box>
-              <Typography
-                variant="h6"
-                sx={{ color: "white", fontWeight: 700, mb: 1 }}
-              >
-                Bảo mật cao
-              </Typography>
-              <Typography
-                variant="body2"
-                sx={{ color: "rgba(255, 255, 255, 0.8)" }}
-              >
-                Dữ liệu được bảo vệ với mã hóa cấp cao
-              </Typography>
-            </Box>
-          </Box>
-          <Box sx={{ display: "flex", alignItems: "flex-start", gap: 2 }}>
-            <SpeedIcon
-              sx={{ color: "white", fontSize: 32, mt: 1, flexShrink: 0 }}
-            />
-            <Box>
-              <Typography
-                variant="h6"
-                sx={{ color: "white", fontWeight: 700, mb: 1 }}
-              >
-                Nhanh & Hiệu quả
-              </Typography>
-              <Typography
-                variant="body2"
-                sx={{ color: "rgba(255, 255, 255, 0.8)" }}
-              >
-                Giao diện thân thiện, dễ sử dụng
-              </Typography>
-            </Box>
-          </Box>
-        </Box>
-
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            gap: 4,
-            maxWidth: 300,
-            flex: 1,
-            marginLeft: "10%",
-          }}
-        >
-          <Box sx={{ display: "flex", alignItems: "flex-start", gap: 2 }}>
-            <VerifiedIcon
-              sx={{ color: "white", fontSize: 32, mt: 1, flexShrink: 0 }}
-            />
-            <Box>
-              <Typography
-                variant="h6"
-                sx={{ color: "white", fontWeight: 700, mb: 1 }}
-              >
-                Đáng tin cậy
-              </Typography>
-              <Typography
-                variant="body2"
-                sx={{ color: "rgba(255, 255, 255, 0.8)" }}
-              >
-                Được tin dùng bởi hàng nghìn sinh viên
-              </Typography>
-            </Box>
-          </Box>
-          <Box sx={{ display: "flex", alignItems: "flex-start", gap: 2 }}>
-            <CloudSyncIcon
-              sx={{ color: "white", fontSize: 32, mt: 1, flexShrink: 0 }}
-            />
-            <Box>
-              <Typography
-                variant="h6"
-                sx={{ color: "white", fontWeight: 700, mb: 1 }}
-              >
-                Đồng bộ tức thời
-              </Typography>
-              <Typography
-                variant="body2"
-                sx={{ color: "rgba(255, 255, 255, 0.8)" }}
-              >
-                Cập nhật dữ liệu realtime trên tất cả thiết bị
-              </Typography>
-            </Box>
-          </Box>
-        </Box>
-      </Box>
-      {videoLoading && null}
       <video
         autoPlay
         muted
@@ -360,9 +240,103 @@ function LoginForm() {
       >
         <source src="/videos/video-introduce.mp4" type="video/mp4" />
       </video>
+
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          gap: 4,
+          maxWidth: 350,
+          flex: "0 1 auto",
+          position: "relative",
+          zIndex: 5,
+          opacity: videoLoading ? 0 : 1,
+          visibility: videoLoading ? "hidden" : "visible",
+          transition: "opacity 0.8s ease-out, visibility 0.8s ease-out",
+          paddingRight: 4,
+        }}
+      >
+        <Box sx={{ display: "flex", alignItems: "flex-start", gap: 2 }}>
+          <SecurityIcon
+            sx={{ color: "white", fontSize: 32, mt: 1, flexShrink: 0 }}
+          />
+          <Box>
+            <Typography
+              variant="h6"
+              sx={{ color: "white", fontWeight: 700, mb: 1 }}
+            >
+              Bảo mật cao
+            </Typography>
+            <Typography
+              variant="body2"
+              sx={{ color: "rgba(255, 255, 255, 0.8)" }}
+            >
+              Dữ liệu được bảo vệ với mã hóa cấp cao
+            </Typography>
+          </Box>
+        </Box>
+        <Box sx={{ display: "flex", alignItems: "flex-start", gap: 2 }}>
+          <SpeedIcon
+            sx={{ color: "white", fontSize: 32, mt: 1, flexShrink: 0 }}
+          />
+          <Box>
+            <Typography
+              variant="h6"
+              sx={{ color: "white", fontWeight: 700, mb: 1 }}
+            >
+              Nhanh & Hiệu quả
+            </Typography>
+            <Typography
+              variant="body2"
+              sx={{ color: "rgba(255, 255, 255, 0.8)" }}
+            >
+              Giao diện thân thiện, dễ sử dụng
+            </Typography>
+          </Box>
+        </Box>
+        <Box sx={{ display: "flex", alignItems: "flex-start", gap: 2 }}>
+          <VerifiedIcon
+            sx={{ color: "white", fontSize: 32, mt: 1, flexShrink: 0 }}
+          />
+          <Box>
+            <Typography
+              variant="h6"
+              sx={{ color: "white", fontWeight: 700, mb: 1 }}
+            >
+              Đáng tin cậy
+            </Typography>
+            <Typography
+              variant="body2"
+              sx={{ color: "rgba(255, 255, 255, 0.8)" }}
+            >
+              Được tin dùng bởi hàng nghìn sinh viên
+            </Typography>
+          </Box>
+        </Box>
+        <Box sx={{ display: "flex", alignItems: "flex-start", gap: 2 }}>
+          <CloudSyncIcon
+            sx={{ color: "white", fontSize: 32, mt: 1, flexShrink: 0 }}
+          />
+          <Box>
+            <Typography
+              variant="h6"
+              sx={{ color: "white", fontWeight: 700, mb: 1 }}
+            >
+              Đồng bộ tức thời
+            </Typography>
+            <Typography
+              variant="body2"
+              sx={{ color: "rgba(255, 255, 255, 0.8)" }}
+            >
+              Cập nhật dữ liệu realtime trên tất cả thiết bị
+            </Typography>
+          </Box>
+        </Box>
+      </Box>
+
       <Box
         className="login-panel login-panel--right"
-        sx={{ maxWidth: 480, mx: "auto", position: "relative", zIndex: 5 }}
+        sx={{ maxWidth: 480, flex: 1, position: "relative", zIndex: 5 }}
       >
         <Paper
           elevation={3}
