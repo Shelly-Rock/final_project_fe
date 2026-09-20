@@ -256,6 +256,40 @@ function LoginForm() {
           paddingRight: 4,
         }}
       >
+        <Box sx={{ mb: 2 }}>
+          <Typography
+            variant="h5"
+            sx={{
+              color: "white",
+              fontWeight: 700,
+              mb: 2,
+              lineHeight: 1.4,
+            }}
+          >
+            Hệ thống Quản lý Đồ án Tốt nghiệp
+          </Typography>
+          <Typography
+            variant="body2"
+            sx={{
+              color: "rgba(255, 255, 255, 0.8)",
+              lineHeight: 1.6,
+            }}
+          >
+            Nền tảng hỗ trợ nhà trường quản lý toàn bộ quy trình từ đăng ký đề
+            tài, phân công giảng viên hướng dẫn, theo dõi tiến độ, nộp bài, tổ
+            chức bảo vệ đến chấm và công bố điểm. Hệ thống phân quyền theo từng
+            vai trò như Admin, Giảng viên, Sinh viên và Thư ký khoa, giúp quản
+            lý dữ liệu tập trung, minh bạch và hiệu quả.
+          </Typography>
+        </Box>
+
+        <Typography
+          variant="body2"
+          sx={{ color: "rgba(255, 255, 255, 0.7)", mb: 2 }}
+        >
+          Những tính năng nổi bật:
+        </Typography>
+
         <Box sx={{ display: "flex", alignItems: "flex-start", gap: 2 }}>
           <SecurityIcon
             sx={{ color: "white", fontSize: 32, mt: 1, flexShrink: 0 }}
