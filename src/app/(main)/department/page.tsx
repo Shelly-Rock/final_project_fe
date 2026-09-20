@@ -103,25 +103,17 @@ export default function DepartmentPage() {
       }
     >
       <Box sx={{ p: 3, width: "100%" }}>
-        <Box sx={{ mb: 3 }}>
-          <PageHeader
-            title="Dashboard Khoa"
-            subtitle="Quản lý và theo dõi thống kê các khoa"
-            illustration={<Building2 size={56} strokeWidth={1.5} />}
-            showBgImage
-            actions={
-              userRole === "admin" && (
-                <Button
-                  variant="contained"
-                  startIcon={<Plus size={20} />}
-                  onClick={() => setOpenDialog(true)}
-                >
-                  Thêm khoa mới
-                </Button>
-              )
-            }
-          />
-        </Box>
+        {userRole === "admin" && (
+          <Box sx={{ mb: 3, display: "flex", justifyContent: "flex-end" }}>
+            <Button
+              variant="contained"
+              startIcon={<Plus size={20} />}
+              onClick={() => setOpenDialog(true)}
+            >
+              Thêm khoa mới
+            </Button>
+          </Box>
+        )}
         {departments.length === 0 ? (
           <Box sx={{ p: 4, textAlign: "center" }}>
             <Typography color="text.secondary">Chưa có dữ liệu khoa</Typography>
