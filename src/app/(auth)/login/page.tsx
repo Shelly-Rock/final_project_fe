@@ -246,7 +246,6 @@ function LoginForm() {
           display: "flex",
           flexDirection: "column",
           gap: 4,
-          maxWidth: 350,
           flex: "0 1 auto",
           position: "relative",
           zIndex: 5,
