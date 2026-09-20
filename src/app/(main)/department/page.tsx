@@ -143,6 +143,7 @@ export default function DepartmentPage() {
                         boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
                         transform: "translateY(-2px)",
                       },
+                      maxHeight: 360,
                     }}
                   >
                     <CardActionArea
@@ -153,10 +154,10 @@ export default function DepartmentPage() {
                         flexDirection: "column",
                       }}
                     >
-                      <Box sx={{ p: 3, width: "100%", flexGrow: 1 }}>
+                      <Box sx={{ p: 2, width: "100%", flexGrow: 1 }}>
                         <Typography
-                          variant="h6"
-                          sx={{ fontWeight: 700, mb: 2 }}
+                          variant="subtitle1"
+                          sx={{ fontWeight: 700, mb: 1.5, fontSize: "0.95rem" }}
                         >
                           {dept.department_name}
                         </Typography>
@@ -166,10 +167,10 @@ export default function DepartmentPage() {
                           sx={{
                             display: "flex",
                             justifyContent: "center",
-                            mb: 2,
+                            mb: 1.5,
                           }}
                         >
-                          <ResponsiveContainer width={180} height={180}>
+                          <ResponsiveContainer width={130} height={130}>
                             <PieChart>
                               <Pie
                                 data={chartData}
