@@ -19,6 +19,8 @@ import IconButton from "@mui/material/IconButton";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
 import Link from "@mui/material/Link";
+import { useTheme } from "@mui/material/styles";
+import { useTheme } from "@mui/material/styles";
 import SecurityIcon from "@mui/icons-material/Security";
 import SpeedIcon from "@mui/icons-material/Speed";
 import VerifiedIcon from "@mui/icons-material/Verified";
@@ -75,6 +77,9 @@ function LoginForm() {
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/";
   const { data: session } = useSession();
+  const theme = useTheme();
+  const theme = useTheme();
+  const isDark = theme.palette.mode === "dark";
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
