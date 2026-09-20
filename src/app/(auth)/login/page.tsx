@@ -222,7 +222,8 @@ function LoginForm() {
         autoPlay
         muted
         loop
-        preload="auto"
+        preload="metadata"
+        poster="/videos/video-introduce-poster.jpg"
         onLoadStart={() => setVideoLoading(true)}
         onLoadedData={() => setVideoLoading(false)}
         style={{
