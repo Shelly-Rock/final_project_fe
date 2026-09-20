@@ -663,13 +663,6 @@ export default function AdminProgressPage() {
 
   return (
     <Box sx={{ p: 3, width: "100%" }}>
-      <PageHeader
-        title="Theo dõi tiến trình thực hiện"
-        subtitle="Quản lý và giám sát tiến độ thực hiện đề tài của tất cả sinh viên"
-        illustration={<TrendingUp size={56} strokeWidth={1.5} />}
-        showBgImage={true}
-      />
-
       {/* Quick Actions */}
       <Paper sx={{ p: 2, mb: 3, background: getCardBackground(theme) }}>
         <Box

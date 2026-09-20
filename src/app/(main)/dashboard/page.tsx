@@ -102,13 +102,6 @@ export default function DashboardPage() {
       }
     >
       <Box sx={{ p: 3, width: "100%" }}>
-        <PageHeader
-          title="Dashboard Thư ký"
-          subtitle="Tổng quan thống kê hệ thống"
-          illustration={<BarChart3 size={56} strokeWidth={1.5} />}
-          showBgImage
-        />
-
         <Grid container spacing={3}>
           {statCards.map((stat) => (
             <Grid item xs={12} sm={6} md={3} key={stat.label}>

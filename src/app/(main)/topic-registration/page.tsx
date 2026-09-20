@@ -447,13 +447,6 @@ export default function TopicRegistrationPage() {
 
   return (
     <Box sx={{ p: 3, width: "100%" }}>
-      <PageHeader
-        title="Đăng ký đề tài khóa luận"
-        subtitle="Tìm kiếm, đăng ký và theo dõi tiến độ phê duyệt từ Giảng viên hướng dẫn"
-        showBgImage={true}
-        illustration={<BookOpen size={64} />}
-      />
-
       {renderStatusAlert()}
 
       {studentStatus === "APPROVED" ? (

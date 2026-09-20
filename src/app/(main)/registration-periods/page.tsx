@@ -117,13 +117,6 @@ export default function RegistrationPeriodManagementPage() {
 
   return (
     <Box sx={{ p: 3, width: "100%" }}>
-      <PageHeader
-        title="Quản lý đợt đăng ký"
-        subtitle="Thiết lập và quản lý các đợt đăng ký đề tài khóa luận"
-        illustration={<ClipboardList size={56} strokeWidth={1.5} />}
-        showBgImage={true}
-      />
-
       <PeriodTable
         periods={displayedPeriods}
         loading={periodLoading}

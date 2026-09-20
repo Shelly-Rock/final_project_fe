@@ -217,12 +217,6 @@ export default function StudentManagementPage() {
 
   return (
     <Box sx={{ p: 3, width: "100%" }}>
-      <PageHeader
-        title="Quản lý sinh viên"
-        illustration={<Users size={56} strokeWidth={1.5} />}
-        showBgImage={true}
-      />
-
       <StudentTable
         students={filteredStudents}
         loading={loading}

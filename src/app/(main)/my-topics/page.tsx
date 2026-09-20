@@ -322,14 +322,6 @@ export default function MyTopicsPage() {
 
   return (
     <Box sx={{ p: 3, width: "100%" }}>
-      {/* Page Header */}
-      <PageHeader
-        title="Quản lý đề tài của tôi"
-        subtitle="Tạo và quản lý các đề tài khóa luận của bạn"
-        showBgImage={true}
-        illustration={<FileText size={64} />}
-      />
-
       {/* Tabs Layout */}
       <Card padding={0} variant="outlined">
         <Tabs items={tabItems} />
