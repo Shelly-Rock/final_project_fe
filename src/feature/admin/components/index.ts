@@ -1,0 +1,1 @@
+export { AdminDepartmentDashboard } from "./AdminDepartmentDashboard";
