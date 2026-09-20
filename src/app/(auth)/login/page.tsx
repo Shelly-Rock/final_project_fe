@@ -89,7 +89,7 @@ function LoginForm() {
   const [showFeatures, setShowFeatures] = useState(true);
 
   useEffect(() => {
-    const timer = setTimeout(() => setVideoLoading(false), 15000);
+    const timer = setTimeout(() => setVideoLoading(false), 3000);
     return () => clearTimeout(timer);
   }, []);
 
