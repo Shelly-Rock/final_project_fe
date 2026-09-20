@@ -261,31 +261,13 @@ function LoginForm() {
             sx={{
               color: "white",
               fontWeight: 700,
-              mb: 2,
+              mb: 3,
               lineHeight: 1.4,
             }}
           >
             Hệ thống Quản lý Đồ án Tốt nghiệp
           </Typography>
-          <Typography
-            variant="body2"
-            sx={{
-              color: "rgba(255, 255, 255, 0.8)",
-              lineHeight: 1.6,
-            }}
-          >
-            Nền tảng hỗ trợ nhà trường quản lý toàn bộ quy trình từ đăng ký đề
-            tài, phân công giảng viên hướng dẫn, theo dõi tiến độ, nộp bài, tổ
-            chức bảo vệ đến chấm và công bố điểm.
-          </Typography>
         </Box>
-
-        <Typography
-          variant="body2"
-          sx={{ color: "rgba(255, 255, 255, 0.7)", mb: 2 }}
-        >
-          Những tính năng nổi bật:
-        </Typography>
 
         <Box sx={{ display: "flex", alignItems: "flex-start", gap: 2 }}>
           <SecurityIcon
