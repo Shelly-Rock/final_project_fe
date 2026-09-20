@@ -7,51 +7,57 @@ import {
   Search,
   Plus,
   ChevronRight,
+  Calendar,
   Users,
   BookOpen,
   BarChart3,
+  MapPin,
 } from "lucide-react";
 
 interface DepartmentCardData {
   id: string;
   name: string;
   abbr: string;
-  icon: string;
   totalProjects: number;
   totalStudents: number;
   teacherCount: number;
   councilCount: number;
   completionRate: number;
+  stageDescription: string;
+  stageCount: number;
   status: "on-time" | "delayed" | "warning";
   color: "blue" | "green" | "orange" | "purple";
   location: string;
-  manager: string;
 }
 
 const departmentColors = {
   blue: {
-    bg: "bg-blue-50 dark:bg-blue-950/20",
-    border: "border-blue-200 dark:border-blue-800",
-    accent: "#2563eb",
-    light: "#dbeafe",
+    bg: "bg-[#1e3a8a]/20 dark:bg-blue-950/40",
+    border: "border-blue-600/30 dark:border-blue-500/30",
+    accent: "#3b82f6",
+    accentLight: "#60a5fa",
+    progressColor: "#3b82f6",
   },
   green: {
-    bg: "bg-green-50 dark:bg-green-950/20",
-    border: "border-green-200 dark:border-green-800",
-    accent: "#16a34a",
-    light: "#dcfce7",
+    bg: "bg-[#10b981]/20 dark:bg-emerald-950/40",
+    border: "border-emerald-600/30 dark:border-emerald-500/30",
+    accent: "#10b981",
+    accentLight: "#34d399",
+    progressColor: "#10b981",
   },
   orange: {
-    bg: "bg-orange-50 dark:bg-orange-950/20",
-    border: "border-orange-200 dark:border-orange-800",
-    accent: "#ea580c",
-    light: "#ffedd5",
+    bg: "bg-[#f59e0b]/20 dark:bg-amber-950/40",
+    border: "border-amber-600/30 dark:border-amber-500/30",
+    accent: "#f59e0b",
+    accentLight: "#fbbf24",
+    progressColor: "#f59e0b",
   },
   purple: {
-    bg: "bg-purple-50 dark:bg-purple-950/20",
-    border: "border-purple-200 dark:border-purple-800",
-    accent: "#9333ea",
-    light: "#f3e8ff",
+    bg: "bg-[#a78bfa]/20 dark:bg-purple-950/40",
+    border: "border-purple-600/30 dark:border-purple-500/30",
+    accent: "#a78bfa",
+    accentLight: "#c4b5fd",
+    progressColor: "#a78bfa",
   },
 };
 
@@ -60,62 +66,64 @@ const DepartmentCard: React.FC<{ dept: DepartmentCardData }> = ({ dept }) => {
 
   return (
     <div
-      className={`p-4 rounded-xl ${color.bg} border ${color.border} hover:border-opacity-60 transition-all flex flex-col justify-between h-full`}
+      className={`p-4 rounded-xl bg-slate-800/50 border ${color.border} hover:border-opacity-100 transition-all flex flex-col justify-between h-full`}
     >
       <div>
-        <div className="flex items-start justify-between mb-3">
+        <div className="flex items-start justify-between mb-4">
           <div className="flex items-center gap-2">
             <div
-              className="w-8 h-8 rounded bg-opacity-10 flex items-center justify-center font-bold text-sm"
-              style={{ backgroundColor: color.accent, color: color.accent }}
+              className="w-8 h-8 rounded flex items-center justify-center font-bold text-sm text-white"
+              style={{ backgroundColor: color.accent }}
             >
               {dept.abbr}
             </div>
             <div>
-              <h2 className="text-sm font-bold text-gray-900 dark:text-white">
-                {dept.name}
-              </h2>
-              <span className="text-xs text-gray-600 dark:text-gray-400">
+              <h2 className="text-xs font-bold text-white">{dept.name}</h2>
+              <span className="text-xs text-gray-400">
                 {dept.totalProjects} ĐT • {dept.totalStudents} SV
               </span>
             </div>
           </div>
 
-          {/* Mini Radial Chart */}
-          <div className="relative w-10 h-10 flex items-center justify-center shrink-0">
-            <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
+          {/* Mini Circular Progress */}
+          <div className="relative w-12 h-12 flex items-center justify-center shrink-0">
+            <svg
+              className="w-full h-full -rotate-90"
+              viewBox="0 0 36 36"
+              style={{ filter: "drop-shadow(0 0 8px rgba(0,0,0,0.3))" }}
+            >
               <circle
                 cx="18"
                 cy="18"
                 fill="none"
                 r="14"
-                stroke="currentColor"
-                strokeWidth="3"
-                className="text-gray-300 dark:text-gray-700"
+                stroke="#374151"
+                strokeWidth="2.5"
               />
               <circle
                 cx="18"
                 cy="18"
                 fill="none"
                 r="14"
-                stroke={color.accent}
+                stroke={color.progressColor}
                 strokeDasharray={`${dept.completionRate}, 100`}
+                strokeDashoffset="0"
                 strokeLinecap="round"
-                strokeWidth="3"
+                strokeWidth="2.5"
               />
             </svg>
-            <span className="absolute text-xs font-bold text-gray-900 dark:text-white">
+            <span className="absolute text-[11px] font-bold text-white">
               {dept.completionRate}%
             </span>
           </div>
         </div>
 
-        {/* Visual Funnel Pipeline */}
+        {/* Stage Description & Progress */}
         <div className="mt-3 space-y-2">
-          <div className="flex justify-between text-xs font-medium text-gray-600 dark:text-gray-400">
-            <span>Giai đoạn</span>
-            <span style={{ color: color.accent }} className="font-bold">
-              {Math.round(dept.completionRate * 0.04)}/4
+          <div className="flex justify-between text-xs font-medium">
+            <span className="text-gray-400">{dept.stageDescription}</span>
+            <span style={{ color: color.accentLight }} className="font-bold">
+              {dept.stageCount}/450
             </span>
           </div>
           <div className="grid grid-cols-4 gap-1 h-1.5">
@@ -126,41 +134,38 @@ const DepartmentCard: React.FC<{ dept: DepartmentCardData }> = ({ dept }) => {
                 style={{
                   backgroundColor:
                     stage <= Math.ceil(dept.completionRate / 25)
-                      ? color.accent
-                      : "#e5e7eb",
+                      ? color.progressColor
+                      : "#4b5563",
                 }}
               />
             ))}
           </div>
         </div>
 
-        {/* Mini Stat Bar */}
-        <div className="flex items-center justify-between mt-3 pt-2 border-t border-gray-200 dark:border-gray-700 text-xs">
-          <span className="text-gray-600 dark:text-gray-400">
-            Hội đồng:{" "}
-            <b className="text-gray-900 dark:text-white">{dept.councilCount}</b>
+        {/* Stats Bar */}
+        <div className="flex items-center justify-between mt-3 pt-2.5 border-t border-gray-700 text-xs">
+          <span className="text-gray-400">
+            Hội đồng: <b className="text-white">{dept.councilCount}</b>
           </span>
-          <span className="text-gray-600 dark:text-gray-400">
-            GVHD:{" "}
-            <b className="text-gray-900 dark:text-white">{dept.teacherCount}</b>
+          <span className="text-gray-400">
+            GVHD: <b className="text-white">{dept.teacherCount}</b>
           </span>
-          <span className="font-semibold" style={{ color: color.accent }}>
+          <span style={{ color: color.accentLight }} className="font-semibold">
             {dept.status === "on-time"
               ? "Đúng tiến độ"
               : dept.status === "delayed"
-                ? "Trễ hạn"
-                : "Cảnh báo"}
+                ? "20 trễ hạn"
+                : "Theo chuẩn"}
           </span>
         </div>
       </div>
 
-      <div className="mt-3 pt-2 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between">
-        <span className="text-xs text-gray-500 dark:text-gray-500 font-mono">
-          {dept.location}
-        </span>
+      {/* Footer */}
+      <div className="mt-3 pt-2 border-t border-gray-700 flex items-center justify-between">
+        <span className="text-xs text-gray-500 font-mono">{dept.location}</span>
         <button
           className="text-xs font-medium flex items-center gap-0.5 hover:gap-1 transition-all"
-          style={{ color: color.accent }}
+          style={{ color: color.accentLight }}
         >
           Chi tiết <ChevronRight size={14} />
         </button>
@@ -185,98 +190,97 @@ export const AdminDepartmentDashboard: React.FC = () => {
     queryFn: () => adminDashboardService.getDepartmentStats(),
   });
 
-  // Mock department data for the dashboard
   const mockDepartments: DepartmentCardData[] = useMemo(() => {
     return [
       {
         id: "1",
         name: "CNTT & Truyền thông",
         abbr: "IT",
-        icon: "💻",
         totalProjects: 450,
         totalStudents: 580,
         teacherCount: 65,
         councilCount: 16,
         completionRate: 82,
+        stageDescription: "Phản biện & Bảo vệ",
+        stageCount: 320,
         status: "on-time",
         color: "blue",
         location: "P. A1 • Nam TH",
-        manager: "Nguyễn Văn A",
       },
       {
         id: "2",
         name: "Điện - Điện Tử",
         abbr: "EE",
-        icon: "⚡",
         totalProjects: 320,
         totalStudents: 390,
         teacherCount: 48,
         councilCount: 12,
         completionRate: 75,
+        stageDescription: "Chế tạo mạch & Lab",
+        stageCount: 240,
         status: "delayed",
         color: "green",
         location: "P. B2 • Huy LQ",
-        manager: "Trần Thị B",
       },
       {
         id: "3",
         name: "Kinh Tế & QTKD",
         abbr: "BA",
-        icon: "📊",
         totalProjects: 380,
         totalStudents: 460,
         teacherCount: 52,
         councilCount: 14,
         completionRate: 90,
+        stageDescription: "Bản thảo & Turnitin",
+        stageCount: 342,
         status: "on-time",
         color: "orange",
         location: "P. C1 • Mai NT",
-        manager: "Lê Thị C",
       },
       {
         id: "4",
         name: "Cơ Khí Chế Tạo",
         abbr: "ME",
-        icon: "🔧",
         totalProjects: 270,
         totalStudents: 320,
         teacherCount: 40,
         councilCount: 10,
         completionRate: 68,
+        stageDescription: "Gia công mô hình xưởng",
+        stageCount: 190,
         status: "warning",
         color: "purple",
         location: "X. D1 • Toàn VD",
-        manager: "Phạm Văn D",
       },
       {
         id: "5",
         name: "Khoa Học Ứng Dụng",
         abbr: "AS",
-        icon: "🔬",
         totalProjects: 150,
         totalStudents: 180,
         teacherCount: 35,
         councilCount: 8,
         completionRate: 80,
+        stageDescription: "Thí nghiệm",
+        stageCount: 120,
         status: "on-time",
         color: "blue",
         location: "P. E2 • Hòa VT",
-        manager: "Võ Văn E",
       },
       {
         id: "6",
         name: "Hóa Học & Môi Trường",
         abbr: "CH",
-        icon: "🧪",
         totalProjects: 150,
         totalStudents: 160,
         teacherCount: 30,
         councilCount: 8,
         completionRate: 71,
+        stageDescription: "Phân tích & Báo cáo",
+        stageCount: 106,
         status: "on-time",
         color: "green",
         location: "P. F1 • Lan TK",
-        manager: "Nguyễn Thị F",
       },
     ];
   }, []);
@@ -294,28 +298,19 @@ export const AdminDepartmentDashboard: React.FC = () => {
       mockDepartments.length,
   );
 
-  const totalProjects = mockDepartments.reduce(
-    (sum, d) => sum + d.totalProjects,
-    0,
-  );
-  const totalStudents = mockDepartments.reduce(
-    (sum, d) => sum + d.totalStudents,
-    0,
-  );
-  const totalTeachers = mockDepartments.reduce(
-    (sum, d) => sum + d.teacherCount,
-    0,
-  );
+  const totalProjects = 1420;
+  const totalStudents = 1850;
+  const totalTeachers = 245;
 
   if (statsLoading || deptLoading) {
     return (
-      <div className="p-6 space-y-4">
-        <div className="h-8 bg-gray-200 dark:bg-gray-800 rounded w-1/3 animate-pulse" />
+      <div className="p-6 space-y-4 bg-slate-900 min-h-screen">
+        <div className="h-8 bg-slate-800 rounded w-1/3 animate-pulse" />
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           {[1, 2, 3, 4].map((i) => (
             <div
               key={i}
-              className="h-32 bg-gray-200 dark:bg-gray-800 rounded-lg animate-pulse"
+              className="h-32 bg-slate-800 rounded-lg animate-pulse"
             />
           ))}
         </div>
@@ -324,29 +319,49 @@ export const AdminDepartmentDashboard: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 p-6">
-      <div className="max-w-7xl mx-auto space-y-6">
+    <div className="min-h-screen bg-slate-900 p-6">
+      {/* Header Bar */}
+      <div className="fixed top-0 left-0 right-0 h-16 bg-slate-950/80 backdrop-blur-sm border-b border-slate-800 z-40 flex items-center justify-between px-6">
+        <div className="flex items-center gap-3 flex-1">
+          <Search size={20} className="text-slate-500" />
+          <input
+            type="text"
+            placeholder="Tìm kiếm nhanh đề tài, giảng viên, hội đồng..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full max-w-md bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs text-white">
+            <Calendar size={16} className="text-emerald-500" />
+            <span className="font-medium">Khóa 2021-2025 • Đợt 1</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto space-y-6 mt-20">
         {/* Header Section */}
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+            <h1 className="text-3xl font-bold text-white">
               Bảng Điều Hành Đồ Án
             </h1>
-            <p className="text-gray-600 dark:text-gray-400 mt-1 flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+            <p className="text-slate-400 mt-1 flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
               LIVE • {mockDepartments.length} Khoa
             </p>
           </div>
           <div className="flex items-center gap-3 w-full md:w-auto">
-            <div className="flex items-center bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-0.5">
+            <div className="flex items-center bg-slate-800 border border-slate-700 rounded-lg p-0.5">
               {(["week", "month", "all"] as const).map((range) => (
                 <button
                   key={range}
                   onClick={() => setActiveTimeRange(range)}
-                  className={`px-3 py-1.5 rounded text-xs font-medium transition-all ${
+                  className={`px-3 py-1.5 rounded text-xs font-semibold transition-all ${
                     activeTimeRange === range
-                      ? "bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900"
-                      : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-300"
+                      ? "bg-slate-700 text-white"
+                      : "text-slate-400 hover:text-white"
                   }`}
                 >
                   {range === "week"
@@ -366,24 +381,26 @@ export const AdminDepartmentDashboard: React.FC = () => {
 
         {/* KPI Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="p-4 rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800">
+          {/* Card 1: Tổng Đề Tài */}
+          <div className="p-4 rounded-xl bg-slate-800/50 border border-slate-700 hover:border-slate-600 transition-all">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs font-medium text-gray-600 dark:text-gray-400">
+                <p className="text-xs font-medium text-slate-400">
                   Tổng Đề Tài
                 </p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
+                <p className="text-3xl font-bold text-white mt-2">
                   {totalProjects}
                 </p>
-                <p className="text-xs text-green-600 dark:text-green-400 mt-1">
-                  +8.2% so với tháng trước
+                <p className="text-xs text-emerald-500 mt-1">+8.2%</p>
+                <p className="text-xs text-slate-500 mt-1">
+                  100% duyệt đề cương
                 </p>
               </div>
-              <div className="flex items-end gap-1 h-10">
+              <div className="flex items-end gap-1 h-12">
                 {[40, 50, 60, 80, 100].map((height, i) => (
                   <div
                     key={i}
-                    className="w-1.5 rounded-t bg-blue-400"
+                    className="w-1.5 rounded-t bg-blue-500/60"
                     style={{ height: `${height}%` }}
                   />
                 ))}
@@ -391,52 +408,54 @@ export const AdminDepartmentDashboard: React.FC = () => {
             </div>
           </div>
 
-          <div className="p-4 rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800">
+          {/* Card 2: Sinh Viên Đồ Án */}
+          <div className="p-4 rounded-xl bg-slate-800/50 border border-slate-700 hover:border-slate-600 transition-all">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs font-medium text-gray-600 dark:text-gray-400">
+                <p className="text-xs font-medium text-slate-400">
                   Sinh Viên Đồ Án
                 </p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
+                <p className="text-3xl font-bold text-white mt-2">
                   {totalStudents}
                 </p>
-                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
-                  ~1.3 SV/đề tài
+                <p className="text-xs text-emerald-500 mt-1">430 nhóm</p>
+                <p className="text-xs text-slate-500 mt-1">
+                  Tỷ lệ 1.3 SV/đề tài
                 </p>
               </div>
-              <Users size={32} className="text-green-500" />
+              <Users size={40} className="text-emerald-500/70" />
             </div>
           </div>
 
-          <div className="p-4 rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800">
+          {/* Card 3: GV Hướng Dẫn */}
+          <div className="p-4 rounded-xl bg-slate-800/50 border border-slate-700 hover:border-slate-600 transition-all">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs font-medium text-gray-600 dark:text-gray-400">
+                <p className="text-xs font-medium text-slate-400">
                   GV Hướng Dẫn
                 </p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
+                <p className="text-3xl font-bold text-white mt-2">
                   {totalTeachers}
                 </p>
-                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
-                  100% đủ tải
+                <p className="text-xs text-amber-500 mt-1">5.8 ĐT/GV</p>
+                <p className="text-xs text-slate-500 mt-1">
+                  100% đủ tải giảng dạy
                 </p>
               </div>
-              <BookOpen size={32} className="text-orange-500" />
+              <BookOpen size={40} className="text-amber-500/70" />
             </div>
           </div>
 
-          <div className="p-4 rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800">
+          {/* Card 4: Hội Đồng Bảo Vệ */}
+          <div className="p-4 rounded-xl bg-slate-800/50 border border-slate-700 hover:border-slate-600 transition-all">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs font-medium text-gray-600 dark:text-gray-400">
-                  Hoàn Thành TB
+                <p className="text-xs font-medium text-slate-400">
+                  Hội Đồng Bảo Vệ
                 </p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
-                  {avgCompletion}%
-                </p>
-                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
-                  Đúng tiến độ
-                </p>
+                <p className="text-3xl font-bold text-white mt-2">48</p>
+                <p className="text-xs text-emerald-500 mt-1">88.5% đúng hạn</p>
+                <p className="text-xs text-slate-500 mt-1">12 HĐ chấm chéo</p>
               </div>
               <div className="relative w-14 h-14 flex items-center justify-center">
                 <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
@@ -445,9 +464,8 @@ export const AdminDepartmentDashboard: React.FC = () => {
                     cy="18"
                     fill="none"
                     r="14"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    className="text-gray-300 dark:text-gray-700"
+                    stroke="#374151"
+                    strokeWidth="3"
                   />
                   <circle
                     cx="18"
@@ -455,45 +473,48 @@ export const AdminDepartmentDashboard: React.FC = () => {
                     fill="none"
                     r="14"
                     stroke="#10b981"
-                    strokeDasharray={`${avgCompletion}, 100`}
+                    strokeDasharray="88, 100"
                     strokeLinecap="round"
-                    strokeWidth="2"
+                    strokeWidth="3"
                   />
                 </svg>
+                <span className="absolute text-xs font-bold text-white">
+                  88%
+                </span>
               </div>
             </div>
           </div>
         </div>
 
         {/* Progress Distribution Bar */}
-        <div className="p-4 rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800">
+        <div className="p-4 rounded-xl bg-slate-800/50 border border-slate-700">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
-              <BarChart3 size={18} className="text-blue-600" />
-              <span className="text-xs font-bold uppercase tracking-widest text-gray-900 dark:text-white">
-                Tiến độ 4 giai đoạn ({totalProjects} đề tài)
+              <BarChart3 size={18} className="text-blue-500" />
+              <span className="text-xs font-bold uppercase tracking-widest text-white">
+                Tiến độ 4 giai đoạn toàn trường ({totalProjects} đề tài)
               </span>
             </div>
             <div className="flex items-center gap-3 text-xs">
               {[
-                { color: "bg-gray-400", label: "Đề cương (8%)" },
-                { color: "bg-blue-500", label: "Nghiên cứu (42%)" },
-                { color: "bg-orange-500", label: "Phản biện (28%)" },
-                { color: "bg-green-500", label: "Bảo vệ (22%)" },
+                { color: "w-2 h-2 bg-gray-500", label: "Đề cương (8%)" },
+                { color: "w-2 h-2 bg-blue-500", label: "Nghiên cứu (42%)" },
+                { color: "w-2 h-2 bg-amber-500", label: "Phản biện (28%)" },
+                { color: "w-2 h-2 bg-emerald-500", label: "Bảo vệ (22%)" },
               ].map((item, i) => (
                 <span
                   key={i}
-                  className="flex items-center gap-1.5 text-gray-600 dark:text-gray-400"
+                  className="flex items-center gap-1.5 text-slate-400"
                 >
-                  <span className={`w-2 h-2 rounded ${item.color}`} />
+                  <span className={`rounded-full ${item.color}`} />
                   {item.label}
                 </span>
               ))}
             </div>
           </div>
-          <div className="w-full h-3 rounded-full bg-gray-200 dark:bg-gray-800 overflow-hidden flex gap-0.5">
+          <div className="w-full h-3 rounded-full bg-slate-700 overflow-hidden flex gap-0.5">
             <div
-              className="bg-gray-400 h-full"
+              className="bg-gray-500 h-full"
               style={{ width: "8%" }}
               title="Đề cương: 114 đề tài"
             />
@@ -503,35 +524,20 @@ export const AdminDepartmentDashboard: React.FC = () => {
               title="Nghiên cứu: 596 đề tài"
             />
             <div
-              className="bg-orange-500 h-full"
+              className="bg-amber-500 h-full"
               style={{ width: "28%" }}
               title="Phản biện: 398 đề tài"
             />
             <div
-              className="bg-green-500 h-full"
+              className="bg-emerald-500 h-full"
               style={{ width: "22%" }}
               title="Bảo vệ: 312 đề tài"
             />
           </div>
         </div>
 
-        {/* Search Bar */}
-        <div className="relative">
-          <Search
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-            size={20}
-          />
-          <input
-            type="text"
-            placeholder="Tìm kiếm khoa, giảng viên, hội đồng..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 rounded-lg bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-
-        {/* Department Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {/* Department Cards Grid - 4 columns */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {filteredDepartments.map((dept) => (
             <DepartmentCard key={dept.id} dept={dept} />
           ))}
@@ -539,8 +545,8 @@ export const AdminDepartmentDashboard: React.FC = () => {
 
         {filteredDepartments.length === 0 && (
           <div className="text-center py-12">
-            <p className="text-gray-600 dark:text-gray-400">
-              Không tìm thấy khoa nào phù hợp với &quot;{searchQuery}&quot;
+            <p className="text-slate-400">
+              Không tìm thấy khoa nào phù hợp với `{searchQuery}`
             </p>
           </div>
         )}
