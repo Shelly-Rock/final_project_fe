@@ -479,13 +479,13 @@ export function DataTable<T extends object>({
         sx={{
           maxHeight: 640,
           "& .MuiTableCell-stickyHeader": {
-            backgroundColor: isDark ? "#1e293b" : "#f1f5f9",
-            color: isDark ? "#ffffff" : "#0f172a",
+            backgroundColor: "#2563eb",
+            color: "#ffffff",
             fontWeight: 700,
             borderBottom: "2px solid",
-            borderColor: isDark ? "#334155" : "#e2e8f0",
+            borderColor: "#1d4ed8",
             "& *": {
-              color: isDark ? "#ffffff" : "#0f172a",
+              color: "#ffffff",
             },
           },
         }}

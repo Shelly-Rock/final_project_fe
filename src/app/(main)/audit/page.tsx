@@ -231,13 +231,27 @@ export default function AuditPage() {
           >
             <MuiTable size="small">
               <TableHead>
-                <TableRow sx={{ bgcolor: isDark ? "#1e293b" : "#f8fafc" }}>
-                  <TableCell sx={{ fontWeight: 700 }}>ID</TableCell>
-                  <TableCell sx={{ fontWeight: 700 }}>Thời gian</TableCell>
-                  <TableCell sx={{ fontWeight: 700 }}>Người thao tác</TableCell>
-                  <TableCell sx={{ fontWeight: 700 }}>Hành động</TableCell>
-                  <TableCell sx={{ fontWeight: 700 }}>Thực thể</TableCell>
-                  <TableCell sx={{ fontWeight: 700 }}>Lý do</TableCell>
+                <TableRow
+                  sx={{ bgcolor: "#2563eb", "& th": { color: "#ffffff" } }}
+                >
+                  <TableCell sx={{ fontWeight: 700, color: "#ffffff" }}>
+                    ID
+                  </TableCell>
+                  <TableCell sx={{ fontWeight: 700, color: "#ffffff" }}>
+                    Thời gian
+                  </TableCell>
+                  <TableCell sx={{ fontWeight: 700, color: "#ffffff" }}>
+                    Người thao tác
+                  </TableCell>
+                  <TableCell sx={{ fontWeight: 700, color: "#ffffff" }}>
+                    Hành động
+                  </TableCell>
+                  <TableCell sx={{ fontWeight: 700, color: "#ffffff" }}>
+                    Thực thể
+                  </TableCell>
+                  <TableCell sx={{ fontWeight: 700, color: "#ffffff" }}>
+                    Lý do
+                  </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>

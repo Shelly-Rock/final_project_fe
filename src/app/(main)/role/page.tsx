@@ -253,13 +253,14 @@ function MatrixTab({
           <TableHead>
             <TableRow
               sx={{
-                bgcolor: isDark ? "#1e293b" : "#f1f5f9",
+                bgcolor: "#2563eb",
                 "& th": {
                   fontWeight: 700,
                   whiteSpace: "nowrap",
                   borderBottom: "2px solid",
-                  borderColor: isDark ? "#334155" : "#e2e8f0",
-                  bgcolor: isDark ? "#1e293b" : "#f1f5f9",
+                  borderColor: "#1d4ed8",
+                  bgcolor: "#2563eb",
+                  color: "#ffffff",
                 },
               }}
             >
@@ -497,12 +498,23 @@ function UsersTab({ roles }: { roles: RoleItem[] }) {
       >
         <MuiTable size="small">
           <TableHead>
-            <TableRow sx={{ bgcolor: isDark ? "#1e293b" : "#f8fafc" }}>
-              <TableCell sx={{ fontWeight: 700 }}>ID</TableCell>
-              <TableCell sx={{ fontWeight: 700 }}>Tài khoản</TableCell>
-              <TableCell sx={{ fontWeight: 700 }}>Email</TableCell>
-              <TableCell sx={{ fontWeight: 700 }}>Vai trò</TableCell>
-              <TableCell sx={{ fontWeight: 700 }} align="center">
+            <TableRow sx={{ bgcolor: "#2563eb", color: "#ffffff" }}>
+              <TableCell sx={{ fontWeight: 700, color: "#ffffff" }}>
+                ID
+              </TableCell>
+              <TableCell sx={{ fontWeight: 700, color: "#ffffff" }}>
+                Tài khoản
+              </TableCell>
+              <TableCell sx={{ fontWeight: 700, color: "#ffffff" }}>
+                Email
+              </TableCell>
+              <TableCell sx={{ fontWeight: 700, color: "#ffffff" }}>
+                Vai trò
+              </TableCell>
+              <TableCell
+                sx={{ fontWeight: 700, color: "#ffffff" }}
+                align="center"
+              >
                 Thao tác
               </TableCell>
             </TableRow>
