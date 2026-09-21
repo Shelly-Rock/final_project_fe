@@ -12,6 +12,7 @@ import {
   BookOpen,
   BarChart3,
   MapPin,
+  Clock,
 } from "lucide-react";
 
 interface DepartmentCardData {
@@ -30,34 +31,63 @@ interface DepartmentCardData {
   location: string;
 }
 
+interface ScheduleSlot {
+  time: string;
+  period: string;
+  title: string;
+  room: string;
+  status: "ongoing" | "preparing";
+}
+
+interface ScheduleSlot {
+  time: string;
+  period: string;
+  title: string;
+  room: string;
+  status: "ongoing" | "preparing";
+}
+
+interface ScheduleSlot {
+  id: string;
+  time: string;
+  period: string;
+  title: string;
+  room: string;
+  status: "ongoing" | "preparing";
+}
+
 const departmentColors = {
   blue: {
-    bg: "bg-[#1e3a8a]/20 dark:bg-blue-950/40",
-    border: "border-blue-600/30 dark:border-blue-500/30",
-    accent: "#3b82f6",
+    bg: "bg-blue-500/10",
+    border: "border-blue-500/30",
+    accent: "#2563eb",
     accentLight: "#60a5fa",
-    progressColor: "#3b82f6",
+    progressColor: "#2563eb",
+    text: "text-blue-400",
   },
   green: {
-    bg: "bg-[#10b981]/20 dark:bg-emerald-950/40",
-    border: "border-emerald-600/30 dark:border-emerald-500/30",
-    accent: "#10b981",
-    accentLight: "#34d399",
-    progressColor: "#10b981",
+    bg: "bg-emerald-500/10",
+    border: "border-emerald-500/30",
+    accent: "#4edea3",
+    accentLight: "#6ffbbe",
+    progressColor: "#4edea3",
+    text: "text-emerald-400",
   },
   orange: {
-    bg: "bg-[#f59e0b]/20 dark:bg-amber-950/40",
-    border: "border-amber-600/30 dark:border-amber-500/30",
-    accent: "#f59e0b",
-    accentLight: "#fbbf24",
-    progressColor: "#f59e0b",
+    bg: "bg-amber-500/10",
+    border: "border-amber-500/30",
+    accent: "#ffb95f",
+    accentLight: "#ffd49a",
+    progressColor: "#ffb95f",
+    text: "text-amber-400",
   },
   purple: {
-    bg: "bg-[#a78bfa]/20 dark:bg-purple-950/40",
-    border: "border-purple-600/30 dark:border-purple-500/30",
-    accent: "#a78bfa",
-    accentLight: "#c4b5fd",
-    progressColor: "#a78bfa",
+    bg: "bg-blue-400/10",
+    border: "border-blue-400/30",
+    accent: "#b4c5ff",
+    accentLight: "#dbe1ff",
+    progressColor: "#b4c5ff",
+    text: "text-blue-300",
   },
 };
 
@@ -66,64 +96,63 @@ const DepartmentCard: React.FC<{ dept: DepartmentCardData }> = ({ dept }) => {
 
   return (
     <div
-      className={`p-4 rounded-xl bg-slate-800/50 border ${color.border} hover:border-opacity-100 transition-all flex flex-col justify-between h-full`}
+      className={`p-4 rounded-xl bg-slate-700/20 border ${color.border} hover:border-opacity-100 transition-all flex flex-col justify-between h-full`}
     >
       <div>
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center gap-2">
             <div
-              className="w-8 h-8 rounded flex items-center justify-center font-bold text-sm text-white"
-              style={{ backgroundColor: color.accent }}
+              className="w-7 h-7 rounded flex items-center justify-center font-bold text-xs text-white"
+              style={{
+                backgroundColor: color.accent + "20",
+                color: color.accent,
+              }}
             >
               {dept.abbr}
             </div>
             <div>
-              <h2 className="text-xs font-bold text-white">{dept.name}</h2>
-              <span className="text-xs text-gray-400">
+              <h2 className="text-xs font-bold text-slate-50">{dept.name}</h2>
+              <span className="text-xs text-slate-400">
                 {dept.totalProjects} ĐT • {dept.totalStudents} SV
               </span>
             </div>
           </div>
 
           {/* Mini Circular Progress */}
-          <div className="relative w-12 h-12 flex items-center justify-center shrink-0">
-            <svg
-              className="w-full h-full -rotate-90"
-              viewBox="0 0 36 36"
-              style={{ filter: "drop-shadow(0 0 8px rgba(0,0,0,0.3))" }}
-            >
+          <div className="relative w-9 h-9 flex items-center justify-center shrink-0">
+            <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
               <circle
                 cx="18"
                 cy="18"
                 fill="none"
                 r="14"
-                stroke="#374151"
-                strokeWidth="2.5"
+                stroke="#2d344c"
+                strokeWidth="3.5"
               />
               <circle
                 cx="18"
                 cy="18"
                 fill="none"
                 r="14"
-                stroke={color.progressColor}
+                stroke={color.accent}
                 strokeDasharray={`${dept.completionRate}, 100`}
                 strokeDashoffset="0"
                 strokeLinecap="round"
-                strokeWidth="2.5"
+                strokeWidth="3.5"
               />
             </svg>
-            <span className="absolute text-[11px] font-bold text-white">
+            <span className="absolute text-[10px] font-bold text-slate-50">
               {dept.completionRate}%
             </span>
           </div>
         </div>
 
         {/* Stage Description & Progress */}
-        <div className="mt-3 space-y-2">
-          <div className="flex justify-between text-xs font-medium">
-            <span className="text-gray-400">{dept.stageDescription}</span>
-            <span style={{ color: color.accentLight }} className="font-bold">
-              {dept.stageCount}/450
+        <div className="mt-3.5 space-y-1.5">
+          <div className="flex justify-between text-[10px] font-medium text-slate-400">
+            <span>{dept.stageDescription}</span>
+            <span style={{ color: color.accent }} className="font-bold">
+              {dept.stageCount}/{dept.totalProjects}
             </span>
           </div>
           <div className="grid grid-cols-4 gap-1 h-1.5">
@@ -134,8 +163,8 @@ const DepartmentCard: React.FC<{ dept: DepartmentCardData }> = ({ dept }) => {
                 style={{
                   backgroundColor:
                     stage <= Math.ceil(dept.completionRate / 25)
-                      ? color.progressColor
-                      : "#4b5563",
+                      ? color.accent
+                      : "#2d344c",
                 }}
               />
             ))}
@@ -143,14 +172,14 @@ const DepartmentCard: React.FC<{ dept: DepartmentCardData }> = ({ dept }) => {
         </div>
 
         {/* Stats Bar */}
-        <div className="flex items-center justify-between mt-3 pt-2.5 border-t border-gray-700 text-xs">
-          <span className="text-gray-400">
-            Hội đồng: <b className="text-white">{dept.councilCount}</b>
+        <div className="flex items-center justify-between mt-3 pt-2.5 border-t border-slate-600/20 text-[11px]">
+          <span className="text-slate-400">
+            Hội đồng: <b className="text-slate-50">{dept.councilCount}</b>
           </span>
-          <span className="text-gray-400">
-            GVHD: <b className="text-white">{dept.teacherCount}</b>
+          <span className="text-slate-400">
+            GVHD: <b className="text-slate-50">{dept.teacherCount}</b>
           </span>
-          <span style={{ color: color.accentLight }} className="font-semibold">
+          <span style={{ color: color.accent }} className="font-semibold">
             {dept.status === "on-time"
               ? "Đúng tiến độ"
               : dept.status === "delayed"
@@ -161,18 +190,71 @@ const DepartmentCard: React.FC<{ dept: DepartmentCardData }> = ({ dept }) => {
       </div>
 
       {/* Footer */}
-      <div className="mt-3 pt-2 border-t border-gray-700 flex items-center justify-between">
-        <span className="text-xs text-gray-500 font-mono">{dept.location}</span>
+      <div className="mt-3 pt-2 border-t border-slate-600/20 flex items-center justify-between">
+        <span className="text-[10px] text-slate-500 font-mono">
+          {dept.location}
+        </span>
         <button
-          className="text-xs font-medium flex items-center gap-0.5 hover:gap-1 transition-all"
-          style={{ color: color.accentLight }}
+          className="text-[11px] font-medium flex items-center gap-0.5 hover:gap-1 transition-all"
+          style={{ color: color.accent }}
         >
-          Chi tiết <ChevronRight size={14} />
+          Chi tiết <ChevronRight size={13} />
         </button>
       </div>
     </div>
   );
 };
+
+const ScheduleCard: React.FC<{ slot: ScheduleSlot }> = ({ slot }) => {
+  const isOngoing = slot.status === "ongoing";
+
+  return (
+    <div className="p-3 rounded-lg bg-slate-700/30 border border-slate-600/20 hover:border-slate-500/30 transition-colors flex items-center justify-between gap-3">
+      <div className="flex items-center gap-3.5 min-w-0">
+        <div className="flex flex-col shrink-0 w-24">
+          <span className="text-xs font-mono font-bold text-slate-50">
+            {slot.time}
+          </span>
+          <span className="text-[10px] text-slate-500">{slot.period}</span>
+        </div>
+        <div className="w-px h-7 bg-slate-600/20 shrink-0" />
+        <div className="min-w-0">
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-semibold text-slate-50 truncate">
+              {slot.title}
+            </span>
+          </div>
+          <div className="flex items-center gap-1.5 mt-0.5 text-[11px] text-slate-400">
+            <MapPin size={13} />
+            <span>{slot.room}</span>
+          </div>
+        </div>
+      </div>
+      <div className="shrink-0">
+        {isOngoing ? (
+          <span className="px-2.5 py-1 rounded-full text-[11px] font-medium bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            Đang diễn ra
+          </span>
+        ) : (
+          <span className="px-2.5 py-1 rounded-full text-[11px] font-medium bg-blue-500/15 text-blue-400 border border-blue-500/30 flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-blue-400" />
+            Chuẩn bị
+          </span>
+        )}
+      </div>
+    </div>
+  );
+};
+
+const DayType = [
+  "monday",
+  "tuesday",
+  "wednesday",
+  "thursday",
+  "friday",
+] as const;
+type DayValue = (typeof DayType)[number];
 
 export const AdminDepartmentDashboard: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -189,6 +271,41 @@ export const AdminDepartmentDashboard: React.FC = () => {
     queryKey: ["admin-department-stats"],
     queryFn: () => adminDashboardService.getDepartmentStats(),
   });
+
+  const scheduleSlots: ScheduleSlot[] = [
+    {
+      id: "1",
+      time: "08:30 - 11:30",
+      period: "Ca sáng",
+      title: "HĐ-01 • CNTT & Trí Tuệ Nhân Tạo",
+      room: "Phòng A2-101",
+      status: "ongoing",
+    },
+    {
+      id: "2",
+      time: "10:00 - 12:00",
+      period: "Ca sáng",
+      title: "HĐ-02 • Tài Chính Doanh Nghiệp & Fintech",
+      room: "Phòng C-301",
+      status: "ongoing",
+    },
+    {
+      id: "3",
+      time: "13:30 - 16:30",
+      period: "Ca chiều",
+      title: "HĐ-03 • Điện Tử - Viễn Thông",
+      room: "Phòng B2-204",
+      status: "preparing",
+    },
+    {
+      id: "4",
+      time: "14:00 - 17:00",
+      period: "Ca chiều",
+      title: "HĐ-04 • Cơ Khí Tự Động Hóa & Robot",
+      room: "Xưởng D-01",
+      status: "preparing",
+    },
+  ];
 
   const mockDepartments: DepartmentCardData[] = useMemo(() => {
     return [
@@ -292,11 +409,6 @@ export const AdminDepartmentDashboard: React.FC = () => {
         dept.abbr.toLowerCase().includes(searchQuery.toLowerCase()),
     );
   }, [searchQuery, mockDepartments]);
-
-  const avgCompletion = Math.round(
-    mockDepartments.reduce((sum, d) => sum + d.completionRate, 0) /
-      mockDepartments.length,
-  );
 
   const totalProjects = 1420;
   const totalStudents = 1850;
@@ -550,6 +662,157 @@ export const AdminDepartmentDashboard: React.FC = () => {
             </p>
           </div>
         )}
+
+        {/* Bottom Section: Schedule & Comparison Chart */}
+        <div className="grid grid-cols-1 xl:grid-cols-12 gap-4">
+          {/* Left: Schedule Timeline (7 columns) */}
+          <div className="xl:col-span-7 p-4 rounded-xl bg-slate-800/50 border border-slate-700">
+            <div className="flex flex-wrap items-center justify-between gap-3 mb-4 pb-3 border-b border-slate-700/50">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400">
+                  <Clock size={18} />
+                </div>
+                <div>
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-white">
+                    Lịch Bảo Vệ Đồ Án
+                  </h3>
+                  <span className="text-[11px] text-slate-500">
+                    Tuần 19 • Khóa 2021-2025
+                  </span>
+                </div>
+              </div>
+              {/* Day Selector Pills */}
+              <div className="flex items-center gap-1 bg-slate-900/50 p-1 rounded-lg border border-slate-700/50">
+                {["T2 (Hôm nay)", "T3", "T4", "T5", "T6"].map((day, idx) => (
+                  <button
+                    key={`day-${day}`}
+                    type="button"
+                    className={`px-2.5 py-1 rounded text-xs font-semibold transition-all ${
+                      idx === 0
+                        ? "bg-blue-600 text-white shadow-sm"
+                        : "text-slate-400 hover:text-white hover:bg-slate-800"
+                    }`}
+                  >
+                    {day}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Schedule Slots */}
+            <div className="space-y-2">
+              {scheduleSlots.map((slot, idx) => (
+                <ScheduleCard key={idx} slot={slot} />
+              ))}
+            </div>
+
+            {/* Footer Stats */}
+            <div className="mt-4 pt-3 border-t border-slate-700/50 flex items-center justify-between text-xs">
+              <div className="flex items-center gap-2 text-slate-400">
+                <span className="flex items-center gap-1 text-emerald-400 font-medium">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />4
+                  hội đồng hôm nay
+                </span>
+                <span>•</span>
+                <span>10 phòng sẵn sàng</span>
+              </div>
+              <button className="text-blue-400 font-medium hover:underline flex items-center gap-1 text-xs">
+                Xem toàn bộ lịch trình
+                <ChevronRight size={14} />
+              </button>
+            </div>
+          </div>
+
+          {/* Right: Comparison Chart (5 columns) */}
+          <div className="xl:col-span-5 p-4 rounded-xl bg-slate-800/50 border border-slate-700">
+            <div className="flex items-center justify-between mb-3.5">
+              <div className="flex items-center gap-2">
+                <BarChart3 size={18} className="text-emerald-400" />
+                <h3 className="text-xs font-bold uppercase tracking-wider text-white">
+                  So Sánh Tỷ Lệ Hoàn Thành 6 Khoa
+                </h3>
+              </div>
+              <span className="text-[11px] font-mono text-slate-500">
+                KPI &gt; 70%
+              </span>
+            </div>
+
+            {/* Progress Bars */}
+            <div className="space-y-2.5">
+              {[
+                {
+                  dept: "Kinh Tế & QTKD",
+                  percent: 90,
+                  count: "342/380",
+                  color: "bg-amber-500",
+                },
+                {
+                  dept: "CNTT & TT",
+                  percent: 82,
+                  count: "369/450",
+                  color: "bg-emerald-500",
+                },
+                {
+                  dept: "Điện - Điện Tử",
+                  percent: 75,
+                  count: "240/320",
+                  color: "bg-amber-500",
+                },
+                {
+                  dept: "Cơ Khí",
+                  percent: 68,
+                  count: "184/270",
+                  color: "bg-blue-400",
+                },
+                {
+                  dept: "Khoa Học Ứng Dụng",
+                  percent: 80,
+                  count: "120/150",
+                  color: "bg-emerald-400",
+                },
+                {
+                  dept: "Hóa Học & Môi Trường",
+                  percent: 71,
+                  count: "106/150",
+                  color: "bg-amber-500",
+                },
+              ].map((item, idx) => (
+                <div key={idx}>
+                  <div className="flex justify-between text-xs mb-1">
+                    <span className="font-medium text-slate-300">
+                      {item.dept}
+                    </span>
+                    <span
+                      className={`font-bold ${item.color.replace("bg-", "text-")}`}
+                    >
+                      {item.percent}%{" "}
+                      <span className="text-[10px] text-slate-500 font-normal">
+                        ({item.count})
+                      </span>
+                    </span>
+                  </div>
+                  <div className="w-full h-2 rounded-full bg-slate-700 overflow-hidden">
+                    <div
+                      className={`h-full ${item.color} rounded-full transition-all`}
+                      style={{ width: `${item.percent}%` }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Footer Quick Status */}
+            <div className="mt-3 pt-2 border-t border-slate-700/50 flex items-center justify-between text-[11px]">
+              <span className="text-slate-400 flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                TB hoàn thành: <b className="text-white">77.6%</b>
+              </span>
+              <button className="text-xs text-blue-400 font-medium hover:underline flex items-center gap-0.5">
+                Xuất biểu đồ
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
