@@ -145,7 +145,7 @@ export function StudentTable({
       format: (_: unknown, student: Student) => (
         <Badge
           label={getStatusLabel(student.trangThai)}
-          variant="soft"
+          variant="outlined"
           color={getStatusColor(student.trangThai)}
         />
       ),
