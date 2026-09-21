@@ -80,13 +80,13 @@ const DepartmentCard: React.FC<{ dept: DepartmentCardData }> = ({ dept }) => {
 
   return (
     <div
-      className={`p-4 rounded-xl bg-surface-card/70 border border-border-subtle/80 hover:border-border-light/60 transition-all flex flex-col justify-between h-full`}
+      className={`p-3 rounded-lg bg-surface-card/70 hover:bg-surface-card/80 transition-all flex flex-col justify-between h-full`}
     >
       <div>
-        <div className="flex items-start justify-between mb-3">
-          <div className="flex items-center gap-2">
+        <div className="flex items-start justify-between mb-2">
+          <div className="flex items-center gap-1.5">
             <div
-              className="w-7 h-7 rounded flex items-center justify-center font-bold text-xs text-text-primary"
+              className="w-6 h-6 rounded flex items-center justify-center font-bold text-[10px] text-text-primary"
               style={{
                 backgroundColor: color.accent + "20",
                 color: color.accent,
@@ -95,17 +95,17 @@ const DepartmentCard: React.FC<{ dept: DepartmentCardData }> = ({ dept }) => {
               {dept.abbr}
             </div>
             <div>
-              <h2 className="text-xs font-bold text-text-primary">
+              <h2 className="text-[10px] font-bold text-text-primary leading-tight">
                 {dept.name}
               </h2>
-              <span className="text-xs opacity-70">
+              <span className="text-[9px] opacity-70 leading-tight">
                 {dept.totalProjects} ĐT • {dept.totalStudents} SV
               </span>
             </div>
           </div>
 
           {/* Mini Circular Progress */}
-          <div className="relative w-9 h-9 flex items-center justify-center shrink-0">
+          <div className="relative w-8 h-8 flex items-center justify-center shrink-0">
             <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
               <circle
                 cx="18"
@@ -127,21 +127,21 @@ const DepartmentCard: React.FC<{ dept: DepartmentCardData }> = ({ dept }) => {
                 strokeWidth="3.5"
               />
             </svg>
-            <span className="absolute text-[10px] font-bold text-slate-50">
+            <span className="absolute text-[9px] font-bold text-slate-50">
               {dept.completionRate}%
             </span>
           </div>
         </div>
 
         {/* Stage Description & Progress */}
-        <div className="mt-3 space-y-1.5">
-          <div className="flex justify-between text-[10px] font-medium opacity-70">
+        <div className="mt-2 space-y-1">
+          <div className="flex justify-between text-[9px] font-medium opacity-70">
             <span>{dept.stageDescription}</span>
             <span style={{ color: color.accent }} className="font-bold">
               {dept.stageCount}/{dept.totalProjects}
             </span>
           </div>
-          <div className="grid grid-cols-4 gap-1 h-1.5">
+          <div className="grid grid-cols-4 gap-0.5 h-1">
             {[1, 2, 3, 4].map((stage) => (
               <div
                 key={stage}
@@ -158,7 +158,7 @@ const DepartmentCard: React.FC<{ dept: DepartmentCardData }> = ({ dept }) => {
         </div>
 
         {/* Stats Bar */}
-        <div className="flex items-center justify-between mt-3 pt-2.5 border-t border-border-subtle/40 text-[11px]">
+        <div className="flex items-center justify-between mt-2 pt-1 text-[9px]">
           <span className="opacity-70">
             Hội đồng: <b className="text-text-primary">{dept.councilCount}</b>
           </span>
@@ -176,15 +176,13 @@ const DepartmentCard: React.FC<{ dept: DepartmentCardData }> = ({ dept }) => {
       </div>
 
       {/* Footer */}
-      <div className="mt-3 pt-2 border-t border-border-subtle/40 flex items-center justify-between">
-        <span className="text-[10px] opacity-60 font-mono">
-          {dept.location}
-        </span>
+      <div className="mt-2 pt-1 flex items-center justify-between">
+        <span className="text-[8px] opacity-60 font-mono">{dept.location}</span>
         <button
-          className="text-[11px] font-medium flex items-center gap-0.5 hover:gap-1 transition-all"
+          className="text-[9px] font-medium flex items-center gap-0.5 hover:gap-1 transition-all"
           style={{ color: color.accent }}
         >
-          Chi tiết <ChevronRight size={13} />
+          Chi tiết <ChevronRight size={12} />
         </button>
       </div>
     </div>
@@ -195,36 +193,36 @@ const ScheduleCard: React.FC<{ slot: ScheduleSlot }> = ({ slot }) => {
   const isOngoing = slot.status === "ongoing";
 
   return (
-    <div className="p-3 rounded-lg bg-surface-subtle/40 border border-border-subtle/60 hover:border-border-light/40 transition-colors flex items-center justify-between gap-3">
-      <div className="flex items-center gap-3 min-w-0">
-        <div className="flex flex-col shrink-0 w-24">
-          <span className="text-xs font-mono font-bold text-text-primary">
+    <div className="p-2.5 rounded-lg bg-surface-subtle/40 hover:bg-surface-subtle/60 transition-colors flex items-center justify-between gap-3">
+      <div className="flex items-center gap-2.5 min-w-0">
+        <div className="flex flex-col shrink-0 w-20">
+          <span className="text-[10px] font-mono font-bold text-text-primary">
             {slot.time}
           </span>
-          <span className="text-[10px] opacity-60">{slot.period}</span>
+          <span className="text-[9px] opacity-60">{slot.period}</span>
         </div>
-        <div className="w-px h-7 bg-border-subtle/40 shrink-0" />
+        <div className="w-px h-6 bg-border-subtle/40 shrink-0" />
         <div className="min-w-0">
           <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold text-text-primary truncate">
+            <span className="text-[10px] font-semibold text-text-primary truncate">
               {slot.title}
             </span>
           </div>
-          <div className="flex items-center gap-1.5 mt-0.5 text-[11px] opacity-70">
-            <MapPin size={13} />
+          <div className="flex items-center gap-1 mt-0.5 text-[9px] opacity-70">
+            <MapPin size={12} />
             <span>{slot.room}</span>
           </div>
         </div>
       </div>
       <div className="shrink-0">
         {isOngoing ? (
-          <span className="px-2.5 py-1 rounded-full text-[11px] font-medium bg-emerald-400/15 text-emerald-400 border border-emerald-400/30 flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+          <span className="px-2 py-0.5 rounded-full text-[9px] font-medium bg-emerald-400/15 text-emerald-400 flex items-center gap-1">
+            <span className="w-1 h-1 rounded-full bg-emerald-400 animate-pulse" />
             Đang diễn ra
           </span>
         ) : (
-          <span className="px-2.5 py-1 rounded-full text-[11px] font-medium bg-blue-400/15 text-blue-400 border border-blue-400/30 flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-blue-400" />
+          <span className="px-2 py-0.5 rounded-full text-[9px] font-medium bg-blue-400/15 text-blue-400 flex items-center gap-1">
+            <span className="w-1 h-1 rounded-full bg-blue-400" />
             Chuẩn bị
           </span>
         )}
@@ -410,7 +408,7 @@ export const AdminDepartmentDashboard: React.FC = () => {
   return (
     <div className="min-h-screen bg-surface text-text-primary">
       {/* Header */}
-      <header className="border-b border-border-subtle bg-surface-card sticky top-0 z-40">
+      <header className="bg-surface-card sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <div>
             <div className="flex items-center gap-3 mb-1">
@@ -435,65 +433,67 @@ export const AdminDepartmentDashboard: React.FC = () => {
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto space-y-6 px-6 py-6">
+      <div className="max-w-7xl mx-auto space-y-3 px-6 py-3">
         {/* Toolbar */}
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-2">
           <div className="flex-1 relative w-full md:w-auto">
             <Search
               className="absolute left-3 top-1/2 -translate-y-1/2 opacity-50"
-              size={18}
+              size={16}
             />
             <input
               type="text"
-              placeholder="Tìm kiếm nhanh đề tài, giảng viên, hội đồng..."
+              placeholder="Tìm kiếm..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 rounded-lg border bg-surface-subtle border-border-subtle text-text-primary placeholder:text-text-secondary focus:outline-none focus:border-primary transition-colors"
+              className="w-full pl-10 pr-4 py-1.5 rounded-lg bg-surface-subtle text-xs text-text-primary placeholder:text-text-secondary focus:outline-none focus:bg-surface-subtle/80 transition-colors"
             />
           </div>
-          <div className="flex items-center gap-2 bg-surface-subtle border border-border-subtle rounded-lg p-0.5">
+          <div className="flex items-center gap-1 bg-surface-subtle rounded-lg p-0.5">
             {(["week", "month", "all"] as const).map((range) => (
               <button
                 key={range}
                 onClick={() => setActiveTimeRange(range)}
-                className={`px-3 py-1.5 rounded text-xs font-semibold transition-all ${
+                className={`px-2 py-1 rounded text-[10px] font-semibold transition-all ${
                   activeTimeRange === range
                     ? "bg-primary text-on-primary shadow-sm"
                     : "text-text-secondary hover:text-text-primary"
                 }`}
               >
                 {range === "week"
-                  ? "Tuần này"
+                  ? "Tuần"
                   : range === "month"
-                    ? "Tháng này"
-                    : "Cả đợt"}
+                    ? "Tháng"
+                    : "Toàn bộ"}
               </button>
             ))}
           </div>
-          <button className="h-10 px-4 rounded-lg bg-primary hover:bg-primary/90 text-on-primary text-sm font-semibold transition-colors flex items-center gap-2 whitespace-nowrap">
-            <Plus size={18} />
-            <span>Lập HĐ Mới</span>
+          <button className="h-8 px-3 rounded-lg bg-primary hover:bg-primary/90 text-on-primary text-xs font-semibold transition-colors flex items-center gap-1 whitespace-nowrap">
+            <Plus size={14} />
+            <span>Lập HĐ</span>
           </button>
         </div>
 
         {/* KPI Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
           {/* Card 1: Tổng Đề Tài */}
-          <div className="p-5 rounded-xl bg-surface-card/70 border border-border-subtle/80 hover:border-border-light/60 transition-all">
+          <div className="p-3 rounded-lg bg-surface-card/70 transition-all">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs font-medium opacity-70">Tổng Đề Tài</p>
-                <p className="text-3xl font-bold text-text-primary mt-2">
+                <p className="text-[10px] font-medium opacity-70">
+                  Tổng Đề Tài
+                </p>
+                <p className="text-2xl font-bold text-text-primary mt-1">
                   {totalProjects}
                 </p>
-                <p className="text-xs text-emerald-400 mt-1">+8.2%</p>
-                <p className="text-xs opacity-70 mt-1">100% duyệt đề cương</p>
+                <p className="text-[9px] text-emerald-400 mt-0.5">+8.2%</p>
+                <p className="text-[9px] opacity-70 mt-0.5">100% duyệt</p>
               </div>
-              <div className="flex items-end gap-1 h-12">
+              <div className="flex items-end gap-0.5 h-10">
                 {[40, 50, 60, 80, 100].map((height, i) => (
                   <div
                     key={i}
-                    className="w-1.5 rounded-t bg-primary/60"
+                    className="w-1 rounded-t bg-primary/60"
                     style={{ height: `${height}%` }}
                   />
                 ))}
@@ -502,49 +502,45 @@ export const AdminDepartmentDashboard: React.FC = () => {
           </div>
 
           {/* Card 2: Sinh Viên Đồ Án */}
-          <div className="p-5 rounded-xl bg-surface-card/70 border border-border-subtle/80 hover:border-border-light/60 transition-all">
+          <div className="p-3 rounded-lg bg-surface-card/70 transition-all">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs font-medium opacity-70">
-                  Sinh Viên Đồ Án
-                </p>
-                <p className="text-3xl font-bold text-text-primary mt-2">
+                <p className="text-[10px] font-medium opacity-70">Sinh Viên</p>
+                <p className="text-2xl font-bold text-text-primary mt-1">
                   {totalStudents}
                 </p>
-                <p className="text-xs text-emerald-400 mt-1">430 nhóm</p>
-                <p className="text-xs opacity-70 mt-1">Tỷ lệ 1.3 SV/đề tài</p>
+                <p className="text-[9px] text-emerald-400 mt-0.5">430 nhóm</p>
+                <p className="text-[9px] opacity-70 mt-0.5">1.3 SV/đề</p>
               </div>
-              <Users size={40} className="text-emerald-400/70" />
+              <Users size={32} className="text-emerald-400/70" />
             </div>
           </div>
 
           {/* Card 3: GV Hướng Dẫn */}
-          <div className="p-5 rounded-xl bg-surface-card/70 border border-border-subtle/80 hover:border-border-light/60 transition-all">
+          <div className="p-3 rounded-lg bg-surface-card/70 transition-all">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs font-medium opacity-70">GV Hướng Dẫn</p>
-                <p className="text-3xl font-bold text-text-primary mt-2">
+                <p className="text-[10px] font-medium opacity-70">GVHD</p>
+                <p className="text-2xl font-bold text-text-primary mt-1">
                   {totalTeachers}
                 </p>
-                <p className="text-xs text-amber-400 mt-1">5.8 ĐT/GV</p>
-                <p className="text-xs opacity-70 mt-1">100% đủ tải giảng dạy</p>
+                <p className="text-[9px] text-amber-400 mt-0.5">5.8 ĐT/GV</p>
+                <p className="text-[9px] opacity-70 mt-0.5">100% tải</p>
               </div>
-              <BookOpen size={40} className="text-amber-400/70" />
+              <BookOpen size={32} className="text-amber-400/70" />
             </div>
           </div>
 
           {/* Card 4: Hội Đồng Bảo Vệ */}
-          <div className="p-5 rounded-xl bg-surface-card/70 border border-border-subtle/80 hover:border-border-light/60 transition-all">
+          <div className="p-3 rounded-lg bg-surface-card/70 transition-all">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs font-medium opacity-70">
-                  Hội Đồng Bảo Vệ
-                </p>
-                <p className="text-3xl font-bold text-text-primary mt-2">48</p>
-                <p className="text-xs text-emerald-400 mt-1">88.5% đúng hạn</p>
-                <p className="text-xs opacity-70 mt-1">12 HĐ chấm chéo</p>
+                <p className="text-[10px] font-medium opacity-70">Hội Đồng</p>
+                <p className="text-2xl font-bold text-text-primary mt-1">48</p>
+                <p className="text-[9px] text-emerald-400 mt-0.5">88.5%</p>
+                <p className="text-[9px] opacity-70 mt-0.5">12 chấm chéo</p>
               </div>
-              <div className="relative w-14 h-14 flex items-center justify-center">
+              <div className="relative w-12 h-12 flex items-center justify-center">
                 <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
                   <circle
                     cx="18"
@@ -565,7 +561,7 @@ export const AdminDepartmentDashboard: React.FC = () => {
                     strokeWidth="3"
                   />
                 </svg>
-                <span className="absolute text-xs font-bold text-text-primary">
+                <span className="absolute text-[9px] font-bold text-text-primary">
                   88%
                 </span>
               </div>
@@ -574,32 +570,38 @@ export const AdminDepartmentDashboard: React.FC = () => {
         </div>
 
         {/* Progress Distribution Bar */}
-        <div className="p-5 rounded-xl bg-surface-card/70 border border-border-subtle/80">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <BarChart3 size={18} className="text-primary" />
-              <span className="text-xs font-bold uppercase tracking-widest text-text-primary">
-                Tiến độ 4 giai đoạn toàn trường ({totalProjects} đề tài)
+        <div className="p-3 rounded-lg bg-surface-card/70">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-1.5">
+              <BarChart3 size={14} className="text-primary" />
+              <span className="text-[9px] font-bold uppercase tracking-widest text-text-primary">
+                Tiến độ 4 giai đoạn ({totalProjects} đề tài)
               </span>
             </div>
-            <div className="flex items-center gap-3 text-xs">
+            <div className="flex items-center gap-2 text-[8px]">
               {[
-                { color: "w-2 h-2 bg-surface-bright", label: "Đề cương (8%)" },
-                { color: "w-2 h-2 bg-primary", label: "Nghiên cứu (42%)" },
                 {
-                  color: "w-2 h-2 bg-tertiary-fixed",
+                  color: "w-1.5 h-1.5 bg-surface-bright",
+                  label: "Đề cương (8%)",
+                },
+                { color: "w-1.5 h-1.5 bg-primary", label: "Nghiên cứu (42%)" },
+                {
+                  color: "w-1.5 h-1.5 bg-tertiary-fixed",
                   label: "Phản biện (28%)",
                 },
-                { color: "w-2 h-2 bg-secondary-fixed", label: "Bảo vệ (22%)" },
+                {
+                  color: "w-1.5 h-1.5 bg-secondary-fixed",
+                  label: "Bảo vệ (22%)",
+                },
               ].map((item, i) => (
-                <span key={i} className="flex items-center gap-1.5 opacity-70">
+                <span key={i} className="flex items-center gap-0.5 opacity-70">
                   <span className={`rounded-full ${item.color}`} />
                   {item.label}
                 </span>
               ))}
             </div>
           </div>
-          <div className="w-full h-3 rounded-full bg-surface-container overflow-hidden flex gap-0.5">
+          <div className="w-full h-2 rounded-full bg-surface-container overflow-hidden flex gap-0.5">
             <div
               className="bg-surface-bright h-full"
               style={{ width: "8%" }}
@@ -624,7 +626,7 @@ export const AdminDepartmentDashboard: React.FC = () => {
         </div>
 
         {/* Department Cards Grid - 4 columns */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
           {filteredDepartments.map((dept) => (
             <DepartmentCard key={dept.id} dept={dept} />
           ))}
