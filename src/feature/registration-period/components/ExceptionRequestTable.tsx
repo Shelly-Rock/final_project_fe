@@ -74,7 +74,7 @@ export function ExceptionRequestTable({
               <Badge
                 label={`#${student.order}`}
                 color="default"
-                variant="soft"
+                variant="outlined"
               />
               <span>{student.studentName}</span>
               <span style={{ color: "#64748b", fontSize: "0.75rem" }}>
@@ -103,7 +103,7 @@ export function ExceptionRequestTable({
           rejected: { label: "Từ chối", color: "error" as const },
         };
         const c = config[val as keyof typeof config];
-        return <Badge label={c.label} color={c.color} variant="soft" />;
+        return <Badge label={c.label} color={c.color} variant="outlined" />;
       },
     },
   ];

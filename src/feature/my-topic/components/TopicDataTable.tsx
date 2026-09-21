@@ -116,9 +116,9 @@ export function TopicDataTable({
       format: (val) => {
         const config = statusConfig[val as string];
         return config ? (
-          <Badge label={config.label} color={config.color} variant="soft" />
+          <Badge label={config.label} color={config.color} variant="outlined" />
         ) : (
-          <Badge label={String(val)} color="default" variant="soft" />
+          <Badge label={String(val)} color="default" variant="outlined" />
         );
       },
     },

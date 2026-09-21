@@ -132,7 +132,7 @@ export function TopicModerationTable({
       format: (val) => {
         const config = statusConfig[val as keyof typeof statusConfig];
         return (
-          <Badge label={config.label} color={config.color} variant="soft" />
+          <Badge label={config.label} color={config.color} variant="outlined" />
         );
       },
     },

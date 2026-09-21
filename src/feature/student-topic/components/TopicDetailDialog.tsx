@@ -163,7 +163,7 @@ export function TopicDetailDialog({
           <Typography variant="body2" sx={{ fontWeight: 500 }}>
             Trạng thái đăng ký:
           </Typography>
-          <Badge label={status.label} color={status.color} variant="soft" />
+          <Badge label={status.label} color={status.color} variant="outlined" />
         </Box>
         {registration.status === "Rejected" && registration.rejectionReason && (
           <Typography variant="caption" sx={{ display: "block", mt: 1 }}>
