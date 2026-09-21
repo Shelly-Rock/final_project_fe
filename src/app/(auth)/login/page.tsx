@@ -242,7 +242,10 @@ function LoginForm() {
           padding: 0,
         }}
       >
-        <source src="/videos/video-introduce.mp4" type="video/mp4" />
+        <source
+          src="https://res.cloudinary.com/cgwtii1f/video/upload/v1789920333/video-introduce.mp4"
+          type="video/mp4"
+        />
       </video>
 
       <Box
