@@ -96,13 +96,13 @@ const DepartmentCard: React.FC<{ dept: DepartmentCardData }> = ({ dept }) => {
 
   return (
     <div
-      className={`p-4 rounded-xl bg-slate-700/20 border ${color.border} hover:border-opacity-100 transition-all flex flex-col justify-between h-full`}
+      className={`p-5 rounded-xl bg-surface-card/70 border border-border-subtle/80 hover:border-border-light/60 transition-all flex flex-col justify-between h-full`}
     >
       <div>
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center gap-2">
             <div
-              className="w-7 h-7 rounded flex items-center justify-center font-bold text-xs text-white"
+              className="w-7 h-7 rounded flex items-center justify-center font-bold text-xs text-text-primary"
               style={{
                 backgroundColor: color.accent + "20",
                 color: color.accent,
@@ -111,8 +111,10 @@ const DepartmentCard: React.FC<{ dept: DepartmentCardData }> = ({ dept }) => {
               {dept.abbr}
             </div>
             <div>
-              <h2 className="text-xs font-bold text-slate-50">{dept.name}</h2>
-              <span className="text-xs text-slate-400">
+              <h2 className="text-xs font-bold text-text-primary">
+                {dept.name}
+              </h2>
+              <span className="text-xs opacity-70">
                 {dept.totalProjects} ĐT • {dept.totalStudents} SV
               </span>
             </div>
@@ -149,7 +151,7 @@ const DepartmentCard: React.FC<{ dept: DepartmentCardData }> = ({ dept }) => {
 
         {/* Stage Description & Progress */}
         <div className="mt-3.5 space-y-1.5">
-          <div className="flex justify-between text-[10px] font-medium text-slate-400">
+          <div className="flex justify-between text-[10px] font-medium opacity-70">
             <span>{dept.stageDescription}</span>
             <span style={{ color: color.accent }} className="font-bold">
               {dept.stageCount}/{dept.totalProjects}
@@ -164,7 +166,7 @@ const DepartmentCard: React.FC<{ dept: DepartmentCardData }> = ({ dept }) => {
                   backgroundColor:
                     stage <= Math.ceil(dept.completionRate / 25)
                       ? color.accent
-                      : "#2d344c",
+                      : "rgba(100, 116, 139, 0.3)",
                 }}
               />
             ))}
@@ -172,12 +174,12 @@ const DepartmentCard: React.FC<{ dept: DepartmentCardData }> = ({ dept }) => {
         </div>
 
         {/* Stats Bar */}
-        <div className="flex items-center justify-between mt-3 pt-2.5 border-t border-slate-600/20 text-[11px]">
-          <span className="text-slate-400">
-            Hội đồng: <b className="text-slate-50">{dept.councilCount}</b>
+        <div className="flex items-center justify-between mt-3 pt-2.5 border-t border-border-subtle/40 text-[11px]">
+          <span className="opacity-70">
+            Hội đồng: <b className="text-text-primary">{dept.councilCount}</b>
           </span>
-          <span className="text-slate-400">
-            GVHD: <b className="text-slate-50">{dept.teacherCount}</b>
+          <span className="opacity-70">
+            GVHD: <b className="text-text-primary">{dept.teacherCount}</b>
           </span>
           <span style={{ color: color.accent }} className="font-semibold">
             {dept.status === "on-time"
@@ -190,8 +192,8 @@ const DepartmentCard: React.FC<{ dept: DepartmentCardData }> = ({ dept }) => {
       </div>
 
       {/* Footer */}
-      <div className="mt-3 pt-2 border-t border-slate-600/20 flex items-center justify-between">
-        <span className="text-[10px] text-slate-500 font-mono">
+      <div className="mt-3 pt-2 border-t border-border-subtle/40 flex items-center justify-between">
+        <span className="text-[10px] opacity-60 font-mono">
           {dept.location}
         </span>
         <button
@@ -209,22 +211,22 @@ const ScheduleCard: React.FC<{ slot: ScheduleSlot }> = ({ slot }) => {
   const isOngoing = slot.status === "ongoing";
 
   return (
-    <div className="p-3 rounded-lg bg-slate-700/30 border border-slate-600/20 hover:border-slate-500/30 transition-colors flex items-center justify-between gap-3">
+    <div className="p-3 rounded-lg bg-surface-subtle/40 border border-border-subtle/60 hover:border-border-light/40 transition-colors flex items-center justify-between gap-3">
       <div className="flex items-center gap-3.5 min-w-0">
         <div className="flex flex-col shrink-0 w-24">
-          <span className="text-xs font-mono font-bold text-slate-50">
+          <span className="text-xs font-mono font-bold text-text-primary">
             {slot.time}
           </span>
-          <span className="text-[10px] text-slate-500">{slot.period}</span>
+          <span className="text-[10px] opacity-60">{slot.period}</span>
         </div>
-        <div className="w-px h-7 bg-slate-600/20 shrink-0" />
+        <div className="w-px h-7 bg-border-subtle/40 shrink-0" />
         <div className="min-w-0">
           <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold text-slate-50 truncate">
+            <span className="text-xs font-semibold text-text-primary truncate">
               {slot.title}
             </span>
           </div>
-          <div className="flex items-center gap-1.5 mt-0.5 text-[11px] text-slate-400">
+          <div className="flex items-center gap-1.5 mt-0.5 text-[11px] opacity-70">
             <MapPin size={13} />
             <span>{slot.room}</span>
           </div>
@@ -232,13 +234,13 @@ const ScheduleCard: React.FC<{ slot: ScheduleSlot }> = ({ slot }) => {
       </div>
       <div className="shrink-0">
         {isOngoing ? (
-          <span className="px-2.5 py-1 rounded-full text-[11px] font-medium bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 flex items-center gap-1.5">
+          <span className="px-2.5 py-1 rounded-full text-[11px] font-medium bg-emerald-400/15 text-emerald-400 border border-emerald-400/30 flex items-center gap-1.5">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
             Đang diễn ra
           </span>
         ) : (
-          <span className="px-2.5 py-1 rounded-full text-[11px] font-medium bg-blue-500/15 text-blue-400 border border-blue-500/30 flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-blue-400" />
+          <span className="px-2.5 py-1 rounded-full text-[11px] font-medium bg-primary/15 text-primary border border-primary/30 flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-primary" />
             Chuẩn bị
           </span>
         )}
@@ -431,88 +433,85 @@ export const AdminDepartmentDashboard: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-slate-900 p-6">
-      {/* Header Bar */}
-      <div className="fixed top-0 left-0 right-0 h-16 bg-slate-950/80 backdrop-blur-sm border-b border-slate-800 z-40 flex items-center justify-between px-6">
-        <div className="flex items-center gap-3 flex-1">
-          <Search size={20} className="text-slate-500" />
-          <input
-            type="text"
-            placeholder="Tìm kiếm nhanh đề tài, giảng viên, hội đồng..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full max-w-md bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs text-white">
-            <Calendar size={16} className="text-emerald-500" />
-            <span className="font-medium">Khóa 2021-2025 • Đợt 1</span>
-          </div>
-        </div>
-      </div>
-
-      <div className="max-w-7xl mx-auto space-y-6 mt-20">
-        {/* Header Section */}
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+    <div className="min-h-screen bg-surface text-text-primary">
+      {/* Header */}
+      <header className="border-b border-border-subtle bg-surface-card sticky top-0 z-40">
+        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-white">
-              Bảng Điều Hành Đồ Án
-            </h1>
-            <p className="text-slate-400 mt-1 flex items-center gap-2">
+            <h1 className="text-2xl font-bold">Bảng Điều Hành Đồ Án</h1>
+            <p className="text-sm opacity-70 mt-1 flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
               LIVE • {mockDepartments.length} Khoa
             </p>
           </div>
-          <div className="flex items-center gap-3 w-full md:w-auto">
-            <div className="flex items-center bg-slate-800 border border-slate-700 rounded-lg p-0.5">
-              {(["week", "month", "all"] as const).map((range) => (
-                <button
-                  key={range}
-                  onClick={() => setActiveTimeRange(range)}
-                  className={`px-3 py-1.5 rounded text-xs font-semibold transition-all ${
-                    activeTimeRange === range
-                      ? "bg-slate-700 text-white"
-                      : "text-slate-400 hover:text-white"
-                  }`}
-                >
-                  {range === "week"
-                    ? "Tuần này"
-                    : range === "month"
-                      ? "Tháng này"
-                      : "Cả đợt"}
-                </button>
-              ))}
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 px-3 py-1.5 bg-surface-subtle border border-border-subtle rounded-lg text-xs text-text-primary">
+              <Calendar size={16} className="text-emerald-400" />
+              <span className="font-medium">Khóa 2021-2025 • Đợt 1</span>
             </div>
-            <button className="h-10 px-4 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition-colors flex items-center gap-2">
-              <Plus size={18} />
-              <span>Lập HĐ Mới</span>
-            </button>
           </div>
+        </div>
+      </header>
+
+      <div className="max-w-7xl mx-auto space-y-6 px-6 py-6">
+        {/* Toolbar */}
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <div className="flex-1 relative w-full md:w-auto">
+            <Search
+              className="absolute left-3 top-1/2 -translate-y-1/2 opacity-50"
+              size={18}
+            />
+            <input
+              type="text"
+              placeholder="Tìm kiếm nhanh đề tài, giảng viên, hội đồng..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 rounded-lg border bg-surface-subtle border-border-subtle text-text-primary placeholder:text-text-secondary focus:outline-none focus:border-primary transition-colors"
+            />
+          </div>
+          <div className="flex items-center gap-2 bg-surface-subtle border border-border-subtle rounded-lg p-0.5">
+            {(["week", "month", "all"] as const).map((range) => (
+              <button
+                key={range}
+                onClick={() => setActiveTimeRange(range)}
+                className={`px-3 py-1.5 rounded text-xs font-semibold transition-all ${
+                  activeTimeRange === range
+                    ? "bg-primary text-on-primary shadow-sm"
+                    : "text-text-secondary hover:text-text-primary"
+                }`}
+              >
+                {range === "week"
+                  ? "Tuần này"
+                  : range === "month"
+                    ? "Tháng này"
+                    : "Cả đợt"}
+              </button>
+            ))}
+          </div>
+          <button className="h-10 px-4 rounded-lg bg-primary hover:bg-primary/90 text-on-primary text-sm font-semibold transition-colors flex items-center gap-2 whitespace-nowrap">
+            <Plus size={18} />
+            <span>Lập HĐ Mới</span>
+          </button>
         </div>
 
         {/* KPI Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {/* Card 1: Tổng Đề Tài */}
-          <div className="p-4 rounded-xl bg-slate-800/50 border border-slate-700 hover:border-slate-600 transition-all">
+          <div className="p-5 rounded-xl bg-surface-card/70 border border-border-subtle/80 hover:border-border-light/60 transition-all">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs font-medium text-slate-400">
-                  Tổng Đề Tài
-                </p>
-                <p className="text-3xl font-bold text-white mt-2">
+                <p className="text-xs font-medium opacity-70">Tổng Đề Tài</p>
+                <p className="text-3xl font-bold text-text-primary mt-2">
                   {totalProjects}
                 </p>
-                <p className="text-xs text-emerald-500 mt-1">+8.2%</p>
-                <p className="text-xs text-slate-500 mt-1">
-                  100% duyệt đề cương
-                </p>
+                <p className="text-xs text-emerald-400 mt-1">+8.2%</p>
+                <p className="text-xs opacity-70 mt-1">100% duyệt đề cương</p>
               </div>
               <div className="flex items-end gap-1 h-12">
                 {[40, 50, 60, 80, 100].map((height, i) => (
                   <div
                     key={i}
-                    className="w-1.5 rounded-t bg-blue-500/60"
+                    className="w-1.5 rounded-t bg-primary/60"
                     style={{ height: `${height}%` }}
                   />
                 ))}
@@ -521,53 +520,47 @@ export const AdminDepartmentDashboard: React.FC = () => {
           </div>
 
           {/* Card 2: Sinh Viên Đồ Án */}
-          <div className="p-4 rounded-xl bg-slate-800/50 border border-slate-700 hover:border-slate-600 transition-all">
+          <div className="p-5 rounded-xl bg-surface-card/70 border border-border-subtle/80 hover:border-border-light/60 transition-all">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs font-medium text-slate-400">
+                <p className="text-xs font-medium opacity-70">
                   Sinh Viên Đồ Án
                 </p>
-                <p className="text-3xl font-bold text-white mt-2">
+                <p className="text-3xl font-bold text-text-primary mt-2">
                   {totalStudents}
                 </p>
-                <p className="text-xs text-emerald-500 mt-1">430 nhóm</p>
-                <p className="text-xs text-slate-500 mt-1">
-                  Tỷ lệ 1.3 SV/đề tài
-                </p>
+                <p className="text-xs text-emerald-400 mt-1">430 nhóm</p>
+                <p className="text-xs opacity-70 mt-1">Tỷ lệ 1.3 SV/đề tài</p>
               </div>
-              <Users size={40} className="text-emerald-500/70" />
+              <Users size={40} className="text-emerald-400/70" />
             </div>
           </div>
 
           {/* Card 3: GV Hướng Dẫn */}
-          <div className="p-4 rounded-xl bg-slate-800/50 border border-slate-700 hover:border-slate-600 transition-all">
+          <div className="p-5 rounded-xl bg-surface-card/70 border border-border-subtle/80 hover:border-border-light/60 transition-all">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs font-medium text-slate-400">
-                  GV Hướng Dẫn
-                </p>
-                <p className="text-3xl font-bold text-white mt-2">
+                <p className="text-xs font-medium opacity-70">GV Hướng Dẫn</p>
+                <p className="text-3xl font-bold text-text-primary mt-2">
                   {totalTeachers}
                 </p>
-                <p className="text-xs text-amber-500 mt-1">5.8 ĐT/GV</p>
-                <p className="text-xs text-slate-500 mt-1">
-                  100% đủ tải giảng dạy
-                </p>
+                <p className="text-xs text-amber-400 mt-1">5.8 ĐT/GV</p>
+                <p className="text-xs opacity-70 mt-1">100% đủ tải giảng dạy</p>
               </div>
-              <BookOpen size={40} className="text-amber-500/70" />
+              <BookOpen size={40} className="text-amber-400/70" />
             </div>
           </div>
 
           {/* Card 4: Hội Đồng Bảo Vệ */}
-          <div className="p-4 rounded-xl bg-slate-800/50 border border-slate-700 hover:border-slate-600 transition-all">
+          <div className="p-5 rounded-xl bg-surface-card/70 border border-border-subtle/80 hover:border-border-light/60 transition-all">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs font-medium text-slate-400">
+                <p className="text-xs font-medium opacity-70">
                   Hội Đồng Bảo Vệ
                 </p>
-                <p className="text-3xl font-bold text-white mt-2">48</p>
-                <p className="text-xs text-emerald-500 mt-1">88.5% đúng hạn</p>
-                <p className="text-xs text-slate-500 mt-1">12 HĐ chấm chéo</p>
+                <p className="text-3xl font-bold text-text-primary mt-2">48</p>
+                <p className="text-xs text-emerald-400 mt-1">88.5% đúng hạn</p>
+                <p className="text-xs opacity-70 mt-1">12 HĐ chấm chéo</p>
               </div>
               <div className="relative w-14 h-14 flex items-center justify-center">
                 <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
@@ -576,7 +569,7 @@ export const AdminDepartmentDashboard: React.FC = () => {
                     cy="18"
                     fill="none"
                     r="14"
-                    stroke="#374151"
+                    stroke="#2d344c"
                     strokeWidth="3"
                   />
                   <circle
@@ -584,13 +577,13 @@ export const AdminDepartmentDashboard: React.FC = () => {
                     cy="18"
                     fill="none"
                     r="14"
-                    stroke="#10b981"
+                    stroke="#4edea3"
                     strokeDasharray="88, 100"
                     strokeLinecap="round"
                     strokeWidth="3"
                   />
                 </svg>
-                <span className="absolute text-xs font-bold text-white">
+                <span className="absolute text-xs font-bold text-text-primary">
                   88%
                 </span>
               </div>
@@ -599,49 +592,49 @@ export const AdminDepartmentDashboard: React.FC = () => {
         </div>
 
         {/* Progress Distribution Bar */}
-        <div className="p-4 rounded-xl bg-slate-800/50 border border-slate-700">
+        <div className="p-5 rounded-xl bg-surface-card/70 border border-border-subtle/80">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
-              <BarChart3 size={18} className="text-blue-500" />
-              <span className="text-xs font-bold uppercase tracking-widest text-white">
+              <BarChart3 size={18} className="text-primary" />
+              <span className="text-xs font-bold uppercase tracking-widest text-text-primary">
                 Tiến độ 4 giai đoạn toàn trường ({totalProjects} đề tài)
               </span>
             </div>
             <div className="flex items-center gap-3 text-xs">
               {[
-                { color: "w-2 h-2 bg-gray-500", label: "Đề cương (8%)" },
-                { color: "w-2 h-2 bg-blue-500", label: "Nghiên cứu (42%)" },
-                { color: "w-2 h-2 bg-amber-500", label: "Phản biện (28%)" },
-                { color: "w-2 h-2 bg-emerald-500", label: "Bảo vệ (22%)" },
+                { color: "w-2 h-2 bg-surface-bright", label: "Đề cương (8%)" },
+                { color: "w-2 h-2 bg-primary", label: "Nghiên cứu (42%)" },
+                {
+                  color: "w-2 h-2 bg-tertiary-fixed",
+                  label: "Phản biện (28%)",
+                },
+                { color: "w-2 h-2 bg-secondary-fixed", label: "Bảo vệ (22%)" },
               ].map((item, i) => (
-                <span
-                  key={i}
-                  className="flex items-center gap-1.5 text-slate-400"
-                >
+                <span key={i} className="flex items-center gap-1.5 opacity-70">
                   <span className={`rounded-full ${item.color}`} />
                   {item.label}
                 </span>
               ))}
             </div>
           </div>
-          <div className="w-full h-3 rounded-full bg-slate-700 overflow-hidden flex gap-0.5">
+          <div className="w-full h-3 rounded-full bg-surface-container overflow-hidden flex gap-0.5">
             <div
-              className="bg-gray-500 h-full"
+              className="bg-surface-bright h-full"
               style={{ width: "8%" }}
               title="Đề cương: 114 đề tài"
             />
             <div
-              className="bg-blue-500 h-full"
+              className="bg-primary h-full"
               style={{ width: "42%" }}
               title="Nghiên cứu: 596 đề tài"
             />
             <div
-              className="bg-amber-500 h-full"
+              className="bg-tertiary-fixed h-full"
               style={{ width: "28%" }}
               title="Phản biện: 398 đề tài"
             />
             <div
-              className="bg-emerald-500 h-full"
+              className="bg-secondary-fixed h-full"
               style={{ width: "22%" }}
               title="Bảo vệ: 312 đề tài"
             />
@@ -657,7 +650,7 @@ export const AdminDepartmentDashboard: React.FC = () => {
 
         {filteredDepartments.length === 0 && (
           <div className="text-center py-12">
-            <p className="text-slate-400">
+            <p className="text-text-secondary opacity-70">
               Không tìm thấy khoa nào phù hợp với `{searchQuery}`
             </p>
           </div>
@@ -666,31 +659,31 @@ export const AdminDepartmentDashboard: React.FC = () => {
         {/* Bottom Section: Schedule & Comparison Chart */}
         <div className="grid grid-cols-1 xl:grid-cols-12 gap-4">
           {/* Left: Schedule Timeline (7 columns) */}
-          <div className="xl:col-span-7 p-4 rounded-xl bg-slate-800/50 border border-slate-700">
-            <div className="flex flex-wrap items-center justify-between gap-3 mb-4 pb-3 border-b border-slate-700/50">
+          <div className="xl:col-span-7 p-5 rounded-xl bg-surface-card/70 border border-border-subtle/80">
+            <div className="flex flex-wrap items-center justify-between gap-3 mb-4 pb-3 border-b border-border-subtle/50">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400">
+                <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
                   <Clock size={18} />
                 </div>
                 <div>
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-white">
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-text-primary">
                     Lịch Bảo Vệ Đồ Án
                   </h3>
-                  <span className="text-[11px] text-slate-500">
+                  <span className="text-[11px] text-text-secondary opacity-70">
                     Tuần 19 • Khóa 2021-2025
                   </span>
                 </div>
               </div>
               {/* Day Selector Pills */}
-              <div className="flex items-center gap-1 bg-slate-900/50 p-1 rounded-lg border border-slate-700/50">
+              <div className="flex items-center gap-1 bg-surface-subtle p-1 rounded-lg border border-border-subtle">
                 {["T2 (Hôm nay)", "T3", "T4", "T5", "T6"].map((day, idx) => (
                   <button
                     key={`day-${day}`}
                     type="button"
                     className={`px-2.5 py-1 rounded text-xs font-semibold transition-all ${
                       idx === 0
-                        ? "bg-blue-600 text-white shadow-sm"
-                        : "text-slate-400 hover:text-white hover:bg-slate-800"
+                        ? "bg-primary text-on-primary shadow-sm"
+                        : "text-text-secondary hover:text-text-primary hover:bg-surface-card"
                     }`}
                   >
                     {day}
@@ -707,8 +700,8 @@ export const AdminDepartmentDashboard: React.FC = () => {
             </div>
 
             {/* Footer Stats */}
-            <div className="mt-4 pt-3 border-t border-slate-700/50 flex items-center justify-between text-xs">
-              <div className="flex items-center gap-2 text-slate-400">
+            <div className="mt-4 pt-3 border-t border-border-subtle/50 flex items-center justify-between text-xs">
+              <div className="flex items-center gap-2 text-text-secondary">
                 <span className="flex items-center gap-1 text-emerald-400 font-medium">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />4
                   hội đồng hôm nay
@@ -716,7 +709,7 @@ export const AdminDepartmentDashboard: React.FC = () => {
                 <span>•</span>
                 <span>10 phòng sẵn sàng</span>
               </div>
-              <button className="text-blue-400 font-medium hover:underline flex items-center gap-1 text-xs">
+              <button className="text-primary font-medium hover:underline flex items-center gap-1 text-xs">
                 Xem toàn bộ lịch trình
                 <ChevronRight size={14} />
               </button>
@@ -724,15 +717,15 @@ export const AdminDepartmentDashboard: React.FC = () => {
           </div>
 
           {/* Right: Comparison Chart (5 columns) */}
-          <div className="xl:col-span-5 p-4 rounded-xl bg-slate-800/50 border border-slate-700">
+          <div className="xl:col-span-5 p-5 rounded-xl bg-surface-card/70 border border-border-subtle/80">
             <div className="flex items-center justify-between mb-3.5">
               <div className="flex items-center gap-2">
-                <BarChart3 size={18} className="text-emerald-400" />
-                <h3 className="text-xs font-bold uppercase tracking-wider text-white">
+                <BarChart3 size={18} className="text-primary" />
+                <h3 className="text-xs font-bold uppercase tracking-wider text-text-primary">
                   So Sánh Tỷ Lệ Hoàn Thành 6 Khoa
                 </h3>
               </div>
-              <span className="text-[11px] font-mono text-slate-500">
+              <span className="text-[11px] font-mono text-text-secondary opacity-70">
                 KPI &gt; 70%
               </span>
             </div>
@@ -779,19 +772,19 @@ export const AdminDepartmentDashboard: React.FC = () => {
               ].map((item, idx) => (
                 <div key={idx}>
                   <div className="flex justify-between text-xs mb-1">
-                    <span className="font-medium text-slate-300">
+                    <span className="font-medium text-text-primary">
                       {item.dept}
                     </span>
                     <span
                       className={`font-bold ${item.color.replace("bg-", "text-")}`}
                     >
                       {item.percent}%{" "}
-                      <span className="text-[10px] text-slate-500 font-normal">
+                      <span className="text-[10px] text-text-secondary opacity-70 font-normal">
                         ({item.count})
                       </span>
                     </span>
                   </div>
-                  <div className="w-full h-2 rounded-full bg-slate-700 overflow-hidden">
+                  <div className="w-full h-2 rounded-full bg-surface-subtle overflow-hidden">
                     <div
                       className={`h-full ${item.color} rounded-full transition-all`}
                       style={{ width: `${item.percent}%` }}
@@ -802,12 +795,12 @@ export const AdminDepartmentDashboard: React.FC = () => {
             </div>
 
             {/* Footer Quick Status */}
-            <div className="mt-3 pt-2 border-t border-slate-700/50 flex items-center justify-between text-[11px]">
-              <span className="text-slate-400 flex items-center gap-1">
+            <div className="mt-3 pt-2 border-t border-border-subtle/50 flex items-center justify-between text-[11px]">
+              <span className="text-text-secondary flex items-center gap-1 opacity-70">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                TB hoàn thành: <b className="text-white">77.6%</b>
+                TB hoàn thành: <b className="text-text-primary">77.6%</b>
               </span>
-              <button className="text-xs text-blue-400 font-medium hover:underline flex items-center gap-0.5">
+              <button className="text-xs text-primary font-medium hover:underline flex items-center gap-0.5">
                 Xuất biểu đồ
               </button>
             </div>
