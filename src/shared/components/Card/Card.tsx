@@ -7,6 +7,8 @@ import {
   CardContent,
   CardActions,
   CardActionArea,
+  type SxProps,
+  type Theme,
 } from "@mui/material";
 import { useTheme } from "@/shared/theme";
 import { clsx } from "clsx";
@@ -16,7 +18,7 @@ export interface CardProps {
   className?: string;
   variant?: "elevation" | "outlined" | "soft";
   onClick?: () => void;
-  padding?: number | string;
+  sx?: SxProps<Theme>;
 }
 
 export interface CardHeaderProps {
@@ -45,7 +47,7 @@ export function Card({
   className,
   variant = "elevation",
   onClick,
-  padding = 2,
+  sx = {},
 }: CardProps) {
   const { resolvedMode } = useTheme();
   const isDark = resolvedMode === "dark";
@@ -87,6 +89,7 @@ export function Card({
             }
           : {},
         ...variantStyles[variant],
+        ...sx,
       }}
     >
       {onClick ? (

@@ -3,7 +3,7 @@
 import React, { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { adminDashboardService } from "@/feature/dashboard/services/admin-dashboard.service";
-import { Card, CardHeader, CardContentDiv } from "@/shared/components/Card";
+import { Card, CardContentDiv } from "@/shared/components/Card";
 import {
   Search,
   Plus,
@@ -14,10 +14,7 @@ import {
   BarChart3,
   MapPin,
   Clock,
-  TrendingUp,
   FileText,
-  GraduationCap,
-  Shield,
   Eye,
 } from "lucide-react";
 import { Box, Typography } from "@mui/material";
@@ -690,273 +687,246 @@ export const AdminDepartmentDashboard: React.FC = () => {
           </div>
         )}
 
-        {/* Bottom Section: Schedule & Comparison */}
         <Box
           sx={{
-            display: "grid",
-            gridTemplateColumns: { xs: "1fr", xl: "repeat(12, 1fr)" },
-            gap: 3,
+            display: "flex",
+            flexWrap: "wrap",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 2,
+            mb: 3,
+            pb: 2,
           }}
         >
-          {/* Schedule */}
-          <Box
-            sx={{
-              gridColumn: { xs: "1", xl: "span 7" },
-              p: 3,
-              borderRadius: 1,
-              background: "linear-gradient(135deg, #15213B 0%, #1C2D56 100%)",
-              boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
-              "&:hover": {
-                boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
-              },
-              transition: "box-shadow 0.3s ease",
-            }}
-          >
+          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
             <Box
               sx={{
-                display: "flex",
-                flexWrap: "wrap",
-                alignItems: "center",
-                justifyContent: "space-between",
-                gap: 2,
-                mb: 3,
-                pb: 2,
-              }}
-            >
-              <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                <Box
-                  sx={{
-                    width: 6,
-                    height: 6,
-                    borderRadius: 1,
-                    bgcolor: "primary/10",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    color: "primary",
-                  }}
-                >
-                  <Clock size={14} />
-                </Box>
-                <Box>
-                  <h3
-                    style={{
-                      fontSize: "10px",
-                      fontWeight: "bold",
-                      textTransform: "uppercase",
-                    }}
-                  >
-                    Lịch Bảo Vệ Đồ Án
-                  </h3>
-                  <span
-                    style={{
-                      fontSize: "9px",
-                      color: "text.secondary",
-                      opacity: 0.7,
-                    }}
-                  >
-                    Tuần 19 • Khóa 2021-2025
-                  </span>
-                </Box>
-              </Box>
-              <Box
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 0.5,
-                  bgcolor: "surface.subtle",
-                  p: 0.5,
-                  borderRadius: 1,
-                }}
-              >
-                {["T2", "T3", "T4", "T5", "T6"].map((day, idx) => (
-                  <button
-                    key={`day-${day}`}
-                    style={{
-                      paddingLeft: "6px",
-                      paddingRight: "6px",
-                      paddingTop: "4px",
-                      paddingBottom: "4px",
-                      borderRadius: "4px",
-                      fontSize: "9px",
-                      fontWeight: "600",
-                      backgroundColor:
-                        idx === 0 ? "var(--primary)" : "transparent",
-                      color:
-                        idx === 0
-                          ? "var(--on-primary)"
-                          : "var(--text-secondary)",
-                    }}
-                  >
-                    {day}
-                  </button>
-                ))}
-              </Box>
-            </Box>
-
-            <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
-              {scheduleSlots.map((slot, idx) => (
-                <ScheduleCard key={idx} slot={slot} />
-              ))}
-            </Box>
-
-            <Box
-              sx={{
-                mt: 2,
-                pt: 2,
+                width: 6,
+                height: 6,
+                borderRadius: 1,
+                bgcolor: "primary/10",
                 display: "flex",
                 alignItems: "center",
-                justifyContent: "space-between",
-                fontSize: "9px",
+                justifyContent: "center",
+                color: "primary",
               }}
             >
-              <span style={{ color: "var(--text-secondary)", opacity: 0.7 }}>
-                <span style={{ color: "#4ade80", fontWeight: 500 }}>
-                  4 hội đồng hôm nay
-                </span>{" "}
-                • 10 phòng sẵn sàng
-              </span>
-              <button
+              <Clock size={14} />
+            </Box>
+            <Box>
+              <h3
                 style={{
-                  color: "var(--primary)",
-                  fontWeight: 500,
-                  textDecoration: "underline",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "4px",
+                  fontSize: "10px",
+                  fontWeight: "bold",
+                  textTransform: "uppercase",
                 }}
               >
-                Xem toàn bộ
-                <ChevronRight size={12} />
-              </button>
-            </Box>
-          </Box>
-
-          {/* Comparison Chart */}
-          <Box
-            sx={{
-              gridColumn: { xs: "1", xl: "span 5" },
-              p: 3,
-              borderRadius: 1,
-              background: "linear-gradient(135deg, #15213B 0%, #1C2D56 100%)",
-              boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
-              "&:hover": {
-                boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
-              },
-              transition: "box-shadow 0.3s ease",
-            }}
-          >
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                mb: 2.5,
-              }}
-            >
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-                <BarChart3 size={14} className="text-primary" />
-                <h3
-                  style={{
-                    fontSize: "10px",
-                    fontWeight: "bold",
-                    textTransform: "uppercase",
-                  }}
-                >
-                  So Sánh Hoàn Thành 6 Khoa
-                </h3>
-              </Box>
+                Lịch Bảo Vệ Đồ Án
+              </h3>
               <span
                 style={{
                   fontSize: "9px",
-                  fontFamily: "monospace",
-                  color: "var(--text-secondary)",
+                  color: "text.secondary",
                   opacity: 0.7,
                 }}
               >
-                KPI &gt; 70%
+                Tuần 19 • Khóa 2021-2025
               </span>
             </Box>
-
-            <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
-              {[
-                { dept: "Kinh Tế & QTKD", percent: 90, color: "bg-amber-500" },
-                { dept: "CNTT & TT", percent: 82, color: "bg-emerald-500" },
-                { dept: "Điện - Điện Tử", percent: 75, color: "bg-amber-500" },
-                { dept: "Cơ Khí", percent: 68, color: "bg-blue-400" },
-              ].map((item, idx) => (
-                <Box key={idx}>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      fontSize: "9px",
-                      mb: 0.5,
-                    }}
-                  >
-                    <span style={{ fontWeight: 500 }}>{item.dept}</span>
-                    <span className={item.color.replace("bg-", "text-")}>
-                      {item.percent}%
-                    </span>
-                  </Box>
-                  <Box
-                    sx={{
-                      width: "100%",
-                      height: "6px",
-                      borderRadius: "9999px",
-                      bgcolor: "surface.subtle",
-                      overflow: "hidden",
-                    }}
-                  >
-                    <Box
-                      sx={{
-                        height: "100%",
-                        borderRadius: "9999px",
-                        bgcolor: item.color.replace("bg-", ""),
-                        width: `${item.percent}%`,
-                      }}
-                    />
-                  </Box>
-                </Box>
-              ))}
-            </Box>
-
-            <Box
-              sx={{
-                mt: 2,
-                pt: 2,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                fontSize: "9px",
-              }}
-            >
-              <span style={{ color: "var(--text-secondary)", opacity: 0.7 }}>
-                <span
-                  style={{
-                    width: "4px",
-                    height: "4px",
-                    borderRadius: "50%",
-                    backgroundColor: "#4ade80",
-                    display: "inline-block",
-                    marginRight: "4px",
-                  }}
-                />
-                TB hoàn thành: <b>77.6%</b>
-              </span>
+          </Box>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 0.5,
+              bgcolor: "surface.subtle",
+              p: 0.5,
+              borderRadius: 1,
+            }}
+          >
+            {["T2", "T3", "T4", "T5", "T6"].map((day, idx) => (
               <button
+                key={`day-${day}`}
                 style={{
-                  color: "var(--primary)",
-                  fontWeight: 500,
-                  textDecoration: "underline",
-                  background: "none",
-                  border: "none",
-                  cursor: "pointer",
+                  paddingLeft: "6px",
+                  paddingRight: "6px",
+                  paddingTop: "4px",
+                  paddingBottom: "4px",
+                  borderRadius: "4px",
+                  fontSize: "9px",
+                  fontWeight: "600",
+                  backgroundColor: idx === 0 ? "var(--primary)" : "transparent",
+                  color:
+                    idx === 0 ? "var(--on-primary)" : "var(--text-secondary)",
                 }}
               >
-                Xuất biểu đồ
+                {day}
               </button>
+            ))}
+          </Box>
+        </Box>
+
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
+          {scheduleSlots.map((slot, idx) => (
+            <ScheduleCard key={idx} slot={slot} />
+          ))}
+        </Box>
+
+        <Box
+          sx={{
+            mt: 2,
+            pt: 2,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            fontSize: "9px",
+          }}
+        >
+          <span style={{ color: "var(--text-secondary)", opacity: 0.7 }}>
+            <span style={{ color: "#4ade80", fontWeight: 500 }}>
+              4 hội đồng hôm nay
+            </span>{" "}
+            • 10 phòng sẵn sàng
+          </span>
+          <button
+            style={{
+              color: "var(--primary)",
+              fontWeight: 500,
+              textDecoration: "underline",
+              display: "flex",
+              alignItems: "center",
+              gap: "4px",
+            }}
+          >
+            Xem toàn bộ
+            <ChevronRight size={12} />
+          </button>
+        </Box>
+
+        {/* Comparison Chart */}
+        <Box
+          sx={{
+            gridColumn: { xs: "1", xl: "span 5" },
+            p: 3,
+            borderRadius: 1,
+            background: "linear-gradient(135deg, #15213B 0%, #1C2D56 100%)",
+            boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
+            "&:hover": {
+              boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
+            },
+            transition: "box-shadow 0.3s ease",
+          }}
+        >
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              mb: 2.5,
+            }}
+          >
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+              <BarChart3 size={14} className="text-primary" />
+              <h3
+                style={{
+                  fontSize: "10px",
+                  fontWeight: "bold",
+                  textTransform: "uppercase",
+                }}
+              >
+                So Sánh Hoàn Thành 6 Khoa
+              </h3>
             </Box>
+            <span
+              style={{
+                fontSize: "9px",
+                fontFamily: "monospace",
+                color: "var(--text-secondary)",
+                opacity: 0.7,
+              }}
+            >
+              KPI &gt; 70%
+            </span>
+          </Box>
+
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
+            {[
+              { dept: "Kinh Tế & QTKD", percent: 90, color: "bg-amber-500" },
+              { dept: "CNTT & TT", percent: 82, color: "bg-emerald-500" },
+              { dept: "Điện - Điện Tử", percent: 75, color: "bg-amber-500" },
+              { dept: "Cơ Khí", percent: 68, color: "bg-blue-400" },
+            ].map((item, idx) => (
+              <Box key={idx}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    fontSize: "9px",
+                    mb: 0.5,
+                  }}
+                >
+                  <span style={{ fontWeight: 500 }}>{item.dept}</span>
+                  <span className={item.color.replace("bg-", "text-")}>
+                    {item.percent}%
+                  </span>
+                </Box>
+                <Box
+                  sx={{
+                    width: "100%",
+                    height: "6px",
+                    borderRadius: "9999px",
+                    bgcolor: "surface.subtle",
+                    overflow: "hidden",
+                  }}
+                >
+                  <Box
+                    sx={{
+                      height: "100%",
+                      borderRadius: "9999px",
+                      bgcolor: item.color.replace("bg-", ""),
+                      width: `${item.percent}%`,
+                    }}
+                  />
+                </Box>
+              </Box>
+            ))}
+          </Box>
+
+          <Box
+            sx={{
+              mt: 2,
+              pt: 2,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              fontSize: "9px",
+            }}
+          >
+            <span style={{ color: "var(--text-secondary)", opacity: 0.7 }}>
+              <span
+                style={{
+                  width: "4px",
+                  height: "4px",
+                  borderRadius: "50%",
+                  backgroundColor: "#4ade80",
+                  display: "inline-block",
+                  marginRight: "4px",
+                }}
+              />
+              TB hoàn thành: <b>77.6%</b>
+            </span>
+            <button
+              style={{
+                color: "var(--primary)",
+                fontWeight: 500,
+                textDecoration: "underline",
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+              }}
+            >
+              Xuất biểu đồ
+            </button>
           </Box>
         </Box>
       </Box>
