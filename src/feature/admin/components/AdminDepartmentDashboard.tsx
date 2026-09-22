@@ -89,9 +89,9 @@ const DepartmentCard: React.FC<{ dept: DepartmentCardData }> = ({ dept }) => {
               {dept.abbr}
             </div>
             <div>
-              <h2 className="text-[12px] font-bold leading-tight">
+              <h5 className="text-[24px] font-bold leading-tight">
                 {dept.name}
-              </h2>
+              </h5>
               <span className="text-[12px] opacity-70 leading-tight">
                 {dept.totalProjects} ĐT • {dept.totalStudents} SV
               </span>
