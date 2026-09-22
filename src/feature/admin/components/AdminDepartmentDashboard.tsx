@@ -69,7 +69,14 @@ const DepartmentCard: React.FC<{ dept: DepartmentCardData }> = ({ dept }) => {
   const color = departmentColors[dept.color];
 
   return (
-    <div className="p-4 rounded-lg bg-surface-card/70 hover:bg-surface-card/80 transition-all flex flex-col justify-between h-full">
+    <div
+      className="p-4 rounded-lg hover:bg-surface-card/80 transition-all flex flex-col justify-between h-full shadow-md hover:shadow-lg"
+      style={{
+        backgroundImage:
+          "linear-gradient(rgba(255, 255, 255, 0), rgba(255, 255, 255, 0))",
+        backgroundColor: "rgb(45, 52, 76, 0.7)",
+      }}
+    >
       <div>
         <div className="flex items-start justify-between mb-2.5">
           <div className="flex items-center gap-1.5">
@@ -192,7 +199,15 @@ const StatCard = ({
   icon,
   iconColor = "#3b82f6",
 }: StatCardProps) => (
-  <Card variant="soft">
+  <Card
+    variant="soft"
+    sx={{
+      backgroundImage:
+        "linear-gradient(rgba(255, 255, 255, 0), rgba(255, 255, 255, 0))",
+      backgroundColor: "rgba(100, 116, 139, 0.04)",
+      boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
+    }}
+  >
     <CardContentDiv padding={3}>
       <Box
         sx={{
@@ -243,7 +258,14 @@ const ScheduleCard: React.FC<{ slot: ScheduleSlot }> = ({ slot }) => {
   const isOngoing = slot.status === "ongoing";
 
   return (
-    <div className="p-2.5 rounded-lg bg-surface-subtle/40 hover:bg-surface-subtle/60 transition-colors flex items-center justify-between gap-2">
+    <div
+      className="p-2.5 rounded-lg hover:bg-surface-subtle/60 transition-colors flex items-center justify-between gap-2 shadow-sm hover:shadow-md"
+      style={{
+        backgroundImage:
+          "linear-gradient(rgba(255, 255, 255, 0), rgba(255, 255, 255, 0))",
+        backgroundColor: "rgba(100, 116, 139, 0.04)",
+      }}
+    >
       <div className="flex items-center gap-2 min-w-0">
         <div className="flex flex-col shrink-0 w-20">
           <span className="text-[10px] font-mono font-bold">{slot.time}</span>
@@ -651,7 +673,13 @@ export const AdminDepartmentDashboard: React.FC = () => {
         </Box>
 
         {/* Progress Bar */}
-        <div className="p-3 rounded-lg bg-surface-card/70">
+        <div
+          className="p-3 rounded-lg shadow-sm hover:shadow-md transition-shadow"
+          style={{
+            background:
+              "linear-gradient(rgba(255, 255, 255, 0), rgba(255, 255, 255, 0))",
+          }}
+        >
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-1.5">
               <BarChart3 size={14} className="text-primary" />
@@ -713,7 +741,13 @@ export const AdminDepartmentDashboard: React.FC = () => {
               gridColumn: { xs: "1", xl: "span 7" },
               p: 3,
               borderRadius: 1,
-              bgcolor: "surface.card/0.7",
+              background:
+                "linear-gradient(rgba(255, 255, 255, 0), rgba(255, 255, 255, 0))",
+              boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
+              "&:hover": {
+                boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
+              },
+              transition: "box-shadow 0.3s ease",
             }}
           >
             <Box
@@ -843,6 +877,11 @@ export const AdminDepartmentDashboard: React.FC = () => {
               p: 3,
               borderRadius: 1,
               bgcolor: "surface.card/0.7",
+              boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
+              "&:hover": {
+                boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
+              },
+              transition: "box-shadow 0.3s ease",
             }}
           >
             <Box
