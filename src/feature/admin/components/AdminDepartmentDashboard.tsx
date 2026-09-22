@@ -18,6 +18,7 @@ import {
   FileText,
   GraduationCap,
   Shield,
+  Eye,
 } from "lucide-react";
 import { Box, Typography } from "@mui/material";
 
@@ -70,7 +71,7 @@ const DepartmentCard: React.FC<{ dept: DepartmentCardData }> = ({ dept }) => {
 
   return (
     <div
-      className="p-4 rounded-lg hover:bg-surface-card/80 transition-all flex flex-col justify-between h-full shadow-md hover:shadow-lg"
+      className="p-6 rounded-lg hover:bg-surface-card/80 transition-all flex flex-col justify-between h-full shadow-md hover:shadow-lg"
       style={{
         background: "linear-gradient(135deg, #15213B 0%, #1C2D56 100%)",
       }}
@@ -170,10 +171,10 @@ const DepartmentCard: React.FC<{ dept: DepartmentCardData }> = ({ dept }) => {
           {dept.location}
         </span>
         <button
-          className="text-[12px] font-medium flex items-center gap-0.5 hover:gap-1 transition-all"
+          className="flex items-center justify-center transition-all hover:scale-110"
           style={{ color: color.accent }}
         >
-          Chi tiết <ChevronRight size={12} />
+          <Eye size={16} />
         </button>
       </div>
     </div>
