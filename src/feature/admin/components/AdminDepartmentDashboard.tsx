@@ -71,9 +71,11 @@ const DepartmentCard: React.FC<{ dept: DepartmentCardData }> = ({ dept }) => {
 
   return (
     <div
-      className="p-6 rounded-lg hover:bg-surface-card/80 transition-all flex flex-col justify-between h-full shadow-md hover:shadow-lg"
+      className=" rounded-lg hover:bg-surface-card/80 transition-all flex flex-col justify-between h-full shadow-md hover:shadow-lg"
       style={{
         background: "linear-gradient(135deg, #15213B 0%, #1C2D56 100%)",
+        padding: "12px",
+        minHeight: "150px",
       }}
     >
       <div>
@@ -89,9 +91,7 @@ const DepartmentCard: React.FC<{ dept: DepartmentCardData }> = ({ dept }) => {
               {dept.abbr}
             </div>
             <div>
-              <h2 className="text-[12px] font-bold leading-tight">
-                {dept.name}
-              </h2>
+              <p className="text-[12px] font-bold leading-tight">{dept.name}</p>
               <span className="text-[12px] opacity-70 leading-tight">
                 {dept.totalProjects} ĐT • {dept.totalStudents} SV
               </span>
@@ -120,7 +120,7 @@ const DepartmentCard: React.FC<{ dept: DepartmentCardData }> = ({ dept }) => {
                 strokeWidth="3.5"
               />
             </svg>
-            <span className="absolute text-[12px] font-bold">
+            <span className="absolute text-[12px] font-bold ">
               {dept.completionRate}%
             </span>
           </div>
@@ -673,38 +673,7 @@ export const AdminDepartmentDashboard: React.FC = () => {
           style={{
             background: "linear-gradient(135deg, #15213B 0%, #1C2D56 100%)",
           }}
-        >
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-1.5">
-              <BarChart3 size={14} className="text-primary" />
-              <span className="text-[10px] font-bold uppercase">
-                Tiến độ 4 giai đoạn ({totalProjects} đề tài)
-              </span>
-            </div>
-            <div className="flex items-center gap-2 text-[9px]">
-              <span className="flex items-center gap-1">
-                <span className="w-1.5 h-1.5 bg-surface-bright rounded-full" />
-                Đề cương (8%)
-              </span>
-              <span className="flex items-center gap-1">
-                <span className="w-1.5 h-1.5 bg-primary rounded-full" />
-                Nghiên cứu (42%)
-              </span>
-            </div>
-          </div>
-          <div className="w-full h-2 rounded-full bg-surface-container overflow-hidden flex gap-0.5">
-            <div className="bg-surface-bright h-full" style={{ width: "8%" }} />
-            <div className="bg-primary h-full" style={{ width: "42%" }} />
-            <div
-              className="bg-tertiary-fixed h-full"
-              style={{ width: "28%" }}
-            />
-            <div
-              className="bg-secondary-fixed h-full"
-              style={{ width: "22%" }}
-            />
-          </div>
-        </div>
+        ></div>
 
         {/* Department Cards Grid - 4 columns */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
