@@ -16,6 +16,7 @@ import {
 interface UseSidebarMenuReturn {
   sections: MenuSection[];
   activeKey: string | null;
+  activeLabel: string | null;
   activeSection: string | null;
   isMenuItemActive: (item: MenuItem) => boolean;
 }
@@ -30,23 +31,29 @@ export function useSidebarMenu(): UseSidebarMenuReturn {
     return getMenuSectionsForRole(role);
   }, [role]);
 
-  const activeKey = useMemo<string | null>(() => {
+  const activeItem = useMemo<MenuItem | null>(() => {
     if (!pathname) return null;
-    const segments = pathname.split("/").filter(Boolean);
-    if (segments.length === 0) return null;
+
+    let best: MenuItem | null = null;
+    let bestLen = -1;
 
     for (const section of sections) {
       for (const item of section.items) {
-        if (item.path === pathname) return item.key;
-        if (item.path && pathname.startsWith(item.path) && item.path !== "/") {
-          if (item.path.split("/").filter(Boolean).length === segments.length) {
-            return item.key;
+        if (!item.path || item.path === "/") continue;
+        if (pathname === item.path || pathname.startsWith(item.path + "/")) {
+          if (item.path.length > bestLen) {
+            best = item;
+            bestLen = item.path.length;
           }
         }
       }
     }
-    return null;
+
+    return best;
   }, [pathname, sections]);
+
+  const activeKey = activeItem?.key ?? null;
+  const activeLabel = activeItem?.label ?? null;
 
   const activeSection = useMemo<string | null>(() => {
     if (!activeKey) return null;
@@ -72,5 +79,5 @@ export function useSidebarMenu(): UseSidebarMenuReturn {
     return false;
   };
 
-  return { sections, activeKey, activeSection, isMenuItemActive };
+  return { sections, activeKey, activeLabel, activeSection, isMenuItemActive };
 }

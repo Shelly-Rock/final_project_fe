@@ -738,26 +738,22 @@ export function AutoBanCheckComponent({
     }
   }, [onBanDetected]);
 
+  const tooltip = lastCheck
+    ? `Lần kiểm tra cuối: ${lastCheck.toLocaleTimeString("vi-VN")}`
+    : "Kiểm tra và tự động cấm thi sinh viên không nộp báo cáo";
+
   return (
-    <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-      <Tooltip title="Kiểm tra và tự động cấm thi sinh viên không nộp báo cáo">
-        <Button
-          variant="outlined"
-          color="warning"
-          startIcon={
-            checking ? <CircularProgress size={18} /> : <WarningIcon />
-          }
-          onClick={runBanCheck}
-          disabled={checking}
-        >
-          Kiểm tra cấm thi
-        </Button>
-      </Tooltip>
-      {lastCheck && (
-        <Typography variant="caption" color="text.secondary">
-          Lần kiểm tra cuối: {lastCheck.toLocaleTimeString("vi-VN")}
-        </Typography>
-      )}
-    </Box>
+    <Tooltip title={tooltip}>
+      <Button
+        variant="outlined"
+        color="warning"
+        size="small"
+        startIcon={checking ? <CircularProgress size={16} /> : <WarningIcon />}
+        onClick={runBanCheck}
+        disabled={checking}
+      >
+        Kiểm tra cấm thi
+      </Button>
+    </Tooltip>
   );
 }

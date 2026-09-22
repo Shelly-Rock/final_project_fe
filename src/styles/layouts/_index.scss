@@ -124,27 +124,26 @@ $sidebar-collapsed-width: 72px;
 }
 
 .sidebar-toggle-btn {
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  border-radius: 4px;
-  background: #1470e0;
+  border-radius: 6px;
+  background: transparent;
   color: #ffff;
-  border: 1px solid transparent;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  border: none;
+  box-shadow: none;
   transition: all 0.2s ease-in-out;
   cursor: pointer;
   position: absolute;
-  right: -16px;
+  right: 8px;
   top: 50%;
   transform: translateY(-50%);
-  z-index: 1001;
+  z-index: 2;
   &:hover {
-    background: #3b82f6;
-    border-color: #ffffff;
+    background: rgba(255, 255, 255, 0.12);
   }
 
   @media (max-width: 1024px) {
@@ -221,9 +220,10 @@ $sidebar-collapsed-width: 72px;
 .sidebar-section-toggle {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
+  gap: variables.$spacing-2;
   width: 100%;
-  padding: variables.$spacing-2 variables.$spacing-5;
+  padding: variables.$spacing-2;
   background: transparent;
   border: none;
   cursor: pointer;
@@ -249,7 +249,7 @@ $sidebar-collapsed-width: 72px;
 }
 
 .sidebar-section--collapsed .sidebar-section-title {
-  padding: variables.$spacing-2 variables.$spacing-5;
+  padding: variables.$spacing-2;
 }
 
 .sidebar-section--open .sidebar-menu {
@@ -435,6 +435,12 @@ $sidebar-collapsed-width: 72px;
   .sidebar-header {
     padding: variables.$spacing-4 variables.$spacing-3;
     justify-content: center;
+  }
+
+  .sidebar-toggle-btn {
+    right: 4px;
+    width: 24px;
+    height: 24px;
   }
 
   .sidebar-brand {

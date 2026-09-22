@@ -240,16 +240,8 @@ export function TeacherTable({
       rowKey="id"
       actions={actions}
       headerActions={headerActions}
-      // Primary filter (Khoa)
-      filterOptions={facultyFilterOptions}
-      filterValue={filterFaculty}
-      onFilterChange={onFilterFacultyChange}
-      showFilterButton={true}
-      // Cascading filter (Bộ môn)
-      cascadingFilterOptions={departmentFilterOptions}
-      cascadingFilterValue={filterDepartment}
-      cascadingFilterLabel="Bộ môn"
-      onCascadingFilterChange={onFilterDepartmentChange}
+      showSearchInput={false}
+      showFilterButton={false}
       showExportButton={false}
       showImportButton={false}
       loading={loading}

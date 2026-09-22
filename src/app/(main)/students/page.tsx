@@ -1,8 +1,17 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import axios from "axios";
-import { Box, Snackbar, Alert } from "@mui/material";
+import {
+  Box,
+  Snackbar,
+  Alert,
+  IconButton,
+  Menu,
+  MenuItem,
+  Tooltip,
+  Badge,
+} from "@mui/material";
 import {
   StudentTable,
   StudentImportDialog,
@@ -10,14 +19,10 @@ import {
   StudentDetailDialog,
   exportStudentsToExcel,
 } from "@/feature/student/components";
-import { PageHeader } from "@/shared/components";
 import { studentService } from "@/feature/student/services";
-import type {
-  Student,
-  StudentFilters,
-  StudentStatus,
-} from "@/feature/student/types";
-import { List, CheckSquare, Square, Users } from "lucide-react";
+import type { Student, StudentFilters } from "@/feature/student/types";
+import { HeaderTools } from "@/layout/Header";
+import { Search, Filter } from "lucide-react";
 
 const INITIAL_FILTERS: StudentFilters = {
   search: "",
@@ -34,6 +39,7 @@ export default function StudentManagementPage() {
   const [formDialogOpen, setFormDialogOpen] = useState(false);
   const [detailDialogOpen, setDetailDialogOpen] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
+  const [khoaAnchorEl, setKhoaAnchorEl] = useState<HTMLElement | null>(null);
   const [snackbar, setSnackbar] = useState<{
     open: boolean;
     message: string;
@@ -97,6 +103,14 @@ export default function StudentManagementPage() {
     if (filters.status === "no_topic" && student.deTai) return false;
     return true;
   });
+
+  const khoaOptions = useMemo(
+    () =>
+      Array.from(
+        new Set(students.map((student) => student.khoa).filter(Boolean)),
+      ).sort(),
+    [students],
+  );
 
   const handleImport = async (file: File) => {
     try {
@@ -217,6 +231,103 @@ export default function StudentManagementPage() {
 
   return (
     <Box sx={{ p: 3, width: "100%" }}>
+      <HeaderTools>
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            gap: 1,
+            width: "100%",
+            maxWidth: 420,
+          }}
+        >
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 1,
+              flex: 1,
+              minWidth: 0,
+              px: 1.5,
+              height: 36,
+              border: "1px solid",
+              borderColor: "divider",
+              borderRadius: 2,
+              bgcolor: "action.hover",
+            }}
+          >
+            <Search size={16} color="#2563eb" />
+            <Box
+              component="input"
+              type="text"
+              placeholder="Tìm kiếm sinh viên..."
+              value={filters.search}
+              onChange={(e) =>
+                setFilters({ ...filters, search: e.target.value })
+              }
+              spellCheck={false}
+              sx={{
+                border: "none",
+                outline: "none",
+                background: "transparent",
+                fontSize: "0.875rem",
+                color: "text.primary",
+                fontWeight: 500,
+                width: "100%",
+                "&::placeholder": {
+                  color: "text.secondary",
+                  opacity: 0.8,
+                },
+              }}
+            />
+          </Box>
+          <Tooltip title={filters.khoa || "Lọc theo khoa"}>
+            <IconButton
+              onClick={(e) => setKhoaAnchorEl(e.currentTarget)}
+              sx={{
+                color: filters.khoa ? "primary.main" : "text.secondary",
+                border: "1px solid",
+                borderColor: filters.khoa ? "primary.main" : "divider",
+                borderRadius: 2,
+                width: 36,
+                height: 36,
+              }}
+            >
+              <Badge color="primary" variant="dot" invisible={!filters.khoa}>
+                <Filter size={16} />
+              </Badge>
+            </IconButton>
+          </Tooltip>
+          <Menu
+            anchorEl={khoaAnchorEl}
+            open={Boolean(khoaAnchorEl)}
+            onClose={() => setKhoaAnchorEl(null)}
+            PaperProps={{ sx: { minWidth: 220, borderRadius: 2, mt: 0.5 } }}
+          >
+            <MenuItem
+              selected={!filters.khoa}
+              onClick={() => {
+                setFilters({ ...filters, khoa: "" });
+                setKhoaAnchorEl(null);
+              }}
+            >
+              Tất cả khoa
+            </MenuItem>
+            {khoaOptions.map((khoa) => (
+              <MenuItem
+                key={khoa}
+                selected={filters.khoa === khoa}
+                onClick={() => {
+                  setFilters({ ...filters, khoa });
+                  setKhoaAnchorEl(null);
+                }}
+              >
+                {khoa}
+              </MenuItem>
+            ))}
+          </Menu>
+        </Box>
+      </HeaderTools>
       <StudentTable
         students={filteredStudents}
         loading={loading}
@@ -224,23 +335,6 @@ export default function StudentManagementPage() {
         onDelete={handleDelete}
         onDeleteMany={handleDeleteMany}
         onView={handleView}
-        filterOptions={[
-          { value: "all", label: "Tất cả", icon: <List size={16} /> },
-          {
-            value: "has_topic",
-            label: "Đã chọn đề tài",
-            icon: <CheckSquare size={16} />,
-          },
-          {
-            value: "no_topic",
-            label: "Chưa chọn đề tài",
-            icon: <Square size={16} />,
-          },
-        ]}
-        filterValue={filters.status}
-        onFilterChange={(value) =>
-          setFilters({ ...filters, status: value as StudentStatus })
-        }
         onAdd={handleAdd}
         onExport={handleExport}
         onImport={() => setImportDialogOpen(true)}

@@ -30,8 +30,10 @@ export const Icon = {
   bookmarkStar: "bi-bookmark-star",
   graphUp: "bi-graph-up",
   fileEarmarkText: "bi-file-earmark-text",
+  fileEarmarkArrowUp: "bi-file-earmark-arrow-up",
   upload: "bi-upload",
-  peopleTeam: "bi-people-team",
+  peopleTeam: "bi-people-fill",
+  chatDots: "bi-chat-dots",
   calendar: "bi-calendar-event",
   scorecard: "bi-journal-check",
   pencilSquare: "bi-pencil-square",
@@ -59,15 +61,27 @@ export const MENU_ITEMS: MenuItem[] = [
 
 export const MENU_SECTIONS: MenuSection[] = [
   {
-    section: "Quản lý",
+    section: "Tổng quan",
     items: [
       {
-        key: "notifications",
-        label: "Quản lý thông báo",
-        icon: Icon.bell,
-        path: "/notification",
+        key: "department",
+        label: "Dashboard Khoa",
+        icon: Icon.people,
+        path: "/department",
         roles: ["admin", "secretary"],
       },
+      {
+        key: "admin-progress",
+        label: "Theo dõi tiến trình",
+        icon: Icon.graphUp,
+        path: "/progress-tracking/admin",
+        roles: ["admin", "secretary"],
+      },
+    ],
+  },
+  {
+    section: "Quản lý",
+    items: [
       {
         key: "students",
         label: "Quản lý sinh viên",
@@ -83,6 +97,18 @@ export const MENU_SECTIONS: MenuSection[] = [
         roles: ["admin", "secretary"],
       },
       {
+        key: "role",
+        label: "Phân quyền",
+        icon: Icon.personGear,
+        path: "/role",
+        roles: ["admin"],
+      },
+    ],
+  },
+  {
+    section: "Đề tài & đăng ký",
+    items: [
+      {
         key: "registration-periods",
         label: "Đợt đăng ký",
         icon: Icon.clipboard,
@@ -96,43 +122,15 @@ export const MENU_SECTIONS: MenuSection[] = [
         path: "/project-config",
         roles: ["admin", "secretary"],
       },
-      {
-        key: "admin-progress",
-        label: "Theo dõi tiến trình",
-        icon: Icon.graphUp,
-        path: "/progress-tracking/admin",
-        roles: ["admin", "secretary"],
-      },
-      {
-        key: "role",
-        label: "Phân quyền",
-        icon: Icon.personGear,
-        path: "/role",
-        roles: ["admin"],
-      },
-      {
-        key: "audit",
-        label: "Nhật ký Audit",
-        icon: Icon.clipboardCheck,
-        path: "/audit",
-        roles: ["admin", "secretary"],
-      },
-      {
-        key: "department",
-        label: "Dashboard Khoa",
-        icon: Icon.people,
-        path: "/department",
-        roles: ["admin", "secretary"],
-      },
     ],
   },
   {
-    section: "Giai đoạn 3",
+    section: "Bảo vệ",
     items: [
       {
         key: "submissions",
         label: "Nộp bài cuối kỳ",
-        icon: Icon.upload,
+        icon: Icon.fileEarmarkArrowUp,
         path: "/submission/admin",
         roles: ["admin", "secretary"],
       },
@@ -153,7 +151,7 @@ export const MENU_SECTIONS: MenuSection[] = [
     ],
   },
   {
-    section: "Giai đoạn 4",
+    section: "Chấm điểm",
     items: [
       {
         key: "scoring-management",
@@ -162,35 +160,20 @@ export const MENU_SECTIONS: MenuSection[] = [
         path: "/scoring/admin",
         roles: ["admin", "secretary"],
       },
-    ],
-  },
-  {
-    section: "Giai đoạn 5",
-    items: [
       {
         key: "committee-meeting",
         label: "Họp & chốt điểm hội đồng",
-        icon: Icon.peopleTeam,
+        icon: Icon.chatDots,
         path: "/scoring/meeting",
-        roles: ["admin", "secretary", "teacher"],
+        roles: ["admin", "secretary"],
       },
-    ],
-  },
-  {
-    section: "Giai đoạn 6",
-    items: [
       {
         key: "score-publication",
         label: "Tính điểm & công bố",
         icon: Icon.scorecard,
         path: "/scoring/transcript",
-        roles: ["admin", "secretary", "teacher"],
+        roles: ["admin", "secretary"],
       },
-    ],
-  },
-  {
-    section: "Giai đoạn 7",
-    items: [
       {
         key: "post-defense",
         label: "Hậu kiểm & xếp hạng",
@@ -201,13 +184,27 @@ export const MENU_SECTIONS: MenuSection[] = [
     ],
   },
   {
-    section: "Giai đoạn 8",
+    section: "Báo cáo & hệ thống",
     items: [
       {
         key: "statistics",
         label: "Thống kê và báo cáo",
         icon: Icon.graphUp,
         path: "/statistics",
+        roles: ["admin", "secretary"],
+      },
+      {
+        key: "notifications",
+        label: "Quản lý thông báo",
+        icon: Icon.bell,
+        path: "/notification",
+        roles: ["admin", "secretary"],
+      },
+      {
+        key: "audit",
+        label: "Nhật ký Audit",
+        icon: Icon.clipboardCheck,
+        path: "/audit",
         roles: ["admin", "secretary"],
       },
     ],
@@ -258,7 +255,7 @@ export const MENU_SECTIONS: MenuSection[] = [
       {
         key: "student-submission",
         label: "Nộp bài cuối kỳ",
-        icon: Icon.upload,
+        icon: Icon.fileEarmarkArrowUp,
         path: "/submission/student",
         roles: ["student"],
       },

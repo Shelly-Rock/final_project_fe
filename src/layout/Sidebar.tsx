@@ -1,16 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter, usePathname } from "next/navigation";
-import { signOut } from "next-auth/react";
+import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { usePermissionContext } from "@/core/providers/PermissionProvider";
-import { ROLE_LABELS } from "@/core/permissions/types";
 import { getMenuSectionsForRole } from "@/shared/constants/menus";
 import { useMediaQuery } from "@/shared/hooks";
 import { default as Logo } from "@/assets/image/png/logo.png";
 import { default as LogoCollapsed } from "@/assets/image/png/logo02.png";
 import Image from "next/image";
+import { PanelLeftClose } from "lucide-react";
 
 interface SidebarProps {
   collapsed?: boolean;
@@ -25,7 +24,6 @@ export function Sidebar({
   mobileOpen = false,
   onMobileClose,
 }: SidebarProps) {
-  const router = useRouter();
   const pathname = usePathname();
   const { role } = usePermissionContext();
   const isDesktop = useMediaQuery("(min-width: 1024px)");
@@ -42,11 +40,6 @@ export function Sidebar({
       onMobileClose?.();
     }
   }, [isDesktop, onToggle, onMobileClose]);
-
-  const handleSignOut = useCallback(async () => {
-    await signOut({ redirect: false, callbackUrl: "/login" });
-    router.push("/login");
-  }, [router]);
 
   const isActive = useCallback(
     (path?: string) => {
@@ -99,17 +92,23 @@ export function Sidebar({
         <div className={`sidebar ${collapsed ? "sidebar--collapsed" : ""}`}>
           {/* Brand */}
           <div className="sidebar-header flex items-center w-full">
-            <Link
-              href="/"
-              className="sidebar-brand"
-              style={{
-                width: "100%",
-                display: "flex",
-                justifyContent: "center",
-              }}
-            >
-              <div className="sidebar-brand-logo-wrap flex items-center justify-center mx-auto">
-                {collapsed ? (
+            {collapsed ? (
+              <button
+                type="button"
+                className="sidebar-brand"
+                onClick={handleToggle}
+                aria-label="Mở sidebar"
+                style={{
+                  width: "100%",
+                  display: "flex",
+                  justifyContent: "center",
+                  background: "none",
+                  border: "none",
+                  padding: 0,
+                  cursor: "pointer",
+                }}
+              >
+                <div className="sidebar-brand-logo-wrap flex items-center justify-center mx-auto">
                   <Image
                     src={LogoCollapsed}
                     alt="Logo"
@@ -117,7 +116,19 @@ export function Sidebar({
                     height={55}
                     className="sidebar-brand-logo object-contain"
                   />
-                ) : (
+                </div>
+              </button>
+            ) : (
+              <Link
+                href="/"
+                className="sidebar-brand"
+                style={{
+                  width: "100%",
+                  display: "flex",
+                  justifyContent: "center",
+                }}
+              >
+                <div className="sidebar-brand-logo-wrap flex items-center justify-center mx-auto">
                   <Image
                     src={Logo}
                     alt="Logo"
@@ -130,20 +141,20 @@ export function Sidebar({
                     }}
                     priority
                   />
-                )}
-              </div>
-            </Link>
+                </div>
+              </Link>
+            )}
 
-            <button
-              type="button"
-              className="sidebar-toggle-btn"
-              onClick={handleToggle}
-              aria-label="Toggle sidebar"
-            >
-              <span
-                className={`bi ${collapsed ? "bi-chevron-double-right" : "bi-chevron-double-left"}`}
-              />
-            </button>
+            {!collapsed && (
+              <button
+                type="button"
+                className="sidebar-toggle-btn"
+                onClick={handleToggle}
+                aria-label="Thu gọn sidebar"
+              >
+                <PanelLeftClose size={16} />
+              </button>
+            )}
           </div>
           {/* Navigation */}
           <nav className="sidebar-nav" aria-label="Main navigation">
@@ -164,19 +175,15 @@ export function Sidebar({
                       aria-expanded={expanded}
                       aria-controls={`section-${section.section}`}
                     >
-                      <span className="sidebar-section-title">
-                        {section.section}
-                      </span>
                       <span
                         className={`bi ${expanded ? "bi-chevron-up" : "bi-chevron-down"} sidebar-section-chevron`}
                         aria-hidden="true"
                       />
+                      <span className="sidebar-section-title">
+                        {section.section}
+                      </span>
                     </button>
-                  ) : (
-                    <div className="sidebar-section-title">
-                      {section.section}
-                    </div>
-                  )}
+                  ) : null}
                   {(collapsed || expanded) && (
                     <ul
                       id={`section-${section.section}`}
@@ -209,34 +216,6 @@ export function Sidebar({
               );
             })}
           </nav>
-
-          {/* User info */}
-          <div className="sidebar-user">
-            <div className="sidebar-user-avatar">
-              <span className="bi bi-person-circle" />
-            </div>
-            {!collapsed && (
-              <div className="sidebar-user-info">
-                <span className="sidebar-user-name">Người dùng</span>
-                <span className="sidebar-user-role">
-                  {role ? ROLE_LABELS[role] : "Khách"}
-                </span>
-              </div>
-            )}
-          </div>
-
-          {/* Footer / Logout */}
-          <div className="sidebar-footer">
-            <button
-              type="button"
-              className="sidebar-logout-btn"
-              onClick={handleSignOut}
-              title="Đăng xuất"
-            >
-              <span className="bi bi-box-arrow-right sidebar-logout-icon" />
-              {!collapsed && <span>Đăng xuất</span>}
-            </button>
-          </div>
         </div>
       </div>
     </>

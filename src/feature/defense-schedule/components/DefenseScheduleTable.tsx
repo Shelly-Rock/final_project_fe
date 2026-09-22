@@ -7,8 +7,9 @@ import {
   Check as CheckIcon,
   FileDownload as FileDownloadIcon,
 } from "@mui/icons-material";
+import { Plus, RefreshCw } from "lucide-react";
 import { DataTable } from "@/shared/components";
-import type { Column, Action } from "@/shared/components";
+import type { Column, Action, HeaderAction } from "@/shared/components";
 import type { DefenseSession, DefenseSessionStatus } from "../services";
 import dayjs from "dayjs";
 
@@ -39,6 +40,8 @@ interface DefenseScheduleTableProps {
   };
   onEdit: (session: DefenseSession) => void;
   onDelete: (session: DefenseSession) => void;
+  onAdd?: () => void;
+  onRefresh?: () => void;
   onComplete: (sessionId: number) => void;
   /** Xuất lịch bảo vệ ra file Word (.docx) về máy */
   onExportWord: (sessionId: number) => void;
@@ -54,6 +57,8 @@ export function DefenseScheduleTable({
   pagination,
   onEdit,
   onDelete,
+  onAdd,
+  onRefresh,
   onComplete,
   onExportWord,
   exportingId,
@@ -150,12 +155,38 @@ export function DefenseScheduleTable({
     },
   ];
 
+  const headerActions: HeaderAction[] = [
+    ...(onAdd
+      ? [
+          {
+            id: "add",
+            icon: <Plus size={16} />,
+            label: "Tạo lịch bảo vệ",
+            onClick: onAdd,
+            variant: "contained" as const,
+          },
+        ]
+      : []),
+    ...(onRefresh
+      ? [
+          {
+            id: "refresh",
+            icon: <RefreshCw size={16} />,
+            label: "Làm mới",
+            onClick: onRefresh,
+            variant: "outlined" as const,
+          },
+        ]
+      : []),
+  ];
+
   return (
     <DataTable
       columns={columns}
       rows={sessions}
       rowKey="id"
       actions={actions}
+      headerActions={headerActions}
       loading={loading}
       showSearchInput={false}
       showFilterButton={false}

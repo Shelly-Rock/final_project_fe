@@ -253,7 +253,8 @@ export function StudentTable({
       filterOptions={filterOptions}
       filterValue={filterValue}
       onFilterChange={onFilterChange}
-      showFilterButton={true}
+      showFilterButton={false}
+      showSearchInput={false}
       showExportButton={false}
       showImportButton={false}
       loading={loading}
