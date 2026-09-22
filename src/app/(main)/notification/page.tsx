@@ -37,7 +37,7 @@ export default function NotificationPage() {
   const theme = useTheme();
   const [notifications, setNotifications] = useState<INotification[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [_error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<string>("all");
   const [showModal, setShowModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -50,12 +50,12 @@ export default function NotificationPage() {
       setLoading(true);
       try {
         const data = await notificationApi.getNotifications({
-          skip: 0,
-          take: 50,
+          page: 1,
+          limit: 50,
         });
         setNotifications(data.notifications);
         setError(null);
-      } catch (err) {
+      } catch {
         // API not implemented - use mock data for development
         const mockNotifications: INotification[] = [
           {

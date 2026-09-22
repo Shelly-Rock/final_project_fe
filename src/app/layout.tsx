@@ -25,10 +25,6 @@ export const metadata: Metadata = {
     icon: SchoolLogo.src,
     apple: SchoolLogo.src,
   },
-  other: {
-    preload:
-      '<link rel="preload" as="video" href="/videos/video-introduce.mp4" type="video/mp4" />',
-  },
 };
 
 export default function RootLayout({
