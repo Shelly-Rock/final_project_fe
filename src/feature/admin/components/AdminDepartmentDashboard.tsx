@@ -74,7 +74,7 @@ const DepartmentCard: React.FC<{ dept: DepartmentCardData }> = ({ dept }) => {
         <div className="flex items-start justify-between mb-2.5">
           <div className="flex items-center gap-1.5">
             <div
-              className="w-6 h-6 rounded flex items-center justify-center font-bold text-[10px]"
+              className="w-6 h-6 rounded flex items-center justify-center font-bold text-[12px]"
               style={{
                 backgroundColor: color.accent + "20",
                 color: color.accent,
@@ -83,10 +83,10 @@ const DepartmentCard: React.FC<{ dept: DepartmentCardData }> = ({ dept }) => {
               {dept.abbr}
             </div>
             <div>
-              <h2 className="text-[10px] font-bold leading-tight">
+              <h2 className="text-[12px] font-bold leading-tight">
                 {dept.name}
               </h2>
-              <span className="text-[9px] opacity-70 leading-tight">
+              <span className="text-[12px] opacity-70 leading-tight">
                 {dept.totalProjects} ĐT • {dept.totalStudents} SV
               </span>
             </div>
@@ -114,14 +114,14 @@ const DepartmentCard: React.FC<{ dept: DepartmentCardData }> = ({ dept }) => {
                 strokeWidth="3.5"
               />
             </svg>
-            <span className="absolute text-[9px] font-bold">
+            <span className="absolute text-[12px] font-bold">
               {dept.completionRate}%
             </span>
           </div>
         </div>
 
         <div className="mt-2 space-y-1">
-          <div className="flex justify-between text-[9px] font-medium opacity-70">
+          <div className="flex justify-between text-[12px] font-medium opacity-70">
             <span>{dept.stageDescription}</span>
             <span style={{ color: color.accent }} className="font-bold">
               {dept.stageCount}/{dept.totalProjects}
@@ -143,7 +143,7 @@ const DepartmentCard: React.FC<{ dept: DepartmentCardData }> = ({ dept }) => {
           </div>
         </div>
 
-        <div className="flex items-center justify-between mt-2 pt-1 text-[9px]">
+        <div className="flex items-center justify-between mt-2 pt-1 text-[12px]">
           <span className="opacity-70">
             Hội đồng: <b>{dept.councilCount}</b>
           </span>
@@ -161,9 +161,11 @@ const DepartmentCard: React.FC<{ dept: DepartmentCardData }> = ({ dept }) => {
       </div>
 
       <div className="mt-2 pt-1 flex items-center justify-between">
-        <span className="text-[8px] opacity-60 font-mono">{dept.location}</span>
+        <span className="text-[12px] opacity-60 font-mono">
+          {dept.location}
+        </span>
         <button
-          className="text-[9px] font-medium flex items-center gap-0.5 hover:gap-1 transition-all"
+          className="text-[12px] font-medium flex items-center gap-0.5 hover:gap-1 transition-all"
           style={{ color: color.accent }}
         >
           Chi tiết <ChevronRight size={12} />
