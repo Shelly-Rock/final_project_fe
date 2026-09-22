@@ -20,6 +20,7 @@ export const DEADLINE_TYPES: DeadlineType[] = [
   "TOPIC_CREATION",
   "STUDENT_REGISTRATION",
   "TEACHER_APPROVAL",
+  "FORM_02",
   "PERIODIC_REPORT",
   "FINAL_SUBMISSION",
 ];
@@ -28,6 +29,7 @@ export const DEADLINE_TYPE_LABELS: Record<DeadlineType, string> = {
   TOPIC_CREATION: "Tạo / chỉnh sửa đề tài",
   STUDENT_REGISTRATION: "Sinh viên đăng ký đề tài",
   TEACHER_APPROVAL: "Giảng viên duyệt đăng ký",
+  FORM_02: "Nộp biểu mẫu số 02",
   PERIODIC_REPORT: "Báo cáo tiến độ định kỳ",
   FINAL_SUBMISSION: "Nộp đồ án cuối kỳ",
 };
@@ -39,6 +41,8 @@ export const DEADLINE_TYPE_HINTS: Record<DeadlineType, string> = {
     "Sau mốc này sinh viên không tự đăng ký đề tài được nữa.",
   TEACHER_APPROVAL:
     "Sau mốc này, các đăng ký chưa được giảng viên xử lý sẽ chuyển sang chờ Thư ký.",
+  FORM_02:
+    "Sau khi giảng viên duyệt đăng ký, sinh viên nộp biểu mẫu số 02 trong hạn này.",
   PERIODIC_REPORT:
     "Cho phép nhiều mốc theo thứ tự; báo cáo chưa nộp sẽ được đánh dấu là thiếu.",
   FINAL_SUBMISSION: "Sau mốc này sinh viên không nộp đồ án cuối kỳ được nữa.",
@@ -49,6 +53,7 @@ export const MAIN_DEADLINE_ORDERING: DeadlineType[] = [
   "TOPIC_CREATION",
   "STUDENT_REGISTRATION",
   "TEACHER_APPROVAL",
+  "FORM_02",
   "FINAL_SUBMISSION",
 ];
 
@@ -164,6 +169,7 @@ export const DEFAULT_DEADLINE_OFFSET_DAYS: Record<DeadlineType, number> = {
   TOPIC_CREATION: 7,
   STUDENT_REGISTRATION: 21,
   TEACHER_APPROVAL: 28,
+  FORM_02: 35,
   PERIODIC_REPORT: 49,
   FINAL_SUBMISSION: 70,
 };

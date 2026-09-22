@@ -188,6 +188,7 @@ export function PeriodConfigForm() {
       topic: stageDeadlineOf(governance.stages, "TOPIC_CREATION"),
       registration: stageDeadlineOf(governance.stages, "STUDENT_REGISTRATION"),
       approval: stageDeadlineOf(governance.stages, "TEACHER_APPROVAL"),
+      form02: stageDeadlineOf(governance.stages, "FORM_02"),
       finalSubmission: stageDeadlineOf(governance.stages, "FINAL_SUBMISSION"),
     };
   }, [governance]);
@@ -269,9 +270,20 @@ export function PeriodConfigForm() {
         <>
           <Paper
             variant="outlined"
-            sx={{ p: 2, borderColor: isDark ? "#334155" : "#e2e8f0" }}
+            sx={{
+              p: 2.5,
+              borderColor: isDark ? "#334155" : "#cbd5e1",
+              bgcolor: isDark ? "transparent" : "#ffffff",
+            }}
           >
-            <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1.5 }}>
+            <Typography
+              sx={{
+                fontWeight: 800,
+                fontSize: "1rem",
+                mb: 1.75,
+                color: "text.primary",
+              }}
+            >
               Chỉ tiêu đề tài
             </Typography>
             <Box
@@ -326,62 +338,68 @@ export function PeriodConfigForm() {
 
             {governance && (
               <Alert severity="info" sx={{ mt: 2 }}>
-                <Box sx={{ display: "grid", gap: 0.5 }}>
+                <Box sx={{ display: "grid", gap: 1 }}>
                   <Typography variant="body2" sx={{ fontWeight: 700 }}>
                     Trạng thái đợt — giờ máy chủ{" "}
                     {formatDateTime(governance.serverTime)}
                   </Typography>
-                  <Typography variant="caption">
-                    Tạo đề tài:{" "}
-                    {governance.locks.topicWritable ? "đang mở" : "đã khóa"}
-                    {" · "}
-                    Đăng ký:{" "}
-                    {governance.locks.registrationOpen ? "đang mở" : "đã đóng"}
-                    {" · "}
-                    Duyệt:{" "}
-                    {governance.locks.approvalOpen ? "đang mở" : "đã đóng"}
-                    {" · "}
-                    Nộp cuối kỳ:{" "}
-                    {governance.locks.finalSubmissionOpen
-                      ? "đang mở"
-                      : "đã đóng"}
-                  </Typography>
-                  {activeStageInfo?.topic && (
-                    <Typography variant="caption">
-                      Tạo đề tài:{" "}
-                      {formatDateTime(activeStageInfo.topic.deadlineAt)} ·{" "}
-                      {humanizeRemaining(activeStageInfo.topic.remainingMs)}
-                    </Typography>
-                  )}
-                  {activeStageInfo?.registration && (
-                    <Typography variant="caption">
-                      SV đăng ký:{" "}
-                      {formatDateTime(activeStageInfo.registration.deadlineAt)}{" "}
-                      ·{" "}
-                      {humanizeRemaining(
-                        activeStageInfo.registration.remainingMs,
-                      )}
-                    </Typography>
-                  )}
-                  {activeStageInfo?.approval && (
-                    <Typography variant="caption">
-                      GV duyệt:{" "}
-                      {formatDateTime(activeStageInfo.approval.deadlineAt)} ·{" "}
-                      {humanizeRemaining(activeStageInfo.approval.remainingMs)}
-                    </Typography>
-                  )}
-                  {activeStageInfo?.finalSubmission && (
-                    <Typography variant="caption">
-                      Nộp cuối kỳ:{" "}
-                      {formatDateTime(
-                        activeStageInfo.finalSubmission.deadlineAt,
-                      )}{" "}
-                      ·{" "}
-                      {humanizeRemaining(
-                        activeStageInfo.finalSubmission.remainingMs,
-                      )}
-                    </Typography>
-                  )}
+                  <Box sx={{ display: "flex", gap: 0.75, flexWrap: "wrap" }}>
+                    <Chip
+                      size="small"
+                      label={`Tạo đề tài: ${governance.locks.topicWritable ? "đang mở" : "đã khóa"}`}
+                    />
+                    <Chip
+                      size="small"
+                      label={`Đăng ký: ${governance.locks.registrationOpen ? "đang mở" : "đã đóng"}`}
+                    />
+                    <Chip
+                      size="small"
+                      label={`Duyệt: ${governance.locks.approvalOpen ? "đang mở" : "đã đóng"}`}
+                    />
+                    <Chip
+                      size="small"
+                      label={`Nộp cuối kỳ: ${governance.locks.finalSubmissionOpen ? "đang mở" : "đã đóng"}`}
+                    />
+                  </Box>
+                  {[
+                    activeStageInfo?.topic && {
+                      key: "topic",
+                      label: "Tạo đề tài",
+                      stage: activeStageInfo.topic,
+                    },
+                    activeStageInfo?.registration && {
+                      key: "registration",
+                      label: "SV đăng ký",
+                      stage: activeStageInfo.registration,
+                    },
+                    activeStageInfo?.approval && {
+                      key: "approval",
+                      label: "GV duyệt",
+                      stage: activeStageInfo.approval,
+                    },
+                    activeStageInfo?.form02 && {
+                      key: "form02",
+                      label: "Biểu mẫu số 02",
+                      stage: activeStageInfo.form02,
+                    },
+                    activeStageInfo?.finalSubmission && {
+                      key: "final",
+                      label: "Nộp cuối kỳ",
+                      stage: activeStageInfo.finalSubmission,
+                    },
+                  ]
+                    .filter(Boolean)
+                    .map((item) =>
+                      item ? (
+                        <Typography
+                          key={item.key}
+                          sx={{ fontSize: "0.8125rem", color: "text.primary" }}
+                        >
+                          {item.label}: {formatDateTime(item.stage.deadlineAt)}{" "}
+                          · {humanizeRemaining(item.stage.remainingMs)}
+                        </Typography>
+                      ) : null,
+                    )}
                 </Box>
               </Alert>
             )}
@@ -389,19 +407,30 @@ export function PeriodConfigForm() {
 
           <Paper
             variant="outlined"
-            sx={{ p: 2, borderColor: isDark ? "#334155" : "#e2e8f0" }}
+            sx={{
+              p: 2.5,
+              borderColor: isDark ? "#334155" : "#cbd5e1",
+              bgcolor: isDark ? "transparent" : "#ffffff",
+            }}
           >
-            <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
-              Thời hạn 5 giai đoạn
+            <Typography
+              sx={{ fontWeight: 800, fontSize: "1rem", color: "text.primary" }}
+            >
+              Thời hạn các giai đoạn
             </Typography>
             <Typography
-              variant="caption"
-              color="text.secondary"
-              sx={{ display: "block", mb: 1.5 }}
+              sx={{
+                display: "block",
+                mb: 2,
+                mt: 0.6,
+                fontSize: "0.8125rem",
+                lineHeight: 1.55,
+                color: isDark ? "text.secondary" : "#475569",
+              }}
             >
               Thứ tự bắt buộc: tạo đề tài → sinh viên đăng ký → giảng viên duyệt
-              → nộp cuối kỳ. Các mốc báo cáo định kỳ phải nằm sau hạn duyệt và
-              trước hạn nộp cuối kỳ.
+              → nộp biểu mẫu số 02 → nộp cuối kỳ. Các mốc báo cáo định kỳ phải
+              nằm sau hạn biểu mẫu số 02 và trước hạn nộp cuối kỳ.
             </Typography>
             <DeadlineStagesForm
               value={deadlines}
@@ -412,7 +441,11 @@ export function PeriodConfigForm() {
 
           <Paper
             variant="outlined"
-            sx={{ p: 2, borderColor: isDark ? "#334155" : "#e2e8f0" }}
+            sx={{
+              p: 2.5,
+              borderColor: isDark ? "#334155" : "#cbd5e1",
+              bgcolor: isDark ? "transparent" : "#ffffff",
+            }}
           >
             <Box
               sx={{
@@ -424,10 +457,23 @@ export function PeriodConfigForm() {
               }}
             >
               <Box>
-                <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
+                <Typography
+                  sx={{
+                    fontWeight: 800,
+                    fontSize: "1rem",
+                    color: "text.primary",
+                  }}
+                >
                   Nhắc hạn qua email
                 </Typography>
-                <Typography variant="caption" color="text.secondary">
+                <Typography
+                  sx={{
+                    display: "block",
+                    mt: 0.4,
+                    fontSize: "0.8125rem",
+                    color: isDark ? "text.secondary" : "#475569",
+                  }}
+                >
                   Bật hoặc tắt email nhắc hạn tự động cho từng đợt đồ án.
                 </Typography>
               </Box>
@@ -527,9 +573,20 @@ export function PeriodConfigForm() {
 
           <Paper
             variant="outlined"
-            sx={{ p: 2, borderColor: isDark ? "#334155" : "#e2e8f0" }}
+            sx={{
+              p: 2.5,
+              borderColor: isDark ? "#334155" : "#cbd5e1",
+              bgcolor: isDark ? "transparent" : "#ffffff",
+            }}
           >
-            <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1.5 }}>
+            <Typography
+              sx={{
+                fontWeight: 800,
+                fontSize: "1rem",
+                mb: 1.75,
+                color: "text.primary",
+              }}
+            >
               Ghi đè chỉ tiêu theo giảng viên
             </Typography>
             <TeacherOverrideTable
@@ -544,9 +601,20 @@ export function PeriodConfigForm() {
 
           <Paper
             variant="outlined"
-            sx={{ p: 2, borderColor: isDark ? "#334155" : "#e2e8f0" }}
+            sx={{
+              p: 2.5,
+              borderColor: isDark ? "#334155" : "#cbd5e1",
+              bgcolor: isDark ? "transparent" : "#ffffff",
+            }}
           >
-            <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1.5 }}>
+            <Typography
+              sx={{
+                fontWeight: 800,
+                fontSize: "1rem",
+                mb: 1.75,
+                color: "text.primary",
+              }}
+            >
               Lịch sử gửi email nhắc hạn
             </Typography>
             <AlertLogTable

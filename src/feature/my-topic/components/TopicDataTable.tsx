@@ -1,14 +1,7 @@
 "use client";
 
 import { Edit as EditIcon, Delete as DeleteIcon } from "@mui/icons-material";
-import {
-  RefreshCw,
-  Plus,
-  AlertTriangle,
-  Lock,
-  Unlock,
-  Users,
-} from "lucide-react";
+import { RefreshCw, Plus, AlertTriangle, Lock } from "lucide-react";
 import { Chip, Box } from "@mui/material";
 import { DataTable } from "@/shared/components";
 import { Badge } from "@/shared/components";
@@ -26,7 +19,6 @@ interface TopicDataTableProps {
   onCreateException: () => void;
   onRefresh: () => void;
   onToggleLock?: (topic: MyTopic) => void;
-  onManageTeam?: (topic: MyTopic) => void;
 }
 
 const statusConfig: Record<
@@ -58,7 +50,6 @@ export function TopicDataTable({
   onCreateException,
   onRefresh,
   onToggleLock,
-  onManageTeam,
 }: TopicDataTableProps) {
   const headerActions: HeaderAction[] = [
     {
@@ -199,32 +190,12 @@ export function TopicDataTable({
     },
     {
       id: "lock",
-      icon: (row) => (
-        <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-          {row.registrationStatus === "LOCKED" ? (
-            <Unlock size={16} />
-          ) : (
-            <Lock size={16} />
-          )}
-        </Box>
-      ),
-      label: (row) =>
-        row.registrationStatus === "LOCKED" ? "Mở khóa" : "Khóa",
-      color: (row) =>
-        (row.registrationStatus === "LOCKED" ? "success" : "warning") as
-          | "success"
-          | "warning",
+      icon: <Lock size={16} />,
+      label: "Khóa",
+      color: "warning" as const,
+      disabled: (row) => row.registrationStatus === "LOCKED",
       onClick: (row) => {
         if (onToggleLock) onToggleLock(row);
-      },
-    },
-    {
-      id: "group",
-      icon: <Users size={16} />,
-      label: "Nhóm SV",
-      color: "primary" as const,
-      onClick: (row) => {
-        if (onManageTeam) onManageTeam(row);
       },
     },
     {
