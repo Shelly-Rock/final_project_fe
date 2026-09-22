@@ -18,6 +18,7 @@ export interface CardProps {
   className?: string;
   variant?: "elevation" | "outlined" | "soft";
   onClick?: () => void;
+  padding?: number | string;
   sx?: SxProps<Theme>;
 }
 
