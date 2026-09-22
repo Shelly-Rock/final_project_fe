@@ -3,6 +3,7 @@
 import React, { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { adminDashboardService } from "@/feature/dashboard/services/admin-dashboard.service";
+import { Card, CardHeader, CardContentDiv } from "@/shared/components/Card";
 import {
   Search,
   Plus,
@@ -13,7 +14,12 @@ import {
   BarChart3,
   MapPin,
   Clock,
+  TrendingUp,
+  FileText,
+  GraduationCap,
+  Shield,
 } from "lucide-react";
+import { Box, Typography } from "@mui/material";
 
 interface DepartmentCardData {
   id: string;
@@ -166,6 +172,70 @@ const DepartmentCard: React.FC<{ dept: DepartmentCardData }> = ({ dept }) => {
     </div>
   );
 };
+
+interface StatCardProps {
+  label: string;
+  value: number | string;
+  subtext: string;
+  subtextColor?: string;
+  icon?: React.ReactNode;
+  iconColor?: string;
+}
+
+const StatCard = ({
+  label,
+  value,
+  subtext,
+  subtextColor = "text-emerald-400",
+  icon,
+  iconColor = "#3b82f6",
+}: StatCardProps) => (
+  <Card variant="soft">
+    <CardContentDiv padding={3}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "flex-start",
+          mb: 1.5,
+        }}
+      >
+        <Typography
+          variant="caption"
+          sx={{ display: "block", opacity: 0.7, fontWeight: 500 }}
+        >
+          {label}
+        </Typography>
+        {icon && (
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              width: 32,
+              height: 32,
+              borderRadius: 1,
+              backgroundColor: `${iconColor}15`,
+            }}
+          >
+            <Box sx={{ color: iconColor, display: "flex", fontSize: 18 }}>
+              {icon}
+            </Box>
+          </Box>
+        )}
+      </Box>
+      <Typography variant="h5" sx={{ fontWeight: "bold", mb: 0.5 }}>
+        {value}
+      </Typography>
+      <Typography
+        variant="caption"
+        sx={{ display: "block", fontSize: "9px", className: subtextColor }}
+      >
+        {subtext}
+      </Typography>
+    </CardContentDiv>
+  </Card>
+);
 
 const ScheduleCard: React.FC<{ slot: ScheduleSlot }> = ({ slot }) => {
   const isOngoing = slot.status === "ongoing";
@@ -382,49 +452,135 @@ export const AdminDepartmentDashboard: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-surface text-text-primary">
+    <Box sx={{ minHeight: "100vh", bgcolor: "surface", color: "text.primary" }}>
       {/* Header */}
-      <header className="bg-surface-card sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
-          <div>
-            <div className="flex items-center gap-2 mb-0.5">
-              <h1 className="text-lg font-bold">Bảng Điều Hành Đồ Án</h1>
-              <div className="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-500/10 rounded-full">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                <span className="text-[11px] font-medium text-emerald-400">
+      <Box
+        component="header"
+        sx={{ bgcolor: "surface.card", display: "flex", zIndex: 40 }}
+      >
+        <Box
+          sx={{
+            maxWidth: "7xl",
+            mx: "auto",
+            px: 4,
+            py: 3,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            width: "100%",
+          }}
+        >
+          <Box>
+            <Box
+              sx={{ display: "flex", alignItems: "center", gap: 2, mb: 0.5 }}
+            >
+              <h1 style={{ fontSize: "1.125rem", fontWeight: "bold" }}>
+                Bảng Điều Hành Đồ Án
+              </h1>
+              <Box
+                sx={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 1,
+                  px: 2,
+                  py: 0.5,
+                  bgcolor: "emerald.500/10",
+                  borderRadius: "9999px",
+                }}
+              >
+                <span
+                  style={{
+                    width: "6px",
+                    height: "6px",
+                    borderRadius: "50%",
+                    backgroundColor: "#10b981",
+                    animation: "pulse 2s infinite",
+                  }}
+                />
+                <span
+                  style={{
+                    fontSize: "11px",
+                    fontWeight: 500,
+                    color: "#4ade80",
+                  }}
+                >
                   LIVE • {mockDepartments.length} Khoa
                 </span>
-              </div>
-            </div>
-            <p className="text-[11px] opacity-70">
-              Quản lý đề tài, sinh viên, giảng viên hướng dẫn
-            </p>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1.5 px-2.5 py-1 bg-surface-subtle rounded-lg text-[10px]">
-              <Calendar size={14} className="text-emerald-400" />
-              <span className="font-medium">Khóa 2021-2025 • Đợt 1</span>
-            </div>
-          </div>
-        </div>
-      </header>
+              </Box>
+            </Box>
+          </Box>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 1.5,
+                px: 2.5,
+                py: 1,
+                bgcolor: "surface.subtle",
+                borderRadius: 1,
+                fontSize: "10px",
+              }}
+            >
+              <Calendar size={14} style={{ color: "#4ade80" }} />
+              <span style={{ fontWeight: 500 }}>Khóa 2021-2025 • Đợt 1</span>
+            </Box>
+          </Box>
+        </Box>
+      </Box>
 
-      <div className="max-w-7xl mx-auto space-y-3 px-4 py-3">
+      <Box
+        sx={{
+          maxWidth: "7xl",
+          mx: "auto",
+          display: "flex",
+          flexDirection: "column",
+          gap: 3,
+          px: 4,
+          py: 3,
+        }}
+      >
         {/* Toolbar */}
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-2">
-          <div className="flex-1 relative w-full md:w-auto">
-            <Search
-              className="absolute left-2.5 top-1/2 -translate-y-1/2 opacity-50"
-              size={16}
-            />
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: { xs: "column", md: "row" },
+            alignItems: { xs: "flex-start", md: "center" },
+            justifyContent: "space-between",
+            gap: 2,
+          }}
+        >
+          <Box
+            sx={{
+              flex: 1,
+              display: "flex",
+              alignItems: "center",
+              gap: 1,
+              px: 2,
+              py: 1,
+              borderRadius: 1,
+              border: "1px solid",
+              borderColor: "divider",
+              backgroundColor: "background.paper",
+              width: { xs: "100%", md: "auto" },
+            }}
+          >
+            <Search size={18} style={{ color: "#2563eb", flexShrink: 0 }} />
             <input
               type="text"
               placeholder="Tìm kiếm..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-8 pr-3 py-1.5 rounded-lg bg-surface-subtle text-[11px] placeholder:text-text-secondary focus:outline-none focus:bg-surface-card transition-colors"
+              style={{
+                flex: 1,
+                border: "none",
+                background: "transparent",
+                outline: "none",
+                fontSize: "0.75rem",
+                fontFamily: "inherit",
+              }}
             />
-          </div>
+          </Box>
           <div className="flex items-center gap-1 bg-surface-subtle rounded-lg p-0.5">
             {(["week", "month", "all"] as const).map((range) => (
               <button
@@ -448,34 +604,49 @@ export const AdminDepartmentDashboard: React.FC = () => {
             <Plus size={14} />
             <span>Lập HĐ</span>
           </button>
-        </div>
+        </Box>
 
         {/* KPI Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
-          <div className="p-3 rounded-lg bg-surface-card/70">
-            <p className="text-[10px] font-medium opacity-70">Tổng Đề Tài</p>
-            <p className="text-2xl font-bold mt-1">{totalProjects}</p>
-            <p className="text-[9px] text-emerald-400 mt-0.5">+8.2%</p>
-          </div>
-
-          <div className="p-3 rounded-lg bg-surface-card/70">
-            <p className="text-[10px] font-medium opacity-70">Sinh Viên</p>
-            <p className="text-2xl font-bold mt-1">{totalStudents}</p>
-            <p className="text-[9px] text-emerald-400 mt-0.5">430 nhóm</p>
-          </div>
-
-          <div className="p-3 rounded-lg bg-surface-card/70">
-            <p className="text-[10px] font-medium opacity-70">GVHD</p>
-            <p className="text-2xl font-bold mt-1">{totalTeachers}</p>
-            <p className="text-[9px] text-amber-400 mt-0.5">5.8 ĐT/GV</p>
-          </div>
-
-          <div className="p-3 rounded-lg bg-surface-card/70">
-            <p className="text-[10px] font-medium opacity-70">Hội Đồng</p>
-            <p className="text-2xl font-bold mt-1">48</p>
-            <p className="text-[9px] text-emerald-400 mt-0.5">88.5%</p>
-          </div>
-        </div>
+        <Box
+          sx={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
+            gap: 2,
+          }}
+        >
+          <StatCard
+            label="Tổng Đề Tài"
+            value={totalProjects}
+            subtext="+8.2%"
+            subtextColor="text-emerald-400"
+            icon={<FileText size={18} />}
+            iconColor="#10b981"
+          />
+          <StatCard
+            label="Sinh Viên"
+            value={totalStudents}
+            subtext="430 nhóm"
+            subtextColor="text-emerald-400"
+            icon={<Users size={18} />}
+            iconColor="#3b82f6"
+          />
+          <StatCard
+            label="GVHD"
+            value={totalTeachers}
+            subtext="5.8 ĐT/GV"
+            subtextColor="text-amber-400"
+            icon={<BookOpen size={18} />}
+            iconColor="#8b5cf6"
+          />
+          <StatCard
+            label="Hội Đồng"
+            value={48}
+            subtext="88.5%"
+            subtextColor="text-emerald-400"
+            icon={<BarChart3 size={18} />}
+            iconColor="#f59e0b"
+          />
+        </Box>
 
         {/* Progress Bar */}
         <div className="p-3 rounded-lg bg-surface-card/70">
@@ -527,110 +698,266 @@ export const AdminDepartmentDashboard: React.FC = () => {
         )}
 
         {/* Bottom Section: Schedule & Comparison */}
-        <div className="grid grid-cols-1 xl:grid-cols-12 gap-3">
+        <Box
+          sx={{
+            display: "grid",
+            gridTemplateColumns: { xs: "1fr", xl: "repeat(12, 1fr)" },
+            gap: 3,
+          }}
+        >
           {/* Schedule */}
-          <div className="xl:col-span-7 p-3 rounded-lg bg-surface-card/70">
-            <div className="flex flex-wrap items-center justify-between gap-2 mb-3 pb-2">
-              <div className="flex items-center gap-2">
-                <div className="w-6 h-6 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+          <Box
+            sx={{
+              gridColumn: { xs: "1", xl: "span 7" },
+              p: 3,
+              borderRadius: 1,
+              bgcolor: "surface.card/0.7",
+            }}
+          >
+            <Box
+              sx={{
+                display: "flex",
+                flexWrap: "wrap",
+                alignItems: "center",
+                justifyContent: "space-between",
+                gap: 2,
+                mb: 3,
+                pb: 2,
+              }}
+            >
+              <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                <Box
+                  sx={{
+                    width: 6,
+                    height: 6,
+                    borderRadius: 1,
+                    bgcolor: "primary/10",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: "primary",
+                  }}
+                >
                   <Clock size={14} />
-                </div>
-                <div>
-                  <h3 className="text-[10px] font-bold uppercase">
+                </Box>
+                <Box>
+                  <h3
+                    style={{
+                      fontSize: "10px",
+                      fontWeight: "bold",
+                      textTransform: "uppercase",
+                    }}
+                  >
                     Lịch Bảo Vệ Đồ Án
                   </h3>
-                  <span className="text-[9px] text-text-secondary opacity-70">
+                  <span
+                    style={{
+                      fontSize: "9px",
+                      color: "text.secondary",
+                      opacity: 0.7,
+                    }}
+                  >
                     Tuần 19 • Khóa 2021-2025
                   </span>
-                </div>
-              </div>
-              <div className="flex items-center gap-0.5 bg-surface-subtle p-0.5 rounded-lg">
+                </Box>
+              </Box>
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 0.5,
+                  bgcolor: "surface.subtle",
+                  p: 0.5,
+                  borderRadius: 1,
+                }}
+              >
                 {["T2", "T3", "T4", "T5", "T6"].map((day, idx) => (
                   <button
                     key={`day-${day}`}
-                    className={`px-1.5 py-0.5 rounded text-[9px] font-semibold transition-all ${
-                      idx === 0
-                        ? "bg-primary text-on-primary shadow-sm"
-                        : "text-text-secondary hover:text-text-primary"
-                    }`}
+                    style={{
+                      paddingLeft: "6px",
+                      paddingRight: "6px",
+                      paddingTop: "4px",
+                      paddingBottom: "4px",
+                      borderRadius: "4px",
+                      fontSize: "9px",
+                      fontWeight: "600",
+                      backgroundColor:
+                        idx === 0 ? "var(--primary)" : "transparent",
+                      color:
+                        idx === 0
+                          ? "var(--on-primary)"
+                          : "var(--text-secondary)",
+                    }}
                   >
                     {day}
                   </button>
                 ))}
-              </div>
-            </div>
+              </Box>
+            </Box>
 
-            <div className="space-y-1.5">
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
               {scheduleSlots.map((slot, idx) => (
                 <ScheduleCard key={idx} slot={slot} />
               ))}
-            </div>
+            </Box>
 
-            <div className="mt-2 pt-2 flex items-center justify-between text-[9px]">
-              <span className="text-text-secondary opacity-70">
-                <span className="text-emerald-400 font-medium">
+            <Box
+              sx={{
+                mt: 2,
+                pt: 2,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                fontSize: "9px",
+              }}
+            >
+              <span style={{ color: "var(--text-secondary)", opacity: 0.7 }}>
+                <span style={{ color: "#4ade80", fontWeight: 500 }}>
                   4 hội đồng hôm nay
                 </span>{" "}
                 • 10 phòng sẵn sàng
               </span>
-              <button className="text-primary font-medium hover:underline flex items-center gap-0.5">
+              <button
+                style={{
+                  color: "var(--primary)",
+                  fontWeight: 500,
+                  textDecoration: "underline",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "4px",
+                }}
+              >
                 Xem toàn bộ
                 <ChevronRight size={12} />
               </button>
-            </div>
-          </div>
+            </Box>
+          </Box>
 
           {/* Comparison Chart */}
-          <div className="xl:col-span-5 p-3 rounded-lg bg-surface-card/70">
-            <div className="flex items-center justify-between mb-2.5">
-              <div className="flex items-center gap-1.5">
+          <Box
+            sx={{
+              gridColumn: { xs: "1", xl: "span 5" },
+              p: 3,
+              borderRadius: 1,
+              bgcolor: "surface.card/0.7",
+            }}
+          >
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                mb: 2.5,
+              }}
+            >
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
                 <BarChart3 size={14} className="text-primary" />
-                <h3 className="text-[10px] font-bold uppercase">
+                <h3
+                  style={{
+                    fontSize: "10px",
+                    fontWeight: "bold",
+                    textTransform: "uppercase",
+                  }}
+                >
                   So Sánh Hoàn Thành 6 Khoa
                 </h3>
-              </div>
-              <span className="text-[9px] font-mono text-text-secondary opacity-70">
+              </Box>
+              <span
+                style={{
+                  fontSize: "9px",
+                  fontFamily: "monospace",
+                  color: "var(--text-secondary)",
+                  opacity: 0.7,
+                }}
+              >
                 KPI &gt; 70%
               </span>
-            </div>
+            </Box>
 
-            <div className="space-y-1.5">
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
               {[
                 { dept: "Kinh Tế & QTKD", percent: 90, color: "bg-amber-500" },
                 { dept: "CNTT & TT", percent: 82, color: "bg-emerald-500" },
                 { dept: "Điện - Điện Tử", percent: 75, color: "bg-amber-500" },
                 { dept: "Cơ Khí", percent: 68, color: "bg-blue-400" },
               ].map((item, idx) => (
-                <div key={idx}>
-                  <div className="flex justify-between text-[9px] mb-0.5">
-                    <span className="font-medium">{item.dept}</span>
+                <Box key={idx}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      fontSize: "9px",
+                      mb: 0.5,
+                    }}
+                  >
+                    <span style={{ fontWeight: 500 }}>{item.dept}</span>
                     <span className={item.color.replace("bg-", "text-")}>
                       {item.percent}%
                     </span>
-                  </div>
-                  <div className="w-full h-1.5 rounded-full bg-surface-subtle overflow-hidden">
-                    <div
-                      className={`h-full ${item.color} rounded-full`}
-                      style={{ width: `${item.percent}%` }}
+                  </Box>
+                  <Box
+                    sx={{
+                      width: "100%",
+                      height: "6px",
+                      borderRadius: "9999px",
+                      bgcolor: "surface.subtle",
+                      overflow: "hidden",
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        height: "100%",
+                        borderRadius: "9999px",
+                        bgcolor: item.color.replace("bg-", ""),
+                        width: `${item.percent}%`,
+                      }}
                     />
-                  </div>
-                </div>
+                  </Box>
+                </Box>
               ))}
-            </div>
+            </Box>
 
-            <div className="mt-2 pt-2 flex items-center justify-between text-[9px]">
-              <span className="text-text-secondary opacity-70">
-                <span className="w-1 h-1 rounded-full bg-emerald-500 inline-block mr-1" />
+            <Box
+              sx={{
+                mt: 2,
+                pt: 2,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                fontSize: "9px",
+              }}
+            >
+              <span style={{ color: "var(--text-secondary)", opacity: 0.7 }}>
+                <span
+                  style={{
+                    width: "4px",
+                    height: "4px",
+                    borderRadius: "50%",
+                    backgroundColor: "#4ade80",
+                    display: "inline-block",
+                    marginRight: "4px",
+                  }}
+                />
                 TB hoàn thành: <b>77.6%</b>
               </span>
-              <button className="text-primary font-medium hover:underline">
+              <button
+                style={{
+                  color: "var(--primary)",
+                  fontWeight: 500,
+                  textDecoration: "underline",
+                  background: "none",
+                  border: "none",
+                  cursor: "pointer",
+                }}
+              >
                 Xuất biểu đồ
               </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+            </Box>
+          </Box>
+        </Box>
+      </Box>
+    </Box>
   );
 };
 
