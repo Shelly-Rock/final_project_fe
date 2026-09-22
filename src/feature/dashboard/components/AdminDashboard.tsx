@@ -147,8 +147,8 @@ export const AdminDashboard: React.FC = () => {
       </Box>
 
       {/* Summary Cards */}
-      <div
-        style={{
+      <Box
+        sx={{
           display: "grid",
           gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
           gap: "1rem",
@@ -175,7 +175,7 @@ export const AdminDashboard: React.FC = () => {
           value={dashboardStats?.summary.totalDepartments}
           icon={<TrendingUp size={24} style={{ color: "#f59e0b" }} />}
         />
-      </div>
+      </Box>
 
       {/* Charts Tab */}
       <Tabs
@@ -183,11 +183,12 @@ export const AdminDashboard: React.FC = () => {
           {
             label: "Tổng Quan",
             content: (
-              <div
-                style={{
+              <Box
+                sx={{
                   display: "grid",
                   gridTemplateColumns: "repeat(auto-fit, minmax(400px, 1fr))",
                   gap: "1rem",
+                  p: 3,
                 }}
               >
                 <Card variant="elevation">
@@ -245,51 +246,54 @@ export const AdminDashboard: React.FC = () => {
                     </ResponsiveContainer>
                   </CardContentDiv>
                 </Card>
-              </div>
+              </Box>
             ),
           },
           {
             label: "Theo Khoa",
             content: (
-              <Card variant="elevation">
-                <CardHeader title="Thống Kê Theo Khoa" />
-                <CardContentDiv>
-                  <ResponsiveContainer width="100%" height={400}>
-                    <BarChart data={departmentMetrics}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="name" />
-                      <YAxis />
-                      <Tooltip />
-                      <Legend />
-                      <Bar
-                        dataKey="totalTeachers"
-                        fill="#8b5cf6"
-                        name="Giảng Viên"
-                      />
-                      <Bar
-                        dataKey="approvedProjects"
-                        fill="#10b981"
-                        name="Đề Tài Đã Duyệt"
-                      />
-                      <Bar
-                        dataKey="pendingProjects"
-                        fill="#fbbf24"
-                        name="Đề Tài Chờ Duyệt"
-                      />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </CardContentDiv>
-              </Card>
+              <Box sx={{ p: 3 }}>
+                <Card variant="elevation">
+                  <CardHeader title="Thống Kê Theo Khoa" />
+                  <CardContentDiv>
+                    <ResponsiveContainer width="100%" height={400}>
+                      <BarChart data={departmentMetrics}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="name" />
+                        <YAxis />
+                        <Tooltip />
+                        <Legend />
+                        <Bar
+                          dataKey="totalTeachers"
+                          fill="#8b5cf6"
+                          name="Giảng Viên"
+                        />
+                        <Bar
+                          dataKey="approvedProjects"
+                          fill="#10b981"
+                          name="Đề Tài Đã Duyệt"
+                        />
+                        <Bar
+                          dataKey="pendingProjects"
+                          fill="#fbbf24"
+                          name="Đề Tài Chờ Duyệt"
+                        />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </CardContentDiv>
+                </Card>
+              </Box>
             ),
           },
           {
             label: "Trạng Thái",
             content: (
-              <div
-                style={{
+              <Box
+                sx={{
                   display: "grid",
                   gridTemplateColumns: "repeat(auto-fit, minmax(400px, 1fr))",
                   gap: "1rem",
+                  p: 3,
                 }}
               >
                 <Card variant="elevation">
@@ -321,7 +325,7 @@ export const AdminDashboard: React.FC = () => {
                     </ResponsiveContainer>
                   </CardContentDiv>
                 </Card>
-              </div>
+              </Box>
             ),
           },
         ]}
