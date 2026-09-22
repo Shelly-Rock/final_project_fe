@@ -412,6 +412,7 @@ export function TopicManageTable() {
       format: (value) => (
         <Chip
           size="small"
+          variant="outlined"
           label={TOPIC_STATUS_LABELS[value as TopicStatus] ?? String(value)}
           color={TOPIC_STATUS_COLORS[value as TopicStatus] ?? "default"}
         />
@@ -439,6 +440,7 @@ export function TopicManageTable() {
         return (
           <Chip
             size="small"
+            variant="outlined"
             label={PROJECT_STATUS_LABELS[dominant]}
             color={PROJECT_STATUS_COLORS[dominant]}
           />
