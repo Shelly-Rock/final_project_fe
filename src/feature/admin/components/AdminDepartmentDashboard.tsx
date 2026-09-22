@@ -72,9 +72,7 @@ const DepartmentCard: React.FC<{ dept: DepartmentCardData }> = ({ dept }) => {
     <div
       className="p-4 rounded-lg hover:bg-surface-card/80 transition-all flex flex-col justify-between h-full shadow-md hover:shadow-lg"
       style={{
-        backgroundImage:
-          "linear-gradient(rgba(255, 255, 255, 0), rgba(255, 255, 255, 0))",
-        backgroundColor: "rgb(45, 52, 76, 0.7)",
+        background: "linear-gradient(135deg, #15213B 0%, #1C2D56 100%)",
       }}
     >
       <div>
@@ -202,9 +200,7 @@ const StatCard = ({
   <Card
     variant="soft"
     sx={{
-      backgroundImage:
-        "linear-gradient(rgba(255, 255, 255, 0), rgba(255, 255, 255, 0))",
-      backgroundColor: "rgba(100, 116, 139, 0.04)",
+      background: "linear-gradient(135deg, #15213B 0%, #1C2D56 100%)",
       boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
     }}
   >
@@ -261,9 +257,7 @@ const ScheduleCard: React.FC<{ slot: ScheduleSlot }> = ({ slot }) => {
     <div
       className="p-2.5 rounded-lg hover:bg-surface-subtle/60 transition-colors flex items-center justify-between gap-2 shadow-sm hover:shadow-md"
       style={{
-        backgroundImage:
-          "linear-gradient(rgba(255, 255, 255, 0), rgba(255, 255, 255, 0))",
-        backgroundColor: "rgba(100, 116, 139, 0.04)",
+        background: "linear-gradient(135deg, #15213B 0%, #1C2D56 100%)",
       }}
     >
       <div className="flex items-center gap-2 min-w-0">
@@ -676,8 +670,7 @@ export const AdminDepartmentDashboard: React.FC = () => {
         <div
           className="p-3 rounded-lg shadow-sm hover:shadow-md transition-shadow"
           style={{
-            background:
-              "linear-gradient(rgba(255, 255, 255, 0), rgba(255, 255, 255, 0))",
+            background: "linear-gradient(135deg, #15213B 0%, #1C2D56 100%)",
           }}
         >
           <div className="flex items-center justify-between mb-2">
@@ -741,8 +734,7 @@ export const AdminDepartmentDashboard: React.FC = () => {
               gridColumn: { xs: "1", xl: "span 7" },
               p: 3,
               borderRadius: 1,
-              background:
-                "linear-gradient(rgba(255, 255, 255, 0), rgba(255, 255, 255, 0))",
+              background: "linear-gradient(135deg, #15213B 0%, #1C2D56 100%)",
               boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
               "&:hover": {
                 boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
@@ -876,7 +868,7 @@ export const AdminDepartmentDashboard: React.FC = () => {
               gridColumn: { xs: "1", xl: "span 5" },
               p: 3,
               borderRadius: 1,
-              bgcolor: "surface.card/0.7",
+              background: "linear-gradient(135deg, #15213B 0%, #1C2D56 100%)",
               boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
               "&:hover": {
                 boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
