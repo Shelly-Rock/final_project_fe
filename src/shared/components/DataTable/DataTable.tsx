@@ -105,6 +105,7 @@ export interface DataTableProps<T> {
   selectable?: boolean;
   selectedRowKeys?: string[];
   onSelectionChange?: (selectedRowKeys: string[]) => void;
+  belowToolbar?: React.ReactNode;
 }
 
 function SkeletonRows<T>({
@@ -169,6 +170,7 @@ export function DataTable<T extends object>({
   selectable = false,
   selectedRowKeys = [],
   onSelectionChange,
+  belowToolbar,
 }: DataTableProps<T>) {
   const theme = useTheme();
   const [order, setOrder] = useState<Order>("asc");
@@ -281,6 +283,14 @@ export function DataTable<T extends object>({
     ? "linear-gradient(135deg, rgba(15, 23, 42, 0.8) 0%, rgba(30, 58, 138, 0.4) 100%)"
     : theme.palette.background.paper;
 
+  const showToolbar =
+    showSearchInput ||
+    filterOptions.length > 0 ||
+    cascadingFilterOptions.length > 0 ||
+    showExportButton ||
+    showImportButton ||
+    headerActions.length > 0;
+
   return (
     <Paper
       sx={{
@@ -290,190 +300,209 @@ export function DataTable<T extends object>({
         background: gradientBg,
       }}
     >
-      <Box
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          gap: 1.5,
-          px: 2,
-          py: 1.5,
-          borderBottom: "1px solid",
-          borderColor: "divider",
-          flexWrap: "wrap",
-        }}
-      >
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-          {showSearchInput && (
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-              <Search size={18} color="#2563eb" />
-              <Box
-                component="input"
-                type="text"
-                placeholder="Tìm kiếm..."
-                value={searchValue}
-                onChange={(e) => onSearchChange?.(e.target.value)}
-                spellCheck={false}
-                sx={{
-                  border: "none",
-                  outline: "none",
-                  background: "transparent",
-                  fontSize: "0.875rem",
-                  color: "#2563eb",
-                  fontWeight: 500,
-                  width: 180,
-                  "&::placeholder": {
-                    color: "#2563eb",
-                    opacity: 0.7,
-                  },
-                }}
-              />
-            </Box>
-          )}
-        </Box>
-
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-          {/* Primary Filter Button */}
-          {showFilterButton && filterOptions.length > 0 ? (
-            <DropdownMenu
-              trigger={
-                <Button
-                  size="small"
-                  startIcon={<Filter size={16} />}
-                  sx={getButtonSx("outlined")}
-                  variant="outlined"
-                >
-                  {filterValue && filterValue !== "all"
-                    ? filterOptions.find((o) => o.value === filterValue)
-                        ?.label || "Lọc"
-                    : "Khoa"}
-                </Button>
-              }
-              items={filterMenuItems}
-              controlledOpen={filterOpen}
-              onOpenChange={setFilterOpen}
-            />
-          ) : (
-            filterOptions.length > 0 && (
-              <Box sx={{ display: "flex", alignItems: "center" }}>
-                <Typography
-                  variant="caption"
-                  sx={{ color: "#64748b", fontWeight: 500, mr: 1 }}
-                >
-                  Trạng thái:
-                </Typography>
-                <Box sx={{ display: "flex" }}>
-                  {filterOptions.map((option, index) => (
-                    <Box
-                      key={option.value}
-                      onClick={() => onFilterChange?.(option.value)}
-                      sx={{
-                        px: 1.5,
-                        py: 0.5,
-                        fontSize: "0.75rem",
-                        fontWeight: filterValue === option.value ? 600 : 400,
-                        color:
-                          filterValue === option.value ? "#fff" : "#2563eb",
-                        backgroundColor:
-                          filterValue === option.value
-                            ? "#2563eb"
-                            : "transparent",
-                        border: "1px solid #2563eb",
-                        cursor: "pointer",
-                        borderRadius:
-                          index === 0
-                            ? "6px 0 0 6px"
-                            : index === filterOptions.length - 1
-                              ? "0 6px 6px 0"
-                              : "0",
-                        ml: index > 0 ? "-1px" : 0,
-                        "&:hover": {
-                          backgroundColor:
-                            filterValue === option.value
-                              ? "#1d4ed8"
-                              : "rgba(37, 99, 235, 0.08)",
-                        },
-                      }}
-                    >
-                      {option.label}
-                    </Box>
-                  ))}
-                </Box>
-              </Box>
-            )
-          )}
-
-          {/* Cascading Filter Button (Department) */}
-          {cascadingFilterOptions.length > 0 && (
-            <DropdownMenu
-              trigger={
-                <Button
-                  size="small"
-                  startIcon={<Filter size={16} />}
+      {showToolbar && (
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 1.5,
+            px: 2,
+            py: 1.5,
+            borderBottom: "1px solid",
+            borderColor: "divider",
+            flexWrap: "wrap",
+          }}
+        >
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            {showSearchInput && (
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <Search size={18} color="#2563eb" />
+                <Box
+                  component="input"
+                  type="text"
+                  placeholder="Tìm kiếm..."
+                  value={searchValue}
+                  onChange={(e) => onSearchChange?.(e.target.value)}
+                  spellCheck={false}
                   sx={{
-                    ...getButtonSx("outlined"),
-                    borderColor:
-                      cascadingFilterValue && cascadingFilterValue !== "all"
-                        ? "#10b981"
-                        : "#2563eb",
-                    color:
-                      cascadingFilterValue && cascadingFilterValue !== "all"
-                        ? "#10b981"
-                        : "#2563eb",
-                    "&:hover": {
-                      backgroundColor:
-                        cascadingFilterValue && cascadingFilterValue !== "all"
-                          ? "rgba(16, 185, 129, 0.08)"
-                          : "rgba(37, 99, 235, 0.08)",
+                    border: "none",
+                    outline: "none",
+                    background: "transparent",
+                    fontSize: "0.875rem",
+                    color: "#2563eb",
+                    fontWeight: 500,
+                    width: 180,
+                    "&::placeholder": {
+                      color: "#2563eb",
+                      opacity: 0.7,
                     },
                   }}
-                  variant="outlined"
-                >
-                  {cascadingFilterValue && cascadingFilterValue !== "all"
-                    ? cascadingFilterOptions.find(
-                        (o) => o.value === cascadingFilterValue,
-                      )?.label || cascadingFilterLabel
-                    : cascadingFilterLabel}
-                </Button>
-              }
-              items={cascadingFilterMenuItems}
-              controlledOpen={cascadingFilterOpen}
-              onOpenChange={setCascadingFilterOpen}
-            />
-          )}
+                />
+              </Box>
+            )}
+          </Box>
 
-          {showExportButton && (
-            <Button
-              size="small"
-              startIcon={<Download size={16} />}
-              sx={getButtonSx("outlined")}
-            >
-              Export
-            </Button>
-          )}
-          {showImportButton && (
-            <Button
-              size="small"
-              startIcon={<Upload size={16} />}
-              sx={getButtonSx("outlined")}
-            >
-              Import
-            </Button>
-          )}
-          {headerActions.map((action) => (
-            <Button
-              key={action.id}
-              size="small"
-              startIcon={action.icon}
-              onClick={action.onClick}
-              disabled={action.disabled}
-              sx={getButtonSx(action.variant)}
-            >
-              {action.label}
-            </Button>
-          ))}
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            {/* Primary Filter Button */}
+            {showFilterButton && filterOptions.length > 0 ? (
+              <DropdownMenu
+                trigger={
+                  <Button
+                    size="small"
+                    startIcon={<Filter size={16} />}
+                    sx={getButtonSx("outlined")}
+                    variant="outlined"
+                  >
+                    {filterValue && filterValue !== "all"
+                      ? filterOptions.find((o) => o.value === filterValue)
+                          ?.label || "Lọc"
+                      : "Khoa"}
+                  </Button>
+                }
+                items={filterMenuItems}
+                controlledOpen={filterOpen}
+                onOpenChange={setFilterOpen}
+              />
+            ) : (
+              filterOptions.length > 0 && (
+                <Box sx={{ display: "flex", alignItems: "center" }}>
+                  <Typography
+                    variant="caption"
+                    sx={{ color: "#64748b", fontWeight: 500, mr: 1 }}
+                  >
+                    Trạng thái:
+                  </Typography>
+                  <Box sx={{ display: "flex" }}>
+                    {filterOptions.map((option, index) => (
+                      <Box
+                        key={option.value}
+                        onClick={() => onFilterChange?.(option.value)}
+                        sx={{
+                          px: 1.5,
+                          py: 0.5,
+                          fontSize: "0.75rem",
+                          fontWeight: filterValue === option.value ? 600 : 400,
+                          color:
+                            filterValue === option.value ? "#fff" : "#2563eb",
+                          backgroundColor:
+                            filterValue === option.value
+                              ? "#2563eb"
+                              : "transparent",
+                          border: "1px solid #2563eb",
+                          cursor: "pointer",
+                          borderRadius:
+                            index === 0
+                              ? "6px 0 0 6px"
+                              : index === filterOptions.length - 1
+                                ? "0 6px 6px 0"
+                                : "0",
+                          ml: index > 0 ? "-1px" : 0,
+                          "&:hover": {
+                            backgroundColor:
+                              filterValue === option.value
+                                ? "#1d4ed8"
+                                : "rgba(37, 99, 235, 0.08)",
+                          },
+                        }}
+                      >
+                        {option.label}
+                      </Box>
+                    ))}
+                  </Box>
+                </Box>
+              )
+            )}
+
+            {/* Cascading Filter Button (Department) */}
+            {cascadingFilterOptions.length > 0 && (
+              <DropdownMenu
+                trigger={
+                  <Button
+                    size="small"
+                    startIcon={<Filter size={16} />}
+                    sx={{
+                      ...getButtonSx("outlined"),
+                      borderColor:
+                        cascadingFilterValue && cascadingFilterValue !== "all"
+                          ? "#10b981"
+                          : "#2563eb",
+                      color:
+                        cascadingFilterValue && cascadingFilterValue !== "all"
+                          ? "#10b981"
+                          : "#2563eb",
+                      "&:hover": {
+                        backgroundColor:
+                          cascadingFilterValue && cascadingFilterValue !== "all"
+                            ? "rgba(16, 185, 129, 0.08)"
+                            : "rgba(37, 99, 235, 0.08)",
+                      },
+                    }}
+                    variant="outlined"
+                  >
+                    {cascadingFilterValue && cascadingFilterValue !== "all"
+                      ? cascadingFilterOptions.find(
+                          (o) => o.value === cascadingFilterValue,
+                        )?.label || cascadingFilterLabel
+                      : cascadingFilterLabel}
+                  </Button>
+                }
+                items={cascadingFilterMenuItems}
+                controlledOpen={cascadingFilterOpen}
+                onOpenChange={setCascadingFilterOpen}
+              />
+            )}
+
+            {showExportButton && (
+              <Button
+                size="small"
+                startIcon={<Download size={16} />}
+                sx={getButtonSx("outlined")}
+              >
+                Export
+              </Button>
+            )}
+            {showImportButton && (
+              <Button
+                size="small"
+                startIcon={<Upload size={16} />}
+                sx={getButtonSx("outlined")}
+              >
+                Import
+              </Button>
+            )}
+            {headerActions.map((action) => (
+              <Button
+                key={action.id}
+                size="small"
+                startIcon={action.icon}
+                onClick={action.onClick}
+                disabled={action.disabled}
+                sx={getButtonSx(action.variant)}
+              >
+                {action.label}
+              </Button>
+            ))}
+          </Box>
         </Box>
-      </Box>
+      )}
+
+      {belowToolbar && (
+        <Box
+          sx={{
+            px: 2,
+            py: 1.5,
+            borderBottom: "1px solid",
+            borderColor: "divider",
+            display: "flex",
+            alignItems: "center",
+            gap: 1,
+            bgcolor: "background.default",
+          }}
+        >
+          {belowToolbar}
+        </Box>
+      )}
 
       <TableContainer
         sx={{

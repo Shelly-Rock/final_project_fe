@@ -2,8 +2,9 @@
 
 import { Box, Chip } from "@mui/material";
 import { Edit as EditIcon, Delete as DeleteIcon } from "@mui/icons-material";
+import { Plus, RefreshCw } from "lucide-react";
 import { DataTable } from "@/shared/components";
-import type { Column, Action } from "@/shared/components";
+import type { Column, Action, HeaderAction } from "@/shared/components";
 import type { Committee } from "../services";
 
 interface CommitteeTableProps {
@@ -16,6 +17,8 @@ interface CommitteeTableProps {
   };
   onEdit: (committee: Committee) => void;
   onDelete: (committee: Committee) => void;
+  onAdd?: () => void;
+  onRefresh?: () => void;
   onPageChange: (page: number) => void;
   onRowsPerPageChange: (pageSize: number) => void;
 }
@@ -44,6 +47,8 @@ export function CommitteeTable({
   pagination,
   onEdit,
   onDelete,
+  onAdd,
+  onRefresh,
   onPageChange,
   onRowsPerPageChange,
 }: CommitteeTableProps) {
@@ -114,12 +119,38 @@ export function CommitteeTable({
     },
   ];
 
+  const headerActions: HeaderAction[] = [
+    ...(onAdd
+      ? [
+          {
+            id: "add",
+            icon: <Plus size={16} />,
+            label: "Thêm Hội đồng",
+            onClick: onAdd,
+            variant: "contained" as const,
+          },
+        ]
+      : []),
+    ...(onRefresh
+      ? [
+          {
+            id: "refresh",
+            icon: <RefreshCw size={16} />,
+            label: "Làm mới",
+            onClick: onRefresh,
+            variant: "outlined" as const,
+          },
+        ]
+      : []),
+  ];
+
   return (
     <DataTable
       columns={columns}
       rows={committees}
       rowKey="id"
       actions={actions}
+      headerActions={headerActions}
       loading={loading}
       showSearchInput={false}
       showFilterButton={false}

@@ -26,7 +26,6 @@ const ROLE_ROUTES: Partial<Record<Role, RegExp[]>> = {
     /^\/project-config/,
     /^\/user/,
     /^\/role/,
-    /^\/setting/,
     /^\/audit/,
     /^\/department/,
     /^\/major/,
@@ -40,21 +39,16 @@ const ROLE_ROUTES: Partial<Record<Role, RegExp[]>> = {
     /^\/project-config/,
     /^\/user/,
     /^\/role/,
-    /^\/setting/,
     /^\/audit/,
     /^\/department/,
     /^\/statistic/,
+    /^\/scoring\/meeting/,
+    /^\/scoring\/transcript/,
   ],
 };
 
 // ---------- Admin/secretary-only routes ----------
-const ADMIN_ONLY_ROUTES = [
-  /^\/students/,
-  /^\/teachers/,
-  /^\/user/,
-  /^\/setting/,
-  /^\/audit/,
-];
+const ADMIN_ONLY_ROUTES = [/^\/students/, /^\/teachers/, /^\/user/, /^\/audit/];
 
 // ---------- Admin-only (no secretary) ----------
 const ADMIN_STRICT_ROUTES = [/^\/role/];

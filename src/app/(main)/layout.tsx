@@ -5,7 +5,7 @@ import "@/styles/main.scss";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import { AppProviders } from "@/core/providers";
 import { Sidebar } from "@/layout/Sidebar";
-import { Header } from "@/layout/Header";
+import { Header, HeaderSlotProvider } from "@/layout/Header";
 import { ChatbotButton } from "@/shared/components/ChatbotButton/ChatbotButton";
 import { useSession } from "next-auth/react";
 import { useMediaQuery } from "@/shared/hooks";
@@ -79,45 +79,47 @@ export default function MainLayout({
 
   return (
     <AppProviders initialRole={session.user.role}>
-      <div className="app-shell">
-        {/* Mobile overlay */}
-        {mobileSidebarOpen && isMobile && (
+      <HeaderSlotProvider>
+        <div className="app-shell">
+          {/* Mobile overlay */}
+          {mobileSidebarOpen && isMobile && (
+            <div
+              className="sidebar-overlay"
+              onClick={() => setMobileSidebarOpen(false)}
+              aria-hidden="true"
+            />
+          )}
+
+          {/* Mobile toggle button on header */}
+          {isMobile && (
+            <button
+              type="button"
+              className="sidebar-mobile-toggle"
+              onClick={() => setMobileSidebarOpen(true)}
+              aria-label="Open menu"
+            >
+              <span className="bi bi-list" />
+            </button>
+          )}
+
+          <Sidebar
+            collapsed={sidebarCollapsed}
+            onToggle={() => setSidebarCollapsed((prev) => !prev)}
+            mobileOpen={mobileSidebarOpen}
+            onMobileClose={() => setMobileSidebarOpen(false)}
+          />
           <div
-            className="sidebar-overlay"
-            onClick={() => setMobileSidebarOpen(false)}
-            aria-hidden="true"
-          />
-        )}
-
-        {/* Mobile toggle button on header */}
-        {isMobile && (
-          <button
-            type="button"
-            className="sidebar-mobile-toggle"
-            onClick={() => setMobileSidebarOpen(true)}
-            aria-label="Open menu"
+            className={`app-main ${sidebarCollapsed ? "sidebar-collapsed" : ""}`}
           >
-            <span className="bi bi-list" />
-          </button>
-        )}
-
-        <Sidebar
-          collapsed={sidebarCollapsed}
-          onToggle={() => setSidebarCollapsed((prev) => !prev)}
-          mobileOpen={mobileSidebarOpen}
-          onMobileClose={() => setMobileSidebarOpen(false)}
-        />
-        <div
-          className={`app-main ${sidebarCollapsed ? "sidebar-collapsed" : ""}`}
-        >
-          <Header
-            onMenuClick={() => setMobileSidebarOpen(true)}
-            showMenuButton={isMobile}
-          />
-          {children}
-          <ChatbotButton />
+            <Header
+              onMenuClick={() => setMobileSidebarOpen(true)}
+              showMenuButton={isMobile}
+            />
+            {children}
+            <ChatbotButton />
+          </div>
         </div>
-      </div>
+      </HeaderSlotProvider>
     </AppProviders>
   );
 }

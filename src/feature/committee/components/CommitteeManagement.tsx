@@ -1,8 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
-import { Box, Typography, Button, Alert } from "@mui/material";
-import { Plus } from "lucide-react";
+import { Typography, Alert } from "@mui/material";
 import {
   committeeService,
   Committee,
@@ -153,16 +152,6 @@ export default function CommitteeManagement() {
 
   return (
     <>
-      <Box sx={{ mb: 4 }}>
-        <Button
-          variant="contained"
-          startIcon={<Plus size={18} />}
-          onClick={openCreateModal}
-        >
-          Thêm Hội đồng
-        </Button>
-      </Box>
-
       <CommitteeStatsComponent stats={stats} />
 
       <Alert severity="info" sx={{ mb: 3 }}>
@@ -178,6 +167,8 @@ export default function CommitteeManagement() {
         loading={loading}
         pagination={pagination}
         onEdit={openEditModal}
+        onAdd={openCreateModal}
+        onRefresh={fetchCommittees}
         onDelete={(row) => setDeleteConfirm({ id: row.id, name: row.name })}
         onPageChange={(page) =>
           setPagination({ ...pagination, current: page + 1 })

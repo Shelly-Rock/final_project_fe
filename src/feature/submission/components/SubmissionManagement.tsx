@@ -1,8 +1,6 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
-import { Box } from "@mui/material";
-import { Select } from "@/shared/components";
 import { submissionService, Submission, SubmissionStatus } from "../services";
 import { toast } from "sonner";
 import { SubmissionStats } from "./SubmissionStats";
@@ -109,25 +107,15 @@ export function SubmissionManagement() {
     <>
       <SubmissionStats stats={stats} />
 
-      <Box sx={{ mb: 3 }}>
-        <Select
-          placeholder="Lọc trạng thái"
-          value={statusFilter || undefined}
-          onChange={(v) => setStatusFilter(v as SubmissionStatus | "")}
-          options={[
-            { value: "", label: "Tất cả" },
-            { value: "PENDING", label: "Chờ duyệt" },
-            { value: "APPROVED", label: "Đã duyệt" },
-            { value: "REJECTED", label: "Từ chối" },
-          ]}
-          sx={{ width: 200 }}
-        />
-      </Box>
-
       <SubmissionTable
         submissions={submissions}
         loading={loading}
         pagination={pagination}
+        filterValue={statusFilter}
+        onFilterChange={(value) => {
+          setStatusFilter(value);
+          setPagination((prev) => ({ ...prev, current: 1 }));
+        }}
         onApprove={(row) => openReviewModal(row, "APPROVED")}
         onReject={(row) => openReviewModal(row, "REJECTED")}
         onView={(row) => window.open(row.fileName, "_blank")}
@@ -135,7 +123,7 @@ export function SubmissionManagement() {
           setPagination({ ...pagination, current: page + 1 })
         }
         onRowsPerPageChange={(pageSize) =>
-          setPagination({ ...pagination, pageSize })
+          setPagination({ ...pagination, pageSize, current: 1 })
         }
       />
 

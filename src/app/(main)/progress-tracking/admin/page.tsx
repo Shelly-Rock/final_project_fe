@@ -663,31 +663,6 @@ export default function AdminProgressPage() {
 
   return (
     <Box sx={{ p: 3, width: "100%" }}>
-      {/* Quick Actions */}
-      <Paper sx={{ p: 2, mb: 3, background: getCardBackground(theme) }}>
-        <Box
-          sx={{
-            display: "flex",
-            gap: 2,
-            flexWrap: "wrap",
-            alignItems: "center",
-          }}
-        >
-          <AutoBanCheckComponent />
-          <Button
-            variant="outlined"
-            startIcon={<NotificationsIcon />}
-            onClick={() => setNotificationDialogOpen(true)}
-          >
-            Thông báo
-          </Button>
-          <Box sx={{ flex: 1 }} />
-          <Typography variant="body2" color="text.secondary">
-            Quản trị viên: <strong>{MOCK_ADMIN.name}</strong>
-          </Typography>
-        </Box>
-      </Paper>
-
       {/* Ban Warnings */}
       <BanWarningsList />
 
@@ -696,27 +671,56 @@ export default function AdminProgressPage() {
 
       {/* Tabs */}
       <Paper sx={{ mb: 2, background: getCardBackground(theme) }}>
-        <Tabs
-          value={tabValue}
-          onChange={(_, v) => setTabValue(v)}
-          sx={{ borderBottom: 1, borderColor: "divider" }}
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            borderBottom: 1,
+            borderColor: "divider",
+            pr: 2,
+            gap: 1,
+          }}
         >
-          <Tab
-            label="Tiến độ sinh viên"
-            icon={<DescriptionIcon />}
-            iconPosition="start"
-          />
-          <Tab
-            label="Duyệt báo cáo"
-            icon={<ReviewIcon />}
-            iconPosition="start"
-          />
-          <Tab
-            label="Sinh viên bị cấm"
-            icon={<BlockIcon />}
-            iconPosition="start"
-          />
-        </Tabs>
+          <Tabs
+            value={tabValue}
+            onChange={(_, v) => setTabValue(v)}
+            sx={{ flex: 1, minWidth: 0 }}
+          >
+            <Tab
+              label="Tiến độ sinh viên"
+              icon={<DescriptionIcon />}
+              iconPosition="start"
+            />
+            <Tab
+              label="Duyệt báo cáo"
+              icon={<ReviewIcon />}
+              iconPosition="start"
+            />
+            <Tab
+              label="Sinh viên bị cấm"
+              icon={<BlockIcon />}
+              iconPosition="start"
+            />
+          </Tabs>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 1,
+              flexShrink: 0,
+            }}
+          >
+            <AutoBanCheckComponent />
+            <Button
+              variant="outlined"
+              size="small"
+              startIcon={<NotificationsIcon />}
+              onClick={() => setNotificationDialogOpen(true)}
+            >
+              Thông báo
+            </Button>
+          </Box>
+        </Box>
 
         <TabPanel value={tabValue} index={0}>
           <AllStudentsProgress key={`progress-${refreshKey}`} />

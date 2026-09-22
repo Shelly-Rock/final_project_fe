@@ -1,6 +1,6 @@
 "use client";
 
-import { Typography, Chip } from "@mui/material";
+import { Typography, Chip, Box } from "@mui/material";
 import {
   Check as CheckIcon,
   X as XIcon,
@@ -30,6 +30,8 @@ interface SubmissionTableProps {
   onView: (submission: SubmissionWithName) => void;
   onPageChange: (page: number) => void;
   onRowsPerPageChange: (pageSize: number) => void;
+  filterValue?: SubmissionStatus | "";
+  onFilterChange?: (value: SubmissionStatus | "") => void;
 }
 
 const statusColors: Record<
@@ -47,6 +49,13 @@ const statusLabels: Record<SubmissionStatus, string> = {
   REJECTED: "Từ chối",
 };
 
+const STATUS_FILTERS: { value: SubmissionStatus | ""; label: string }[] = [
+  { value: "", label: "Tất cả" },
+  { value: "PENDING", label: "Chờ duyệt" },
+  { value: "APPROVED", label: "Đã duyệt" },
+  { value: "REJECTED", label: "Từ chối" },
+];
+
 export function SubmissionTable({
   submissions,
   loading = false,
@@ -56,6 +65,8 @@ export function SubmissionTable({
   onView,
   onPageChange,
   onRowsPerPageChange,
+  filterValue = "",
+  onFilterChange,
 }: SubmissionTableProps) {
   const columns: Column<SubmissionWithName>[] = [
     {
@@ -156,6 +167,7 @@ export function SubmissionTable({
       rows={submissions}
       rowKey="id"
       actions={actions}
+      headerActions={[]}
       loading={loading}
       showSearchInput={false}
       showFilterButton={false}
@@ -167,6 +179,50 @@ export function SubmissionTable({
       rowsPerPage={pagination.pageSize}
       onPageChange={onPageChange}
       onRowsPerPageChange={onRowsPerPageChange}
+      belowToolbar={
+        <Box sx={{ display: "flex", alignItems: "center" }}>
+          <Typography
+            variant="caption"
+            sx={{ color: "#64748b", fontWeight: 500, mr: 1 }}
+          >
+            Trạng thái:
+          </Typography>
+          <Box sx={{ display: "flex" }}>
+            {STATUS_FILTERS.map((option, index) => (
+              <Box
+                key={option.value || "all"}
+                onClick={() => onFilterChange?.(option.value)}
+                sx={{
+                  px: 1.5,
+                  py: 0.5,
+                  fontSize: "0.75rem",
+                  fontWeight: filterValue === option.value ? 600 : 400,
+                  color: filterValue === option.value ? "#fff" : "#2563eb",
+                  backgroundColor:
+                    filterValue === option.value ? "#2563eb" : "transparent",
+                  border: "1px solid #2563eb",
+                  cursor: "pointer",
+                  borderRadius:
+                    index === 0
+                      ? "6px 0 0 6px"
+                      : index === STATUS_FILTERS.length - 1
+                        ? "0 6px 6px 0"
+                        : "0",
+                  ml: index > 0 ? "-1px" : 0,
+                  "&:hover": {
+                    backgroundColor:
+                      filterValue === option.value
+                        ? "#1d4ed8"
+                        : "rgba(37, 99, 235, 0.08)",
+                  },
+                }}
+              >
+                {option.label}
+              </Box>
+            ))}
+          </Box>
+        </Box>
+      }
     />
   );
 }

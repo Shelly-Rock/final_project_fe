@@ -1,8 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
-import { Box, Typography, Button, Alert } from "@mui/material";
-import { Plus } from "lucide-react";
+import { Typography, Alert } from "@mui/material";
 import { defenseService, DefenseSession } from "../services";
 import { committeeService, type Committee } from "../../committee/services";
 import { toast } from "sonner";
@@ -173,16 +172,6 @@ export default function DefenseScheduleManagement() {
 
   return (
     <>
-      <Box sx={{ mb: 4 }}>
-        <Button
-          variant="contained"
-          startIcon={<Plus size={18} />}
-          onClick={openCreateModal}
-        >
-          Tạo lịch bảo vệ
-        </Button>
-      </Box>
-
       <DefenseScheduleStats stats={stats} />
 
       <Alert severity="info" sx={{ mb: 3 }}>
@@ -201,6 +190,8 @@ export default function DefenseScheduleManagement() {
         onDelete={(row) =>
           setDeleteConfirm({ id: row.id, name: row.committeeName })
         }
+        onAdd={openCreateModal}
+        onRefresh={fetchSessions}
         onComplete={handleComplete}
         onExportWord={handleExportWord}
         exportingId={exportingId}
