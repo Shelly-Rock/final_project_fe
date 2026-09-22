@@ -9,6 +9,10 @@ import {
   Typography,
   Tabs,
   Tab,
+  Chip,
+  RadioGroup,
+  Radio,
+  FormControlLabel,
 } from "@mui/material";
 import { Dialog } from "@/shared/components";
 import { Input } from "@/shared/components";
@@ -16,6 +20,7 @@ import { Select } from "@/shared/components";
 import { Button } from "@/shared/components";
 import type { MyTopic, CreateTopicInput, Student } from "../types";
 import { myTopicService } from "../services/my-topic.service";
+import { toast } from "sonner";
 
 const DEFAULT_MAX_STUDENTS = 3;
 const MIN_STUDENTS = 1;
@@ -47,6 +52,7 @@ interface TopicFormDialogProps {
   open: boolean;
   onClose: () => void;
   onSubmit: (data: CreateTopicInput) => Promise<void>;
+  onChangeLeader?: (topicId: number, projectId: number) => Promise<void>;
   topic?: MyTopic | null;
   isException?: boolean;
   loading?: boolean;
@@ -57,6 +63,7 @@ export function TopicFormDialog({
   open,
   onClose,
   onSubmit,
+  onChangeLeader,
   topic,
   isException = false,
   loading = false,
@@ -84,6 +91,9 @@ export function TopicFormDialog({
   const [studentQuery, setStudentQuery] = useState("");
   const [studentOptions, setStudentOptions] = useState<Student[]>([]);
   const [searchingStudents, setSearchingStudents] = useState(false);
+  const [leaderId, setLeaderId] = useState<number | null>(null);
+  const [savedLeaderId, setSavedLeaderId] = useState<number | null>(null);
+  const [leaderSaving, setLeaderSaving] = useState(false);
 
   // Validation
   const [touched, setTouched] = useState({
@@ -154,9 +164,21 @@ export function TopicFormDialog({
       } else {
         setSelectedStudents([]);
       }
+
+      const currentLeaderId =
+        topic?.registeredStudents?.find((s) => s.isLeader)?.id ?? null;
+      setLeaderId(currentLeaderId);
+      setSavedLeaderId(currentLeaderId);
+      setLeaderSaving(false);
     }
     prevOpenRef.current = open;
   }, [open, topic]);
+
+  const approvedStudents = useMemo(
+    () =>
+      topic?.registeredStudents?.filter((s) => s.status === "Approved") ?? [],
+    [topic],
+  );
 
   // Cập nhật sĩ số tối đa khi period thay đổi
   useEffect(() => {
@@ -301,6 +323,19 @@ export function TopicFormDialog({
     setMaxStudents(value);
   };
 
+  const handleUpdateLeader = async () => {
+    if (!topic || !leaderId || !onChangeLeader) return;
+    setLeaderSaving(true);
+    try {
+      await onChangeLeader(topic.id, leaderId);
+      setSavedLeaderId(leaderId);
+    } catch {
+      toast.error("Thay đổi trưởng nhóm thất bại");
+    } finally {
+      setLeaderSaving(false);
+    }
+  };
+
   return (
     <Dialog
       open={open}
@@ -393,6 +428,7 @@ export function TopicFormDialog({
               </Box>
             }
           />
+          {isEdit && <Tab label="Thông tin sinh viên" />}
         </Tabs>
 
         {/* Tab 1: Thông tin đề tài */}
@@ -627,6 +663,126 @@ export function TopicFormDialog({
             </Box>
           </Box>
         </TabPanel>
+
+        {isEdit && (
+          <TabPanel value={activeTab} index={2}>
+            <Box
+              sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 1 }}
+            >
+              <Typography variant="body2" color="text.secondary">
+                Danh sách sinh viên đã được duyệt của đề tài. Chọn trưởng nhóm
+                rồi nhấn Cập nhật trưởng nhóm.
+              </Typography>
+
+              {approvedStudents.length === 0 ? (
+                <Alert severity="info">
+                  Chưa có sinh viên nào được duyệt cho đề tài này.
+                </Alert>
+              ) : (
+                <>
+                  <RadioGroup
+                    value={leaderId ?? ""}
+                    onChange={(e) => setLeaderId(Number(e.target.value))}
+                  >
+                    <Box
+                      sx={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: 1.5,
+                      }}
+                    >
+                      {approvedStudents.map((student) => (
+                        <Box
+                          key={student.id}
+                          sx={{
+                            p: 1.5,
+                            border: "1px solid",
+                            borderColor:
+                              leaderId === student.id
+                                ? "primary.main"
+                                : "divider",
+                            borderRadius: 1,
+                            bgcolor:
+                              leaderId === student.id
+                                ? "action.selected"
+                                : "transparent",
+                          }}
+                        >
+                          <FormControlLabel
+                            value={student.id}
+                            control={<Radio size="small" />}
+                            sx={{
+                              m: 0,
+                              width: "100%",
+                              alignItems: "flex-start",
+                            }}
+                            label={
+                              <Box sx={{ pl: 0.5, width: "100%" }}>
+                                <Box
+                                  sx={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: 1,
+                                    flexWrap: "wrap",
+                                  }}
+                                >
+                                  <Typography
+                                    variant="subtitle2"
+                                    sx={{ fontWeight: 600 }}
+                                  >
+                                    {student.studentName}
+                                  </Typography>
+                                  {leaderId === student.id && (
+                                    <Chip
+                                      label="Trưởng nhóm"
+                                      size="small"
+                                      color="primary"
+                                    />
+                                  )}
+                                </Box>
+                                <Typography
+                                  variant="body2"
+                                  color="text.secondary"
+                                >
+                                  MSSV: {student.studentCode}
+                                </Typography>
+                                <Typography
+                                  variant="body2"
+                                  color="text.secondary"
+                                >
+                                  Nhiệm vụ:{" "}
+                                  {student.assignedTask?.trim() ||
+                                    "Chưa phân công"}
+                                </Typography>
+                              </Box>
+                            }
+                          />
+                        </Box>
+                      ))}
+                    </Box>
+                  </RadioGroup>
+
+                  <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+                    <Button
+                      variant="contained"
+                      size="small"
+                      onClick={handleUpdateLeader}
+                      loading={leaderSaving}
+                      disabled={
+                        !leaderId ||
+                        leaderId === savedLeaderId ||
+                        leaderSaving ||
+                        !onChangeLeader
+                      }
+                    >
+                      Cập nhật trưởng nhóm
+                    </Button>
+                  </Box>
+                </>
+              )}
+            </Box>
+          </TabPanel>
+        )}
       </form>
     </Dialog>
   );

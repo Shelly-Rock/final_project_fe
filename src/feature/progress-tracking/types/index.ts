@@ -123,6 +123,7 @@ export type DeadlineType =
   | "TOPIC_CREATION"
   | "STUDENT_REGISTRATION"
   | "TEACHER_APPROVAL"
+  | "FORM_02"
   | "PERIODIC_REPORT"
   | "FINAL_SUBMISSION";
 

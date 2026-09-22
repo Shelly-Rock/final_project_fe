@@ -10,7 +10,6 @@ import {
   ApproveConfirmDialog,
   RejectConfirmDialog,
   LockAssignmentDialog,
-  ChangeLeaderDialog,
 } from "@/feature/my-topic/components";
 import {
   myTopicService,
@@ -42,9 +41,7 @@ export default function MyTopicsPage() {
 
   // Lock and Team management state
   const [lockDialogTopic, setLockDialogTopic] = useState<MyTopic | null>(null);
-  const [teamDialogTopic, setTeamDialogTopic] = useState<MyTopic | null>(null);
   const [lockingTopic, setLockingTopic] = useState(false);
-  const [changingLeader, setChangingLeader] = useState(false);
 
   // Search state
   const [searchValue, setSearchValue] = useState("");
@@ -147,29 +144,8 @@ export default function MyTopicsPage() {
   };
 
   const handleToggleLock = async (topic: MyTopic) => {
-    try {
-      const isCurrentlyLocked = topic.registrationStatus === "LOCKED";
-
-      if (!isCurrentlyLocked) {
-        setLockDialogTopic(topic);
-      } else {
-        if (
-          confirm(
-            `Bạn có chắc muốn mở khóa đề tài "${topic.name}"? Sinh viên có thể tiếp tục đăng ký.`,
-          )
-        ) {
-          await myTopicService.toggleLock(topic.id, false);
-          refreshTopics();
-          toast.success("Đã mở khóa đề tài. Sinh viên có thể đăng ký.");
-        }
-      }
-    } catch {
-      toast.error("Không thể thay đổi trạng thái khóa đề tài");
-    }
-  };
-
-  const handleManageTeam = (topic: MyTopic) => {
-    setTeamDialogTopic(topic);
+    if (topic.registrationStatus === "LOCKED") return;
+    setLockDialogTopic(topic);
   };
 
   const submitLockAssignments = async (
@@ -193,19 +169,21 @@ export default function MyTopicsPage() {
     }
   };
 
-  const submitChangeLeader = async (projectId: number) => {
-    if (!teamDialogTopic) return;
-    setChangingLeader(true);
-    try {
-      await myTopicService.changeLeader(teamDialogTopic.id, projectId);
-      refreshTopics();
-      toast.success("Thay đổi trưởng nhóm thành công");
-      setTeamDialogTopic(null);
-    } catch {
-      toast.error("Thay đổi trưởng nhóm thất bại");
-    } finally {
-      setChangingLeader(false);
-    }
+  const handleChangeLeader = async (topicId: number, projectId: number) => {
+    await myTopicService.changeLeader(topicId, projectId);
+    toast.success("Thay đổi trưởng nhóm thành công");
+    refreshTopics();
+    setSelectedTopic((prev) =>
+      prev && prev.id === topicId
+        ? {
+            ...prev,
+            registeredStudents: prev.registeredStudents.map((s) => ({
+              ...s,
+              isLeader: s.id === projectId,
+            })),
+          }
+        : prev,
+    );
   };
 
   const handleFormSubmit = async (data: CreateTopicInput) => {
@@ -303,7 +281,6 @@ export default function MyTopicsPage() {
           onCreateException={handleCreateException}
           onRefresh={refreshTopics}
           onToggleLock={handleToggleLock}
-          onManageTeam={handleManageTeam}
         />
       ),
     },
@@ -332,6 +309,7 @@ export default function MyTopicsPage() {
         open={formDialogOpen}
         onClose={() => setFormDialogOpen(false)}
         onSubmit={handleFormSubmit}
+        onChangeLeader={handleChangeLeader}
         topic={selectedTopic}
         isException={isExceptionMode}
         loading={formLoading}
@@ -361,14 +339,6 @@ export default function MyTopicsPage() {
         onClose={() => setLockDialogTopic(null)}
         topic={lockDialogTopic}
         onSubmit={submitLockAssignments}
-      />
-
-      {/* Change Leader Dialog */}
-      <ChangeLeaderDialog
-        open={!!teamDialogTopic}
-        onClose={() => setTeamDialogTopic(null)}
-        topic={teamDialogTopic}
-        onSubmit={submitChangeLeader}
       />
     </Box>
   );

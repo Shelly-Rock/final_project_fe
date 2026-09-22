@@ -68,7 +68,7 @@ export function stageDeadlineOf(
 }
 
 /**
- * Build đủ 5 loại deadline từ dữ liệu BE, đánh lại `seq` liên tục từ 1.
+ * Build đủ các loại deadline từ dữ liệu BE, đánh lại `seq` liên tục từ 1.
  * Loại nào chưa có sẽ nhận mốc mặc định để form luôn hợp lệ về mặt cấu trúc.
  */
 export function mergeDeadlinesIntoDrafts(
@@ -304,17 +304,19 @@ export function validateGovernanceInput(
     }
   });
 
+  const form02Time = timeOf("FORM_02");
   const approvalTime = timeOf("TEACHER_APPROVAL");
+  const reportAnchor = form02Time ?? approvalTime;
   const finalTime = timeOf("FINAL_SUBMISSION");
-  if (approvalTime !== null && finalTime !== null && reports.length > 0) {
-    let previous = approvalTime;
+  if (reportAnchor !== null && finalTime !== null && reports.length > 0) {
+    let previous = reportAnchor;
     for (const report of reports) {
       const iso = toIso(toLocalInputValue(report.deadlineAt));
       if (!iso) continue;
       const at = dayjs(iso).valueOf();
       if (at <= previous || at >= finalTime) {
         errors.push(
-          "Mỗi mốc báo cáo định kỳ phải sau hạn duyệt của giảng viên, trước hạn nộp cuối kỳ và theo đúng thứ tự.",
+          "Mỗi mốc báo cáo định kỳ phải sau hạn nộp biểu mẫu số 02, trước hạn nộp cuối kỳ và theo đúng thứ tự.",
         );
         break;
       }
