@@ -4,15 +4,7 @@ import React, { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { adminDashboardService } from "@/feature/dashboard/services/admin-dashboard.service";
 import { Card, CardContentDiv } from "@/shared/components/Card";
-import {
-  ChevronRight,
-  Calendar,
-  Users,
-  BookOpen,
-  BarChart3,
-  FileText,
-  Eye,
-} from "lucide-react";
+import { Users, BookOpen, BarChart3, FileText, Eye } from "lucide-react";
 import { Box, Typography } from "@mui/material";
 import {
   BarChart,
@@ -375,55 +367,6 @@ export const AdminDepartmentDashboard: React.FC = () => {
 
   return (
     <Box sx={{ minHeight: "100vh", bgcolor: "surface", color: "text.primary" }}>
-      {/* Header */}
-      <Box
-        component="header"
-        sx={{ bgcolor: "surface.card", display: "flex", zIndex: 40 }}
-      >
-        <Box
-          sx={{
-            maxWidth: "7xl",
-            mx: "auto",
-            px: 4,
-            py: 3,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            width: "100%",
-          }}
-        >
-          <Box>
-            <h4
-              style={{
-                fontSize: "16px",
-                fontWeight: "bold",
-                color: "var(--text-primary)",
-                margin: 0,
-              }}
-            >
-              Bảng Điều Hành Đồ Án
-            </h4>
-          </Box>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                gap: 1.5,
-                px: 2.5,
-                py: 1,
-                bgcolor: "surface.subtle",
-                borderRadius: 1,
-                fontSize: "10px",
-              }}
-            >
-              <Calendar size={14} style={{ color: "#4ade80" }} />
-              <span style={{ fontWeight: 500 }}>Khóa 2021-2025 • Đợt 1</span>
-            </Box>
-          </Box>
-        </Box>
-      </Box>
-
       <Box
         sx={{
           maxWidth: "7xl",
