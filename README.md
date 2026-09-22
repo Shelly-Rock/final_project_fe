@@ -385,3 +385,5 @@ pnpm lint
 // "/((?!_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|css|js|woff|woff2|ttf|otf)).*)",
 // ],
 // };
+
+secretary_demo,teacher_demo admin_sys,student_demo

@@ -8,7 +8,7 @@ interface NotificationState {
   isLoading: boolean;
   error: string | null;
 
-  fetchNotifications: (skip?: number, take?: number) => Promise<void>;
+  fetchNotifications: (page?: number, limit?: number) => Promise<void>;
   fetchUnreadCount: () => Promise<void>;
   markAsRead: (notificationIds: number[]) => Promise<void>;
   markAllAsRead: () => Promise<void>;
@@ -18,16 +18,16 @@ interface NotificationState {
   reset: () => void;
 }
 
-export const useNotificationStore = create<NotificationState>((set, get) => ({
+export const useNotificationStore = create<NotificationState>((set) => ({
   notifications: [],
   unreadCount: 0,
   isLoading: false,
   error: null,
 
-  fetchNotifications: async (skip = 0, take = 10) => {
+  fetchNotifications: async (page = 1, limit = 10) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await notificationApi.getNotifications({ skip, take });
+      const response = await notificationApi.getNotifications({ page, limit });
       set({
         notifications: response.notifications,
         unreadCount: response.unreadCount,

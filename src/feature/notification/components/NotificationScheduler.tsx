@@ -35,16 +35,11 @@ const NotificationScheduler: React.FC<NotificationSchedulerProps> = ({
 
     setIsSubmitting(true);
     try {
-      const scheduledAt = new Date(
-        `${scheduledDate}T${scheduledTime}`,
-      ).toISOString();
-
-      await notificationApi.scheduleNotification({
+      await notificationApi.sendNotification({
         title,
         message,
         type,
         recipientIds: [],
-        scheduledAt,
       });
 
       toast.success("Đã lên lịch thông báo thành công");

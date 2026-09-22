@@ -4,63 +4,64 @@ import { INotification } from "@/shared/types/notification.types";
 interface NotificationListResponse {
   notifications?: INotification[];
   total?: number;
-}
-
-interface UnreadCountResponse {
-  count?: number;
+  page?: number;
+  limit?: number;
+  unreadCount?: number;
 }
 
 export const notificationApi = {
   getNotifications: async (params?: {
-    skip?: number;
-    take?: number;
-    isRead?: boolean;
+    page?: number;
+    limit?: number;
   }): Promise<{
     notifications: INotification[];
     total: number;
+    page: number;
+    limit: number;
     unreadCount: number;
   }> => {
-    const limit = params?.take || 20;
-    const page =
-      params?.skip !== undefined ? Math.floor(params.skip / limit) + 1 : 1;
+    const page = params?.page || 1;
+    const limit = params?.limit || 20;
 
-    const [res, countRes] = await Promise.all([
-      apiClient.get<NotificationListResponse>("/notification", {
+    const res = await apiClient.get<NotificationListResponse>(
+      "/notifications",
+      {
         params: { page, limit },
-      }),
-      apiClient.get<UnreadCountResponse>("/notification/unread-count"),
-    ]);
+      },
+    );
 
     return {
       notifications: res?.notifications || [],
       total: res?.total || 0,
-      unreadCount: countRes?.count || 0,
+      page: res?.page || page,
+      limit: res?.limit || limit,
+      unreadCount: res?.unreadCount || 0,
     };
   },
 
   getUnreadCount: async (): Promise<{ unreadCount: number }> => {
-    const res = await apiClient.get<UnreadCountResponse>(
-      "/notification/unread-count",
+    const res = await apiClient.get<{ unreadCount: number }>(
+      "/notifications/unread-count",
     );
-    return { unreadCount: res?.count || 0 };
+    return { unreadCount: res?.unreadCount || 0 };
   },
 
   markAsRead: async (notificationIds: number[]): Promise<void> => {
-    await apiClient.post("/notification/mark-as-read", {
-      notification_ids: notificationIds,
+    await apiClient.patch("/notifications/mark-read", {
+      notificationIds,
     });
   },
 
   markAllAsRead: async (): Promise<void> => {
-    await apiClient.post("/notification/mark-all-as-read");
+    await apiClient.patch("/notifications/mark-all-read");
   },
 
   deleteNotification: async (notificationId: number): Promise<void> => {
-    await apiClient.delete(`/notification/${notificationId}`);
+    await apiClient.delete(`/notifications/${notificationId}`);
   },
 
   deleteAllNotifications: async (): Promise<void> => {
-    await apiClient.delete("/notification/all");
+    await apiClient.delete("/notifications/all");
   },
 
   sendNotification: async (data: {
@@ -70,11 +71,7 @@ export const notificationApi = {
     recipientIds: number[];
     relatedStudentId?: number;
     relatedReportId?: number;
-    scheduledAt?: string;
-    isPinned?: boolean;
-    requiresSignature?: boolean;
   }): Promise<INotification[]> => {
-    // Map recipientIds to a batch payload matching CreateNotificationDto
     const payload = data.recipientIds.map((id) => ({
       title: data.title,
       message: data.message,
@@ -83,112 +80,147 @@ export const notificationApi = {
       related_student_id: data.relatedStudentId,
       related_report_id: data.relatedReportId,
     }));
-    return apiClient.post("/notification/batch", payload);
+    return apiClient.post("/notifications/batch", payload);
   },
 
-  // Bulk operations
-  bulkMarkAsRead: async (notificationIds: number[]): Promise<void> => {
-    await apiClient.patch("/notification/bulk/mark-read", { notificationIds });
-  },
-
-  bulkDelete: async (notificationIds: number[]): Promise<void> => {
-    await apiClient.post("/notification/bulk/delete", { notificationIds });
-  },
-
-  bulkResend: async (notificationIds: number[]): Promise<void> => {
-    await apiClient.post("/notification/bulk/resend", { notificationIds });
-  },
-
-  // Scheduling
-  scheduleNotification: async (data: {
-    title: string;
-    message: string;
-    type: string;
-    recipientIds: number[];
-    scheduledAt: string;
-    isPinned?: boolean;
-    requiresSignature?: boolean;
-  }): Promise<{ id: number; [key: string]: unknown }> => {
-    return apiClient.post("/notification/schedule", data);
-  },
-
-  getScheduledNotifications: async (params?: {
-    skip?: number;
-    take?: number;
-  }): Promise<{
-    data: { id: number; [key: string]: unknown }[];
-    total: number;
+  getUsersByRole: async (
+    role: "STUDENT" | "TEACHER",
+  ): Promise<{
+    users: Array<{ id: number; name: string; email: string }>;
   }> => {
-    return apiClient.get("/notification/scheduled", { params });
+    const res = await apiClient.get<{
+      users: Array<{ id: number; name: string; email: string }>;
+    }>(`/notifications/users/${role}`);
+    return res || { users: [] };
   },
 
-  cancelScheduledNotification: async (id: number): Promise<void> => {
-    await apiClient.delete(`/notification/scheduled/${id}`);
-  },
-
-  // Templates
-  getTemplates: async (): Promise<
-    { id: number; name: string; title: string; message: string; type: string }[]
-  > => {
-    return apiClient.get("/notification/templates");
-  },
-
-  createTemplate: async (data: {
-    name: string;
-    title: string;
-    message: string;
-    type: string;
-  }): Promise<{
-    id: number;
-    name: string;
-    title: string;
-    message: string;
-    type: string;
+  getDepartments: async (): Promise<{
+    departments: Array<{ id: string; name: string }>;
   }> => {
-    return apiClient.post("/notification/templates", data);
+    const res = await apiClient.get<{
+      departments: Array<{ id: string; name: string }>;
+    }>("/notifications/compose/departments");
+    return res || { departments: [] };
   },
 
-  deleteTemplate: async (id: number): Promise<void> => {
-    await apiClient.delete(`/notification/templates/${id}`);
+  getUsersByDepartment: async (
+    deptId: string,
+  ): Promise<{
+    users: Array<{ id: number; name: string; email: string; role: string }>;
+  }> => {
+    const res = await apiClient.get<{
+      users: Array<{ id: number; name: string; email: string; role: string }>;
+    }>(`/notifications/compose/departments/${deptId}/users`);
+    return res || { users: [] };
   },
 
-  // Analytics
   getNotificationStats: async (): Promise<{
     total: number;
-    sent: number;
-    read: number;
-    delivered: number;
-    failed: number;
-    readRate: number;
+    urgent: number;
+    avgReadRate: number;
+    pending: number;
   }> => {
-    return apiClient.get("/notification/stats");
-  },
-
-  getDeliveryStatus: async (
-    notificationId: number,
-  ): Promise<{
-    total: number;
-    delivered: number;
-    read: number;
-    failed: number;
-    deliveryStatus: Array<{
-      recipientId: number;
-      status: "PENDING" | "DELIVERED" | "READ" | "FAILED";
-      deliveredAt?: string;
-      readAt?: string;
-    }>;
-  }> => {
-    return apiClient.get(`/notification/${notificationId}/delivery-status`);
-  },
-
-  getDepartmentAnalytics: async (): Promise<{
-    departments: Array<{
-      name: string;
+    const res = await apiClient.get<{
       total: number;
-      readCount: number;
-      readRate: number;
-    }>;
+      urgent: number;
+      avgReadRate: number;
+      pending: number;
+    }>("/notifications/compose/stats");
+    return res || { total: 0, urgent: 0, avgReadRate: 0, pending: 0 };
+  },
+
+  composeAndSend: async (data: {
+    title: string;
+    message: string;
+    type: string;
+    priority: string;
+    recipientIds: number[];
+    saveDraft?: boolean;
+    attachmentUrl?: string;
+  }): Promise<{
+    message: string;
+    notifications?: INotification[];
+    draftId?: number;
   }> => {
-    return apiClient.get("/notification/analytics/departments");
+    return apiClient.post<{
+      message: string;
+      notifications?: INotification[];
+      draftId?: number;
+    }>("/notifications/compose/send", data);
+  },
+
+  getDrafts: async (): Promise<{
+    drafts: Array<{ id: number; title: string; message: string; type: string }>;
+  }> => {
+    const res = await apiClient.get<{
+      drafts: Array<{
+        id: number;
+        title: string;
+        message: string;
+        type: string;
+      }>;
+    }>("/notifications/drafts");
+    return res || { drafts: [] };
+  },
+
+  getDraftById: async (
+    id: number,
+  ): Promise<{ id: number; title: string; message: string; type: string }> => {
+    return apiClient.get<{
+      id: number;
+      title: string;
+      message: string;
+      type: string;
+    }>(`/notifications/drafts/${id}`);
+  },
+
+  saveDraft: async (data: {
+    title: string;
+    message: string;
+    type: string;
+    priority: string;
+    recipientIds: number[];
+    fileName?: string;
+    fileUrl?: string;
+    fileSize?: number;
+  }): Promise<{ id: number; title: string; message: string; type: string }> => {
+    return apiClient.post<{
+      id: number;
+      title: string;
+      message: string;
+      type: string;
+    }>("/notifications/drafts", data);
+  },
+
+  updateDraft: async (
+    id: number,
+    data: {
+      title: string;
+      message: string;
+      type: string;
+      priority: string;
+      recipientIds: number[];
+      fileName?: string;
+      fileUrl?: string;
+      fileSize?: number;
+    },
+  ): Promise<{ id: number; title: string; message: string; type: string }> => {
+    return apiClient.patch<{
+      id: number;
+      title: string;
+      message: string;
+      type: string;
+    }>(`/notifications/drafts/${id}`, data);
+  },
+
+  deleteDraft: async (id: number): Promise<void> => {
+    await apiClient.delete(`/notifications/drafts/${id}`);
+  },
+
+  publishDraft: async (id: number): Promise<INotification[]> => {
+    return apiClient.post<INotification[]>(
+      `/notifications/drafts/${id}/publish`,
+      {},
+    );
   },
 };
