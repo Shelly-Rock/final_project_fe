@@ -1,19 +1,15 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { adminDashboardService } from "@/feature/dashboard/services/admin-dashboard.service";
 import { Card, CardContentDiv } from "@/shared/components/Card";
 import {
-  Search,
-  Plus,
   ChevronRight,
   Calendar,
   Users,
   BookOpen,
   BarChart3,
-  MapPin,
-  Clock,
   FileText,
   Eye,
 } from "lucide-react";
@@ -33,15 +29,6 @@ interface DepartmentCardData {
   status: "on-time" | "delayed" | "warning";
   color: "blue" | "green" | "orange" | "purple";
   location: string;
-}
-
-interface ScheduleSlot {
-  id: string;
-  time: string;
-  period: string;
-  title: string;
-  room: string;
-  status: "ongoing" | "preparing";
 }
 
 const departmentColors = {
@@ -248,57 +235,7 @@ const StatCard = ({
   </Card>
 );
 
-const ScheduleCard: React.FC<{ slot: ScheduleSlot }> = ({ slot }) => {
-  const isOngoing = slot.status === "ongoing";
-
-  return (
-    <div
-      className="p-2.5 rounded-lg hover:bg-surface-subtle/60 transition-colors flex items-center justify-between gap-2 shadow-sm hover:shadow-md"
-      style={{
-        background: "linear-gradient(135deg, #15213B 0%, #1C2D56 100%)",
-      }}
-    >
-      <div className="flex items-center gap-2 min-w-0">
-        <div className="flex flex-col shrink-0 w-20">
-          <span className="text-[10px] font-mono font-bold">{slot.time}</span>
-          <span className="text-[9px] opacity-60">{slot.period}</span>
-        </div>
-        <div className="w-px h-5 bg-border-subtle/40 shrink-0" />
-        <div className="min-w-0">
-          <div className="flex items-center gap-2">
-            <span className="text-[10px] font-semibold truncate">
-              {slot.title}
-            </span>
-          </div>
-          <div className="flex items-center gap-1 mt-0.5 text-[9px] opacity-70">
-            <MapPin size={10} />
-            <span>{slot.room}</span>
-          </div>
-        </div>
-      </div>
-      <div className="shrink-0">
-        {isOngoing ? (
-          <span className="px-1.5 py-0.5 rounded-full text-[8px] font-medium bg-emerald-400/15 text-emerald-400 flex items-center gap-1">
-            <span className="w-1 h-1 rounded-full bg-emerald-400 animate-pulse" />
-            Đang diễn ra
-          </span>
-        ) : (
-          <span className="px-1.5 py-0.5 rounded-full text-[8px] font-medium bg-blue-400/15 text-blue-400 flex items-center gap-1">
-            <span className="w-1 h-1 rounded-full bg-blue-400" />
-            Chuẩn bị
-          </span>
-        )}
-      </div>
-    </div>
-  );
-};
-
 export const AdminDepartmentDashboard: React.FC = () => {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [activeTimeRange, setActiveTimeRange] = useState<
-    "week" | "month" | "all"
-  >("week");
-
   const { isLoading: statsLoading } = useQuery({
     queryKey: ["admin-dashboard"],
     queryFn: () => adminDashboardService.getAdminStats(),
@@ -308,41 +245,6 @@ export const AdminDepartmentDashboard: React.FC = () => {
     queryKey: ["admin-department-stats"],
     queryFn: () => adminDashboardService.getDepartmentStats(),
   });
-
-  const scheduleSlots: ScheduleSlot[] = [
-    {
-      id: "1",
-      time: "08:30 - 11:30",
-      period: "Ca sáng",
-      title: "HĐ-01 • CNTT & Trí Tuệ Nhân Tạo",
-      room: "Phòng A2-101",
-      status: "ongoing",
-    },
-    {
-      id: "2",
-      time: "10:00 - 12:00",
-      period: "Ca sáng",
-      title: "HĐ-02 • Tài Chính Doanh Nghiệp & Fintech",
-      room: "Phòng C-301",
-      status: "ongoing",
-    },
-    {
-      id: "3",
-      time: "13:30 - 16:30",
-      period: "Ca chiều",
-      title: "HĐ-03 • Điện Tử - Viễn Thông",
-      room: "Phòng B2-204",
-      status: "preparing",
-    },
-    {
-      id: "4",
-      time: "14:00 - 17:00",
-      period: "Ca chiều",
-      title: "HĐ-04 • Cơ Khí Tự Động Hóa & Robot",
-      room: "Xưởng D-01",
-      status: "preparing",
-    },
-  ];
 
   const mockDepartments: DepartmentCardData[] = useMemo(() => {
     return [
@@ -438,14 +340,6 @@ export const AdminDepartmentDashboard: React.FC = () => {
       },
     ];
   }, []);
-
-  const filteredDepartments = useMemo(() => {
-    return mockDepartments.filter(
-      (dept) =>
-        dept.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        dept.abbr.toLowerCase().includes(searchQuery.toLowerCase()),
-    );
-  }, [searchQuery, mockDepartments]);
 
   const totalProjects = 1420;
   const totalStudents = 1850;
@@ -557,71 +451,6 @@ export const AdminDepartmentDashboard: React.FC = () => {
         }}
       >
         {/* Toolbar */}
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: { xs: "column", md: "row" },
-            alignItems: { xs: "flex-start", md: "center" },
-            justifyContent: "space-between",
-            gap: 2,
-          }}
-        >
-          <Box
-            sx={{
-              flex: 1,
-              display: "flex",
-              alignItems: "center",
-              gap: 1,
-              px: 2,
-              py: 1,
-              borderRadius: 1,
-              border: "1px solid",
-              borderColor: "divider",
-              backgroundColor: "background.paper",
-              width: { xs: "100%", md: "auto" },
-            }}
-          >
-            <Search size={18} style={{ color: "#2563eb", flexShrink: 0 }} />
-            <input
-              type="text"
-              placeholder="Tìm kiếm..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              style={{
-                flex: 1,
-                border: "none",
-                background: "transparent",
-                outline: "none",
-                fontSize: "0.75rem",
-                fontFamily: "inherit",
-              }}
-            />
-          </Box>
-          <div className="flex items-center gap-1 bg-surface-subtle rounded-lg p-0.5">
-            {(["week", "month", "all"] as const).map((range) => (
-              <button
-                key={range}
-                onClick={() => setActiveTimeRange(range)}
-                className={`px-2 py-1 rounded text-[10px] font-semibold transition-all ${
-                  activeTimeRange === range
-                    ? "bg-primary text-on-primary shadow-sm"
-                    : "text-text-secondary hover:text-text-primary"
-                }`}
-              >
-                {range === "week"
-                  ? "Tuần"
-                  : range === "month"
-                    ? "Tháng"
-                    : "Toàn bộ"}
-              </button>
-            ))}
-          </div>
-          <button className="h-8 px-3 rounded-lg bg-primary hover:bg-primary/90 text-on-primary text-[10px] font-semibold transition-colors flex items-center gap-1 whitespace-nowrap">
-            <Plus size={14} />
-            <span>Lập HĐ</span>
-          </button>
-        </Box>
-
         {/* KPI Stats Cards */}
         <Box
           sx={{
@@ -674,18 +503,10 @@ export const AdminDepartmentDashboard: React.FC = () => {
 
         {/* Department Cards Grid - 4 columns */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
-          {filteredDepartments.map((dept) => (
+          {mockDepartments.map((dept) => (
             <DepartmentCard key={dept.id} dept={dept} />
           ))}
         </div>
-
-        {filteredDepartments.length === 0 && (
-          <div className="text-center py-8">
-            <p className="text-[11px] text-text-secondary opacity-70">
-              Không tìm thấy khoa nào
-            </p>
-          </div>
-        )}
 
         {/* Comparison Chart */}
         <Box
