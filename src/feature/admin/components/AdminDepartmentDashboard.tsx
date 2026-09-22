@@ -14,6 +14,18 @@ import {
   Eye,
 } from "lucide-react";
 import { Box, Typography } from "@mui/material";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  ReferenceLine,
+  Cell,
+  Label,
+} from "recharts";
 
 interface DepartmentCardData {
   id: string;
@@ -381,43 +393,16 @@ export const AdminDepartmentDashboard: React.FC = () => {
           }}
         >
           <Box>
-            <Box
-              sx={{ display: "flex", alignItems: "center", gap: 2, mb: 0.5 }}
+            <h4
+              style={{
+                fontSize: "16px",
+                fontWeight: "bold",
+                color: "var(--text-primary)",
+                margin: 0,
+              }}
             >
-              <h1 style={{ fontSize: "1.125rem", fontWeight: "bold" }}>
-                Bảng Điều Hành Đồ Án
-              </h1>
-              <Box
-                sx={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: 1,
-                  px: 2,
-                  py: 0.5,
-                  bgcolor: "emerald.500/10",
-                  borderRadius: "9999px",
-                }}
-              >
-                <span
-                  style={{
-                    width: "6px",
-                    height: "6px",
-                    borderRadius: "50%",
-                    backgroundColor: "#10b981",
-                    animation: "pulse 2s infinite",
-                  }}
-                />
-                <span
-                  style={{
-                    fontSize: "11px",
-                    fontWeight: 500,
-                    color: "#4ade80",
-                  }}
-                >
-                  LIVE • {mockDepartments.length} Khoa
-                </span>
-              </Box>
-            </Box>
+              Bảng Điều Hành Đồ Án
+            </h4>
           </Box>
           <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
             <Box
@@ -450,7 +435,39 @@ export const AdminDepartmentDashboard: React.FC = () => {
           py: 3,
         }}
       >
-        {/* Toolbar */}
+        {/* Status Indicator */}
+        <Box
+          sx={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 1,
+            px: 2,
+            py: 0.5,
+            bgcolor: "emerald.500/10",
+            borderRadius: "9999px",
+            width: "fit-content",
+          }}
+        >
+          <span
+            style={{
+              width: "6px",
+              height: "6px",
+              borderRadius: "50%",
+              backgroundColor: "#10b981",
+              animation: "pulse 2s infinite",
+            }}
+          />
+          <span
+            style={{
+              fontSize: "11px",
+              fontWeight: 500,
+              color: "#4ade80",
+            }}
+          >
+            LIVE • {mockDepartments.length} Khoa
+          </span>
+        </Box>
+
         {/* KPI Stats Cards */}
         <Box
           sx={{
@@ -554,44 +571,103 @@ export const AdminDepartmentDashboard: React.FC = () => {
             </span>
           </Box>
 
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
+          <Box sx={{ mt: 3 }}>
             {[
-              { dept: "Kinh Tế & QTKD", percent: 90, color: "bg-amber-500" },
-              { dept: "CNTT & TT", percent: 82, color: "bg-emerald-500" },
-              { dept: "Điện - Điện Tử", percent: 75, color: "bg-amber-500" },
-              { dept: "Cơ Khí", percent: 68, color: "bg-blue-400" },
+              { dept: "Kinh Tế & QTKD", percent: 90, color: "#0ea5e9" },
+              { dept: "CNTT & TT", percent: 82, color: "#0ea5e9" },
+              { dept: "Điện - Điện Tử", percent: 75, color: "#0ea5e9" },
+              { dept: "Cơ Khí", percent: 68, color: "#0ea5e9" },
+              { dept: "Khoa Học", percent: 80, color: "#0ea5e9" },
+              { dept: "Hóa Học", percent: 71, color: "#0ea5e9" },
             ].map((item, idx) => (
-              <Box key={idx}>
+              <Box key={idx} sx={{ mb: 2.5 }}>
                 <Box
                   sx={{
                     display: "flex",
                     justifyContent: "space-between",
-                    fontSize: "9px",
-                    mb: 0.5,
+                    alignItems: "center",
+                    mb: 0.8,
                   }}
                 >
-                  <span style={{ fontWeight: 500 }}>{item.dept}</span>
-                  <span className={item.color.replace("bg-", "text-")}>
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      fontWeight: 600,
+                      color: "#cbd5e1",
+                      fontSize: "12px",
+                      minWidth: "140px",
+                    }}
+                  >
+                    {item.dept}
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      fontWeight: 700,
+                      color: item.percent >= 70 ? "#4ade80" : "#fbbf24",
+                      fontSize: "12px",
+                      minWidth: "40px",
+                      textAlign: "right",
+                    }}
+                  >
                     {item.percent}%
-                  </span>
+                  </Typography>
                 </Box>
                 <Box
                   sx={{
                     width: "100%",
-                    height: "6px",
-                    borderRadius: "9999px",
-                    bgcolor: "surface.subtle",
+                    height: "28px",
+                    backgroundColor: "#1e293b",
+                    borderRadius: "12px",
                     overflow: "hidden",
+                    position: "relative",
+                    boxShadow: "inset 0 1px 3px rgba(0, 0, 0, 0.3)",
                   }}
                 >
                   <Box
                     sx={{
                       height: "100%",
-                      borderRadius: "9999px",
-                      bgcolor: item.color.replace("bg-", ""),
                       width: `${item.percent}%`,
+                      background:
+                        "linear-gradient(90deg, rgb(37, 99, 235) 0%, rgb(37, 99, 235) 100%)",
+                      borderRadius: "12px",
+                      transition:
+                        "width 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)",
+                      boxShadow:
+                        "0 0 16px rgba(37, 99, 235, 0.3), inset 0 1px 2px rgba(255, 255, 255, 0.15)",
+                      position: "relative",
+                      "&::after": {
+                        content: '""',
+                        position: "absolute",
+                        top: 0,
+                        left: 0,
+                        bottom: 0,
+                        right: 0,
+                        background:
+                          "linear-gradient(180deg, rgba(255, 255, 255, 0.08) 0%, transparent 100%)",
+                        borderRadius: "12px",
+                      },
                     }}
                   />
+                  {item.percent >= 70 && (
+                    <Box
+                      sx={{
+                        position: "absolute",
+                        right: "12px",
+                        top: "50%",
+                        transform: "translateY(-50%)",
+                        color: "#fff",
+                        fontSize: "12px",
+                        fontWeight: 700,
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "4px",
+                        pointerEvents: "none",
+                      }}
+                    >
+                      ✓
+                    </Box>
+                  )}
                 </Box>
               </Box>
             ))}
