@@ -17,7 +17,6 @@ import {
   Building2,
   Calendar,
   Clock,
-  Printer,
   Users,
   BookOpen,
   Target,
@@ -94,7 +93,6 @@ interface TopicDetailDialogProps {
   topic: AvailableTopic | null;
   registration?: RegistrationRequest | null;
   onRegister: (topicId: string, studentMessage?: string) => Promise<void>;
-  onPrintConfirmation?: (registration: RegistrationRequest) => void;
   isExpired?: boolean;
 }
 
@@ -104,7 +102,6 @@ export function TopicDetailDialog({
   topic,
   registration,
   onRegister,
-  onPrintConfirmation,
   isExpired = false,
 }: TopicDetailDialogProps) {
   const [loading, setLoading] = useState(false);
@@ -120,12 +117,6 @@ export function TopicDetailDialog({
       onClose();
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handlePrint = () => {
-    if (registration && onPrintConfirmation) {
-      onPrintConfirmation(registration);
     }
   };
 
@@ -170,11 +161,6 @@ export function TopicDetailDialog({
             Lý do: {registration.rejectionReason}
           </Typography>
         )}
-        {registration.status === "Approved" && (
-          <Typography variant="caption" sx={{ display: "block", mt: 1 }}>
-            Bạn đã được duyệt đăng ký đề tài này. Có thể in phiếu xác nhận.
-          </Typography>
-        )}
       </Alert>
     );
   };
@@ -208,15 +194,6 @@ export function TopicDetailDialog({
           <Button variant="outlined" onClick={onClose}>
             Đóng
           </Button>
-          {registration?.status === "Approved" && onPrintConfirmation && (
-            <Button
-              color="success"
-              leftIcon={<Printer size={16} />}
-              onClick={handlePrint}
-            >
-              In phiếu xác nhận
-            </Button>
-          )}
           {!isExpired && !registration && (
             <Button
               color="primary"

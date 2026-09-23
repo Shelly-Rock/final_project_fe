@@ -1,7 +1,7 @@
 "use client";
 
 import { Box, IconButton, Tooltip } from "@mui/material";
-import { Printer, Eye } from "lucide-react";
+import { Eye } from "lucide-react";
 import { DataTable, Badge } from "@/shared/components";
 import type { Column } from "@/shared/components";
 import type { RegistrationRequest } from "../types";
@@ -9,7 +9,6 @@ import type { RegistrationRequest } from "../types";
 interface RegistrationHistoryTableProps {
   registrations: RegistrationRequest[];
   loading?: boolean;
-  onPrintConfirmation: (registration: RegistrationRequest) => void;
   onViewDetail: (registration: RegistrationRequest) => void;
 }
 
@@ -22,7 +21,6 @@ const statusConfig = {
 export function RegistrationHistoryTable({
   registrations,
   loading = false,
-  onPrintConfirmation,
   onViewDetail,
 }: RegistrationHistoryTableProps) {
   const columns: Column<RegistrationRequest>[] = [
@@ -95,24 +93,6 @@ export function RegistrationHistoryTable({
               <Eye size={18} />
             </IconButton>
           </Tooltip>
-          {row.status === "Approved" && (
-            <Tooltip title="In phiếu xác nhận" arrow>
-              <IconButton
-                size="small"
-                onClick={() => onPrintConfirmation(row)}
-                sx={{
-                  color: "#22c55e",
-                  "& svg": {
-                    fill: "none",
-                    stroke: "currentColor",
-                    strokeWidth: 2,
-                  },
-                }}
-              >
-                <Printer size={18} />
-              </IconButton>
-            </Tooltip>
-          )}
         </Box>
       ),
     },

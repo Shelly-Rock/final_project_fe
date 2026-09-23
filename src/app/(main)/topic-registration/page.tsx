@@ -10,7 +10,7 @@ import {
   Chip,
   Divider,
 } from "@mui/material";
-import { BookOpen, Printer, CheckCircle } from "lucide-react";
+import { BookOpen, CheckCircle } from "lucide-react";
 import {
   AvailableTopicTable,
   TopicDetailDialog,
@@ -149,11 +149,6 @@ export default function TopicRegistrationPage() {
         err instanceof Error ? err.message : "Không thể hủy đăng ký";
       toast.error(message);
     }
-  };
-
-  const handlePrintConfirmation = async () => {
-    if (!currentRegistration) return;
-    toast.success("Xuất file PDF thành công!");
   };
 
   const renderStatusAlert = () => {
@@ -428,18 +423,6 @@ export default function TopicRegistrationPage() {
           />
 
           <Divider sx={{ mb: 2.5 }} />
-
-          {/* Actions */}
-          <Box sx={{ display: "flex", gap: 2 }}>
-            <Button
-              variant="contained"
-              color="success"
-              startIcon={<Printer size={18} />}
-              onClick={handlePrintConfirmation}
-            >
-              In phiếu xác nhận
-            </Button>
-          </Box>
         </Box>
       </Card>
     );
@@ -469,7 +452,6 @@ export default function TopicRegistrationPage() {
         topic={selectedTopic}
         registration={selectedRegistration}
         onRegister={handleRegister}
-        onPrintConfirmation={handlePrintConfirmation}
         isExpired={isExpired}
       />
     </Box>
