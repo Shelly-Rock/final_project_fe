@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useUserRole } from "@/shared/hooks/useUserRole";
 import { RoleGate } from "@/shared/components/PermissionGuard/PermissionGuard";
@@ -10,9 +10,13 @@ export default function DepartmentPage() {
   const router = useRouter();
   const userRole = useUserRole();
 
-  // Redirect non-admin users
+  useEffect(() => {
+    if (userRole === "secretary") {
+      router.replace("/department/BM_KTPM");
+    }
+  }, [userRole, router]);
+
   if (userRole === "secretary") {
-    router.push("/department/BM_KTPM");
     return null;
   }
 

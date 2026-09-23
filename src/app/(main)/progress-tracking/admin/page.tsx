@@ -721,19 +721,19 @@ export default function AdminProgressPage() {
             </Button>
           </Box>
         </Box>
-
-        <TabPanel value={tabValue} index={0}>
-          <AllStudentsProgress key={`progress-${refreshKey}`} />
-        </TabPanel>
-
-        <TabPanel value={tabValue} index={1}>
-          <AllReportsReview key={`reports-${refreshKey}`} />
-        </TabPanel>
-
-        <TabPanel value={tabValue} index={2}>
-          <BannedStudentsList />
-        </TabPanel>
       </Paper>
+
+      <TabPanel value={tabValue} index={0}>
+        <AllStudentsProgress key={`progress-${refreshKey}`} />
+      </TabPanel>
+
+      <TabPanel value={tabValue} index={1}>
+        <AllReportsReview key={`reports-${refreshKey}`} />
+      </TabPanel>
+
+      <TabPanel value={tabValue} index={2}>
+        <BannedStudentsList />
+      </TabPanel>
 
       {/* Notification Dialog */}
       <Dialog

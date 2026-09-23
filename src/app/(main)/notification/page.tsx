@@ -287,47 +287,6 @@ export default function NotificationPage() {
 
   return (
     <Box sx={{ p: 3 }}>
-      {/* Header */}
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "flex-start",
-          mb: 4,
-          pb: 2,
-          borderBottom: `1px solid ${theme.palette.divider}`,
-        }}
-      >
-        <Box>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 1 }}>
-            <Typography variant="h4" sx={{ fontWeight: 700 }}>
-              Quản lý Thông báo
-            </Typography>
-            <Chip
-              label="Executive Center"
-              size="small"
-              sx={{
-                bgcolor: theme.palette.primary.main,
-                color: theme.palette.primary.contrastText,
-                fontSize: "0.75rem",
-              }}
-            />
-          </Box>
-          <Typography variant="body2" color="textSecondary">
-            Điều phối chỉ thị học thuật, thông tri khẩn và theo dõi tiến độ tiếp
-            nhận toàn trường
-          </Typography>
-        </Box>
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={() => setShowModal(true)}
-          sx={{ whiteSpace: "nowrap" }}
-        >
-          Soạn thông báo
-        </Button>
-      </Box>
-
       {/* KPI Cards */}
       <Grid container spacing={2} sx={{ mb: 4 }}>
         <Grid item xs={12} sm={6} md={3}>
@@ -402,7 +361,15 @@ export default function NotificationPage() {
       </Grid>
 
       {/* Filter Tabs & Search */}
-      <Box sx={{ mb: 3, display: "flex", gap: 2, flexWrap: "wrap" }}>
+      <Box
+        sx={{
+          mb: 3,
+          display: "flex",
+          gap: 2,
+          flexWrap: "wrap",
+          alignItems: "center",
+        }}
+      >
         <Tabs
           value={filter}
           onChange={(e, newValue) => {
@@ -420,21 +387,39 @@ export default function NotificationPage() {
             />
           ))}
         </Tabs>
-        <TextField
-          placeholder="Tìm theo tiêu đề, người gửi..."
-          size="small"
-          InputProps={{
-            startAdornment: (
-              <SearchIcon sx={{ mr: 1, color: "textSecondary" }} />
-            ),
+        <Box
+          sx={{
+            ml: "auto",
+            display: "flex",
+            gap: 1.5,
+            alignItems: "center",
+            flexWrap: "wrap",
           }}
-          value={searchQuery}
-          onChange={(e) => {
-            setSearchQuery(e.target.value);
-            setCurrentPage(1);
-          }}
-          sx={{ ml: "auto", minWidth: 250 }}
-        />
+        >
+          <TextField
+            placeholder="Tìm theo tiêu đề, người gửi..."
+            size="small"
+            InputProps={{
+              startAdornment: (
+                <SearchIcon sx={{ mr: 1, color: "textSecondary" }} />
+              ),
+            }}
+            value={searchQuery}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              setCurrentPage(1);
+            }}
+            sx={{ minWidth: 250 }}
+          />
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={() => setShowModal(true)}
+            sx={{ whiteSpace: "nowrap", flexShrink: 0 }}
+          >
+            Soạn thông báo
+          </Button>
+        </Box>
       </Box>
 
       {/* Table */}
