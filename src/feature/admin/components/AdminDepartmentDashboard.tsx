@@ -4,16 +4,9 @@ import React, { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { adminDashboardService } from "@/feature/dashboard/services/admin-dashboard.service";
 import { Card, CardContentDiv } from "@/shared/components/Card";
-import {
-  ChevronRight,
-  Calendar,
-  Users,
-  BookOpen,
-  BarChart3,
-  FileText,
-  Eye,
-} from "lucide-react";
-import { Box, Typography } from "@mui/material";
+import { Users, BookOpen, BarChart3, FileText, Eye } from "lucide-react";
+import { Box, Typography, useTheme } from "@mui/material";
+import { getCardBackground } from "@/shared/constants/gradients";
 import {
   BarChart,
   Bar,
@@ -64,12 +57,15 @@ const departmentColors = {
 
 const DepartmentCard: React.FC<{ dept: DepartmentCardData }> = ({ dept }) => {
   const color = departmentColors[dept.color];
+  const theme = useTheme();
+  const isDark = theme.palette.mode === "dark";
 
   return (
     <div
       className=" rounded-lg hover:bg-surface-card/80 transition-all flex flex-col justify-between h-full shadow-md hover:shadow-lg"
       style={{
-        background: "linear-gradient(135deg, #15213B 0%, #1C2D56 100%)",
+        background: getCardBackground(theme),
+        border: isDark ? "none" : `1px solid ${theme.palette.divider}`,
         padding: "12px",
         minHeight: "150px",
       }}
@@ -101,7 +97,7 @@ const DepartmentCard: React.FC<{ dept: DepartmentCardData }> = ({ dept }) => {
                 cy="18"
                 fill="none"
                 r="14"
-                stroke="#2d344c"
+                stroke={isDark ? "#2d344c" : theme.palette.divider}
                 strokeWidth="3.5"
               />
               <circle
@@ -138,7 +134,9 @@ const DepartmentCard: React.FC<{ dept: DepartmentCardData }> = ({ dept }) => {
                   backgroundColor:
                     stage <= Math.ceil(dept.completionRate / 25)
                       ? color.accent
-                      : "rgba(100, 116, 139, 0.3)",
+                      : isDark
+                        ? "rgba(100, 116, 139, 0.3)"
+                        : theme.palette.divider,
                 }}
               />
             ))}
@@ -193,61 +191,69 @@ const StatCard = ({
   subtextColor = "text-emerald-400",
   icon,
   iconColor = "#3b82f6",
-}: StatCardProps) => (
-  <Card
-    variant="soft"
-    sx={{
-      background: "linear-gradient(135deg, #15213B 0%, #1C2D56 100%)",
-      boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
-    }}
-  >
-    <CardContentDiv padding={3}>
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "flex-start",
-          mb: 1.5,
-        }}
-      >
+}: StatCardProps) => {
+  const theme = useTheme();
+
+  return (
+    <Card
+      variant="soft"
+      sx={{
+        background: getCardBackground(theme),
+        border: "1px solid",
+        borderColor: "divider",
+        boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
+      }}
+    >
+      <CardContentDiv padding={3}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "flex-start",
+            mb: 1.5,
+          }}
+        >
+          <Typography
+            variant="caption"
+            sx={{ display: "block", opacity: 0.7, fontWeight: 500 }}
+          >
+            {label}
+          </Typography>
+          {icon && (
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                width: 32,
+                height: 32,
+                borderRadius: 1,
+                backgroundColor: `${iconColor}15`,
+              }}
+            >
+              <Box sx={{ color: iconColor, display: "flex", fontSize: 18 }}>
+                {icon}
+              </Box>
+            </Box>
+          )}
+        </Box>
+        <Typography variant="h5" sx={{ fontWeight: "bold", mb: 0.5 }}>
+          {value}
+        </Typography>
         <Typography
           variant="caption"
-          sx={{ display: "block", opacity: 0.7, fontWeight: 500 }}
+          sx={{ display: "block", fontSize: "9px", className: subtextColor }}
         >
-          {label}
+          {subtext}
         </Typography>
-        {icon && (
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              width: 32,
-              height: 32,
-              borderRadius: 1,
-              backgroundColor: `${iconColor}15`,
-            }}
-          >
-            <Box sx={{ color: iconColor, display: "flex", fontSize: 18 }}>
-              {icon}
-            </Box>
-          </Box>
-        )}
-      </Box>
-      <Typography variant="h5" sx={{ fontWeight: "bold", mb: 0.5 }}>
-        {value}
-      </Typography>
-      <Typography
-        variant="caption"
-        sx={{ display: "block", fontSize: "9px", className: subtextColor }}
-      >
-        {subtext}
-      </Typography>
-    </CardContentDiv>
-  </Card>
-);
+      </CardContentDiv>
+    </Card>
+  );
+};
 
 export const AdminDepartmentDashboard: React.FC = () => {
+  const theme = useTheme();
+
   const { isLoading: statsLoading } = useQuery({
     queryKey: ["admin-dashboard"],
     queryFn: () => adminDashboardService.getAdminStats(),
@@ -359,71 +365,57 @@ export const AdminDepartmentDashboard: React.FC = () => {
 
   if (statsLoading || deptLoading) {
     return (
-      <div className="p-6 space-y-4 bg-slate-900 min-h-screen">
-        <div className="h-8 bg-slate-800 rounded w-1/3 animate-pulse" />
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <Box
+        sx={{
+          p: 3,
+          minHeight: "100vh",
+          bgcolor: "background.default",
+        }}
+      >
+        <Box
+          sx={{
+            height: 32,
+            width: "33%",
+            borderRadius: 1,
+            bgcolor: "action.hover",
+            animation: "pulse 2s infinite",
+          }}
+        />
+        <Box
+          sx={{
+            display: "grid",
+            gridTemplateColumns: {
+              xs: "1fr",
+              md: "repeat(4, minmax(0, 1fr))",
+            },
+            gap: 2,
+            mt: 2,
+          }}
+        >
           {[1, 2, 3, 4].map((i) => (
-            <div
+            <Box
               key={i}
-              className="h-32 bg-slate-800 rounded-lg animate-pulse"
+              sx={{
+                height: 128,
+                borderRadius: 2,
+                bgcolor: "action.hover",
+                animation: "pulse 2s infinite",
+              }}
             />
           ))}
-        </div>
-      </div>
+        </Box>
+      </Box>
     );
   }
 
   return (
-    <Box sx={{ minHeight: "100vh", bgcolor: "surface", color: "text.primary" }}>
-      {/* Header */}
-      <Box
-        component="header"
-        sx={{ bgcolor: "surface.card", display: "flex", zIndex: 40 }}
-      >
-        <Box
-          sx={{
-            maxWidth: "7xl",
-            mx: "auto",
-            px: 4,
-            py: 3,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            width: "100%",
-          }}
-        >
-          <Box>
-            <h4
-              style={{
-                fontSize: "16px",
-                fontWeight: "bold",
-                color: "var(--text-primary)",
-                margin: 0,
-              }}
-            >
-              Bảng Điều Hành Đồ Án
-            </h4>
-          </Box>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                gap: 1.5,
-                px: 2.5,
-                py: 1,
-                bgcolor: "surface.subtle",
-                borderRadius: 1,
-                fontSize: "10px",
-              }}
-            >
-              <Calendar size={14} style={{ color: "#4ade80" }} />
-              <span style={{ fontWeight: 500 }}>Khóa 2021-2025 • Đợt 1</span>
-            </Box>
-          </Box>
-        </Box>
-      </Box>
-
+    <Box
+      sx={{
+        minHeight: "100vh",
+        bgcolor: "background.default",
+        color: "text.primary",
+      }}
+    >
       <Box
         sx={{
           maxWidth: "7xl",
@@ -514,7 +506,8 @@ export const AdminDepartmentDashboard: React.FC = () => {
         <div
           className="p-3 rounded-lg shadow-sm hover:shadow-md transition-shadow"
           style={{
-            background: "linear-gradient(135deg, #15213B 0%, #1C2D56 100%)",
+            background: getCardBackground(theme),
+            border: `1px solid ${theme.palette.divider}`,
           }}
         ></div>
 
@@ -531,7 +524,9 @@ export const AdminDepartmentDashboard: React.FC = () => {
             gridColumn: { xs: "1", xl: "span 5" },
             p: 3,
             borderRadius: 1,
-            background: "linear-gradient(135deg, #15213B 0%, #1C2D56 100%)",
+            background: getCardBackground(theme),
+            border: "1px solid",
+            borderColor: "divider",
             boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
             "&:hover": {
               boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
@@ -593,7 +588,7 @@ export const AdminDepartmentDashboard: React.FC = () => {
                     variant="body2"
                     sx={{
                       fontWeight: 600,
-                      color: "#cbd5e1",
+                      color: "text.primary",
                       fontSize: "12px",
                       minWidth: "140px",
                     }}
@@ -617,7 +612,10 @@ export const AdminDepartmentDashboard: React.FC = () => {
                   sx={{
                     width: "100%",
                     height: "28px",
-                    backgroundColor: "#1e293b",
+                    backgroundColor:
+                      theme.palette.mode === "dark"
+                        ? "#1e293b"
+                        : theme.palette.action.hover,
                     borderRadius: "12px",
                     overflow: "hidden",
                     position: "relative",
