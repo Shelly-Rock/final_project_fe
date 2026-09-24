@@ -489,7 +489,11 @@ export const publishTranscript = async (
   return apiClient.post(`${API_BASE}/transcripts/${projectId}/publish`);
 };
 
-export const getMyTranscript = async (): Promise<TranscriptDetail> => {
+export type StudentTranscriptResponse =
+  | (TranscriptDetail & { available?: true })
+  | { available: false; reason: string };
+
+export const getMyTranscript = async (): Promise<StudentTranscriptResponse> => {
   return apiClient.get(`${API_BASE}/transcripts/me`);
 };
 
@@ -566,7 +570,11 @@ export const getPrintSheet = async (): Promise<{
   return apiClient.get(`${API_BASE}/post-defense/print`);
 };
 
-export const getMyRevision = async (): Promise<StudentRevisionDetail> => {
+export type StudentRevisionResponse =
+  | (StudentRevisionDetail & { available?: true })
+  | { available: false; reason: string };
+
+export const getMyRevision = async (): Promise<StudentRevisionResponse> => {
   return apiClient.get(`${API_BASE}/revisions/me`);
 };
 

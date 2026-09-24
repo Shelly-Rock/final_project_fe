@@ -37,7 +37,14 @@ export function StudentScoreSheetPage() {
     const load = async () => {
       try {
         setLoading(true);
-        setDetail(await getMyTranscript());
+        setError(null);
+        const response = await getMyTranscript();
+        if (response.available === false) {
+          setDetail(null);
+          setError(response.reason);
+          return;
+        }
+        setDetail(response);
       } catch (err) {
         setError((err as Error).message || "Bảng điểm chưa được công bố");
       } finally {
