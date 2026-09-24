@@ -1,10 +1,13 @@
 export * from "./TeacherScoring";
 export { ScoringManagementPage } from "./ScoringManagement";
-export { ScoringStats } from "./ScoringStats";
+export { ScoringStats, ScoringStatCard } from "./ScoringStats";
 export { ScoringTable } from "./ScoringTable";
 export { ScoringResultsTable } from "./ScoringResultsTable";
 export { ScoringFilterCard } from "./ScoringFilterCard";
-export { ScoringResultDetailsDialog } from "./ScoringResultDetailsDialog";
+export {
+  ScoringResultDetailsDialog,
+  ScoreDetailDialog,
+} from "./ScoringResultDetailsDialog";
 export { CommitteeMeetingPage } from "./CommitteeMeeting";
 export { CommitteeMeetingDetailPage } from "./CommitteeMeetingDetail";
 export { ScorePublicationPage } from "./ScorePublication";

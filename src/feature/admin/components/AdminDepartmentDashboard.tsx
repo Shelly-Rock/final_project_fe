@@ -1,8 +1,13 @@
 "use client";
 
 import React, { useMemo } from "react";
+import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import { adminDashboardService } from "@/feature/dashboard/services/admin-dashboard.service";
+import {
+  adminDashboardService,
+  type DepartmentStats,
+} from "@/feature/dashboard/services/admin-dashboard.service";
+import { AdminDepartmentOperations } from "./AdminDepartmentOperations";
 import { Card, CardContentDiv } from "@/shared/components/Card";
 import { Users, BookOpen, BarChart3, FileText, Eye } from "lucide-react";
 import { Box, Typography, useTheme } from "@mui/material";
@@ -59,10 +64,24 @@ const DepartmentCard: React.FC<{ dept: DepartmentCardData }> = ({ dept }) => {
   const color = departmentColors[dept.color];
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
+  const router = useRouter();
+
+  const openDetail = () => {
+    router.push(`/department/${encodeURIComponent(dept.id)}`);
+  };
 
   return (
     <div
-      className=" rounded-lg hover:bg-surface-card/80 transition-all flex flex-col justify-between h-full shadow-md hover:shadow-lg"
+      role="button"
+      tabIndex={0}
+      onClick={openDetail}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          openDetail();
+        }
+      }}
+      className="rounded-lg hover:bg-surface-card/80 transition-all flex flex-col justify-between h-full shadow-md hover:shadow-lg cursor-pointer"
       style={{
         background: getCardBackground(theme),
         border: isDark ? "none" : `1px solid ${theme.palette.divider}`,
@@ -165,8 +184,14 @@ const DepartmentCard: React.FC<{ dept: DepartmentCardData }> = ({ dept }) => {
           {dept.location}
         </span>
         <button
+          type="button"
+          aria-label={`Xem chi tiết ${dept.name}`}
           className="flex items-center justify-center transition-all hover:scale-110"
           style={{ color: color.accent }}
+          onClick={(e) => {
+            e.stopPropagation();
+            openDetail();
+          }}
         >
           <Eye size={16} />
         </button>
@@ -259,12 +284,12 @@ export const AdminDepartmentDashboard: React.FC = () => {
     queryFn: () => adminDashboardService.getAdminStats(),
   });
 
-  const { isLoading: deptLoading } = useQuery({
+  const { data: deptStats, isLoading: deptLoading } = useQuery({
     queryKey: ["admin-department-stats"],
     queryFn: () => adminDashboardService.getDepartmentStats(),
   });
 
-  const mockDepartments: DepartmentCardData[] = useMemo(() => {
+  const fallbackDepartments: DepartmentCardData[] = useMemo(() => {
     return [
       {
         id: "1",
@@ -358,6 +383,47 @@ export const AdminDepartmentDashboard: React.FC = () => {
       },
     ];
   }, []);
+
+  const departments = useMemo(() => {
+    if (!deptStats?.length) return fallbackDepartments;
+
+    const colors: DepartmentCardData["color"][] = [
+      "blue",
+      "green",
+      "orange",
+      "purple",
+    ];
+
+    return deptStats.map((d: DepartmentStats, i) => {
+      const fallback = fallbackDepartments[i];
+      const total = d.projects?.total ?? fallback?.totalProjects ?? 0;
+      const approved = d.projects?.approved ?? fallback?.stageCount ?? 0;
+      const rate = total
+        ? Math.round((approved / total) * 100)
+        : (fallback?.completionRate ?? 0);
+
+      return {
+        id: d.id,
+        name: d.name || fallback?.name || "Khoa",
+        abbr:
+          fallback?.abbr ||
+          d.id.replace(/^BM_?/i, "").slice(0, 2).toUpperCase() ||
+          "K",
+        totalProjects: total,
+        totalStudents: fallback?.totalStudents ?? 0,
+        teacherCount: d.teacherCount ?? fallback?.teacherCount ?? 0,
+        councilCount: fallback?.councilCount ?? 0,
+        completionRate: rate,
+        stageDescription: fallback?.stageDescription || d.faculty || "Đề tài",
+        stageCount: approved,
+        status: rate >= 75 ? "on-time" : rate >= 60 ? "warning" : "delayed",
+        color: fallback?.color ?? colors[i % 4],
+        location:
+          fallback?.location ||
+          [d.faculty, d.secretary].filter(Boolean).join(" • "),
+      } satisfies DepartmentCardData;
+    });
+  }, [deptStats, fallbackDepartments]);
 
   const totalProjects = 1420;
   const totalStudents = 1850;
@@ -456,7 +522,7 @@ export const AdminDepartmentDashboard: React.FC = () => {
               color: "#4ade80",
             }}
           >
-            LIVE • {mockDepartments.length} Khoa
+            LIVE • {departments.length} Khoa
           </span>
         </Box>
 
@@ -513,201 +579,12 @@ export const AdminDepartmentDashboard: React.FC = () => {
 
         {/* Department Cards Grid - 4 columns */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
-          {mockDepartments.map((dept) => (
+          {departments.map((dept) => (
             <DepartmentCard key={dept.id} dept={dept} />
           ))}
         </div>
 
-        {/* Comparison Chart */}
-        <Box
-          sx={{
-            gridColumn: { xs: "1", xl: "span 5" },
-            p: 3,
-            borderRadius: 1,
-            background: getCardBackground(theme),
-            border: "1px solid",
-            borderColor: "divider",
-            boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
-            "&:hover": {
-              boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
-            },
-            transition: "box-shadow 0.3s ease",
-          }}
-        >
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              mb: 2.5,
-            }}
-          >
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-              <BarChart3 size={14} className="text-primary" />
-              <h3
-                style={{
-                  fontSize: "10px",
-                  fontWeight: "bold",
-                  textTransform: "uppercase",
-                }}
-              >
-                So Sánh Hoàn Thành 6 Khoa
-              </h3>
-            </Box>
-            <span
-              style={{
-                fontSize: "9px",
-                fontFamily: "monospace",
-                color: "var(--text-secondary)",
-                opacity: 0.7,
-              }}
-            >
-              KPI &gt; 70%
-            </span>
-          </Box>
-
-          <Box sx={{ mt: 3 }}>
-            {[
-              { dept: "Kinh Tế & QTKD", percent: 90, color: "#0ea5e9" },
-              { dept: "CNTT & TT", percent: 82, color: "#0ea5e9" },
-              { dept: "Điện - Điện Tử", percent: 75, color: "#0ea5e9" },
-              { dept: "Cơ Khí", percent: 68, color: "#0ea5e9" },
-              { dept: "Khoa Học", percent: 80, color: "#0ea5e9" },
-              { dept: "Hóa Học", percent: 71, color: "#0ea5e9" },
-            ].map((item, idx) => (
-              <Box key={idx} sx={{ mb: 2.5 }}>
-                <Box
-                  sx={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    mb: 0.8,
-                  }}
-                >
-                  <Typography
-                    variant="body2"
-                    sx={{
-                      fontWeight: 600,
-                      color: "text.primary",
-                      fontSize: "12px",
-                      minWidth: "140px",
-                    }}
-                  >
-                    {item.dept}
-                  </Typography>
-                  <Typography
-                    variant="body2"
-                    sx={{
-                      fontWeight: 700,
-                      color: item.percent >= 70 ? "#4ade80" : "#fbbf24",
-                      fontSize: "12px",
-                      minWidth: "40px",
-                      textAlign: "right",
-                    }}
-                  >
-                    {item.percent}%
-                  </Typography>
-                </Box>
-                <Box
-                  sx={{
-                    width: "100%",
-                    height: "28px",
-                    backgroundColor:
-                      theme.palette.mode === "dark"
-                        ? "#1e293b"
-                        : theme.palette.action.hover,
-                    borderRadius: "12px",
-                    overflow: "hidden",
-                    position: "relative",
-                    boxShadow: "inset 0 1px 3px rgba(0, 0, 0, 0.3)",
-                  }}
-                >
-                  <Box
-                    sx={{
-                      height: "100%",
-                      width: `${item.percent}%`,
-                      background:
-                        "linear-gradient(90deg, rgb(37, 99, 235) 0%, rgb(37, 99, 235) 100%)",
-                      borderRadius: "12px",
-                      transition:
-                        "width 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)",
-                      boxShadow:
-                        "0 0 16px rgba(37, 99, 235, 0.3), inset 0 1px 2px rgba(255, 255, 255, 0.15)",
-                      position: "relative",
-                      "&::after": {
-                        content: '""',
-                        position: "absolute",
-                        top: 0,
-                        left: 0,
-                        bottom: 0,
-                        right: 0,
-                        background:
-                          "linear-gradient(180deg, rgba(255, 255, 255, 0.08) 0%, transparent 100%)",
-                        borderRadius: "12px",
-                      },
-                    }}
-                  />
-                  {item.percent >= 70 && (
-                    <Box
-                      sx={{
-                        position: "absolute",
-                        right: "12px",
-                        top: "50%",
-                        transform: "translateY(-50%)",
-                        color: "#fff",
-                        fontSize: "12px",
-                        fontWeight: 700,
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "4px",
-                        pointerEvents: "none",
-                      }}
-                    >
-                      ✓
-                    </Box>
-                  )}
-                </Box>
-              </Box>
-            ))}
-          </Box>
-
-          <Box
-            sx={{
-              mt: 2,
-              pt: 2,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              fontSize: "9px",
-            }}
-          >
-            <span style={{ color: "var(--text-secondary)", opacity: 0.7 }}>
-              <span
-                style={{
-                  width: "4px",
-                  height: "4px",
-                  borderRadius: "50%",
-                  backgroundColor: "#4ade80",
-                  display: "inline-block",
-                  marginRight: "4px",
-                }}
-              />
-              TB hoàn thành: <b>77.6%</b>
-            </span>
-            <button
-              style={{
-                color: "var(--primary)",
-                fontWeight: 500,
-                textDecoration: "underline",
-                background: "none",
-                border: "none",
-                cursor: "pointer",
-              }}
-            >
-              Xuất biểu đồ
-            </button>
-          </Box>
-        </Box>
+        <AdminDepartmentOperations />
       </Box>
     </Box>
   );
