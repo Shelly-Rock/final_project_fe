@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import {
   Box,
   CircularProgress,
@@ -33,6 +34,8 @@ const getCardBackground = (theme: Theme) => {
 
 export default function ProjectConfigPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const departmentId = searchParams.get("departmentId") || undefined;
   const theme = useTheme();
   const { role } = usePermissionContext();
   const [tab, setTab] = useState(0);
@@ -90,7 +93,8 @@ export default function ProjectConfigPage() {
           {tab === 0 && <PeriodConfigForm />}
           {tab === 1 && (
             <TemplateList
-              key={`templates-${refreshKey}`}
+              key={`templates-${refreshKey}-${departmentId ?? "all"}`}
+              departmentId={departmentId}
               onUploadClick={() => setUploadDialogOpen(true)}
               onReplaceClick={(t) => {
                 setReplaceTemplate(t);
@@ -98,7 +102,7 @@ export default function ProjectConfigPage() {
               }}
             />
           )}
-          {tab === 2 && <TopicManageTable />}
+          {tab === 2 && <TopicManageTable key={departmentId ?? "all"} />}
         </Box>
       </Paper>
 

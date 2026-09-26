@@ -23,6 +23,23 @@ import { Box, Skeleton, Typography } from "@mui/material";
 
 const COLORS = ["#fbbf24", "#10b981", "#ef4444"];
 
+const getProjectStat = (
+  projects:
+    | number
+    | {
+        total?: number;
+        pending?: number;
+        approved?: number;
+        rejected?: number;
+      },
+  key: "total" | "pending" | "approved" | "rejected",
+) => {
+  if (typeof projects === "number") {
+    return key === "total" ? projects : 0;
+  }
+  return projects?.[key] ?? 0;
+};
+
 interface StatCardProps {
   label: string;
   value: number | undefined;
@@ -89,19 +106,23 @@ export const AdminDashboard: React.FC = () => {
     queryFn: () => adminDashboardService.getDepartmentStats(),
   });
 
-  const projectStatusData = dashboardStats
+  const projectStatus =
+    dashboardStats?.projectStatus ?? dashboardStats?.projectStats;
+  const reportStatus = dashboardStats?.reports ?? dashboardStats?.reportStats;
+
+  const projectStatusData = projectStatus
     ? [
-        { name: "Chờ duyệt", value: dashboardStats.projectStatus.pending },
-        { name: "Đã duyệt", value: dashboardStats.projectStatus.approved },
-        { name: "Từ chối", value: dashboardStats.projectStatus.rejected },
+        { name: "Chờ duyệt", value: projectStatus.pending },
+        { name: "Đã duyệt", value: projectStatus.approved },
+        { name: "Từ chối", value: projectStatus.rejected },
       ]
     : [];
 
-  const reportStatusData = dashboardStats
+  const reportStatusData = reportStatus
     ? [
-        { name: "Chờ duyệt", value: dashboardStats.reports.pending },
-        { name: "Đã duyệt", value: dashboardStats.reports.approved },
-        { name: "Từ chối", value: dashboardStats.reports.rejected },
+        { name: "Chờ duyệt", value: reportStatus.pending },
+        { name: "Đã duyệt", value: reportStatus.approved },
+        { name: "Từ chối", value: reportStatus.rejected },
       ]
     : [];
 
@@ -109,10 +130,11 @@ export const AdminDashboard: React.FC = () => {
     departmentStats?.map((dept) => ({
       name: dept.name,
       totalStudents: 0,
-      totalTeachers: dept.teacherCount || 0,
-      approvedProjects: dept.projects?.approved || 0,
-      pendingProjects: dept.projects?.pending || 0,
-      rejectedProjects: dept.projects?.rejected || 0,
+      totalTeachers: dept.teacherCount ?? dept.teachers ?? 0,
+      totalProjects: getProjectStat(dept.projects, "total"),
+      approvedProjects: getProjectStat(dept.projects, "approved"),
+      pendingProjects: getProjectStat(dept.projects, "pending"),
+      rejectedProjects: getProjectStat(dept.projects, "rejected"),
       faculty: dept.faculty,
       secretary: dept.secretary,
     })) || [];
@@ -453,9 +475,7 @@ export const AdminDashboard: React.FC = () => {
                           color: "#4b5563",
                         }}
                       >
-                        {dept.approvedProjects +
-                          dept.pendingProjects +
-                          dept.rejectedProjects}
+                        {dept.totalProjects}
                       </td>
                       <td
                         style={{

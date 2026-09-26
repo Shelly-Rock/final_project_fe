@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import {
   Alert,
   Box,
@@ -31,6 +32,9 @@ export function TeacherOverrideTable({
   maxStudentsPerTopic,
   onReloadStats,
 }: TeacherOverrideTableProps) {
+  const searchParams = useSearchParams();
+  const scopedDepartmentId = searchParams.get("departmentId") || undefined;
+
   const [search, setSearch] = useState("");
   const debounced = useDebouncedValue(search, 450);
   const [rows, setRows] = useState<TeacherOverrideRow[]>([]);
@@ -51,6 +55,7 @@ export function TeacherOverrideTable({
         search: debounced.trim() || undefined,
         page: page + 1,
         limit: rowsPerPage,
+        departmentId: scopedDepartmentId,
       });
       setRows(page1.items ?? []);
       setTotal(page1.total ?? 0);
@@ -59,7 +64,7 @@ export function TeacherOverrideTable({
     } finally {
       setLoading(false);
     }
-  }, [debounced, page, periodId, rowsPerPage]);
+  }, [debounced, page, periodId, rowsPerPage, scopedDepartmentId]);
 
   useEffect(() => {
     fetch();
@@ -68,7 +73,7 @@ export function TeacherOverrideTable({
   useEffect(() => {
     setPage(0);
     setSelectedKeys([]);
-  }, [debounced, periodId]);
+  }, [debounced, periodId, scopedDepartmentId]);
 
   const selectedTeacherIds = useMemo(
     () =>

@@ -12,18 +12,6 @@ import { Card, CardContentDiv } from "@/shared/components/Card";
 import { Users, BookOpen, BarChart3, FileText, Eye } from "lucide-react";
 import { Box, Typography, useTheme } from "@mui/material";
 import { getCardBackground } from "@/shared/constants/gradients";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  ReferenceLine,
-  Cell,
-  Label,
-} from "recharts";
 
 interface DepartmentCardData {
   id: string;
@@ -58,6 +46,40 @@ const departmentColors = {
     accent: "#b4c5ff",
     progressColor: "#b4c5ff",
   },
+};
+
+const colorOrder: DepartmentCardData["color"][] = [
+  "blue",
+  "green",
+  "orange",
+  "purple",
+];
+
+const getProjectsTotal = (dept: DepartmentStats) => {
+  if (typeof dept.projects === "number") return dept.projects;
+  return dept.projects?.total ?? 0;
+};
+
+const getProjectsApproved = (dept: DepartmentStats) => {
+  if (typeof dept.projects === "number") return dept.projects;
+  return dept.projects?.approved ?? 0;
+};
+
+const getTeacherCount = (dept: DepartmentStats) => {
+  return dept.teacherCount ?? dept.teachers ?? 0;
+};
+
+const getDepartmentAbbr = (id: string, name: string) => {
+  const fromId = id.split("_").filter(Boolean).at(-1);
+  if (fromId) return fromId.slice(0, 4).toUpperCase();
+
+  return name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0])
+    .join("")
+    .toUpperCase();
 };
 
 const DepartmentCard: React.FC<{ dept: DepartmentCardData }> = ({ dept }) => {
@@ -213,7 +235,7 @@ const StatCard = ({
   label,
   value,
   subtext,
-  subtextColor = "text-emerald-400",
+  subtextColor = "success.main",
   icon,
   iconColor = "#3b82f6",
 }: StatCardProps) => {
@@ -267,7 +289,7 @@ const StatCard = ({
         </Typography>
         <Typography
           variant="caption"
-          sx={{ display: "block", fontSize: "9px", className: subtextColor }}
+          sx={{ display: "block", color: subtextColor, fontSize: "9px" }}
         >
           {subtext}
         </Typography>
@@ -279,7 +301,7 @@ const StatCard = ({
 export const AdminDepartmentDashboard: React.FC = () => {
   const theme = useTheme();
 
-  const { isLoading: statsLoading } = useQuery({
+  const { data: dashboardStats, isLoading: statsLoading } = useQuery({
     queryKey: ["admin-dashboard"],
     queryFn: () => adminDashboardService.getAdminStats(),
   });
@@ -289,145 +311,46 @@ export const AdminDepartmentDashboard: React.FC = () => {
     queryFn: () => adminDashboardService.getDepartmentStats(),
   });
 
-  const fallbackDepartments: DepartmentCardData[] = useMemo(() => {
-    return [
-      {
-        id: "1",
-        name: "CNTT & Truyền thông",
-        abbr: "IT",
-        totalProjects: 450,
-        totalStudents: 580,
-        teacherCount: 65,
-        councilCount: 16,
-        completionRate: 82,
-        stageDescription: "Phản biện & Bảo vệ",
-        stageCount: 320,
-        status: "on-time",
-        color: "blue",
-        location: "P. A1 • Nam TH",
-      },
-      {
-        id: "2",
-        name: "Điện - Điện Tử",
-        abbr: "EE",
-        totalProjects: 320,
-        totalStudents: 390,
-        teacherCount: 48,
-        councilCount: 12,
-        completionRate: 75,
-        stageDescription: "Chế tạo mạch & Lab",
-        stageCount: 240,
-        status: "delayed",
-        color: "green",
-        location: "P. B2 • Huy LQ",
-      },
-      {
-        id: "3",
-        name: "Kinh Tế & QTKD",
-        abbr: "BA",
-        totalProjects: 380,
-        totalStudents: 460,
-        teacherCount: 52,
-        councilCount: 14,
-        completionRate: 90,
-        stageDescription: "Bản thảo & Turnitin",
-        stageCount: 342,
-        status: "on-time",
-        color: "orange",
-        location: "P. C1 • Mai NT",
-      },
-      {
-        id: "4",
-        name: "Cơ Khí Chế Tạo",
-        abbr: "ME",
-        totalProjects: 270,
-        totalStudents: 320,
-        teacherCount: 40,
-        councilCount: 10,
-        completionRate: 68,
-        stageDescription: "Gia công mô hình xưởng",
-        stageCount: 190,
-        status: "warning",
-        color: "purple",
-        location: "X. D1 • Toàn VD",
-      },
-      {
-        id: "5",
-        name: "Khoa Học Ứng Dụng",
-        abbr: "AS",
-        totalProjects: 150,
-        totalStudents: 180,
-        teacherCount: 35,
-        councilCount: 8,
-        completionRate: 80,
-        stageDescription: "Thí nghiệm",
-        stageCount: 120,
-        status: "on-time",
-        color: "blue",
-        location: "P. E2 • Hòa VT",
-      },
-      {
-        id: "6",
-        name: "Hóa Học & Môi Trường",
-        abbr: "CH",
-        totalProjects: 150,
-        totalStudents: 160,
-        teacherCount: 30,
-        councilCount: 8,
-        completionRate: 71,
-        stageDescription: "Phân tích & Báo cáo",
-        stageCount: 106,
-        status: "on-time",
-        color: "green",
-        location: "P. F1 • Lan TK",
-      },
-    ];
-  }, []);
-
   const departments = useMemo(() => {
-    if (!deptStats?.length) return fallbackDepartments;
-
-    const colors: DepartmentCardData["color"][] = [
-      "blue",
-      "green",
-      "orange",
-      "purple",
-    ];
-
-    return deptStats.map((d: DepartmentStats, i) => {
-      const fallback = fallbackDepartments[i];
-      const total = d.projects?.total ?? fallback?.totalProjects ?? 0;
-      const approved = d.projects?.approved ?? fallback?.stageCount ?? 0;
-      const rate = total
-        ? Math.round((approved / total) * 100)
-        : (fallback?.completionRate ?? 0);
+    return (deptStats ?? []).map((dept, index) => {
+      const totalProjects = getProjectsTotal(dept);
+      const stageCount = getProjectsApproved(dept);
+      const completionRate = totalProjects
+        ? Math.round((stageCount / totalProjects) * 100)
+        : 0;
 
       return {
-        id: d.id,
-        name: d.name || fallback?.name || "Khoa",
-        abbr:
-          fallback?.abbr ||
-          d.id.replace(/^BM_?/i, "").slice(0, 2).toUpperCase() ||
-          "K",
-        totalProjects: total,
-        totalStudents: fallback?.totalStudents ?? 0,
-        teacherCount: d.teacherCount ?? fallback?.teacherCount ?? 0,
-        councilCount: fallback?.councilCount ?? 0,
-        completionRate: rate,
-        stageDescription: fallback?.stageDescription || d.faculty || "Đề tài",
-        stageCount: approved,
-        status: rate >= 75 ? "on-time" : rate >= 60 ? "warning" : "delayed",
-        color: fallback?.color ?? colors[i % 4],
-        location:
-          fallback?.location ||
-          [d.faculty, d.secretary].filter(Boolean).join(" • "),
+        id: dept.id,
+        name: dept.name,
+        abbr: getDepartmentAbbr(dept.id, dept.name),
+        totalProjects,
+        totalStudents: 0,
+        teacherCount: getTeacherCount(dept),
+        councilCount: 0,
+        completionRate,
+        stageDescription: "Đề tài đã duyệt",
+        stageCount,
+        status:
+          completionRate >= 80
+            ? "on-time"
+            : completionRate >= 60
+              ? "warning"
+              : "delayed",
+        color: colorOrder[index % colorOrder.length],
+        location: dept.faculty || "Chưa rõ khoa",
       } satisfies DepartmentCardData;
     });
-  }, [deptStats, fallbackDepartments]);
+  }, [deptStats]);
 
-  const totalProjects = 1420;
-  const totalStudents = 1850;
-  const totalTeachers = 245;
+  const totalProjects = dashboardStats?.summary.totalProjects ?? 0;
+  const totalStudents = dashboardStats?.summary.totalStudents ?? 0;
+  const totalTeachers = dashboardStats?.summary.totalTeachers ?? 0;
+  const averageCompletionRate = departments.length
+    ? Math.round(
+        departments.reduce((sum, dept) => sum + dept.completionRate, 0) /
+          departments.length,
+      )
+    : 0;
 
   if (statsLoading || deptLoading) {
     return (
@@ -522,7 +445,7 @@ export const AdminDepartmentDashboard: React.FC = () => {
               color: "#4ade80",
             }}
           >
-            LIVE • {departments.length} Khoa
+            LIVE • {departments.length} Khoa/Bộ môn
           </span>
         </Box>
 
@@ -537,16 +460,16 @@ export const AdminDepartmentDashboard: React.FC = () => {
           <StatCard
             label="Tổng Đề Tài"
             value={totalProjects}
-            subtext="+8.2%"
-            subtextColor="text-emerald-400"
+            subtext="Toàn hệ thống"
+            subtextColor="success.main"
             icon={<FileText size={18} />}
             iconColor="#10b981"
           />
           <StatCard
             label="Sinh Viên"
             value={totalStudents}
-            subtext="430 nhóm"
-            subtextColor="text-emerald-400"
+            subtext="Toàn hệ thống"
+            subtextColor="success.main"
             icon={<Users size={18} />}
             iconColor="#3b82f6"
           />
@@ -554,15 +477,15 @@ export const AdminDepartmentDashboard: React.FC = () => {
             label="GVHD"
             value={totalTeachers}
             subtext="5.8 ĐT/GV"
-            subtextColor="text-amber-400"
+            subtextColor="warning.main"
             icon={<BookOpen size={18} />}
             iconColor="#8b5cf6"
           />
           <StatCard
-            label="Hội Đồng"
-            value={48}
-            subtext="88.5%"
-            subtextColor="text-emerald-400"
+            label="Khoa/Bộ môn"
+            value={departments.length}
+            subtext={`${averageCompletionRate}% TB hoàn thành`}
+            subtextColor="success.main"
             icon={<BarChart3 size={18} />}
             iconColor="#f59e0b"
           />

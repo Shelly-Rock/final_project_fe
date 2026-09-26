@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
+import { useSearchParams } from "next/navigation";
 import { useTheme } from "@mui/material";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -202,6 +203,8 @@ const SendNotificationForm: React.FC<SendNotificationFormProps> = ({
   onSuccess,
   onClose,
 }) => {
+  const searchParams = useSearchParams();
+  const scopedDepartmentId = searchParams.get("departmentId") || "";
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
   const t = isDark
@@ -394,7 +397,7 @@ const SendNotificationForm: React.FC<SendNotificationFormProps> = ({
   const [recipients, setRecipients] = useState<Recipient[]>([]);
   const [loadingDepts, setLoadingDepts] = useState(false);
   const [loadingRecipients, setLoadingRecipients] = useState(false);
-  const [selectedDept, setSelectedDept] = useState<string>("");
+  const [selectedDept, setSelectedDept] = useState<string>(scopedDepartmentId);
   const [deptOpen, setDeptOpen] = useState(false);
   const [fileName, setFileName] = useState<string>("");
   const [fileSize, setFileSize] = useState<number>(0);
@@ -405,9 +408,15 @@ const SendNotificationForm: React.FC<SendNotificationFormProps> = ({
   }, []);
 
   useEffect(() => {
+    setSelectedDept(scopedDepartmentId);
+    setValue("recipientIds", []);
+  }, [scopedDepartmentId, setValue]);
+
+  useEffect(() => {
+    setValue("recipientIds", []);
     if (selectedDept) loadRecipientsByDept(selectedDept);
     else setRecipients([]);
-  }, [selectedDept]);
+  }, [selectedDept, setValue]);
 
   useEffect(() => {
     setMounted(true);
@@ -501,7 +510,7 @@ const SendNotificationForm: React.FC<SendNotificationFormProps> = ({
       if (editorRef.current) editorRef.current.innerHTML = "";
       setFileName("");
       setFileSize(0);
-      setSelectedDept("");
+      setSelectedDept(scopedDepartmentId);
       onSuccess?.();
       if (saveDraft) onClose?.();
     } catch (error) {
@@ -705,8 +714,11 @@ const SendNotificationForm: React.FC<SendNotificationFormProps> = ({
                 <div className="relative" style={{ flex: 1 }}>
                   <button
                     type="button"
-                    onClick={() => setDeptOpen((v) => !v)}
-                    disabled={loadingDepts}
+                    onClick={() => {
+                      if (scopedDepartmentId) return;
+                      setDeptOpen((v) => !v);
+                    }}
+                    disabled={loadingDepts || !!scopedDepartmentId}
                     className="w-full flex items-center justify-between cursor-pointer disabled:opacity-50"
                     style={{
                       height: 44,
@@ -743,7 +755,7 @@ const SendNotificationForm: React.FC<SendNotificationFormProps> = ({
                       }}
                     />
                   </button>
-                  {deptOpen && (
+                  {deptOpen && !scopedDepartmentId && (
                     <div
                       className="absolute z-20 overflow-hidden overflow-y-auto"
                       style={{

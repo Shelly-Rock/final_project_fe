@@ -133,39 +133,7 @@ export const DepartmentDetailSecretary = () => {
         setDepartment(data);
       } catch (e: unknown) {
         console.error("Error fetching department detail:", e);
-        // Fallback mock data for testing UI
-        setDepartment({
-          departmentId: departmentId,
-          departmentName: "Bộ môn Kỹ thuật phần mềm",
-          departmentCode: "SE-IT",
-          totalTeachers: 6,
-          totalTopics: 2,
-          completedTopics: 2,
-          pendingApprovalTopics: 0,
-          delayedTopics: 0,
-          totalReports: 0,
-          pendingApprovals: 0,
-          topics: [
-            {
-              id: "1",
-              name: "Hệ thống Quản lý Đào tạo & NCKH",
-              code: "DT-2024-KTPM01",
-              instructorName: "TS. Trần Văn A",
-              instructorRole: "Giảng viên chính",
-              completionPercentage: 100,
-              status: "completed",
-            },
-            {
-              id: "2",
-              name: "Ứng dụng AI phân tích kết quả học tập",
-              code: "DT-2024-KTPM02",
-              instructorName: "ThS. Lê Thị B",
-              instructorRole: "Giảng viên bộ môn",
-              completionPercentage: 100,
-              status: "completed",
-            },
-          ],
-        });
+        setDepartment(null);
       } finally {
         setLoading(false);
       }

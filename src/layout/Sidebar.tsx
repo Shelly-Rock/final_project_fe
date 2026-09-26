@@ -6,6 +6,10 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { usePermissionContext } from "@/core/providers/PermissionProvider";
 import { getMenuSectionsForRole } from "@/shared/constants/menus";
 import { useMediaQuery } from "@/shared/hooks";
+import {
+  buildDepartmentScopedPath,
+  useDepartmentContext,
+} from "@/shared/hooks/useDepartmentContext";
 import { default as Logo } from "@/assets/image/png/logo.png";
 import { default as LogoCollapsed } from "@/assets/image/png/logo02.png";
 import Image from "next/image";
@@ -26,6 +30,7 @@ export function Sidebar({
 }: SidebarProps) {
   const pathname = usePathname();
   const { role } = usePermissionContext();
+  const { departmentId } = useDepartmentContext();
   const isDesktop = useMediaQuery("(min-width: 1024px)");
 
   const menuSections = useMemo(() => {
@@ -189,27 +194,34 @@ export function Sidebar({
                       id={`section-${section.section}`}
                       className="sidebar-menu"
                     >
-                      {section.items.map((item) => (
-                        <li
-                          key={item.key}
-                          className={`sidebar-menu-item ${isActive(item.path) ? "active" : ""}`}
-                        >
-                          <Link
-                            href={item.path || "#"}
-                            className="sidebar-menu-link"
-                            title={item.label}
+                      {section.items.map((item) => {
+                        const href = buildDepartmentScopedPath(
+                          item.path,
+                          item.key,
+                          departmentId,
+                        );
+                        return (
+                          <li
+                            key={item.key}
+                            className={`sidebar-menu-item ${isActive(item.path) ? "active" : ""}`}
                           >
-                            <span
-                              className={`sidebar-menu-icon bi ${item.icon || "bi-circle"}`}
-                            />
-                            {!collapsed && (
-                              <span className="sidebar-menu-label">
-                                {item.label}
-                              </span>
-                            )}
-                          </Link>
-                        </li>
-                      ))}
+                            <Link
+                              href={href}
+                              className="sidebar-menu-link"
+                              title={item.label}
+                            >
+                              <span
+                                className={`sidebar-menu-icon bi ${item.icon || "bi-circle"}`}
+                              />
+                              {!collapsed && (
+                                <span className="sidebar-menu-label">
+                                  {item.label}
+                                </span>
+                              )}
+                            </Link>
+                          </li>
+                        );
+                      })}
                     </ul>
                   )}
                 </div>

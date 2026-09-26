@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
+import { useSearchParams } from "next/navigation";
 import {
   Box,
   CircularProgress,
@@ -39,6 +40,9 @@ interface Department {
 }
 
 export default function TeacherManagementPage() {
+  const searchParams = useSearchParams();
+  const scopedDepartmentId = searchParams.get("departmentId");
+
   // Lecturers state
   const [teachers, setTeachers] = useState<Lecturer[]>([]);
   const [loading, setLoading] = useState(true);
@@ -49,7 +53,9 @@ export default function TeacherManagementPage() {
 
   // Filter state - cascading Faculty -> Department
   const [filterFaculty, setFilterFaculty] = useState("all");
-  const [filterDepartment, setFilterDepartment] = useState("all");
+  const [filterDepartment, setFilterDepartment] = useState(
+    scopedDepartmentId || "all",
+  );
   const [search, setSearch] = useState("");
   const [khoaAnchorEl, setKhoaAnchorEl] = useState<HTMLElement | null>(null);
 
@@ -57,6 +63,10 @@ export default function TeacherManagementPage() {
   const [faculties, setFaculties] = useState<Faculty[]>([]);
   const [allDepartments, setAllDepartments] = useState<Department[]>([]);
   const [loadingFaculties, setLoadingFaculties] = useState(true);
+
+  useEffect(() => {
+    setFilterDepartment(scopedDepartmentId || "all");
+  }, [scopedDepartmentId]);
 
   // Load faculties on mount
   useEffect(() => {
@@ -93,7 +103,7 @@ export default function TeacherManagementPage() {
   // Reset department filter when faculty changes
   const handleFacultyChange = (facultyId: string) => {
     setFilterFaculty(facultyId);
-    setFilterDepartment("all");
+    setFilterDepartment(scopedDepartmentId || "all");
   };
 
   // Refresh teachers list
@@ -260,10 +270,14 @@ export default function TeacherManagementPage() {
               onClick={(e) => setKhoaAnchorEl(e.currentTarget)}
               sx={{
                 color:
-                  filterFaculty !== "all" ? "primary.main" : "text.secondary",
+                  filterFaculty !== "all" || scopedDepartmentId
+                    ? "primary.main"
+                    : "text.secondary",
                 border: "1px solid",
                 borderColor:
-                  filterFaculty !== "all" ? "primary.main" : "divider",
+                  filterFaculty !== "all" || scopedDepartmentId
+                    ? "primary.main"
+                    : "divider",
                 borderRadius: 2,
                 width: 36,
                 height: 36,
@@ -272,7 +286,7 @@ export default function TeacherManagementPage() {
               <Badge
                 color="primary"
                 variant="dot"
-                invisible={filterFaculty === "all"}
+                invisible={filterFaculty === "all" && !scopedDepartmentId}
               >
                 <Filter size={16} />
               </Badge>
@@ -290,6 +304,7 @@ export default function TeacherManagementPage() {
                 handleFacultyChange("all");
                 setKhoaAnchorEl(null);
               }}
+              disabled={!!scopedDepartmentId}
             >
               Tất cả khoa
             </MenuItem>
