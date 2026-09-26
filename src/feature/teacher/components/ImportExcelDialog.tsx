@@ -9,13 +9,6 @@ import {
   Box,
   Typography,
   Button,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
   IconButton,
   Alert,
 } from "@mui/material";
@@ -23,11 +16,10 @@ import {
   X,
   Upload,
   FileSpreadsheet,
-  Trash2,
   Download,
   AlertCircle,
-  Wand2,
 } from "lucide-react";
+import * as XLSX from "xlsx";
 
 interface Faculty {
   id: string;
@@ -40,21 +32,10 @@ interface Department {
   facultyId?: string;
 }
 
-interface TeacherImportRow {
-  code: string;
-  name: string;
-  email: string;
-  phone?: string;
-  facultyId: string;
-  departmentId: string;
-  academicTitle?: string;
-  position?: string;
-}
-
 interface ImportExcelDialogProps {
   open: boolean;
   onClose: () => void;
-  onImport: (data: TeacherImportRow[]) => void;
+  onImport: (file: File) => void | Promise<void>;
   faculties: Faculty[];
   departments: Department[];
 }
@@ -63,18 +44,19 @@ export function ImportExcelDialog({
   open,
   onClose,
   onImport,
-  faculties,
-  departments,
 }: ImportExcelDialogProps) {
-  const [rows, setRows] = useState<TeacherImportRow[]>([]);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [errors, setErrors] = useState<string[]>([]);
-  const [fileName, setFileName] = useState<string>("");
+  const [importing, setImporting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const resetState = () => {
-    setRows([]);
+    setSelectedFile(null);
     setErrors([]);
-    setFileName("");
+    setImporting(false);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
   };
 
   const handleClose = () => {
@@ -82,170 +64,61 @@ export function ImportExcelDialog({
     onClose();
   };
 
-  // Helper to find faculty by name
-  const findFacultyIdByName = (name: string): string => {
-    const found = faculties.find((f) =>
-      f.name.toLowerCase().includes(name.toLowerCase()),
-    );
-    return found?.id || "";
-  };
-
-  // Helper to find department by name
-  const findDepartmentIdByName = (name: string, facultyId?: string): string => {
-    const depts = facultyId
-      ? departments.filter((d) => d.facultyId === facultyId)
-      : departments;
-
-    const found = depts.find((d) =>
-      d.name.toLowerCase().includes(name.toLowerCase()),
-    );
-    return found?.id || "";
-  };
-
-  const parseCSV = (text: string): TeacherImportRow[] => {
-    const lines = text.trim().split("\n");
-    if (lines.length < 2) {
-      throw new Error(
-        "File CSV phải có ít nhất 1 dòng dữ liệu (không tính header)",
-      );
-    }
-
-    const headerMap: Record<string, number> = {};
-
-    // Match Vietnamese headers
-    const expectedHeaders = [
-      { key: "code", labels: ["mã gv", "magv", "code", "teacher_code"] },
-      {
-        key: "name",
-        labels: ["họ tên", "hoten", "name", "fullname", "full_name"],
-      },
-      { key: "email", labels: ["email", "gmail", "mail"] },
-      { key: "phone", labels: ["sđt", "sdt", "phone", "tel", "điện thoại"] },
-      {
-        key: "faculty",
-        labels: ["khoa", "faculty", "f"],
-      },
-      {
-        key: "department",
-        labels: ["bộ môn", "bomon", "department", "chuyên ngành"],
-      },
-      {
-        key: "academicTitle",
-        labels: ["học hàm", "hoc ham", "academic_title", "học vị"],
-      },
-      { key: "position", labels: ["chức vụ", "chucvu", "position", "title"] },
-    ];
-
-    // Parse header line
-    const headers = lines[0]
-      .split(",")
-      .map((h) => h.trim().toLowerCase().replace(/"/g, ""));
-
-    expectedHeaders.forEach(({ key, labels }) => {
-      const idx = headers.findIndex((h) => labels.some((l) => h.includes(l)));
-      if (idx !== -1) {
-        headerMap[key] = idx;
-      }
-    });
-
-    // Validate required headers
-    if (headerMap.code === undefined) throw new Error("Thiếu cột 'Mã GV'");
-    if (headerMap.name === undefined) throw new Error("Thiếu cột 'Họ tên'");
-    if (headerMap.email === undefined) throw new Error("Thiếu cột 'Email'");
-
-    const data: TeacherImportRow[] = [];
-
-    for (let i = 1; i < lines.length; i++) {
-      const line = lines[i].trim();
-      if (!line) continue;
-
-      const values = line.split(",").map((v) => v.trim().replace(/"/g, ""));
-
-      const facultyValue =
-        headerMap.faculty !== undefined ? values[headerMap.faculty] : "";
-      const departmentValue =
-        headerMap.department !== undefined ? values[headerMap.department] : "";
-
-      const facultyId = findFacultyIdByName(facultyValue);
-      const departmentId = findDepartmentIdByName(departmentValue, facultyId);
-
-      data.push({
-        code: values[headerMap.code] || "",
-        name: values[headerMap.name] || "",
-        email: values[headerMap.email] || "",
-        phone:
-          headerMap.phone !== undefined ? values[headerMap.phone] : undefined,
-        facultyId,
-        departmentId,
-        academicTitle:
-          headerMap.academicTitle !== undefined
-            ? values[headerMap.academicTitle]
-            : undefined,
-        position:
-          headerMap.position !== undefined
-            ? values[headerMap.position]
-            : undefined,
-      });
-    }
-
-    return data;
-  };
-
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    setFileName(file.name);
-
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      try {
-        const text = e.target?.result as string;
-        const parsed = parseCSV(text);
-        setRows(parsed);
-        setErrors([]);
-      } catch (err) {
-        setErrors([(err as Error).message]);
-        setRows([]);
-      }
-    };
-    reader.onerror = () => {
-      setErrors(["Không thể đọc file"]);
-    };
-    reader.readAsText(file);
-  };
-
-  const handleRemoveRow = (index: number) => {
-    setRows((prev) => prev.filter((_, i) => i !== index));
-  };
-
-  const handleImport = () => {
-    if (rows.length === 0) {
-      setErrors(["Không có dữ liệu để import"]);
+    const validExtension = /\.(xlsx|xls)$/i.test(file.name);
+    if (!validExtension) {
+      setSelectedFile(null);
+      setErrors(["Vui lòng chọn file Excel định dạng .xlsx hoặc .xls"]);
       return;
     }
-    onImport(rows);
-    handleClose();
+
+    setSelectedFile(file);
+    setErrors([]);
+  };
+
+  const handleImport = async () => {
+    if (!selectedFile) {
+      setErrors(["Vui lòng chọn file Excel để import"]);
+      return;
+    }
+
+    setImporting(true);
+    try {
+      await onImport(selectedFile);
+      handleClose();
+    } catch (error) {
+      setErrors([
+        error instanceof Error
+          ? error.message
+          : "Import danh sách giảng viên thất bại",
+      ]);
+      setImporting(false);
+    }
   };
 
   const downloadTemplate = () => {
-    const template =
-      "Mã GV,Họ tên,Email,Số điện thoại,Khoa,Bộ môn,Học hàm/Học vị,Chức vụ\n,Nguyễn Văn An,nv.an@ctu.edu.vn,0912345678,Khoa Công nghệ thông tin,Công nghệ phần mềm,Tiến sĩ,Trưởng ngành";
-    const blob = new Blob([template], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = "template_giang_vien.csv";
-    link.click();
-    URL.revokeObjectURL(url);
-  };
-
-  const getFacultyName = (facultyId: string) => {
-    return faculties.find((f) => f.id === facultyId)?.name || "—";
-  };
-
-  const getDepartmentName = (departmentId: string) => {
-    return departments.find((d) => d.id === departmentId)?.name || "—";
+    const rows = [
+      {
+        code: "GV001",
+        name: "Nguyễn Văn An",
+        email: "nv.an@nttu.edu.vn",
+        phone: "0912345678",
+        facultyId: "KHOA_CNTT",
+        departmentId: "BM_KTPM",
+        academicTitle: "DOCTOR",
+        position: "Giảng viên",
+        dateOfBirth: "1990-01-15",
+        gender: "MALE",
+        address: "TP. Hồ Chí Minh",
+      },
+    ];
+    const worksheet = XLSX.utils.json_to_sheet(rows);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "GiangVien");
+    XLSX.writeFile(workbook, "template_giang_vien.xlsx");
   };
 
   return (
@@ -256,7 +129,7 @@ export function ImportExcelDialog({
       fullWidth
       PaperProps={{
         sx: {
-          width: 700,
+          width: 620,
           maxWidth: "calc(100vw - 32px)",
           maxHeight: "calc(100vh - 64px)",
           borderRadius: 2,
@@ -293,7 +166,7 @@ export function ImportExcelDialog({
         <Box
           sx={{
             border: "2px dashed",
-            borderColor: "primary.main",
+            borderColor: selectedFile ? "success.main" : "primary.main",
             borderRadius: 2,
             p: 3,
             textAlign: "center",
@@ -301,7 +174,7 @@ export function ImportExcelDialog({
             cursor: "pointer",
             transition: "all 0.2s",
             "&:hover": {
-              bgcolor: "primary.50",
+              bgcolor: "action.hover",
             },
           }}
           onClick={() => fileInputRef.current?.click()}
@@ -309,18 +182,18 @@ export function ImportExcelDialog({
           <input
             ref={fileInputRef}
             type="file"
-            accept=".csv,.xlsx,.xls"
+            accept=".xlsx,.xls"
             onChange={handleFileSelect}
             style={{ display: "none" }}
           />
           <Upload size={48} color="#2563eb" style={{ marginBottom: 8 }} />
           <Typography variant="body1" fontWeight={500}>
-            {fileName
-              ? `Đã chọn: ${fileName}`
-              : "Kéo thả file hoặc click để chọn"}
+            {selectedFile
+              ? `Đã chọn: ${selectedFile.name}`
+              : "Click để chọn file Excel"}
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-            Hỗ trợ định dạng CSV, XLSX, XLS
+            Hỗ trợ định dạng XLSX, XLS
           </Typography>
         </Box>
 
@@ -329,27 +202,17 @@ export function ImportExcelDialog({
           startIcon={<Download size={18} />}
           onClick={downloadTemplate}
           size="small"
-          sx={{ mb: 1 }}
+          sx={{ mb: 2 }}
         >
           Tải file mẫu
         </Button>
 
-        <Alert
-          severity="info"
-          sx={{
-            mb: 2,
-            py: 1,
-            "& .MuiAlert-message": {
-              display: "flex",
-              alignItems: "center",
-              gap: 1,
-            },
-          }}
-          icon={<Wand2 size={18} />}
-        >
+        <Alert severity="info" sx={{ mb: 2 }} icon={<AlertCircle size={18} />}>
           <Typography variant="body2">
-            <strong>Lưu ý:</strong> Cột Mã giảng viên có thể để trống. Hệ thống
-            sẽ tự động cấp mã liên tục cho các dòng không nhập mã.
+            File cần có các cột bắt buộc:{" "}
+            <strong>code, name, email, facultyId, departmentId</strong>. Mã
+            giảng viên không được để trống và phải có định dạng{" "}
+            <strong>GV + số</strong>, ví dụ <strong>GV001</strong>.
           </Typography>
         </Alert>
 
@@ -361,99 +224,7 @@ export function ImportExcelDialog({
           </Alert>
         )}
 
-        {rows.length > 0 && (
-          <Box>
-            <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
-              Xem trước ({rows.length} dòng)
-            </Typography>
-            <TableContainer component={Paper} variant="outlined">
-              <Table size="small">
-                <TableHead>
-                  <TableRow sx={{ bgcolor: "primary.main" }}>
-                    <TableCell
-                      sx={{ color: "white", fontWeight: 600, minWidth: 60 }}
-                    >
-                      #
-                    </TableCell>
-                    <TableCell sx={{ color: "white", fontWeight: 600 }}>
-                      Mã GV
-                    </TableCell>
-                    <TableCell sx={{ color: "white", fontWeight: 600 }}>
-                      Họ tên
-                    </TableCell>
-                    <TableCell sx={{ color: "white", fontWeight: 600 }}>
-                      Email
-                    </TableCell>
-                    <TableCell sx={{ color: "white", fontWeight: 600 }}>
-                      Khoa
-                    </TableCell>
-                    <TableCell sx={{ color: "white", fontWeight: 600 }}>
-                      Bộ môn
-                    </TableCell>
-                    <TableCell
-                      sx={{ color: "white", fontWeight: 600, minWidth: 60 }}
-                    >
-                      Xóa
-                    </TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {rows.slice(0, 10).map((row, index) => (
-                    <TableRow key={index}>
-                      <TableCell>{index + 1}</TableCell>
-                      <TableCell>
-                        {row.code ? (
-                          row.code
-                        ) : (
-                          <Box
-                            component="span"
-                            sx={{
-                              display: "inline-flex",
-                              alignItems: "center",
-                              gap: 0.5,
-                              px: 1,
-                              py: 0.25,
-                              borderRadius: 1,
-                              bgcolor: "action.hover",
-                              color: "text.secondary",
-                              fontSize: "0.75rem",
-                              fontStyle: "italic",
-                            }}
-                          >
-                            <Wand2 size={12} />
-                            Sẽ tạo tự động
-                          </Box>
-                        )}
-                      </TableCell>
-                      <TableCell>{row.name}</TableCell>
-                      <TableCell>{row.email}</TableCell>
-                      <TableCell>{getFacultyName(row.facultyId)}</TableCell>
-                      <TableCell>
-                        {getDepartmentName(row.departmentId)}
-                      </TableCell>
-                      <TableCell>
-                        <IconButton
-                          size="small"
-                          color="error"
-                          onClick={() => handleRemoveRow(index)}
-                        >
-                          <Trash2 size={16} />
-                        </IconButton>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-            {rows.length > 10 && (
-              <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                Và {rows.length - 10} dòng khác...
-              </Typography>
-            )}
-          </Box>
-        )}
-
-        {rows.length === 0 && errors.length === 0 && (
+        {!selectedFile && errors.length === 0 && (
           <Box
             sx={{
               textAlign: "center",
@@ -476,15 +247,15 @@ export function ImportExcelDialog({
           borderColor: "divider",
         }}
       >
-        <Button variant="outlined" onClick={handleClose}>
+        <Button variant="outlined" onClick={handleClose} disabled={importing}>
           Hủy
         </Button>
         <Button
           onClick={handleImport}
-          disabled={rows.length === 0}
+          disabled={!selectedFile || importing}
           startIcon={<Upload size={18} />}
         >
-          Import {rows.length > 0 && `(${rows.length})`}
+          {importing ? "Đang import..." : "Import"}
         </Button>
       </DialogActions>
     </Dialog>

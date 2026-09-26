@@ -172,34 +172,10 @@ export default function TeacherManagementPage() {
     }
   };
 
-  const handleImport = async (
-    rows: {
-      code: string;
-      name: string;
-      email: string;
-      phone?: string;
-      facultyId: string;
-      departmentId: string;
-      academicTitle?: string;
-      position?: string;
-    }[],
-  ) => {
-    let success = 0;
-    let failed = 0;
-    for (const row of rows) {
-      try {
-        await teacherService.create(row as CreateLecturerInput);
-        success++;
-      } catch {
-        failed++;
-      }
-    }
+  const handleImport = async (file: File) => {
+    const result = await teacherService.importFile(file);
     refreshTeachers();
-    if (failed > 0) {
-      toast.warning(`Import thành công ${success}, thất bại ${failed}`);
-    } else {
-      toast.success(`Đã import ${success} giảng viên`);
-    }
+    toast.success(result.message || `Đã import ${result.count} giảng viên`);
   };
 
   const handleExport = () => {
