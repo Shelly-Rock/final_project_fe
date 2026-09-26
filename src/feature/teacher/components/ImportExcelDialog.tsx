@@ -1,25 +1,17 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useCallback } from "react";
+import * as XLSX from "xlsx";
 import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
   DialogActions,
   Box,
   Typography,
   Button,
   IconButton,
-  Alert,
+  LinearProgress,
 } from "@mui/material";
-import {
-  X,
-  Upload,
-  FileSpreadsheet,
-  Download,
-  AlertCircle,
-} from "lucide-react";
-import * as XLSX from "xlsx";
+import { Upload, Trash2, Download } from "lucide-react";
+import { Dialog, Table, TableColumn } from "@/shared/components";
 
 interface Faculty {
   id: string;
@@ -30,6 +22,19 @@ interface Department {
   id: string;
   name: string;
   facultyId?: string;
+}
+
+interface TeacherImportRow {
+  code: string;
+  name: string;
+  email: string;
+  phone?: string;
+  facultyId: string;
+  departmentId: string;
+  academicTitle?: string;
+  position?: string;
+  status?: "pending" | "success" | "error";
+  error?: string;
 }
 
 interface ImportExcelDialogProps {
@@ -47,18 +52,15 @@ export function ImportExcelDialog({
   faculties,
   departments,
 }: ImportExcelDialogProps) {
+  const [rows, setRows] = useState<TeacherImportRow[]>([]);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [errors, setErrors] = useState<string[]>([]);
   const [importing, setImporting] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [fileError, setFileError] = useState("");
 
   const resetState = () => {
+    setRows([]);
     setSelectedFile(null);
-    setErrors([]);
-    setImporting(false);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
+    setFileError("");
   };
 
   const handleClose = () => {
@@ -66,37 +68,174 @@ export function ImportExcelDialog({
     onClose();
   };
 
-  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
+  // Helper to find faculty by name
+  const findFacultyIdByName = useCallback(
+    (name: string): string => {
+      const found = faculties.find((f) =>
+        f.name.toLowerCase().includes(name.toLowerCase()),
+      );
+      return found?.id || "";
+    },
+    [faculties],
+  );
 
-    const validExtension = /\.(xlsx|xls)$/i.test(file.name);
-    if (!validExtension) {
-      setSelectedFile(null);
-      setErrors(["Vui lòng chọn file Excel định dạng .xlsx hoặc .xls"]);
-      return;
-    }
+  // Helper to find department by name
+  const findDepartmentIdByName = useCallback(
+    (name: string, facultyId?: string): string => {
+      const depts = facultyId
+        ? departments.filter((d) => d.facultyId === facultyId)
+        : departments;
 
-    setSelectedFile(file);
-    setErrors([]);
+      const found = depts.find((d) =>
+        d.name.toLowerCase().includes(name.toLowerCase()),
+      );
+      return found?.id || "";
+    },
+    [departments],
+  );
+
+  const handleFileUpload = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0];
+      if (!file) return;
+      setSelectedFile(file);
+      setFileError("");
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const workbook = XLSX.read(e.target?.result, { type: "array" });
+          const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+          const records = XLSX.utils.sheet_to_json<Record<string, unknown>>(
+            worksheet,
+            { defval: "" },
+          );
+
+          if (records.length === 0) {
+            setRows([]);
+            setFileError("File không có dữ liệu hoặc thiếu header.");
+            return;
+          }
+
+          const data = records
+            .map((record) => {
+              const row: TeacherImportRow = {
+                code: "",
+                name: "",
+                email: "",
+                phone: undefined,
+                facultyId: "",
+                departmentId: "",
+                academicTitle: undefined,
+                position: undefined,
+                status: "pending",
+              };
+
+              Object.entries(record).forEach(([key, rawValue]) => {
+                const header = key.trim().toLowerCase();
+                const value = String(rawValue ?? "").trim();
+                switch (header) {
+                  case "mã gv":
+                  case "magv":
+                  case "code":
+                  case "teacher_code":
+                    row.code = value;
+                    break;
+                  case "họ tên":
+                  case "hoten":
+                  case "name":
+                  case "fullname":
+                  case "full_name":
+                    row.name = value;
+                    break;
+                  case "email":
+                  case "gmail":
+                  case "mail":
+                    row.email = value;
+                    break;
+                  case "sđt":
+                  case "sdt":
+                  case "phone":
+                  case "tel":
+                  case "điện thoại":
+                    row.phone = value;
+                    break;
+                  case "khoa":
+                  case "faculty":
+                  case "f":
+                    row.facultyId = findFacultyIdByName(value);
+                    break;
+                  case "bộ môn":
+                  case "bomon":
+                  case "department":
+                  case "chuyên ngành":
+                    row.departmentId = findDepartmentIdByName(
+                      value,
+                      row.facultyId,
+                    );
+                    break;
+                  case "học hàm":
+                  case "hoc ham":
+                  case "academic_title":
+                  case "học vị":
+                    row.academicTitle = value;
+                    break;
+                  case "chức vụ":
+                  case "chucvu":
+                  case "position":
+                  case "title":
+                    row.position = value;
+                    break;
+                }
+              });
+              return row;
+            })
+            .filter((row) => row.code && row.name && row.email);
+
+          setRows(data);
+          setFileError(
+            data.length === 0
+              ? "Không tìm thấy dòng hợp lệ. Kiểm tra các cột code, name, email."
+              : "",
+          );
+        } catch {
+          setRows([]);
+          setFileError(
+            "Không thể đọc file. Vui lòng chọn file Excel hoặc CSV hợp lệ.",
+          );
+        }
+      };
+
+      reader.readAsArrayBuffer(file);
+      event.target.value = "";
+    },
+    [findFacultyIdByName, findDepartmentIdByName],
+  );
+
+  const handleRemoveRow = (index: number) => {
+    setRows((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleImport = async () => {
     if (!selectedFile) {
-      setErrors(["Vui lòng chọn file Excel để import"]);
+      setFileError("Vui lòng chọn file trước khi import.");
+      return;
+    }
+    if (rows.length === 0) {
+      setFileError("File chưa có dòng giảng viên hợp lệ để import.");
       return;
     }
 
     setImporting(true);
     try {
+      if (!selectedFile) return;
       await onImport(selectedFile);
-      handleClose();
+      setRows([]);
+      setSelectedFile(null);
+      onClose();
     } catch (error) {
-      setErrors([
-        error instanceof Error
-          ? error.message
-          : "Import danh sách giảng viên thất bại",
-      ]);
+      setFileError(error instanceof Error ? error.message : "Import thất bại");
+    } finally {
       setImporting(false);
     }
   };
@@ -125,141 +264,127 @@ export function ImportExcelDialog({
     XLSX.writeFile(workbook, "template_giang_vien.xlsx");
   };
 
+  const getFacultyName = (facultyId: string) => {
+    return faculties.find((f) => f.id === facultyId)?.name || "—";
+  };
+
+  const getDepartmentName = (departmentId: string) => {
+    return departments.find((d) => d.id === departmentId)?.name || "—";
+  };
+
+  const columns: TableColumn<TeacherImportRow>[] = [
+    { key: "code", title: "Mã GV" },
+    { key: "name", title: "Họ tên" },
+    { key: "email", title: "Email" },
+    {
+      key: "facultyId",
+      title: "Khoa",
+      render: (row) => getFacultyName(row.facultyId),
+    },
+    {
+      key: "departmentId",
+      title: "Bộ môn",
+      render: (row) => getDepartmentName(row.departmentId),
+    },
+    {
+      key: "actions",
+      title: "Xóa",
+      align: "center",
+      width: 60,
+      render: (_, index) => (
+        <IconButton
+          size="small"
+          color="error"
+          onClick={() => handleRemoveRow(index)}
+        >
+          <Trash2 size={16} />
+        </IconButton>
+      ),
+    },
+  ];
+
   return (
     <Dialog
       open={open}
       onClose={handleClose}
-      maxWidth={false}
-      fullWidth
-      PaperProps={{
-        sx: {
-          width: 620,
-          maxWidth: "calc(100vw - 32px)",
-          maxHeight: "calc(100vh - 64px)",
-          borderRadius: 2,
-        },
-      }}
+      title="Import danh sách giảng viên"
+      size="lg"
     >
-      <DialogTitle
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          borderBottom: "1px solid",
-          borderColor: "divider",
-          pb: 2,
-        }}
-      >
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-          <FileSpreadsheet size={24} color="#2563eb" />
-          <Typography
-            variant="h6"
-            component="span"
-            fontWeight={600}
-            sx={{ color: "text.primary" }}
-          >
-            Import danh sách giảng viên
-          </Typography>
-        </Box>
-        <IconButton onClick={handleClose} size="small">
-          <X size={20} />
-        </IconButton>
-      </DialogTitle>
-
-      <DialogContent sx={{ pt: 3 }}>
-        <Box
-          sx={{
-            border: "2px dashed",
-            borderColor: selectedFile ? "success.main" : "primary.main",
-            borderRadius: 2,
-            p: 3,
-            textAlign: "center",
-            mb: 3,
-            cursor: "pointer",
-            transition: "all 0.2s",
-            "&:hover": {
-              bgcolor: "action.hover",
-            },
-          }}
-          onClick={() => fileInputRef.current?.click()}
+      <Box sx={{ mb: 3 }}>
+        <Button
+          component="label"
+          variant="outlined"
+          startIcon={<Upload size={18} />}
+          sx={{ mb: 2 }}
         >
+          Chọn file Excel/CSV
           <input
-            ref={fileInputRef}
             type="file"
-            accept=".xlsx,.xls"
-            onChange={handleFileSelect}
-            style={{ display: "none" }}
+            accept=".xlsx,.xls,.csv"
+            hidden
+            onChange={handleFileUpload}
           />
-          <Upload size={48} color="#2563eb" style={{ marginBottom: 8 }} />
-          <Typography variant="body1" fontWeight={500}>
-            {selectedFile
-              ? `Đã chọn: ${selectedFile.name}`
-              : "Click để chọn file Excel"}
-          </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-            Hỗ trợ định dạng XLSX, XLS
-          </Typography>
-        </Box>
+        </Button>
 
         <Button
           variant="outlined"
           startIcon={<Download size={18} />}
           onClick={downloadTemplate}
           size="small"
-          sx={{ mb: 2 }}
+          sx={{ mb: 2, ml: 1 }}
         >
           Tải file mẫu
         </Button>
 
-        <Alert severity="info" sx={{ mb: 2 }} icon={<AlertCircle size={18} />}>
+        <Box
+          sx={{
+            p: 2,
+            bgcolor: "info.light",
+            borderRadius: 1,
+            color: "info.dark",
+          }}
+        >
           <Typography variant="body2">
-            File cần có các cột bắt buộc:{" "}
-            <strong>code, name, email, facultyId, departmentId</strong>. Mã
-            giảng viên không được để trống và phải có định dạng{" "}
-            <strong>GV + số</strong>, ví dụ <strong>GV001</strong>.
+            File CSV cần có các cột:{" "}
+            <strong>code, name, email, faculty, department</strong> (Các cột
+            phone, academicTitle, position không bắt buộc)
           </Typography>
-        </Alert>
+          <Typography variant="caption" sx={{ display: "block", mt: 1 }}>
+            Các cột tùy chọn: phone, academicTitle, position
+          </Typography>
+        </Box>
+      </Box>
 
-        {errors.length > 0 && (
-          <Alert severity="error" sx={{ mb: 2 }}>
-            {errors.map((err, i) => (
-              <Box key={i}>{err}</Box>
-            ))}
-          </Alert>
-        )}
+      {rows.length > 0 ? (
+        <Box sx={{ maxHeight: 400, overflow: "auto" }}>
+          <Table columns={columns} data={rows} variant="bordered" />
+        </Box>
+      ) : (
+        <Box sx={{ textAlign: "center", py: 4 }}>
+          <Typography color="text.secondary">
+            Chưa có dữ liệu. Vui lòng upload file Excel hoặc CSV.
+          </Typography>
+        </Box>
+      )}
 
-        {!selectedFile && errors.length === 0 && (
-          <Box
-            sx={{
-              textAlign: "center",
-              py: 4,
-              color: "text.secondary",
-            }}
-          >
-            <AlertCircle size={48} style={{ opacity: 0.5, marginBottom: 8 }} />
-            <Typography>Chưa chọn file</Typography>
-          </Box>
-        )}
-      </DialogContent>
+      {fileError && (
+        <Typography color="error" variant="body2" sx={{ mt: 2 }}>
+          {fileError}
+        </Typography>
+      )}
 
-      <DialogActions
-        sx={{
-          px: 3,
-          pb: 2,
-          pt: 1,
-          borderTop: "1px solid",
-          borderColor: "divider",
-        }}
-      >
-        <Button variant="outlined" onClick={handleClose} disabled={importing}>
+      {importing && <LinearProgress sx={{ mt: 2 }} />}
+
+      <DialogActions sx={{ px: 3, pb: 3 }}>
+        <Button variant="text" onClick={handleClose}>
           Hủy
         </Button>
         <Button
+          variant="contained"
           onClick={handleImport}
-          disabled={!selectedFile || importing}
-          startIcon={<Upload size={18} />}
+          disabled={!selectedFile || rows.length === 0 || importing}
         >
-          {importing ? "Đang import..." : "Import"}
+          Import {rows.length} giảng viên
         </Button>
       </DialogActions>
     </Dialog>
