@@ -973,7 +973,7 @@ export function AdminDepartmentOperations() {
             </Box>
 
             <Box sx={{ position: "relative", height: 188 }}>
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="100%" height={188}>
                 <PieChart>
                   <Pie
                     data={donutFill}

@@ -44,6 +44,8 @@ export function ImportExcelDialog({
   open,
   onClose,
   onImport,
+  faculties,
+  departments,
 }: ImportExcelDialogProps) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [errors, setErrors] = useState<string[]>([]);
@@ -100,14 +102,16 @@ export function ImportExcelDialog({
   };
 
   const downloadTemplate = () => {
+    const firstFaculty = faculties?.[0]?.id || "KHOA_CNTT";
+    const firstDepartment = departments?.[0]?.id || "BM_KTPM";
     const rows = [
       {
         code: "GV001",
         name: "Nguyễn Văn An",
         email: "nv.an@nttu.edu.vn",
         phone: "0912345678",
-        facultyId: "KHOA_CNTT",
-        departmentId: "BM_KTPM",
+        facultyId: firstFaculty,
+        departmentId: firstDepartment,
         academicTitle: "DOCTOR",
         position: "Giảng viên",
         dateOfBirth: "1990-01-15",

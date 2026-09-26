@@ -1491,7 +1491,7 @@ const SendNotificationForm: React.FC<SendNotificationFormProps> = ({
             form="compose-form"
             disabled={isSubmitting || selectedIds.length === 0}
             className="hidden"
-            aria-hidden
+            aria-hidden="true"
           />
         </div>
       </div>

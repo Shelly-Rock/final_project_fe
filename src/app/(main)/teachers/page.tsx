@@ -183,9 +183,17 @@ export default function TeacherManagementPage() {
   };
 
   const handleImport = async (file: File) => {
-    const result = await teacherService.importFile(file);
-    refreshTeachers();
-    toast.success(result.message || `Đã import ${result.count} giảng viên`);
+    try {
+      const result = await teacherService.importFile(file);
+      refreshTeachers();
+      toast.success(result.message || `Đã import ${result.count} giảng viên`);
+    } catch (error) {
+      const message =
+        error?.response?.data?.message ||
+        error?.message ||
+        "Import thất bại. Vui lòng kiểm tra lại file Excel.";
+      toast.error(message);
+    }
   };
 
   const handleExport = () => {

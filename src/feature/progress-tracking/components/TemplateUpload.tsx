@@ -538,7 +538,10 @@ export function TemplateList({
           Xem trước Biểu mẫu: {previewTemplate?.name}
           <Button onClick={() => setPreviewTemplate(null)}>Đóng</Button>
         </DialogTitle>
-        <DialogContent dividers sx={{ p: 0, overflow: "hidden" }}>
+        <DialogContent
+          dividers
+          sx={{ p: 0, overflow: "hidden", height: "calc(90vh - 64px)" }}
+        >
           {previewTemplate &&
             (previewTemplate.fileUrl.toLowerCase().endsWith(".pdf") ? (
               <iframe

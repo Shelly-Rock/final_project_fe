@@ -31,6 +31,18 @@ export function exportTeachersToExcel(
     "Bộ môn": departmentLookup[t.departmentId] || "—",
     "Chức vụ": t.position || "",
     "Học hàm": t.academicTitle || "",
+    "Ngày sinh": t.dateOfBirth
+      ? new Date(t.dateOfBirth).toLocaleDateString("vi-VN")
+      : "",
+    "Giới tính":
+      t.gender === "male"
+        ? "Nam"
+        : t.gender === "female"
+          ? "Nữ"
+          : t.gender === "other"
+            ? "Khác"
+            : "",
+    "Địa chỉ": t.address || "",
     "Trạng thái": t.status === "active" ? "Đang công tác" : "Tạm khóa",
   }));
 
@@ -47,6 +59,9 @@ export function exportTeachersToExcel(
     { wch: 25 },
     { wch: 15 },
     { wch: 12 },
+    { wch: 15 },
+    { wch: 10 },
+    { wch: 20 },
     { wch: 15 },
   ];
 

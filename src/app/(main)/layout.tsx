@@ -38,7 +38,7 @@ export default function MainLayout({
           background: "#f9fafb",
         }}
       >
-        <svg width="40" height="40" viewBox="0 0 40 40" aria-hidden>
+        <svg width="40" height="40" viewBox="0 0 40 40" aria-hidden="true">
           <circle
             cx="20"
             cy="20"
@@ -86,7 +86,6 @@ export default function MainLayout({
             <div
               className="sidebar-overlay"
               onClick={() => setMobileSidebarOpen(false)}
-              aria-hidden="true"
             />
           )}
 

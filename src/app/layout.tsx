@@ -38,14 +38,7 @@ export default function RootLayout({
       data-scroll-behavior="smooth"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <head>
-        <link
-          rel="preload"
-          as="video"
-          href="/videos/video-introduce.mp4"
-          type="video/mp4"
-        />
-      </head>
+      <head></head>
       <body className="min-h-full">
         <AuthProvider>
           <AppProviders>{children}</AppProviders>

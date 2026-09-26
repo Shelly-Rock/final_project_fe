@@ -655,7 +655,7 @@ export function ScoringManagementPage() {
             Tỷ lệ đạt trên đề tài đã có kết quả
           </Typography>
           <Box sx={{ position: "relative", height: 180 }}>
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer width="100%" height={180}>
               <PieChart>
                 <Pie
                   data={
@@ -755,7 +755,7 @@ export function ScoringManagementPage() {
             Số phiếu theo khoảng điểm (thang 10)
           </Typography>
           <Box sx={{ height: 200 }}>
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer width="100%" height={200}>
               <BarChart data={distData} barCategoryGap="18%">
                 <CartesianGrid vertical={false} stroke={line} />
                 <XAxis

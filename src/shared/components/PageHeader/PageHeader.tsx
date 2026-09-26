@@ -32,7 +32,7 @@ const FloatingParticles = () => (
     {[...Array(6)].map((_, i) => (
       <Box
         key={i}
-        aria-hidden
+        aria-hidden="true"
         sx={{
           position: "absolute",
           width: 4 + i * 2,
@@ -82,7 +82,7 @@ const FloatingParticles = () => (
 
 const LightRays = () => (
   <Box
-    aria-hidden
+    aria-hidden="true"
     sx={{
       position: "absolute",
       top: "-50%",
@@ -126,7 +126,7 @@ const GradientOrb = ({
   delay: string;
 }) => (
   <Box
-    aria-hidden
+    aria-hidden="true"
     sx={{
       position: "absolute",
       top,
@@ -151,7 +151,7 @@ const GradientOrb = ({
 const GeometricShapes = () => (
   <>
     <Box
-      aria-hidden
+      aria-hidden="true"
       sx={{
         position: "absolute",
         top: 30,
@@ -169,7 +169,7 @@ const GeometricShapes = () => (
       }}
     />
     <Box
-      aria-hidden
+      aria-hidden="true"
       sx={{
         position: "absolute",
         bottom: 40,
@@ -187,7 +187,7 @@ const GeometricShapes = () => (
       }}
     />
     <Box
-      aria-hidden
+      aria-hidden="true"
       sx={{
         position: "absolute",
         top: 60,
@@ -211,7 +211,7 @@ const SparkleEffect = () => (
     {[...Array(4)].map((_, i) => (
       <Box
         key={i}
-        aria-hidden
+        aria-hidden="true"
         sx={{
           position: "absolute",
           width: 2,
@@ -246,7 +246,7 @@ const SparkleEffect = () => (
 
 const DotGrid = () => (
   <Box
-    aria-hidden
+    aria-hidden="true"
     sx={{
       position: "absolute",
       top: 20,
@@ -270,7 +270,7 @@ const DotGrid = () => (
 const DecorativeDots = () => (
   <>
     <Box
-      aria-hidden
+      aria-hidden="true"
       sx={{
         position: "absolute",
         top: 45,
@@ -297,7 +297,7 @@ const DecorativeDots = () => (
       }}
     />
     <Box
-      aria-hidden
+      aria-hidden="true"
       sx={{
         position: "absolute",
         bottom: 35,
@@ -319,7 +319,7 @@ const DecorativeDots = () => (
       }}
     />
     <Box
-      aria-hidden
+      aria-hidden="true"
       sx={{
         position: "absolute",
         top: 80,
@@ -341,7 +341,7 @@ const DecorativeDots = () => (
 
 const WaveBackground = () => (
   <Box
-    aria-hidden
+    aria-hidden="true"
     sx={{
       position: "absolute",
       top: 0,
