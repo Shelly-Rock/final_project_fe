@@ -40,7 +40,7 @@ interface TeacherImportRow {
 interface ImportExcelDialogProps {
   open: boolean;
   onClose: () => void;
-  onImport: (data: TeacherImportRow[]) => void;
+  onImport: (file: File) => void | Promise<void>;
   faculties: Faculty[];
   departments: Department[];
 }
@@ -229,7 +229,7 @@ export function ImportExcelDialog({
     setImporting(true);
     try {
       if (!selectedFile) return;
-      await onImport(rows);
+      await onImport(selectedFile);
       setRows([]);
       setSelectedFile(null);
       onClose();
@@ -241,15 +241,25 @@ export function ImportExcelDialog({
   };
 
   const downloadTemplate = () => {
-    const template =
-      "Mã GV,Họ tên,Email,Số điện thoại,Khoa,Bộ môn,Học hàm/Học vị,Chức vụ\n,Nguyễn Văn An,nv.an@ctu.edu.vn,0912345678,Khoa Công nghệ thông tin,Công nghệ phần mềm,Tiến sĩ,Trưởng ngành";
-    const blob = new Blob([template], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = "template_giang_vien.csv";
-    link.click();
-    URL.revokeObjectURL(url);
+    const rows = [
+      {
+        code: "GV001",
+        name: "Nguyễn Văn An",
+        email: "nv.an@nttu.edu.vn",
+        phone: "0912345678",
+        facultyId: "KHOA_CNTT",
+        departmentId: "BM_KTPM",
+        academicTitle: "DOCTOR",
+        position: "Giảng viên",
+        dateOfBirth: "1990-01-15",
+        gender: "MALE",
+        address: "TP. Hồ Chí Minh",
+      },
+    ];
+    const worksheet = XLSX.utils.json_to_sheet(rows);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "GiangVien");
+    XLSX.writeFile(workbook, "template_giang_vien.xlsx");
   };
 
   const getFacultyName = (facultyId: string) => {

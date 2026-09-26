@@ -6,7 +6,7 @@ import type {
   CreateLecturerInput,
   UpdateLecturerInput,
 } from "@/feature/admin/types";
-import { teacherApiService } from "./teacher.api";
+import { teacherApiService, type TeacherImportResponse } from "./teacher.api";
 
 export const teacherService = {
   /**
@@ -73,6 +73,13 @@ export const teacherService = {
    */
   async delete(code: string): Promise<void> {
     await teacherApiService.remove(code);
+  },
+
+  /**
+   * Import danh sách giảng viên từ file Excel
+   */
+  async importFile(file: File): Promise<TeacherImportResponse> {
+    return teacherApiService.importFromFile(file);
   },
 
   /**

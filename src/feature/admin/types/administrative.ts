@@ -42,6 +42,7 @@ export interface Lecturer {
   dateOfBirth?: string;
   gender?: "male" | "female" | "other";
   address?: string;
+  extraData?: Record<string, unknown>;
   status: LecturerStatus;
   createdAt: string;
   updatedAt: string;
@@ -62,6 +63,7 @@ export interface CreateLecturerInput {
   dateOfBirth?: string;
   gender?: "male" | "female" | "other";
   address?: string;
+  extraData?: Record<string, unknown>;
 }
 
 /**

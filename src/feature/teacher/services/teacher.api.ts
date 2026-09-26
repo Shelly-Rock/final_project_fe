@@ -24,7 +24,8 @@ export interface TeacherApiResponse {
   date_of_birth?: string;
   gender?: "MALE" | "FEMALE" | "OTHER";
   address?: string;
-  status: "ACTIVE" | "INACTIVE";
+  extra_data?: unknown;
+  status: "active" | "inactive";
   created_at: string;
   updated_at: string;
 }
@@ -35,6 +36,12 @@ export interface TeacherListResponse {
   page: number;
   limit: number;
   totalPages: number;
+}
+
+export interface TeacherImportResponse {
+  success: boolean;
+  message: string;
+  count: number;
 }
 
 // Map backend response to frontend Lecturer type
@@ -57,7 +64,8 @@ function mapApiToLecturer(api: TeacherApiResponse): Lecturer {
           ? "female"
           : "other",
     address: api.address,
-    status: api.status === "ACTIVE" ? "active" : "inactive",
+    extraData: api.extra_data as Record<string, unknown> | undefined,
+    status: api.status,
     createdAt: api.created_at,
     updatedAt: api.updated_at,
   };
@@ -82,6 +90,7 @@ function mapLecturerToCreatePayload(input: CreateLecturerInput) {
           ? "FEMALE"
           : "OTHER",
     address: input.address,
+    extraData: input.extraData,
   };
 }
 
@@ -106,6 +115,7 @@ function mapLecturerToUpdatePayload(input: UpdateLecturerInput) {
           : "OTHER";
   }
   if (input.address !== undefined) payload.address = input.address;
+  if (input.extraData !== undefined) payload.extraData = input.extraData;
   return payload;
 }
 
@@ -117,10 +127,21 @@ class TeacherApiService {
     facultyId?: string;
     departmentId?: string;
     status?: "active" | "inactive";
-  }): Promise<{ teachers: Lecturer[]; total: number; page: number; limit: number; totalPages: number }> {
+  }): Promise<{
+    teachers: Lecturer[];
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  }> {
     const mappedParams = {
       ...params,
-      status: params?.status === "active" ? "ACTIVE" : params?.status === "inactive" ? "INACTIVE" : undefined,
+      status:
+        params?.status === "active"
+          ? "ACTIVE"
+          : params?.status === "inactive"
+            ? "INACTIVE"
+            : undefined,
     };
     const { data } = await apiClient.get<TeacherListResponse>("/teachers", {
       params: mappedParams,
@@ -163,10 +184,9 @@ class TeacherApiService {
     code: string,
     desiredStatus: "active" | "inactive",
   ): Promise<Lecturer> {
-    const backendStatus = desiredStatus === "active" ? "ACTIVE" : "INACTIVE";
     const { data } = await apiClient.patch<TeacherApiResponse>(
       `/teachers/${code}/toggle-status`,
-      { status: backendStatus },
+      { status: desiredStatus },
     );
     return mapApiToLecturer(data);
   }
@@ -175,11 +195,23 @@ class TeacherApiService {
     await apiClient.delete(`/teachers/${code}`);
   }
 
+  async importFromFile(file: File): Promise<TeacherImportResponse> {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const { data } = await apiClient.post<TeacherImportResponse>(
+      "/teachers/import",
+      formData,
+      { headers: { "Content-Type": "multipart/form-data" } },
+    );
+    return data;
+  }
+
   async getNextCode(): Promise<string> {
-    const { data } = await apiClient.get<{ nextCode: string }>(
+    const { data } = await apiClient.get<{ code?: string; nextCode?: string }>(
       "/teachers/next-code",
     );
-    return data.nextCode;
+    return data.code || data.nextCode || "";
   }
 }
 
