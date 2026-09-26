@@ -15,6 +15,15 @@ import {
   Typography,
 } from "@mui/material";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
+import {
+  AlertTriangle,
+  CheckCircle2,
+  Clock3,
+  ClipboardList,
+  GraduationCap,
+  PieChartIcon,
+  UsersRound,
+} from "lucide-react";
 import { periodService } from "@/feature/registration-period/services";
 import { topicManageService } from "@/feature/project-governance/services/topicManage.service";
 import { adminConfigService } from "@/feature/project-governance/services/adminConfig.service";
@@ -36,11 +45,17 @@ import type { DefenseSession } from "@/feature/defense-schedule/services/defense
 
 const C = {
   blue: "#2a78d6",
+  blueSoft: "#eff6ff",
   orange: "#eb6834",
+  orangeSoft: "#fff7ed",
   green: "#1baf7a",
+  greenSoft: "#ecfdf5",
   yellow: "#eda100",
+  yellowSoft: "#fffbeb",
   violet: "#4a3aa7",
+  violetSoft: "#f5f3ff",
   red: "#e34948",
+  redSoft: "#fef2f2",
   ink: "#0f172a",
   muted: "#64748b",
   faint: "#94a3b8",
@@ -50,10 +65,10 @@ const C = {
 
 const cardSx = {
   p: 2.5,
-  borderRadius: "16px",
+  borderRadius: "18px",
   border: `1px solid ${C.line}`,
   bgcolor: C.surface,
-  boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
+  boxShadow: "0 14px 36px rgba(15, 23, 42, 0.06)",
 };
 
 const WEEKDAYS = [
@@ -740,108 +755,234 @@ export function AdminDepartmentOperations() {
           alignItems: "stretch",
         }}
       >
-        <Box sx={cardSx}>
+        <Box
+          sx={{
+            ...cardSx,
+            position: "relative",
+            overflow: "hidden",
+            background:
+              "linear-gradient(180deg, #ffffff 0%, #fbfdff 62%, #f8fafc 100%)",
+          }}
+        >
           <Box
             sx={{
+              position: "absolute",
+              inset: "0 0 auto 0",
+              height: 96,
+              background:
+                "radial-gradient(circle at top left, rgba(42, 120, 214, 0.12), transparent 42%)",
+              pointerEvents: "none",
+            }}
+          />
+          <Box
+            sx={{
+              position: "relative",
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between",
-              mb: 1.5,
+              gap: 2,
+              mb: 2,
             }}
           >
-            <Typography sx={{ fontWeight: 700, fontSize: 16, color: C.ink }}>
-              Việc cần xử lý hôm nay
-            </Typography>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1.25 }}>
+              <Box
+                sx={{
+                  width: 40,
+                  height: 40,
+                  borderRadius: "14px",
+                  bgcolor: C.blueSoft,
+                  color: C.blue,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <ClipboardList size={21} />
+              </Box>
+              <Box>
+                <Typography
+                  sx={{ fontWeight: 800, fontSize: 17, color: C.ink }}
+                >
+                  Việc cần xử lý hôm nay
+                </Typography>
+                <Typography sx={{ fontSize: 12.5, color: C.muted, mt: 0.2 }}>
+                  Ưu tiên các mục đang đến hạn hoặc cần can thiệp
+                </Typography>
+              </Box>
+            </Box>
             <Chip
-              label={`${actions.length} việc`}
+              label={`${actions.filter((a) => a.tone === "due").length}/${actions.length} cần xử lý`}
               size="small"
               sx={{
-                height: 22,
-                fontSize: 11,
-                fontWeight: 600,
-                bgcolor: "#f1f5f9",
-                color: C.muted,
+                height: 26,
+                fontSize: 11.5,
+                fontWeight: 800,
+                bgcolor: C.orangeSoft,
+                color: C.orange,
+                border: `1px solid rgba(235, 104, 52, 0.22)`,
               }}
             />
           </Box>
-          {actions.map((a, idx) => {
-            const due = a.tone === "due";
-            const firstDue =
-              due && actions.findIndex((x) => x.tone === "due") === idx;
-            return (
-              <Box
-                key={a.id}
-                onClick={() => due && a.href && router.push(a.href)}
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 1.5,
-                  py: 1.35,
-                  px: 1.25,
-                  mx: -1.25,
-                  borderRadius: 1.5,
-                  borderBottom: `1px solid #f1f5f9`,
-                  borderLeft: firstDue
-                    ? `3px solid ${C.orange}`
-                    : "3px solid transparent",
-                  cursor: due && a.href ? "pointer" : "default",
-                  opacity: due ? 1 : 0.55,
-                  "&:last-of-type": { borderBottom: "none" },
-                  "&:hover": due ? { bgcolor: "#f8fafc" } : undefined,
-                }}
-              >
-                <Box sx={{ minWidth: 0, flex: 1 }}>
-                  <Typography
-                    sx={{
-                      fontSize: 14,
-                      fontWeight: 700,
-                      color: C.ink,
-                      lineHeight: 1.35,
-                    }}
-                  >
-                    {a.title}
-                  </Typography>
-                  <Typography
-                    sx={{ fontSize: 12, color: C.muted, mt: 0.25 }}
-                    noWrap
-                  >
-                    {a.subtitle}
-                  </Typography>
-                </Box>
-                <Typography
+          <Box sx={{ position: "relative", display: "grid", gap: 1 }}>
+            {actions.map((a, idx) => {
+              const due = a.tone === "due";
+              const firstDue =
+                due && actions.findIndex((x) => x.tone === "due") === idx;
+              const Icon = due ? AlertTriangle : Clock3;
+              const color = due ? (firstDue ? C.orange : C.blue) : C.faint;
+              const bg = due
+                ? firstDue
+                  ? C.orangeSoft
+                  : C.blueSoft
+                : "#f8fafc";
+              return (
+                <Box
+                  key={a.id}
+                  onClick={() => due && a.href && router.push(a.href)}
                   sx={{
-                    fontSize: 13,
-                    fontWeight: 600,
-                    color: due ? C.blue : C.faint,
-                    whiteSpace: "nowrap",
-                    flexShrink: 0,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1.4,
+                    p: 1.35,
+                    borderRadius: "14px",
+                    border: `1px solid ${firstDue ? "rgba(235, 104, 52, 0.28)" : C.line}`,
+                    bgcolor: due ? "rgba(255,255,255,0.88)" : "#f8fafc",
+                    cursor: due && a.href ? "pointer" : "default",
+                    opacity: due ? 1 : 0.72,
+                    boxShadow: firstDue
+                      ? "0 10px 26px rgba(235, 104, 52, 0.10)"
+                      : "none",
+                    transition: "all 0.18s ease",
+                    "&:hover": due
+                      ? {
+                          transform: "translateY(-1px)",
+                          borderColor: color,
+                          boxShadow: "0 12px 26px rgba(15, 23, 42, 0.08)",
+                        }
+                      : undefined,
                   }}
                 >
-                  {due ? "Xử lý →" : "Chưa đến hạn"}
-                </Typography>
-              </Box>
-            );
-          })}
+                  <Box
+                    sx={{
+                      width: 34,
+                      height: 34,
+                      borderRadius: "12px",
+                      bgcolor: bg,
+                      color,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      flexShrink: 0,
+                    }}
+                  >
+                    <Icon size={18} />
+                  </Box>
+                  <Box sx={{ minWidth: 0, flex: 1 }}>
+                    <Typography
+                      sx={{
+                        fontSize: 14,
+                        fontWeight: 750,
+                        color: C.ink,
+                        lineHeight: 1.35,
+                      }}
+                    >
+                      {a.title}
+                    </Typography>
+                    <Typography
+                      sx={{ fontSize: 12.5, color: C.muted, mt: 0.25 }}
+                      noWrap
+                    >
+                      {a.subtitle}
+                    </Typography>
+                  </Box>
+                  <Chip
+                    label={due ? "Xử lý" : "Chưa đến hạn"}
+                    size="small"
+                    sx={{
+                      height: 24,
+                      borderRadius: "999px",
+                      fontSize: 11,
+                      fontWeight: 800,
+                      bgcolor: due ? bg : "#f1f5f9",
+                      color,
+                      flexShrink: 0,
+                    }}
+                  />
+                </Box>
+              );
+            })}
+          </Box>
         </Box>
 
         <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-          <Box sx={{ ...cardSx, flex: 1 }}>
-            <Typography
-              sx={{ fontWeight: 700, fontSize: 16, color: C.ink, mb: 0.5 }}
+          <Box
+            sx={{
+              ...cardSx,
+              flex: 1,
+              position: "relative",
+              overflow: "hidden",
+              background: "linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)",
+            }}
+          >
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                gap: 2,
+                mb: 1.5,
+              }}
             >
-              Phân bố đề tài
-            </Typography>
-            <Box sx={{ position: "relative", height: 180 }}>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <Box
+                  sx={{
+                    width: 36,
+                    height: 36,
+                    borderRadius: "13px",
+                    bgcolor: C.greenSoft,
+                    color: C.green,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <PieChartIcon size={19} />
+                </Box>
+                <Box>
+                  <Typography
+                    sx={{ fontWeight: 800, fontSize: 16, color: C.ink }}
+                  >
+                    Phân bố đề tài
+                  </Typography>
+                  <Typography sx={{ fontSize: 12, color: C.muted }}>
+                    Theo trạng thái xử lý hiện tại
+                  </Typography>
+                </Box>
+              </Box>
+              <Chip
+                label={`${data?.topics.length ?? 0} đề tài`}
+                size="small"
+                sx={{
+                  height: 24,
+                  fontSize: 11,
+                  fontWeight: 800,
+                  bgcolor: "#f1f5f9",
+                  color: C.muted,
+                }}
+              />
+            </Box>
+
+            <Box sx={{ position: "relative", height: 188 }}>
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
                     data={donutFill}
                     dataKey="value"
-                    innerRadius={56}
-                    outerRadius={78}
+                    innerRadius={58}
+                    outerRadius={80}
                     paddingAngle={2}
                     stroke={C.surface}
-                    strokeWidth={2}
+                    strokeWidth={3}
                   >
                     {donutFill.map((d, i) => (
                       <Cell key={i} fill={d.color} />
@@ -850,8 +991,9 @@ export function AdminDepartmentOperations() {
                   <Tooltip
                     formatter={(v, n) => [`${v ?? 0} đề tài`, String(n)]}
                     contentStyle={{
-                      borderRadius: 8,
+                      borderRadius: 12,
                       border: `1px solid ${C.line}`,
+                      boxShadow: "0 12px 28px rgba(15, 23, 42, 0.12)",
                       fontSize: 12,
                     }}
                   />
@@ -870,8 +1012,8 @@ export function AdminDepartmentOperations() {
               >
                 <Typography
                   sx={{
-                    fontSize: 28,
-                    fontWeight: 800,
+                    fontSize: 30,
+                    fontWeight: 900,
                     color: C.ink,
                     lineHeight: 1,
                   }}
@@ -883,37 +1025,45 @@ export function AdminDepartmentOperations() {
                 </Typography>
               </Box>
             </Box>
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                gap: 1,
-                mt: 1,
-                px: 0.5,
-              }}
-            >
+
+            <Box sx={{ display: "grid", gap: 1, mt: 1 }}>
               {dist.slices.map((s) => (
                 <Box
                   key={s.name}
-                  sx={{ display: "flex", alignItems: "center", gap: 0.75 }}
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    gap: 1.5,
+                    p: 1,
+                    borderRadius: "12px",
+                    bgcolor: "rgba(248, 250, 252, 0.82)",
+                    border: `1px solid #f1f5f9`,
+                  }}
                 >
-                  <Box
-                    sx={{
-                      width: 8,
-                      height: 8,
-                      borderRadius: "50%",
-                      bgcolor: s.color,
-                      flexShrink: 0,
-                    }}
-                  />
-                  <Box>
-                    <Typography
-                      sx={{ fontSize: 12, color: C.muted, lineHeight: 1.2 }}
-                    >
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                    <Box
+                      sx={{
+                        width: 10,
+                        height: 10,
+                        borderRadius: "50%",
+                        bgcolor: s.color,
+                        boxShadow: `0 0 0 3px ${s.color}18`,
+                        flexShrink: 0,
+                      }}
+                    />
+                    <Typography sx={{ fontSize: 12.5, color: C.muted }}>
                       {s.name}
                     </Typography>
+                  </Box>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                     <Typography
-                      sx={{ fontSize: 13, fontWeight: 700, color: C.ink }}
+                      sx={{ fontSize: 12.5, fontWeight: 800, color: C.ink }}
+                    >
+                      {s.value}
+                    </Typography>
+                    <Typography
+                      sx={{ fontSize: 12.5, fontWeight: 800, color: s.color }}
                     >
                       {s.pct}%
                     </Typography>
@@ -923,93 +1073,180 @@ export function AdminDepartmentOperations() {
             </Box>
           </Box>
 
-          <Box sx={cardSx}>
-            <Typography
-              sx={{ fontWeight: 700, fontSize: 16, color: C.ink, mb: 1.5 }}
-            >
-              Giảng viên hướng dẫn
-            </Typography>
+          <Box
+            sx={{
+              ...cardSx,
+              background:
+                "linear-gradient(135deg, #ffffff 0%, #f8fbff 55%, #eef6ff 100%)",
+            }}
+          >
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
+              <Box
+                sx={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: "13px",
+                  bgcolor: C.violetSoft,
+                  color: C.violet,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <GraduationCap size={20} />
+              </Box>
+              <Box>
+                <Typography
+                  sx={{ fontWeight: 800, fontSize: 16, color: C.ink }}
+                >
+                  Giảng viên hướng dẫn
+                </Typography>
+                <Typography sx={{ fontSize: 12, color: C.muted }}>
+                  Tải hướng dẫn theo quota
+                </Typography>
+              </Box>
+            </Box>
+
             <Box
               sx={{
                 display: "flex",
                 alignItems: "flex-end",
                 justifyContent: "space-between",
+                gap: 2,
               }}
             >
               <Box>
                 <Typography
                   sx={{
-                    fontSize: 36,
-                    fontWeight: 800,
+                    fontSize: 42,
+                    fontWeight: 900,
                     color: C.ink,
-                    lineHeight: 1,
+                    lineHeight: 0.95,
+                    letterSpacing: "-0.04em",
                   }}
                 >
                   {gvCount}
                 </Typography>
-                <Typography sx={{ fontSize: 13, color: C.muted, mt: 0.5 }}>
+                <Typography sx={{ fontSize: 13, color: C.muted, mt: 0.75 }}>
                   GV đang HD
                 </Typography>
               </Box>
               <Box sx={{ textAlign: "right" }}>
                 <Chip
+                  icon={
+                    gvOk ? (
+                      <CheckCircle2 size={14} />
+                    ) : (
+                      <AlertTriangle size={14} />
+                    )
+                  }
                   label={gvOk ? "Tốt" : "Quá tải"}
                   size="small"
                   sx={{
-                    height: 22,
-                    fontSize: 11,
-                    fontWeight: 700,
-                    bgcolor: gvOk ? "#ecfdf5" : "#fef2f2",
+                    height: 26,
+                    fontSize: 11.5,
+                    fontWeight: 800,
+                    bgcolor: gvOk ? C.greenSoft : C.redSoft,
                     color: gvOk ? C.green : C.red,
                     mb: 0.75,
+                    "& .MuiChip-icon": {
+                      color: "inherit",
+                      ml: 0.75,
+                    },
                   }}
                 />
-                <Typography sx={{ fontSize: 12, color: C.faint }}>
+                <Typography sx={{ fontSize: 12.5, color: C.faint }}>
                   TB {avgSv} SV/GV
                 </Typography>
               </Box>
+            </Box>
+
+            <Box
+              sx={{
+                mt: 2.25,
+                p: 1.25,
+                borderRadius: "14px",
+                bgcolor: "rgba(255,255,255,0.72)",
+                border: `1px solid ${C.line}`,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                gap: 1.5,
+              }}
+            >
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <UsersRound size={17} color={C.blue} />
+                <Typography sx={{ fontSize: 12.5, color: C.muted }}>
+                  Tổng giảng viên
+                </Typography>
+              </Box>
+              <Typography sx={{ fontSize: 13, fontWeight: 800, color: C.ink }}>
+                {teacherRows.length} người
+              </Typography>
             </Box>
           </Box>
         </Box>
       </Box>
 
       <Box sx={{ ...cardSx, p: 0, overflow: "hidden" }}>
-        <Box sx={{ px: 2.5, pt: 1.5, display: "flex", gap: 3 }}>
-          {(
-            [
-              { key: "teachers", label: "Giảng viên" },
-              { key: "topics", label: "Đề tài / Nhóm" },
-            ] as const
-          ).map((t) => (
-            <Box
-              key={t.key}
-              onClick={() => setTab(t.key)}
-              sx={{
-                pb: 1.25,
-                cursor: "pointer",
-                borderBottom:
-                  tab === t.key
-                    ? `2px solid ${C.blue}`
-                    : "2px solid transparent",
-              }}
-            >
-              <Typography
+        <Box
+          sx={{
+            px: 2.5,
+            py: 1.75,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 2,
+            borderBottom: `1px solid ${C.line}`,
+            background: "linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)",
+          }}
+        >
+          <Box sx={{ display: "flex", gap: 1 }}>
+            {(
+              [
+                { key: "teachers", label: "Giảng viên" },
+                { key: "topics", label: "Đề tài / Nhóm" },
+              ] as const
+            ).map((t) => (
+              <Box
+                key={t.key}
+                onClick={() => setTab(t.key)}
                 sx={{
-                  fontSize: 14,
-                  fontWeight: 700,
-                  color: tab === t.key ? C.blue : C.muted,
+                  px: 1.6,
+                  py: 0.8,
+                  cursor: "pointer",
+                  borderRadius: "999px",
+                  bgcolor: tab === t.key ? C.blueSoft : "transparent",
+                  border: `1px solid ${tab === t.key ? "rgba(42, 120, 214, 0.22)" : "transparent"}`,
+                  transition: "all 0.18s ease",
+                  "&:hover": {
+                    bgcolor: tab === t.key ? C.blueSoft : "#f1f5f9",
+                  },
                 }}
               >
-                {t.label}
-              </Typography>
-            </Box>
-          ))}
+                <Typography
+                  sx={{
+                    fontSize: 13,
+                    fontWeight: 800,
+                    color: tab === t.key ? C.blue : C.muted,
+                  }}
+                >
+                  {t.label}
+                </Typography>
+              </Box>
+            ))}
+          </Box>
+          <Typography sx={{ fontSize: 12.5, color: C.faint, fontWeight: 600 }}>
+            {tab === "teachers"
+              ? `${teacherRows.length} giảng viên`
+              : `${data?.topics.length ?? 0} đề tài`}
+          </Typography>
         </Box>
 
         {tab === "teachers" ? (
           <Table size="small">
             <TableHead>
-              <TableRow sx={{ bgcolor: "#fafbfc" }}>
+              <TableRow sx={{ bgcolor: "#f8fafc" }}>
                 {[
                   "Họ tên",
                   "Email",
@@ -1024,12 +1261,12 @@ export function AdminDepartmentOperations() {
                     key={h}
                     sx={{
                       fontSize: 11,
-                      fontWeight: 700,
+                      fontWeight: 800,
                       color: C.muted,
                       textTransform: "uppercase",
-                      letterSpacing: 0.4,
+                      letterSpacing: 0.5,
                       borderColor: C.line,
-                      py: 1.25,
+                      py: 1.35,
                     }}
                   >
                     {h}
@@ -1059,14 +1296,42 @@ export function AdminDepartmentOperations() {
                     <TableRow
                       key={row.id}
                       hover
-                      sx={{ "& td": { borderColor: "#f1f5f9", py: 1.35 } }}
+                      sx={{
+                        "& td": { borderColor: "#f1f5f9", py: 1.45 },
+                        "&:hover": { bgcolor: "#f8fafc" },
+                      }}
                     >
                       <TableCell>
-                        <Typography
-                          sx={{ fontSize: 13.5, fontWeight: 600, color: C.ink }}
+                        <Box
+                          sx={{ display: "flex", alignItems: "center", gap: 1 }}
                         >
-                          {row.name}
-                        </Typography>
+                          <Box
+                            sx={{
+                              width: 30,
+                              height: 30,
+                              borderRadius: "10px",
+                              bgcolor: C.violetSoft,
+                              color: C.violet,
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              fontSize: 12,
+                              fontWeight: 900,
+                              flexShrink: 0,
+                            }}
+                          >
+                            {row.name.trim().charAt(0).toUpperCase() || "G"}
+                          </Box>
+                          <Typography
+                            sx={{
+                              fontSize: 13.5,
+                              fontWeight: 700,
+                              color: C.ink,
+                            }}
+                          >
+                            {row.name}
+                          </Typography>
+                        </Box>
                       </TableCell>
                       <TableCell>
                         <Typography sx={{ fontSize: 13, color: C.muted }}>
