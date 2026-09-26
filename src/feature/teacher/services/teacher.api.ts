@@ -24,6 +24,7 @@ export interface TeacherApiResponse {
   date_of_birth?: string;
   gender?: "MALE" | "FEMALE" | "OTHER";
   address?: string;
+  extra_data?: unknown;
   status: "active" | "inactive";
   created_at: string;
   updated_at: string;
@@ -63,6 +64,7 @@ function mapApiToLecturer(api: TeacherApiResponse): Lecturer {
           ? "female"
           : "other",
     address: api.address,
+    extraData: api.extra_data as Record<string, unknown> | undefined,
     status: api.status,
     createdAt: api.created_at,
     updatedAt: api.updated_at,
@@ -88,6 +90,7 @@ function mapLecturerToCreatePayload(input: CreateLecturerInput) {
           ? "FEMALE"
           : "OTHER",
     address: input.address,
+    extraData: input.extraData,
   };
 }
 
@@ -112,6 +115,7 @@ function mapLecturerToUpdatePayload(input: UpdateLecturerInput) {
           : "OTHER";
   }
   if (input.address !== undefined) payload.address = input.address;
+  if (input.extraData !== undefined) payload.extraData = input.extraData;
   return payload;
 }
 
