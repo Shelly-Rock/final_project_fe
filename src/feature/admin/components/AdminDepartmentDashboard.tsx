@@ -7,10 +7,10 @@ import {
   adminDashboardService,
   type DepartmentStats,
 } from "@/feature/dashboard/services/admin-dashboard.service";
+import { AdminDepartmentOperations } from "./AdminDepartmentOperations";
 import { Card, CardContentDiv } from "@/shared/components/Card";
 import { Users, BookOpen, BarChart3, FileText, Eye } from "lucide-react";
-import { Box, Typography } from "@mui/material";
-import { alpha, useTheme } from "@mui/material/styles";
+import { Box, Typography, useTheme } from "@mui/material";
 import { getCardBackground } from "@/shared/constants/gradients";
 
 interface DepartmentCardData {
@@ -32,19 +32,19 @@ interface DepartmentCardData {
 const departmentColors = {
   blue: {
     accent: "#2563eb",
-    lightAccent: "#2563eb",
+    progressColor: "#2563eb",
   },
   green: {
     accent: "#4edea3",
-    lightAccent: "#059669",
+    progressColor: "#4edea3",
   },
   orange: {
     accent: "#ffb95f",
-    lightAccent: "#d97706",
+    progressColor: "#ffb95f",
   },
   purple: {
     accent: "#b4c5ff",
-    lightAccent: "#7c3aed",
+    progressColor: "#b4c5ff",
   },
 };
 
@@ -82,31 +82,31 @@ const getDepartmentAbbr = (id: string, name: string) => {
     .toUpperCase();
 };
 
-const DepartmentCard: React.FC<{
-  dept: DepartmentCardData;
-  onOpen: () => void;
-}> = ({ dept, onOpen }) => {
-  const theme = useTheme();
+const DepartmentCard: React.FC<{ dept: DepartmentCardData }> = ({ dept }) => {
   const color = departmentColors[dept.color];
-  const accent =
-    theme.palette.mode === "dark" ? color.accent : color.lightAccent;
+  const theme = useTheme();
+  const isDark = theme.palette.mode === "dark";
+  const router = useRouter();
+
+  const openDetail = () => {
+    router.push(`/department/${encodeURIComponent(dept.id)}`);
+  };
 
   return (
     <div
       role="button"
       tabIndex={0}
-      onClick={onOpen}
-      onKeyDown={(event) => {
-        if (event.key === "Enter" || event.key === " ") {
-          event.preventDefault();
-          onOpen();
+      onClick={openDetail}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          openDetail();
         }
       }}
       className="rounded-lg hover:bg-surface-card/80 transition-all flex flex-col justify-between h-full shadow-md hover:shadow-lg cursor-pointer"
       style={{
         background: getCardBackground(theme),
-        border: `1px solid ${theme.palette.divider}`,
-        color: theme.palette.text.primary,
+        border: isDark ? "none" : `1px solid ${theme.palette.divider}`,
         padding: "12px",
         minHeight: "150px",
       }}
@@ -117,23 +117,15 @@ const DepartmentCard: React.FC<{
             <div
               className="w-6 h-6 rounded flex items-center justify-center font-bold text-[12px]"
               style={{
-                backgroundColor: `${accent}20`,
-                color: accent,
+                backgroundColor: color.accent + "20",
+                color: color.accent,
               }}
             >
               {dept.abbr}
             </div>
             <div>
-              <p
-                className="text-[12px] font-bold leading-tight"
-                style={{ color: theme.palette.text.primary }}
-              >
-                {dept.name}
-              </p>
-              <span
-                className="text-[12px] leading-tight"
-                style={{ color: theme.palette.text.secondary }}
-              >
+              <p className="text-[12px] font-bold leading-tight">{dept.name}</p>
+              <span className="text-[12px] opacity-70 leading-tight">
                 {dept.totalProjects} ĐT • {dept.totalStudents} SV
               </span>
             </div>
@@ -146,7 +138,7 @@ const DepartmentCard: React.FC<{
                 cy="18"
                 fill="none"
                 r="14"
-                stroke={theme.palette.divider}
+                stroke={isDark ? "#2d344c" : theme.palette.divider}
                 strokeWidth="3.5"
               />
               <circle
@@ -154,29 +146,23 @@ const DepartmentCard: React.FC<{
                 cy="18"
                 fill="none"
                 r="14"
-                stroke={accent}
+                stroke={color.accent}
                 strokeDasharray={`${dept.completionRate}, 100`}
                 strokeDashoffset="0"
                 strokeLinecap="round"
                 strokeWidth="3.5"
               />
             </svg>
-            <span
-              className="absolute text-[12px] font-bold"
-              style={{ color: theme.palette.text.primary }}
-            >
+            <span className="absolute text-[12px] font-bold ">
               {dept.completionRate}%
             </span>
           </div>
         </div>
 
         <div className="mt-2 space-y-1">
-          <div
-            className="flex justify-between text-[12px] font-medium"
-            style={{ color: theme.palette.text.secondary }}
-          >
+          <div className="flex justify-between text-[12px] font-medium opacity-70">
             <span>{dept.stageDescription}</span>
-            <span style={{ color: accent }} className="font-bold">
+            <span style={{ color: color.accent }} className="font-bold">
               {dept.stageCount}/{dept.totalProjects}
             </span>
           </div>
@@ -188,8 +174,10 @@ const DepartmentCard: React.FC<{
                 style={{
                   backgroundColor:
                     stage <= Math.ceil(dept.completionRate / 25)
-                      ? accent
-                      : theme.palette.divider,
+                      ? color.accent
+                      : isDark
+                        ? "rgba(100, 116, 139, 0.3)"
+                        : theme.palette.divider,
                 }}
               />
             ))}
@@ -197,13 +185,13 @@ const DepartmentCard: React.FC<{
         </div>
 
         <div className="flex items-center justify-between mt-2 pt-1 text-[12px]">
-          <span style={{ color: theme.palette.text.secondary }}>
+          <span className="opacity-70">
             Hội đồng: <b>{dept.councilCount}</b>
           </span>
-          <span style={{ color: theme.palette.text.secondary }}>
+          <span className="opacity-70">
             GVHD: <b>{dept.teacherCount}</b>
           </span>
-          <span style={{ color: accent }} className="font-semibold">
+          <span style={{ color: color.accent }} className="font-semibold">
             {dept.status === "on-time"
               ? "Đúng tiến độ"
               : dept.status === "delayed"
@@ -214,20 +202,17 @@ const DepartmentCard: React.FC<{
       </div>
 
       <div className="mt-2 pt-1 flex items-center justify-between">
-        <span
-          className="text-[12px] font-mono"
-          style={{ color: theme.palette.text.secondary }}
-        >
+        <span className="text-[12px] opacity-60 font-mono">
           {dept.location}
         </span>
         <button
           type="button"
           aria-label={`Xem chi tiết ${dept.name}`}
           className="flex items-center justify-center transition-all hover:scale-110"
-          style={{ color: accent }}
-          onClick={(event) => {
-            event.stopPropagation();
-            onOpen();
+          style={{ color: color.accent }}
+          onClick={(e) => {
+            e.stopPropagation();
+            openDetail();
           }}
         >
           <Eye size={16} />
@@ -277,7 +262,7 @@ const StatCard = ({
         >
           <Typography
             variant="caption"
-            sx={{ display: "block", color: "text.secondary", fontWeight: 500 }}
+            sx={{ display: "block", opacity: 0.7, fontWeight: 500 }}
           >
             {label}
           </Typography>
@@ -290,7 +275,7 @@ const StatCard = ({
                 width: 32,
                 height: 32,
                 borderRadius: 1,
-                backgroundColor: alpha(iconColor, 0.1),
+                backgroundColor: `${iconColor}15`,
               }}
             >
               <Box sx={{ color: iconColor, display: "flex", fontSize: 18 }}>
@@ -299,10 +284,7 @@ const StatCard = ({
             </Box>
           )}
         </Box>
-        <Typography
-          variant="h5"
-          sx={{ color: "text.primary", fontWeight: "bold", mb: 0.5 }}
-        >
+        <Typography variant="h5" sx={{ fontWeight: "bold", mb: 0.5 }}>
           {value}
         </Typography>
         <Typography
@@ -317,7 +299,6 @@ const StatCard = ({
 };
 
 export const AdminDepartmentDashboard: React.FC = () => {
-  const router = useRouter();
   const theme = useTheme();
 
   const { data: dashboardStats, isLoading: statsLoading } = useQuery({
@@ -325,13 +306,13 @@ export const AdminDepartmentDashboard: React.FC = () => {
     queryFn: () => adminDashboardService.getAdminStats(),
   });
 
-  const { data: departmentStats, isLoading: deptLoading } = useQuery({
+  const { data: deptStats, isLoading: deptLoading } = useQuery({
     queryKey: ["admin-department-stats"],
     queryFn: () => adminDashboardService.getDepartmentStats(),
   });
 
-  const departments: DepartmentCardData[] = useMemo(() => {
-    return (departmentStats ?? []).map((dept, index) => {
+  const departments = useMemo(() => {
+    return (deptStats ?? []).map((dept, index) => {
       const totalProjects = getProjectsTotal(dept);
       const stageCount = getProjectsApproved(dept);
       const completionRate = totalProjects
@@ -357,9 +338,9 @@ export const AdminDepartmentDashboard: React.FC = () => {
               : "delayed",
         color: colorOrder[index % colorOrder.length],
         location: dept.faculty || "Chưa rõ khoa",
-      };
+      } satisfies DepartmentCardData;
     });
-  }, [departmentStats]);
+  }, [deptStats]);
 
   const totalProjects = dashboardStats?.summary.totalProjects ?? 0;
   const totalStudents = dashboardStats?.summary.totalStudents ?? 0;
@@ -371,36 +352,33 @@ export const AdminDepartmentDashboard: React.FC = () => {
       )
     : 0;
 
-  const openDepartment = (departmentId: string) => {
-    router.push(`/department/${encodeURIComponent(departmentId)}`);
-  };
-
   if (statsLoading || deptLoading) {
     return (
       <Box
         sx={{
+          p: 3,
           minHeight: "100vh",
           bgcolor: "background.default",
-          p: 3,
-          display: "flex",
-          flexDirection: "column",
-          gap: 2,
         }}
       >
         <Box
           sx={{
             height: 32,
             width: "33%",
-            bgcolor: "divider",
             borderRadius: 1,
-            animation: "pulse 2s ease-in-out infinite",
+            bgcolor: "action.hover",
+            animation: "pulse 2s infinite",
           }}
         />
         <Box
           sx={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
+            gridTemplateColumns: {
+              xs: "1fr",
+              md: "repeat(4, minmax(0, 1fr))",
+            },
             gap: 2,
+            mt: 2,
           }}
         >
           {[1, 2, 3, 4].map((i) => (
@@ -408,11 +386,9 @@ export const AdminDepartmentDashboard: React.FC = () => {
               key={i}
               sx={{
                 height: 128,
-                bgcolor: "background.paper",
-                border: "1px solid",
-                borderColor: "divider",
                 borderRadius: 2,
-                animation: "pulse 2s ease-in-out infinite",
+                bgcolor: "action.hover",
+                animation: "pulse 2s infinite",
               }}
             />
           ))}
@@ -431,7 +407,7 @@ export const AdminDepartmentDashboard: React.FC = () => {
     >
       <Box
         sx={{
-          maxWidth: 1280,
+          maxWidth: "7xl",
           mx: "auto",
           display: "flex",
           flexDirection: "column",
@@ -440,6 +416,7 @@ export const AdminDepartmentDashboard: React.FC = () => {
           py: 3,
         }}
       >
+        {/* Status Indicator */}
         <Box
           sx={{
             display: "inline-flex",
@@ -447,9 +424,7 @@ export const AdminDepartmentDashboard: React.FC = () => {
             gap: 1,
             px: 2,
             py: 0.5,
-            bgcolor: alpha(theme.palette.success.main, 0.1),
-            border: "1px solid",
-            borderColor: alpha(theme.palette.success.main, 0.2),
+            bgcolor: "emerald.500/10",
             borderRadius: "9999px",
             width: "fit-content",
           }}
@@ -459,7 +434,7 @@ export const AdminDepartmentDashboard: React.FC = () => {
               width: "6px",
               height: "6px",
               borderRadius: "50%",
-              backgroundColor: theme.palette.success.main,
+              backgroundColor: "#10b981",
               animation: "pulse 2s infinite",
             }}
           />
@@ -467,13 +442,14 @@ export const AdminDepartmentDashboard: React.FC = () => {
             style={{
               fontSize: "11px",
               fontWeight: 500,
-              color: theme.palette.success.main,
+              color: "#4ade80",
             }}
           >
             LIVE • {departments.length} Khoa/Bộ môn
           </span>
         </Box>
 
+        {/* KPI Stats Cards */}
         <Box
           sx={{
             display: "grid",
@@ -500,7 +476,7 @@ export const AdminDepartmentDashboard: React.FC = () => {
           <StatCard
             label="GVHD"
             value={totalTeachers}
-            subtext="Đang quản lý"
+            subtext="5.8 ĐT/GV"
             subtextColor="warning.main"
             icon={<BookOpen size={18} />}
             iconColor="#8b5cf6"
@@ -515,182 +491,23 @@ export const AdminDepartmentDashboard: React.FC = () => {
           />
         </Box>
 
+        {/* Progress Bar */}
+        <div
+          className="p-3 rounded-lg shadow-sm hover:shadow-md transition-shadow"
+          style={{
+            background: getCardBackground(theme),
+            border: `1px solid ${theme.palette.divider}`,
+          }}
+        ></div>
+
+        {/* Department Cards Grid - 4 columns */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
           {departments.map((dept) => (
-            <DepartmentCard
-              key={dept.id}
-              dept={dept}
-              onOpen={() => openDepartment(dept.id)}
-            />
+            <DepartmentCard key={dept.id} dept={dept} />
           ))}
         </div>
 
-        <Box
-          sx={{
-            p: 3,
-            borderRadius: 2,
-            background: getCardBackground(theme),
-            border: "1px solid",
-            borderColor: "divider",
-            boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
-            "&:hover": {
-              boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
-            },
-            transition: "box-shadow 0.3s ease",
-          }}
-        >
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              mb: 2.5,
-            }}
-          >
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-              <BarChart3 size={14} className="text-primary" />
-              <h3
-                style={{
-                  fontSize: "10px",
-                  fontWeight: "bold",
-                  textTransform: "uppercase",
-                }}
-              >
-                So Sánh Hoàn Thành Theo Khoa/Bộ môn
-              </h3>
-            </Box>
-            <span
-              style={{
-                fontSize: "9px",
-                fontFamily: "monospace",
-                color: "var(--text-secondary)",
-                opacity: 0.7,
-              }}
-            >
-              KPI &gt; 70%
-            </span>
-          </Box>
-
-          <Box sx={{ mt: 3 }}>
-            {departments.map((item) => (
-              <Box key={item.id} sx={{ mb: 2.5 }}>
-                <Box
-                  sx={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    mb: 0.8,
-                  }}
-                >
-                  <Typography
-                    variant="body2"
-                    sx={{
-                      fontWeight: 600,
-                      color: "text.secondary",
-                      fontSize: "12px",
-                      minWidth: "140px",
-                    }}
-                  >
-                    {item.name}
-                  </Typography>
-                  <Typography
-                    variant="body2"
-                    sx={{
-                      fontWeight: 700,
-                      color: item.completionRate >= 70 ? "#4ade80" : "#fbbf24",
-                      fontSize: "12px",
-                      minWidth: "40px",
-                      textAlign: "right",
-                    }}
-                  >
-                    {item.completionRate}%
-                  </Typography>
-                </Box>
-                <Box
-                  sx={{
-                    width: "100%",
-                    height: "28px",
-                    backgroundColor: theme.palette.divider,
-                    borderRadius: "12px",
-                    overflow: "hidden",
-                    position: "relative",
-                    boxShadow: "inset 0 1px 3px rgba(0, 0, 0, 0.3)",
-                  }}
-                >
-                  <Box
-                    sx={{
-                      height: "100%",
-                      width: `${item.completionRate}%`,
-                      background:
-                        "linear-gradient(90deg, rgb(37, 99, 235) 0%, rgb(37, 99, 235) 100%)",
-                      borderRadius: "12px",
-                      transition:
-                        "width 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)",
-                      boxShadow:
-                        "0 0 16px rgba(37, 99, 235, 0.3), inset 0 1px 2px rgba(255, 255, 255, 0.15)",
-                      position: "relative",
-                      "&::after": {
-                        content: '""',
-                        position: "absolute",
-                        top: 0,
-                        left: 0,
-                        bottom: 0,
-                        right: 0,
-                        background:
-                          "linear-gradient(180deg, rgba(255, 255, 255, 0.08) 0%, transparent 100%)",
-                        borderRadius: "12px",
-                      },
-                    }}
-                  />
-                  {item.completionRate >= 70 && (
-                    <Box
-                      sx={{
-                        position: "absolute",
-                        right: "12px",
-                        top: "50%",
-                        transform: "translateY(-50%)",
-                        color: theme.palette.common.white,
-                        fontSize: "12px",
-                        fontWeight: 700,
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "4px",
-                        pointerEvents: "none",
-                      }}
-                    >
-                      ✓
-                    </Box>
-                  )}
-                </Box>
-              </Box>
-            ))}
-          </Box>
-
-          <Box
-            sx={{
-              mt: 2,
-              pt: 2,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              fontSize: "9px",
-            }}
-          >
-            <span style={{ color: "var(--text-secondary)", opacity: 0.7 }}>
-              <span
-                style={{
-                  width: "4px",
-                  height: "4px",
-                  borderRadius: "50%",
-                  backgroundColor: "#4ade80",
-                  display: "inline-block",
-                  marginRight: "4px",
-                }}
-              />
-              TB hoàn thành: <b>{averageCompletionRate}%</b>
-            </span>
-          </Box>
-        </Box>
+        <AdminDepartmentOperations />
       </Box>
     </Box>
   );

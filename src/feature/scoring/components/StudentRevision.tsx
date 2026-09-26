@@ -44,7 +44,13 @@ export function StudentRevisionPage() {
     try {
       setLoading(true);
       setError(null);
-      setDetail(await getMyRevision());
+      const response = await getMyRevision();
+      if (response.available === false) {
+        setDetail(null);
+        setError(response.reason);
+        return;
+      }
+      setDetail(response);
     } catch (err) {
       setError((err as Error).message || "Bảng điểm chưa được công bố");
     } finally {

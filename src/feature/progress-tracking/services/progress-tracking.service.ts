@@ -416,11 +416,11 @@ class ProgressTrackingService {
     };
   }
 
-  async getMyProgress(): Promise<StudentProgress> {
+  async getMyProgress(): Promise<StudentProgress | null> {
     const response: any = await apiClient.get(
       `${API_BASE}/students/my-progress`,
     );
-    return mapProgress(response);
+    return response?.id ? mapProgress(response) : null;
   }
 
   async getStudentProgressById(studentId: number): Promise<StudentProgress> {

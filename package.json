@@ -55,6 +55,7 @@
   },
   "devDependencies": {
     "@chromatic-com/storybook": "^5.2.1",
+    "@playwright/test": "^1.63.0",
     "@storybook/addon-a11y": "^10.5.0",
     "@storybook/addon-docs": "^10.5.0",
     "@storybook/addon-essentials": "^8.6.14",
@@ -67,6 +68,8 @@
     "@storybook/react-vite": "^10.5.0",
     "@storybook/test": "^8.6.15",
     "@tailwindcss/postcss": "^4",
+    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/react": "^16.3.3",
     "@types/bcryptjs": "^3.0.0",
     "@types/chroma-js": "^3.1.2",
     "@types/js-cookie": "^3.0.6",

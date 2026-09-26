@@ -28,6 +28,80 @@ export const ScoringTypeLabels: Record<ScoringType, string> = {
   COMMITTEE: "Hội đồng chấm",
 };
 
+const COMMITTEE_ROLES = new Set<string>([
+  "CHAIRMAN",
+  "SECRETARY",
+  "INTERNAL_REVIEWER",
+  "EXTERNAL_REVIEWER",
+]);
+
+export function normalizeScoringType(score: {
+  scoringType?: unknown;
+  role?: unknown;
+  scoring_type?: unknown;
+  type?: unknown;
+  scoreType?: unknown;
+}): ScoringType {
+  const raw =
+    score.scoringType ?? score.scoring_type ?? score.type ?? score.scoreType;
+  const v = String(raw ?? "")
+    .trim()
+    .toUpperCase()
+    .replace(/[\s-]/g, "_");
+
+  if (
+    v === "0" ||
+    v === "GVHD" ||
+    v === "SUPERVISOR" ||
+    v === "ADVISOR" ||
+    v === "LECTURER" ||
+    v.includes("GVHD") ||
+    v.includes("HUONG_DAN")
+  ) {
+    return "GVHD";
+  }
+  if (
+    v === "1" ||
+    v === "COMMITTEE" ||
+    v === "COUNCIL" ||
+    v === "BOARD" ||
+    v.includes("COMMITTEE") ||
+    v.includes("HOI_DONG")
+  ) {
+    return "COMMITTEE";
+  }
+  if (COMMITTEE_ROLES.has(String(score.role ?? "").toUpperCase())) {
+    return "COMMITTEE";
+  }
+  return "GVHD";
+}
+
+function normalizeScore(score: Score): Score {
+  return { ...score, scoringType: normalizeScoringType(score) };
+}
+
+function unwrapScorePage(
+  res:
+    | PaginatedResponse<Score>
+    | Score[]
+    | { data?: Score[]; meta?: PaginatedResponse<Score>["meta"] },
+): PaginatedResponse<Score> {
+  const data = Array.isArray(res)
+    ? res
+    : Array.isArray(res?.data)
+      ? res.data
+      : [];
+  const meta = Array.isArray(res)
+    ? { page: 1, limit: data.length, total: data.length, totalPages: 1 }
+    : {
+        page: res.meta?.page ?? 1,
+        limit: res.meta?.limit ?? data.length,
+        total: res.meta?.total ?? data.length,
+        totalPages: res.meta?.totalPages ?? 1,
+      };
+  return { data: data.map(normalizeScore), meta };
+}
+
 export const ScoringStatusLabels: Record<ScoringStatus, string> = {
   PENDING: "Chưa chấm",
   IN_PROGRESS: "Đang chấm",
@@ -236,7 +310,10 @@ export const getAllScores = async (
   if (params?.studentId)
     queryParams.set("studentId", params.studentId.toString());
 
-  return apiClient.get(`${API_BASE}?${queryParams.toString()}`);
+  const res = await apiClient.get<PaginatedResponse<Score> | Score[]>(
+    `${API_BASE}?${queryParams.toString()}`,
+  );
+  return unwrapScorePage(res);
 };
 
 // Get all scoring results
@@ -489,7 +566,11 @@ export const publishTranscript = async (
   return apiClient.post(`${API_BASE}/transcripts/${projectId}/publish`);
 };
 
-export const getMyTranscript = async (): Promise<TranscriptDetail> => {
+export type StudentTranscriptResponse =
+  | (TranscriptDetail & { available?: true })
+  | { available: false; reason: string };
+
+export const getMyTranscript = async (): Promise<StudentTranscriptResponse> => {
   return apiClient.get(`${API_BASE}/transcripts/me`);
 };
 
@@ -566,7 +647,11 @@ export const getPrintSheet = async (): Promise<{
   return apiClient.get(`${API_BASE}/post-defense/print`);
 };
 
-export const getMyRevision = async (): Promise<StudentRevisionDetail> => {
+export type StudentRevisionResponse =
+  | (StudentRevisionDetail & { available?: true })
+  | { available: false; reason: string };
+
+export const getMyRevision = async (): Promise<StudentRevisionResponse> => {
   return apiClient.get(`${API_BASE}/revisions/me`);
 };
 

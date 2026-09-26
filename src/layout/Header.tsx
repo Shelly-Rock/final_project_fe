@@ -73,6 +73,8 @@ export function Header({ onMenuClick, showMenuButton = true }: HeaderProps) {
 
   const handleLogout = async () => {
     handleUserMenuClose();
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
     await signOut({ redirect: false, callbackUrl: "/login" });
     router.push("/login");
   };

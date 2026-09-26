@@ -1,6 +1,7 @@
 // ============================================================
 // API Client - Wrapper around fetch for API calls
 // ============================================================
+import { signOut } from "next-auth/react";
 
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api/v1";
@@ -16,6 +17,11 @@ class ApiClient {
     this.baseUrl = baseUrl;
   }
 
+  private clearTokens() {
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+  }
+
   private async refreshAccessToken(): Promise<boolean> {
     if (typeof window === "undefined") return false;
 
@@ -29,8 +35,7 @@ class ApiClient {
     }).catch(() => null);
 
     if (!response?.ok) {
-      localStorage.removeItem("accessToken");
-      localStorage.removeItem("refreshToken");
+      this.clearTokens();
       return false;
     }
 
@@ -39,8 +44,7 @@ class ApiClient {
       refreshToken?: string;
     };
     if (!data.accessToken || !data.refreshToken) {
-      localStorage.removeItem("accessToken");
-      localStorage.removeItem("refreshToken");
+      this.clearTokens();
       return false;
     }
 
@@ -92,13 +96,17 @@ class ApiClient {
       headers,
     });
 
-    if (
-      response.status === 401 &&
-      canRetry &&
-      !endpoint.startsWith("/auth/") &&
-      (await this.refreshAccessToken())
-    ) {
-      return this.request<T>(endpoint, options, false);
+    if (response.status === 401 && !endpoint.startsWith("/auth/")) {
+      if (canRetry && (await this.refreshAccessToken())) {
+        return this.request<T>(endpoint, options, false);
+      }
+
+      if (typeof window !== "undefined") {
+        this.clearTokens();
+        if (window.location.pathname !== "/login") {
+          await signOut({ callbackUrl: "/login" });
+        }
+      }
     }
 
     if (!response.ok) {
