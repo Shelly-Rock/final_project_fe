@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -73,6 +74,9 @@ const SendNotificationForm: React.FC<SendNotificationFormProps> = ({
   onSuccess,
   onClose,
 }) => {
+  const searchParams = useSearchParams();
+  const scopedDepartmentId = searchParams.get("departmentId") || "";
+
   const {
     register,
     handleSubmit,
@@ -98,7 +102,7 @@ const SendNotificationForm: React.FC<SendNotificationFormProps> = ({
   const [recipients, setRecipients] = useState<Recipient[]>([]);
   const [loadingDepts, setLoadingDepts] = useState(false);
   const [loadingRecipients, setLoadingRecipients] = useState(false);
-  const [selectedDept, setSelectedDept] = useState<string>("");
+  const [selectedDept, setSelectedDept] = useState<string>(scopedDepartmentId);
   const [fileName, setFileName] = useState<string>("");
   const [fileSize, setFileSize] = useState<number>(0);
   const [isSavingDraft, setIsSavingDraft] = useState(false);
@@ -108,10 +112,17 @@ const SendNotificationForm: React.FC<SendNotificationFormProps> = ({
   }, []);
 
   useEffect(() => {
+    setSelectedDept(scopedDepartmentId);
+  }, [scopedDepartmentId]);
+
+  useEffect(() => {
+    setValue("recipientIds", []);
     if (selectedDept) {
       loadRecipientsByDept(selectedDept);
+    } else {
+      setRecipients([]);
     }
-  }, [selectedDept]);
+  }, [selectedDept, setValue]);
 
   const loadDepartments = async () => {
     setLoadingDepts(true);
@@ -197,7 +208,7 @@ const SendNotificationForm: React.FC<SendNotificationFormProps> = ({
       reset();
       setFileName("");
       setFileSize(0);
-      setSelectedDept("");
+      setSelectedDept(scopedDepartmentId);
       onSuccess?.();
     } catch (error) {
       toast.error(
@@ -284,7 +295,7 @@ const SendNotificationForm: React.FC<SendNotificationFormProps> = ({
                 <select
                   value={selectedDept}
                   onChange={(e) => setSelectedDept(e.target.value)}
-                  disabled={loadingDepts}
+                  disabled={loadingDepts || !!scopedDepartmentId}
                   className="w-full px-3 py-2 rounded-lg bg-[#0f1523] border border-[#1e293b] text-[#f1f5f9] text-xs focus:border-sky-500/60 focus:ring-1 focus:ring-sky-500/40 focus:outline-none transition-all disabled:opacity-50"
                 >
                   <option value="">-- Chọn Khoa / Viện --</option>

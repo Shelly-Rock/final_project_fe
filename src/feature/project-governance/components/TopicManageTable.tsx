@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import {
   Box,
   Button,
@@ -50,6 +51,9 @@ const TOPIC_STATUS_OPTIONS: Array<{ value: TopicStatus; label: string }> = (
 }));
 
 export function TopicManageTable() {
+  const searchParams = useSearchParams();
+  const scopedDepartmentId = searchParams.get("departmentId") || "";
+
   const [periods, setPeriods] = useState<Array<{ id: number; name: string }>>(
     [],
   );
@@ -59,7 +63,7 @@ export function TopicManageTable() {
   const debouncedSearch = useDebouncedValue(search, 450);
 
   const [facultyId, setFacultyId] = useState("");
-  const [departmentId, setDepartmentId] = useState("");
+  const [departmentId, setDepartmentId] = useState(scopedDepartmentId);
   const [teacherId, setTeacherId] = useState("");
   const [status, setStatus] = useState("");
   const [registrationStatus, setRegistrationStatus] = useState("");
@@ -92,6 +96,10 @@ export function TopicManageTable() {
   const [exporting, setExporting] = useState(false);
   const [generatingCodes, setGeneratingCodes] = useState(false);
   const [genDialogOpen, setGenDialogOpen] = useState(false);
+
+  useEffect(() => {
+    setDepartmentId(scopedDepartmentId);
+  }, [scopedDepartmentId]);
 
   useEffect(() => {
     let active = true;
@@ -226,7 +234,7 @@ export function TopicManageTable() {
         : "";
     });
     setDepartmentId((current) => {
-      if (!current) return current;
+      if (!current || scopedDepartmentId) return current;
       return departmentOptions.some((option) => option.value === current)
         ? current
         : "";
@@ -237,7 +245,7 @@ export function TopicManageTable() {
         ? current
         : "";
     });
-  }, [facultyOptions, departmentOptions, teacherOptions]);
+  }, [facultyOptions, departmentOptions, teacherOptions, scopedDepartmentId]);
 
   useEffect(() => {
     setPage(0);
@@ -490,6 +498,7 @@ export function TopicManageTable() {
           value={departmentId}
           onChange={setDepartmentId}
           options={[{ value: "", label: "Tất cả BM" }, ...departmentOptions]}
+          disabled={!!scopedDepartmentId}
         />
       </Box>
 
@@ -554,7 +563,7 @@ export function TopicManageTable() {
           variant="outlined"
           onClick={() => {
             setFacultyId("");
-            setDepartmentId("");
+            setDepartmentId(scopedDepartmentId);
             setTeacherId("");
             setStatus("");
             setRegistrationStatus("");
