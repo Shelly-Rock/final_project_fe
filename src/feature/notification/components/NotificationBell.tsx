@@ -1,20 +1,24 @@
 "use client";
 
 import React, { useEffect, useState, useRef, useCallback } from "react";
+import { useSession } from "next-auth/react";
 import { Bell } from "lucide-react";
 import { useNotificationStore } from "@/shared/store/notification.store";
 import NotificationDropdown from "./NotificationDropdown";
 
 const NotificationBell: React.FC = () => {
-  const { notifications, unreadCount, fetchNotifications, fetchUnreadCount } =
+  const { data: session, status } = useSession();
+  const { unreadCount, fetchNotifications, fetchUnreadCount } =
     useNotificationStore();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
+    if (status !== "authenticated" || !session?.accessToken) return;
+
     // Initial load
-    fetchNotifications(0, 20);
+    fetchNotifications(1, 20);
     fetchUnreadCount();
 
     // Poll for new notifications every 30 seconds
@@ -25,9 +29,10 @@ const NotificationBell: React.FC = () => {
     return () => {
       if (pollIntervalRef.current) {
         clearInterval(pollIntervalRef.current);
+        pollIntervalRef.current = null;
       }
     };
-  }, [fetchNotifications, fetchUnreadCount]);
+  }, [fetchNotifications, fetchUnreadCount, session?.accessToken, status]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {

@@ -1,6 +1,6 @@
 "use client";
 
-import { SessionProvider } from "next-auth/react";
+import { SessionProvider, useSession } from "next-auth/react";
 import type { Session } from "next-auth";
 import type { ReactNode } from "react";
 import { useEffect } from "react";
@@ -10,22 +10,33 @@ interface AuthProviderProps {
   session?: Session | null;
 }
 
-function TokenSyncer({ session }: { session?: Session | null }) {
+function TokenSyncer() {
+  const { data: session, status } = useSession();
+
   useEffect(() => {
-    if (session?.accessToken) {
-      localStorage.setItem("accessToken", session.accessToken);
+    if (status === "authenticated") {
+      if (session?.accessToken) {
+        localStorage.setItem("accessToken", session.accessToken);
+      }
+      if (session?.refreshToken) {
+        localStorage.setItem("refreshToken", session.refreshToken);
+      }
+      return;
     }
-    if (session?.refreshToken) {
-      localStorage.setItem("refreshToken", session.refreshToken);
+
+    if (status === "unauthenticated") {
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
     }
-  }, [session]);
+  }, [session?.accessToken, session?.refreshToken, status]);
+
   return null;
 }
 
 export function AuthProvider({ children, session }: AuthProviderProps) {
   return (
     <SessionProvider session={session}>
-      <TokenSyncer session={session} />
+      <TokenSyncer />
       {children}
     </SessionProvider>
   );
