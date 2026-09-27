@@ -1,9 +1,16 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useQuery } from "@tanstack/react-query";
-import { Box, Chip, Skeleton, Typography } from "@mui/material";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  Box,
+  Chip,
+  IconButton,
+  Skeleton,
+  Tooltip,
+  Typography,
+} from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import {
   AlertTriangle,
@@ -12,10 +19,19 @@ import {
   CheckCircle2,
   ClipboardList,
   FileText,
+  Pencil,
+  Plus,
+  Trash2,
   Users,
 } from "lucide-react";
+import { toast } from "sonner";
 import { adminDashboardService } from "@/feature/dashboard/services/admin-dashboard.service";
+import { departmentService as adminDepartmentService } from "@/feature/admin/services";
+import type { Department } from "@/feature/admin/services";
+import { facultyService } from "@/feature/admin/services";
 import { getCardBackground } from "@/shared/constants/gradients";
+import { useUserRole } from "@/shared/hooks/useUserRole";
+import { DepartmentFormDialog } from "./DepartmentFormDialog";
 
 interface Props {
   facultyId: string;
@@ -32,11 +48,131 @@ export function FacultyDetailPanel({ facultyId, onBack }: Props) {
   const router = useRouter();
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
+  const userRole = useUserRole();
+  const isAdmin = userRole === "admin";
+  const queryClient = useQueryClient();
+
+  const [formOpen, setFormOpen] = useState(false);
+  const [editing, setEditing] = useState<Department | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["admin-faculty-detail", facultyId],
     queryFn: () => adminDashboardService.getFacultyDetail(facultyId),
   });
+
+  // Danh sách khoa để chọn khi tạo bộ môn
+  const { data: faculties = [] } = useQuery({
+    queryKey: ["admin-faculties"],
+    queryFn: () => facultyService.getAll(),
+  });
+
+  const facultyOptions = useMemo(
+    () => faculties.map((f) => ({ id: f.id, name: f.name })),
+    [faculties],
+  );
+
+  // Số liệu từng bộ môn lấy trực tiếp từ endpoint quản lý (đọc được
+  // ngay sau khi thêm/sửa/xóa mà không phải chờ dashboard).
+  const { data: crudDepartments = [] } = useQuery({
+    queryKey: ["admin-departments", facultyId],
+    queryFn: () => adminDepartmentService.getAll(facultyId),
+  });
+
+  const invalidateAll = async () => {
+    await Promise.all(
+      [
+        "admin-faculty-detail",
+        "admin-faculty-stats",
+        "admin-departments",
+        "admin-faculties",
+        "admin-department-stats",
+        "admin-dashboard",
+      ].map((key) => queryClient.invalidateQueries({ queryKey: [key] })),
+    );
+  };
+
+  const saveMutation = useMutation({
+    mutationFn: (payload: { id?: string; name: string; facultyId: string }) =>
+      editing
+        ? adminDepartmentService.update(editing.id, {
+            name: payload.name,
+            facultyId: payload.facultyId,
+          })
+        : adminDepartmentService.create({
+            id: payload.id as string,
+            name: payload.name,
+            facultyId: payload.facultyId,
+          }),
+    onSuccess: async () => {
+      toast.success(
+        editing ? "Cập nhật bộ môn thành công" : "Tạo bộ môn thành công",
+      );
+      setFormOpen(false);
+      setEditing(null);
+      await invalidateAll();
+    },
+    onError: (error: Error) =>
+      toast.error(error.message || "Thao tác thất bại"),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (deptId: string) => adminDepartmentService.delete(deptId),
+    onSuccess: async () => {
+      toast.success("Đã xóa bộ môn");
+      await invalidateAll();
+    },
+    onError: (error: Error) =>
+      toast.error(error.message || "Xóa bộ môn thất bại"),
+  });
+
+  const handleSubmit = async (payload: {
+    id?: string;
+    name: string;
+    facultyId: string;
+  }) => {
+    setSubmitting(true);
+    try {
+      await saveMutation.mutateAsync(payload);
+    } catch {
+      // toast đã hiển thị trong onError
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleDelete = async (dept: Department) => {
+    const confirmed = window.confirm(
+      `Bạn có chắc muốn xóa bộ môn "${dept.name}"?\n\nChỉ có thể xóa bộ môn chưa có giảng viên hoặc thư ký.`,
+    );
+    if (!confirmed) return;
+    await deleteMutation.mutateAsync(dept.id).catch(() => undefined);
+  };
+
+  // Ưu tiên danh sách từ endpoint quản lý (mới nhất), fallback về data tổng hợp
+  const departments = useMemo(() => {
+    if (crudDepartments.length > 0) {
+      return crudDepartments.map((d) => {
+        const stat = data?.departments.find((x) => x.id === d.id);
+        return {
+          id: d.id,
+          name: d.name,
+          teachers: stat?.teachers ?? 0,
+          approved: stat?.projects.approved ?? 0,
+          pending: stat?.projects.pending ?? 0,
+          total: stat?.projects.total ?? 0,
+        };
+      });
+    }
+    return (data?.departments ?? []).map((d) => ({
+      id: d.id,
+      name: d.name,
+      teachers: d.teachers,
+      approved: d.projects.approved,
+      pending: d.projects.pending,
+      total: d.projects.total,
+    }));
+  }, [crudDepartments, data]);
 
   const completionRate = useMemo(() => {
     if (!data) return 0;
@@ -203,23 +339,54 @@ export function FacultyDetailPanel({ facultyId, onBack }: Props) {
           </Box>
         </Box>
 
-        <Typography
+        <Box
           sx={{
-            fontSize: 11.5,
-            fontWeight: 800,
-            letterSpacing: 0.6,
-            textTransform: "uppercase",
-            color: "text.secondary",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
             mb: 1,
           }}
         >
-          Bộ môn ({data.departments.length})
-        </Typography>
+          <Typography
+            sx={{
+              fontSize: 11.5,
+              fontWeight: 800,
+              letterSpacing: 0.6,
+              textTransform: "uppercase",
+              color: "text.secondary",
+            }}
+          >
+            Bộ môn ({departments.length})
+          </Typography>
+          {isAdmin && (
+            <Box
+              component="button"
+              onClick={() => {
+                setEditing(null);
+                setFormOpen(true);
+              }}
+              sx={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 0.5,
+                border: "1px solid #2a78d6",
+                color: "#2a78d6",
+                background: "transparent",
+                borderRadius: "8px",
+                padding: "4px 8px",
+                fontSize: 11.5,
+                fontWeight: 700,
+                cursor: "pointer",
+              }}
+            >
+              <Plus size={13} /> Thêm
+            </Box>
+          )}
+        </Box>
 
         <Box sx={{ display: "grid", gap: 0.75 }}>
-          {data.departments.map((dept) => {
-            const approved = dept.projects.approved ?? 0;
-            const total = dept.projects.total ?? 0;
+          {departments.map((dept) => {
+            const { approved, total, pending, teachers } = dept;
             const pct = total ? Math.round((approved / total) * 100) : 0;
 
             return (
@@ -262,15 +429,53 @@ export function FacultyDetailPanel({ facultyId, onBack }: Props) {
                   >
                     {dept.name}
                   </Typography>
-                  <span
-                    style={{
-                      fontSize: 11,
-                      fontFamily: "monospace",
-                      color: "#94a3b8",
-                    }}
-                  >
-                    {dept.id}
-                  </span>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                    <span
+                      style={{
+                        fontSize: 11,
+                        fontFamily: "monospace",
+                        color: "#94a3b8",
+                      }}
+                    >
+                      {dept.id}
+                    </span>
+                    {isAdmin && (
+                      <>
+                        <Tooltip title="Sửa">
+                          <IconButton
+                            size="small"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setEditing({
+                                id: dept.id,
+                                name: dept.name,
+                                facultyId: facultyId,
+                              });
+                              setFormOpen(true);
+                            }}
+                          >
+                            <Pencil size={13} />
+                          </IconButton>
+                        </Tooltip>
+                        <Tooltip title="Xóa">
+                          <IconButton
+                            size="small"
+                            color="error"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDelete({
+                                id: dept.id,
+                                name: dept.name,
+                                facultyId: facultyId,
+                              });
+                            }}
+                          >
+                            <Trash2 size={13} />
+                          </IconButton>
+                        </Tooltip>
+                      </>
+                    )}
+                  </Box>
                 </Box>
                 <Box
                   sx={{
@@ -282,7 +487,7 @@ export function FacultyDetailPanel({ facultyId, onBack }: Props) {
                     color: "text.secondary",
                   }}
                 >
-                  <span>GV: {dept.teachers}</span>
+                  <span>GV: {teachers}</span>
                   <span>
                     ĐT: {approved}/{total}
                   </span>
@@ -309,9 +514,9 @@ export function FacultyDetailPanel({ facultyId, onBack }: Props) {
             );
           })}
 
-          {data.departments.length === 0 && (
+          {departments.length === 0 && (
             <Typography sx={{ fontSize: 12.5, color: "text.secondary" }}>
-              Khoa chưa có bộ môn nào.
+              Khoa chưa có bộ môn nào. {isAdmin && "Bấm “Thêm” để tạo bộ môn."}
             </Typography>
           )}
         </Box>
@@ -453,7 +658,7 @@ export function FacultyDetailPanel({ facultyId, onBack }: Props) {
                 </tr>
               </thead>
               <tbody>
-                {data.departments.map((dept) => (
+                {departments.map((dept) => (
                   <tr
                     key={dept.id}
                     style={{ borderBottom: "1px solid #e2e8f0" }}
@@ -474,11 +679,9 @@ export function FacultyDetailPanel({ facultyId, onBack }: Props) {
                           fontWeight: 700,
                         }}
                       >
-                        {dept.projects.approved ?? 0}
+                        {dept.approved}
                       </span>
-                      <span style={{ opacity: 0.6 }}>
-                        /{dept.projects.total ?? 0}
-                      </span>
+                      <span style={{ opacity: 0.6 }}>/{dept.total}</span>
                     </td>
                     <td
                       style={{
@@ -487,7 +690,7 @@ export function FacultyDetailPanel({ facultyId, onBack }: Props) {
                         fontWeight: 600,
                       }}
                     >
-                      {dept.projects.pending ?? 0}
+                      {dept.pending}
                     </td>
                     <td style={{ padding: "10px 12px", textAlign: "right" }}>
                       <Box
@@ -518,6 +721,18 @@ export function FacultyDetailPanel({ facultyId, onBack }: Props) {
           </Box>
         </Box>
       </Box>
+
+      <DepartmentFormDialog
+        open={formOpen}
+        department={editing}
+        faculties={facultyOptions}
+        loading={submitting}
+        onClose={() => {
+          setFormOpen(false);
+          setEditing(null);
+        }}
+        onSubmit={handleSubmit}
+      />
     </Box>
   );
 }
