@@ -73,6 +73,7 @@ export interface FacultyStats {
   department_count: number;
   teacher_count: number;
   topic_count: number;
+  department_ids: string[];
   projects: {
     total: number;
     pending: number;

@@ -76,8 +76,13 @@ const FacultyCard: React.FC<{
   const statusLabel = getFacultyStatusLabel(completionRate, faculty.is_active);
 
   const openDetail = () => {
+    // Bấm card khoa -> mở thẳng trang bộ môn đầu tiên của khoa (giống
+    // dashboard của thư ký). Khoa chưa có bộ môn thì quay lại trang quản lý khoa.
+    const firstDepartmentId = faculty.department_ids?.[0];
     router.push(
-      `/department/faculties?facultyId=${encodeURIComponent(faculty.id)}`,
+      firstDepartmentId
+        ? `/department/${encodeURIComponent(firstDepartmentId)}`
+        : `/department/faculties?facultyId=${encodeURIComponent(faculty.id)}`,
     );
   };
 
