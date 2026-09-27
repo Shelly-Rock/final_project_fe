@@ -131,7 +131,7 @@ const DepartmentCard: React.FC<{ dept: DepartmentCardData }> = ({ dept }) => {
             </div>
           </div>
 
-          <div className="relative w-8 h-8 flex items-center justify-center shrink-0">
+          <div className="relative w-11 h-11 flex items-center justify-center shrink-0">
             <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
               <circle
                 cx="18"
@@ -153,7 +153,7 @@ const DepartmentCard: React.FC<{ dept: DepartmentCardData }> = ({ dept }) => {
                 strokeWidth="3.5"
               />
             </svg>
-            <span className="absolute text-[12px] font-bold ">
+            <span className="absolute inset-0 flex items-center justify-center text-[10px] font-bold leading-none">
               {dept.completionRate}%
             </span>
           </div>

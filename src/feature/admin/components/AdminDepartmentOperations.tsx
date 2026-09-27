@@ -14,6 +14,7 @@ import {
   TableRow,
   Typography,
 } from "@mui/material";
+import { useTheme } from "@mui/material/styles";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import {
   AlertTriangle,
@@ -341,6 +342,23 @@ async function loadOperations() {
 
 export function AdminDepartmentOperations() {
   const router = useRouter();
+  const theme = useTheme();
+  const isDark = theme.palette.mode === "dark";
+  const darkCardSx = isDark
+    ? {
+        background: "linear-gradient(135deg, #101A34 0%, #121F45 100%)",
+        color: "#ffff",
+        borderColor: "rgba(255, 255, 255, 0.12)",
+        boxShadow: "0 14px 36px rgba(0, 0, 0, 0.22)",
+        "& .MuiTypography-root": { color: "#ffff" },
+        "& .MuiChip-root": {
+          backgroundColor: "rgba(255, 255, 255, 0.08) !important",
+          color: "#ffff !important",
+          border: "1px solid rgba(255, 255, 255, 0.14)",
+        },
+        "& .MuiChip-label": { color: "#ffff !important" },
+      }
+    : {};
   const [tab, setTab] = useState<"teachers" | "topics">("teachers");
 
   const { data, isLoading } = useQuery({
@@ -762,6 +780,7 @@ export function AdminDepartmentOperations() {
             overflow: "hidden",
             background:
               "linear-gradient(180deg, #ffffff 0%, #fbfdff 62%, #f8fafc 100%)",
+            ...darkCardSx,
           }}
         >
           <Box
@@ -845,8 +864,12 @@ export function AdminDepartmentOperations() {
                     gap: 1.4,
                     p: 1.35,
                     borderRadius: "14px",
-                    border: `1px solid ${firstDue ? "rgba(235, 104, 52, 0.28)" : C.line}`,
-                    bgcolor: due ? "rgba(255,255,255,0.88)" : "#f8fafc",
+                    border: `1px solid ${isDark ? "rgba(255, 255, 255, 0.12)" : firstDue ? "rgba(235, 104, 52, 0.28)" : C.line}`,
+                    bgcolor: isDark
+                      ? "rgba(255, 255, 255, 0.06)"
+                      : due
+                        ? "rgba(255,255,255,0.88)"
+                        : "#f8fafc",
                     cursor: due && a.href ? "pointer" : "default",
                     opacity: due ? 1 : 0.72,
                     boxShadow: firstDue
@@ -857,7 +880,9 @@ export function AdminDepartmentOperations() {
                       ? {
                           transform: "translateY(-1px)",
                           borderColor: color,
-                          boxShadow: "0 12px 26px rgba(15, 23, 42, 0.08)",
+                          boxShadow: isDark
+                            ? "0 12px 26px rgba(0, 0, 0, 0.18)"
+                            : "0 12px 26px rgba(15, 23, 42, 0.08)",
                         }
                       : undefined,
                   }}
@@ -922,6 +947,7 @@ export function AdminDepartmentOperations() {
               position: "relative",
               overflow: "hidden",
               background: "linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)",
+              ...darkCardSx,
             }}
           >
             <Box
@@ -1038,7 +1064,8 @@ export function AdminDepartmentOperations() {
                     p: 1,
                     borderRadius: "12px",
                     bgcolor: "rgba(248, 250, 252, 0.82)",
-                    border: `1px solid #f1f5f9`,
+                    border: `1px solid ${isDark ? "rgba(255, 255, 255, 0.12)" : "#f1f5f9"}`,
+                    ...(isDark && { bgcolor: "rgba(255, 255, 255, 0.06)" }),
                   }}
                 >
                   <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
@@ -1078,6 +1105,7 @@ export function AdminDepartmentOperations() {
               ...cardSx,
               background:
                 "linear-gradient(135deg, #ffffff 0%, #f8fbff 55%, #eef6ff 100%)",
+              ...darkCardSx,
             }}
           >
             <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
@@ -1166,8 +1194,10 @@ export function AdminDepartmentOperations() {
                 mt: 2.25,
                 p: 1.25,
                 borderRadius: "14px",
-                bgcolor: "rgba(255,255,255,0.72)",
-                border: `1px solid ${C.line}`,
+                bgcolor: isDark
+                  ? "rgba(255, 255, 255, 0.06)"
+                  : "rgba(255,255,255,0.72)",
+                border: `1px solid ${isDark ? "rgba(255, 255, 255, 0.12)" : C.line}`,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "space-between",
@@ -1188,7 +1218,29 @@ export function AdminDepartmentOperations() {
         </Box>
       </Box>
 
-      <Box sx={{ ...cardSx, p: 0, overflow: "hidden" }}>
+      <Box
+        sx={{
+          ...cardSx,
+          p: 0,
+          overflow: "hidden",
+          ...(isDark && {
+            background: "linear-gradient(135deg, #101A34 0%, #121F45 100%)",
+            borderColor: "rgba(255, 255, 255, 0.12)",
+            boxShadow: "0 14px 36px rgba(0, 0, 0, 0.22)",
+            "& .MuiTypography-root": { color: "#ffff !important" },
+            "& .MuiTableCell-root": {
+              color: "#ffff !important",
+              borderColor: "rgba(255, 255, 255, 0.12) !important",
+            },
+            "& .MuiTableRow-head": {
+              backgroundColor: "rgba(255, 255, 255, 0.06) !important",
+            },
+            "& .MuiTableRow-hover:hover": {
+              backgroundColor: "rgba(255, 255, 255, 0.08) !important",
+            },
+          }),
+        }}
+      >
         <Box
           sx={{
             px: 2.5,
@@ -1197,8 +1249,10 @@ export function AdminDepartmentOperations() {
             alignItems: "center",
             justifyContent: "space-between",
             gap: 2,
-            borderBottom: `1px solid ${C.line}`,
-            background: "linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)",
+            borderBottom: `1px solid ${isDark ? "rgba(255, 255, 255, 0.12)" : C.line}`,
+            background: isDark
+              ? "linear-gradient(135deg, #101A34 0%, #121F45 100%)"
+              : "linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)",
           }}
         >
           <Box sx={{ display: "flex", gap: 1 }}>
@@ -1216,11 +1270,23 @@ export function AdminDepartmentOperations() {
                   py: 0.8,
                   cursor: "pointer",
                   borderRadius: "999px",
-                  bgcolor: tab === t.key ? C.blueSoft : "transparent",
-                  border: `1px solid ${tab === t.key ? "rgba(42, 120, 214, 0.22)" : "transparent"}`,
+                  bgcolor:
+                    tab === t.key
+                      ? isDark
+                        ? "rgba(255, 255, 255, 0.12)"
+                        : C.blueSoft
+                      : "transparent",
+                  border: `1px solid ${tab === t.key ? (isDark ? "rgba(255, 255, 255, 0.18)" : "rgba(42, 120, 214, 0.22)") : "transparent"}`,
                   transition: "all 0.18s ease",
                   "&:hover": {
-                    bgcolor: tab === t.key ? C.blueSoft : "#f1f5f9",
+                    bgcolor:
+                      tab === t.key
+                        ? isDark
+                          ? "rgba(255, 255, 255, 0.12)"
+                          : C.blueSoft
+                        : isDark
+                          ? "rgba(255, 255, 255, 0.08)"
+                          : "#f1f5f9",
                   },
                 }}
               >
@@ -1228,7 +1294,7 @@ export function AdminDepartmentOperations() {
                   sx={{
                     fontSize: 13,
                     fontWeight: 800,
-                    color: tab === t.key ? C.blue : C.muted,
+                    color: isDark ? "#ffff" : tab === t.key ? C.blue : C.muted,
                   }}
                 >
                   {t.label}
@@ -1236,7 +1302,13 @@ export function AdminDepartmentOperations() {
               </Box>
             ))}
           </Box>
-          <Typography sx={{ fontSize: 12.5, color: C.faint, fontWeight: 600 }}>
+          <Typography
+            sx={{
+              fontSize: 12.5,
+              color: isDark ? "#ffff" : C.faint,
+              fontWeight: 600,
+            }}
+          >
             {tab === "teachers"
               ? `${teacherRows.length} giảng viên`
               : `${data?.topics.length ?? 0} đề tài`}
@@ -1246,7 +1318,11 @@ export function AdminDepartmentOperations() {
         {tab === "teachers" ? (
           <Table size="small">
             <TableHead>
-              <TableRow sx={{ bgcolor: "#f8fafc" }}>
+              <TableRow
+                sx={{
+                  bgcolor: isDark ? "rgba(255, 255, 255, 0.06)" : "#f8fafc",
+                }}
+              >
                 {[
                   "Họ tên",
                   "Email",
@@ -1262,10 +1338,12 @@ export function AdminDepartmentOperations() {
                     sx={{
                       fontSize: 11,
                       fontWeight: 800,
-                      color: C.muted,
+                      color: isDark ? "#ffff" : C.muted,
                       textTransform: "uppercase",
                       letterSpacing: 0.5,
-                      borderColor: C.line,
+                      borderColor: isDark
+                        ? "rgba(255, 255, 255, 0.12)"
+                        : C.line,
                       py: 1.35,
                     }}
                   >
@@ -1279,7 +1357,11 @@ export function AdminDepartmentOperations() {
                 <TableRow>
                   <TableCell
                     colSpan={8}
-                    sx={{ py: 4, textAlign: "center", color: C.muted }}
+                    sx={{
+                      py: 4,
+                      textAlign: "center",
+                      color: isDark ? "#ffff" : C.muted,
+                    }}
                   >
                     Chưa có dữ liệu giảng viên cho đợt hiện tại.
                   </TableCell>
@@ -1297,8 +1379,17 @@ export function AdminDepartmentOperations() {
                       key={row.id}
                       hover
                       sx={{
-                        "& td": { borderColor: "#f1f5f9", py: 1.45 },
-                        "&:hover": { bgcolor: "#f8fafc" },
+                        "& td": {
+                          borderColor: isDark
+                            ? "rgba(255, 255, 255, 0.12)"
+                            : "#f1f5f9",
+                          py: 1.45,
+                        },
+                        "&:hover": {
+                          bgcolor: isDark
+                            ? "rgba(255, 255, 255, 0.08)"
+                            : "#f8fafc",
+                        },
                       }}
                     >
                       <TableCell>
@@ -1310,8 +1401,10 @@ export function AdminDepartmentOperations() {
                               width: 30,
                               height: 30,
                               borderRadius: "10px",
-                              bgcolor: C.violetSoft,
-                              color: C.violet,
+                              bgcolor: isDark
+                                ? "rgba(255, 255, 255, 0.12)"
+                                : C.violetSoft,
+                              color: isDark ? "#ffff" : C.violet,
                               display: "flex",
                               alignItems: "center",
                               justifyContent: "center",
@@ -1395,7 +1488,9 @@ export function AdminDepartmentOperations() {
                             sx={{
                               flex: 1,
                               height: 6,
-                              bgcolor: "#f1f5f9",
+                              bgcolor: isDark
+                                ? "rgba(255, 255, 255, 0.14)"
+                                : "#f1f5f9",
                               borderRadius: 3,
                               overflow: "hidden",
                               minWidth: 56,
@@ -1431,7 +1526,11 @@ export function AdminDepartmentOperations() {
         ) : (
           <Table size="small">
             <TableHead>
-              <TableRow sx={{ bgcolor: "#fafbfc" }}>
+              <TableRow
+                sx={{
+                  bgcolor: isDark ? "rgba(255, 255, 255, 0.06)" : "#fafbfc",
+                }}
+              >
                 {[
                   "Mã ĐT",
                   "Tên đề tài",
@@ -1445,10 +1544,12 @@ export function AdminDepartmentOperations() {
                     sx={{
                       fontSize: 11,
                       fontWeight: 700,
-                      color: C.muted,
+                      color: isDark ? "#ffff" : C.muted,
                       textTransform: "uppercase",
                       letterSpacing: 0.4,
-                      borderColor: C.line,
+                      borderColor: isDark
+                        ? "rgba(255, 255, 255, 0.12)"
+                        : C.line,
                       py: 1.25,
                     }}
                   >
@@ -1462,7 +1563,11 @@ export function AdminDepartmentOperations() {
                 <TableRow>
                   <TableCell
                     colSpan={6}
-                    sx={{ py: 4, textAlign: "center", color: C.muted }}
+                    sx={{
+                      py: 4,
+                      textAlign: "center",
+                      color: isDark ? "#ffff" : C.muted,
+                    }}
                   >
                     Chưa có đề tài trong đợt hiện tại.
                   </TableCell>
@@ -1479,7 +1584,19 @@ export function AdminDepartmentOperations() {
                     <TableRow
                       key={t.id}
                       hover
-                      sx={{ "& td": { borderColor: "#f1f5f9", py: 1.35 } }}
+                      sx={{
+                        "& td": {
+                          borderColor: isDark
+                            ? "rgba(255, 255, 255, 0.12)"
+                            : "#f1f5f9",
+                          py: 1.35,
+                        },
+                        "&:hover": {
+                          bgcolor: isDark
+                            ? "rgba(255, 255, 255, 0.08)"
+                            : "#f8fafc",
+                        },
+                      }}
                     >
                       <TableCell>
                         <Typography
@@ -1539,7 +1656,7 @@ export function AdminDepartmentOperations() {
         )}
       </Box>
 
-      <Box sx={cardSx}>
+      <Box sx={{ ...cardSx, ...darkCardSx }}>
         <Box
           sx={{
             display: "flex",
@@ -1551,12 +1668,14 @@ export function AdminDepartmentOperations() {
           <Typography sx={{ fontWeight: 700, fontSize: 16, color: C.ink }}>
             Lịch 14 ngày tới
           </Typography>
-          <Typography sx={{ fontSize: 12, color: C.faint }}>
+          <Typography sx={{ fontSize: 12, color: isDark ? "#ffff" : C.faint }}>
             {rangeLabel}
           </Typography>
         </Box>
         {timeline.length === 0 ? (
-          <Typography sx={{ fontSize: 13, color: C.muted, py: 2 }}>
+          <Typography
+            sx={{ fontSize: 13, color: isDark ? "#ffff" : C.muted, py: 2 }}
+          >
             Không có mốc hạn nào trong 14 ngày tới.
           </Typography>
         ) : (
@@ -1577,12 +1696,14 @@ export function AdminDepartmentOperations() {
                     sx={{
                       fontSize: 13,
                       fontWeight: 700,
-                      color: today ? C.blue : C.ink,
+                      color: isDark ? "#ffff" : today ? C.blue : C.ink,
                     }}
                   >
                     {formatDay(ev.at)}
                   </Typography>
-                  <Typography sx={{ fontSize: 11, color: C.faint }}>
+                  <Typography
+                    sx={{ fontSize: 11, color: isDark ? "#ffff" : C.faint }}
+                  >
                     {today ? "Hôm nay" : WEEKDAYS[ev.at.getDay()]}
                   </Typography>
                 </Box>
@@ -1600,7 +1721,9 @@ export function AdminDepartmentOperations() {
                         top: 22,
                         bottom: -8,
                         width: 2,
-                        bgcolor: "#eef2f6",
+                        bgcolor: isDark
+                          ? "rgba(255, 255, 255, 0.16)"
+                          : "#eef2f6",
                       }}
                     />
                   )}
@@ -1610,7 +1733,7 @@ export function AdminDepartmentOperations() {
                       width: 12,
                       height: 12,
                       borderRadius: "50%",
-                      bgcolor: C.surface,
+                      bgcolor: isDark ? "#101A34" : C.surface,
                       border: `3px solid ${ev.color}`,
                       zIndex: 1,
                       boxShadow: today ? `0 0 0 4px ${ev.color}22` : "none",
@@ -1623,15 +1746,28 @@ export function AdminDepartmentOperations() {
                     px: 2,
                     py: 1.25,
                     borderRadius: "12px",
-                    bgcolor: ev.bg,
+                    bgcolor: isDark ? "rgba(255, 255, 255, 0.06)" : ev.bg,
+                    border: isDark
+                      ? "1px solid rgba(255, 255, 255, 0.12)"
+                      : "none",
                   }}
                 >
                   <Typography
-                    sx={{ fontSize: 14, fontWeight: 700, color: C.ink }}
+                    sx={{
+                      fontSize: 14,
+                      fontWeight: 700,
+                      color: isDark ? "#ffff" : C.ink,
+                    }}
                   >
                     {ev.title}
                   </Typography>
-                  <Typography sx={{ fontSize: 12, color: C.muted, mt: 0.25 }}>
+                  <Typography
+                    sx={{
+                      fontSize: 12,
+                      color: isDark ? "#ffff" : C.muted,
+                      mt: 0.25,
+                    }}
+                  >
                     {ev.detail}
                   </Typography>
                 </Box>

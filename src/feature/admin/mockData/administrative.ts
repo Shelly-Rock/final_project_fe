@@ -16,9 +16,9 @@ import type {
 // ====================================
 
 export const mockFaculties: Faculty[] = [
-  { id: "FAC_01", name: "Khoa Công nghệ thông tin" },
-  { id: "FAC_02", name: "Khoa Kỹ thuật máy tính" },
-  { id: "FAC_03", name: "Khoa Khoa học dữ liệu" },
+  { id: "FAC_01", name: "Khoa Công nghệ thông tin", isActive: true },
+  { id: "FAC_02", name: "Khoa Kỹ thuật máy tính", isActive: true },
+  { id: "FAC_03", name: "Khoa Khoa học dữ liệu", isActive: true },
 ];
 
 // ====================================
