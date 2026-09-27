@@ -3,8 +3,12 @@
 import React, { useMemo } from "react";
 import { Typography, useTheme } from "@mui/material";
 import { Badge } from "@/shared/components";
-import { Edit as EditIcon, Block } from "@mui/icons-material";
-import { Plus, RefreshCw, Download, Upload } from "lucide-react";
+import {
+  Edit as EditIcon,
+  Delete as DeleteIcon,
+  Visibility as ViewIcon,
+} from "@mui/icons-material";
+import { Plus, RefreshCw, Download, FileUp, Trash2 } from "lucide-react";
 import { DataTable } from "@/shared/components";
 import type { Column, Action, HeaderAction } from "@/shared/components";
 import type { Lecturer } from "@/feature/admin/types";
@@ -20,11 +24,10 @@ interface TeacherTableProps {
   departments?: { id: string; name: string }[];
   allFaculties?: { id: string; name: string }[];
   allDepartments?: { id: string; name: string; facultyId: string }[];
-  onEdit: (teacher: Lecturer) => void;
-  onToggleStatus: (
-    teacherId: number,
-    currentStatus: "active" | "inactive",
-  ) => void;
+  onView?: (teacher: Lecturer) => void;
+  onEdit?: (teacher: Lecturer) => void;
+  onDelete?: (teacher: Lecturer) => void;
+  onDeleteMany?: (teachers: Lecturer[]) => void;
   onRefresh?: () => void;
   onAdd?: () => void;
   onImport?: () => void;
@@ -39,35 +42,22 @@ const statusConfig = {
 export function TeacherTable({
   teachers,
   loading = false,
-  filterFaculty = "all",
-  filterDepartment = "all",
-  onFilterFacultyChange,
-  onFilterDepartmentChange,
   faculties = [],
   departments = [],
+  onView,
   onEdit,
-  onToggleStatus,
+  onDelete,
+  onDeleteMany,
   onRefresh,
   onAdd,
   onImport,
   onExport,
 }: TeacherTableProps) {
+  const [selectedKeys, setSelectedKeys] = React.useState<string[]>([]);
   const theme = useTheme();
   const isDarkMode = theme.palette.mode === "dark";
   const textColor = isDarkMode ? "#cbd5e1" : "#0F172A";
   const secondaryTextColor = isDarkMode ? "#94a3b8" : "#64748b";
-
-  // Build filter options for Faculty (for DataTable dropdown)
-  const facultyFilterOptions = [
-    { value: "all", label: "Tất cả Khoa" },
-    ...faculties.map((f) => ({ value: f.id, label: f.name })),
-  ];
-
-  // Build filter options for Department (cascading)
-  const departmentFilterOptions = [
-    { value: "all", label: "Tất cả Bộ môn" },
-    ...departments.map((d) => ({ value: d.id, label: d.name })),
-  ];
 
   // Memoized lookup helpers
   const getFacultyNameById = useMemo(() => {
@@ -171,28 +161,52 @@ export function TeacherTable({
 
   const actions: Action<Lecturer>[] = [
     {
+      id: "view",
+      icon: <ViewIcon fontSize="small" />,
+      label: "Xem chi tiết",
+      color: "inherit" as const,
+      onClick: (row) => onView?.(row),
+    },
+    {
       id: "edit",
       icon: <EditIcon fontSize="small" />,
       label: "Sửa",
       color: "primary" as const,
-      onClick: (row) => onEdit(row),
+      onClick: (row) => onEdit?.(row),
     },
     {
-      id: "toggleStatus",
-      icon: <Block fontSize="small" />,
-      label: "Khóa/Mở",
-      color: "inherit" as const,
-      onClick: (row) => onToggleStatus(row.id, row.status),
+      id: "delete",
+      icon: <DeleteIcon fontSize="small" />,
+      label: "Xóa",
+      color: "error" as const,
+      onClick: (row) => onDelete?.(row),
     },
   ];
 
   const headerActions: HeaderAction[] = [
+    ...(onDeleteMany && selectedKeys.length > 0
+      ? [
+          {
+            id: "delete-selected",
+            icon: <Trash2 size={16} />,
+            label: `Xóa ${selectedKeys.length} giảng viên`,
+            onClick: () => {
+              const selected = teachers.filter((teacher) =>
+                selectedKeys.includes(String(teacher.id)),
+              );
+              onDeleteMany(selected);
+              setSelectedKeys([]);
+            },
+            variant: "outlined" as const,
+          },
+        ]
+      : []),
     ...(onExport
       ? [
           {
             id: "export",
             icon: <Download size={16} />,
-            label: "Export Excel",
+            label: "Export",
             onClick: onExport,
             variant: "outlined" as const,
           },
@@ -202,8 +216,8 @@ export function TeacherTable({
       ? [
           {
             id: "import",
-            icon: <Upload size={16} />,
-            label: "Import Excel",
+            icon: <FileUp size={16} />,
+            label: "Import",
             onClick: onImport,
             variant: "outlined" as const,
           },
@@ -238,6 +252,9 @@ export function TeacherTable({
       columns={columns}
       rows={teachers}
       rowKey="id"
+      selectable={true}
+      selectedRowKeys={selectedKeys}
+      onSelectionChange={setSelectedKeys}
       actions={actions}
       headerActions={headerActions}
       showSearchInput={false}

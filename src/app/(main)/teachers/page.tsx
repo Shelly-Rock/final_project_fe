@@ -14,6 +14,7 @@ import {
 import {
   TeacherTable,
   TeacherFormDialog,
+  TeacherDetailDialog,
   ImportExcelDialog,
   exportTeachersToExcel,
 } from "@/feature/teacher/components";
@@ -47,7 +48,10 @@ export default function TeacherManagementPage() {
   const [teachers, setTeachers] = useState<Lecturer[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedTeacher, setSelectedTeacher] = useState<Lecturer | null>(null);
+  const [selectedViewTeacher, setSelectedViewTeacher] =
+    useState<Lecturer | null>(null);
   const [formDialogOpen, setFormDialogOpen] = useState(false);
+  const [detailDialogOpen, setDetailDialogOpen] = useState(false);
   const [formLoading, setFormLoading] = useState(false);
   const [importDialogOpen, setImportDialogOpen] = useState(false);
 
@@ -138,26 +142,62 @@ export default function TeacherManagementPage() {
     setFormDialogOpen(true);
   };
 
-  const handleToggleStatus = async (
-    teacherId: number,
-    currentStatus: "active" | "inactive",
-  ) => {
-    const teacher = teachers.find((t) => t.id === teacherId);
-    if (!teacher) return;
+  const getErrorMessage = (error: unknown, fallback: string) => {
+    if (typeof error === "object" && error !== null) {
+      const typedError = error as {
+        response?: { data?: { message?: string | string[] } };
+        message?: string;
+      };
+      const backendMessage = typedError.response?.data?.message;
+      return Array.isArray(backendMessage)
+        ? backendMessage.join("\n")
+        : backendMessage || typedError.message || fallback;
+    }
 
-    const newStatus = currentStatus === "active" ? "inactive" : "active";
-    const actionText = currentStatus === "active" ? "Tạm khóa" : "Kích hoạt";
+    return fallback;
+  };
+
+  const handleViewTeacher = async (teacher: Lecturer) => {
+    try {
+      const detail = await teacherService.getByCode(teacher.code);
+      setSelectedViewTeacher(detail);
+      setDetailDialogOpen(true);
+    } catch (error: unknown) {
+      toast.error(getErrorMessage(error, "Không thể tải thông tin giảng viên"));
+    }
+  };
+
+  const handleDeleteTeacher = async (teacher: Lecturer) => {
     const confirmed = window.confirm(
-      `Bạn có chắc muốn ${actionText.toLowerCase()} giảng viên này?`,
+      `Bạn có chắc muốn xóa giảng viên ${teacher.name}?`,
     );
     if (!confirmed) return;
 
     try {
-      await teacherService.toggleStatus(teacher.code, newStatus);
-      toast.success(`Đã ${actionText.toLowerCase()} giảng viên`);
+      await teacherService.delete(teacher.code);
+      toast.success("Xóa giảng viên thành công");
       refreshTeachers();
-    } catch {
-      toast.error("Không thể thay đổi trạng thái");
+    } catch (error: unknown) {
+      toast.error(getErrorMessage(error, "Xóa giảng viên thất bại"));
+    }
+  };
+
+  const handleDeleteManyTeachers = async (selectedTeachers: Lecturer[]) => {
+    if (!selectedTeachers.length) return;
+
+    const confirmed = window.confirm(
+      `Bạn có chắc muốn xóa ${selectedTeachers.length} giảng viên đã chọn?`,
+    );
+    if (!confirmed) return;
+
+    try {
+      await teacherService.deleteMany(
+        selectedTeachers.map((teacher) => teacher.code),
+      );
+      toast.success(`Đã xóa ${selectedTeachers.length} giảng viên`);
+      refreshTeachers();
+    } catch (error: unknown) {
+      toast.error(getErrorMessage(error, "Xóa giảng viên thất bại"));
     }
   };
 
@@ -188,20 +228,12 @@ export default function TeacherManagementPage() {
       refreshTeachers();
       toast.success(result.message || `Đã import ${result.count} giảng viên`);
     } catch (error: unknown) {
-      let message = "Import thất bại. Vui lòng kiểm tra lại file Excel.";
-
-      if (typeof error === "object" && error !== null) {
-        const typedError = error as {
-          response?: { data?: { message?: string | string[] } };
-          message?: string;
-        };
-        const backendMessage = typedError.response?.data?.message;
-        message = Array.isArray(backendMessage)
-          ? backendMessage.join("\n")
-          : backendMessage || typedError.message || message;
-      }
-
-      toast.error(message);
+      toast.error(
+        getErrorMessage(
+          error,
+          "Import thất bại. Vui lòng kiểm tra lại file Excel.",
+        ),
+      );
     }
   };
 
@@ -345,10 +377,10 @@ export default function TeacherManagementPage() {
         loading={loading}
         faculties={faculties}
         departments={availableDepartments}
-        allFaculties={faculties}
-        allDepartments={allDepartments}
+        onView={handleViewTeacher}
         onEdit={handleEditTeacher}
-        onToggleStatus={handleToggleStatus}
+        onDelete={handleDeleteTeacher}
+        onDeleteMany={handleDeleteManyTeachers}
         onAdd={handleCreateTeacher}
         onImport={() => setImportDialogOpen(true)}
         onExport={handleExport}
@@ -362,6 +394,17 @@ export default function TeacherManagementPage() {
         onSubmit={handleFormSubmit}
         teacher={selectedTeacher}
         loading={formLoading}
+        faculties={faculties}
+        departments={allDepartments}
+      />
+
+      <TeacherDetailDialog
+        open={detailDialogOpen}
+        onClose={() => {
+          setDetailDialogOpen(false);
+          setSelectedViewTeacher(null);
+        }}
+        teacher={selectedViewTeacher}
         faculties={faculties}
         departments={allDepartments}
       />

@@ -195,6 +195,10 @@ class TeacherApiService {
     await apiClient.delete(`/teachers/${code}`);
   }
 
+  async deleteMany(codes: string[]): Promise<void> {
+    await apiClient.delete("/teachers", { data: { codes } });
+  }
+
   async importFromFile(file: File): Promise<TeacherImportResponse> {
     const formData = new FormData();
     formData.append("file", file);
