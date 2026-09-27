@@ -17,13 +17,12 @@ import { RoleGate } from "@/shared/components/PermissionGuard/PermissionGuard";
 import { ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import {
-  BarChart,
-  Bar,
+  AreaChart,
+  Area,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
-  Legend,
   ResponsiveContainer,
 } from "recharts";
 import { useUserRole } from "@/shared/hooks/useUserRole";
@@ -35,11 +34,7 @@ import {
 } from "@/feature/dashboard/services/department.service";
 import { DepartmentDetailSecretary } from "@/feature/dashboard/components/DepartmentDetailSecretary";
 
-const STATUS_COLORS = {
-  pending: "#f59e0b",
-  approved: "#10b981",
-  rejected: "#ef4444",
-};
+const SYSTEM_BLUE = "#2563eb";
 
 const getCardBackground = (theme: Theme) => {
   const isDark = theme.palette.mode === "dark";
@@ -249,35 +244,85 @@ export default function DepartmentDetailPage() {
             </Typography>
           ) : (
             <ResponsiveContainer width="100%" height={400}>
-              <BarChart data={progressStats.series}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="label" />
-                <YAxis />
+              <AreaChart
+                data={progressStats.series.map((item) => ({
+                  ...item,
+                  total: item.pending + item.approved + item.rejected,
+                }))}
+              >
+                <defs>
+                  <linearGradient
+                    id="systemBlueArea"
+                    x1="0"
+                    y1="0"
+                    x2="0"
+                    y2="1"
+                  >
+                    <stop
+                      offset="5%"
+                      stopColor={SYSTEM_BLUE}
+                      stopOpacity={0.32}
+                    />
+                    <stop
+                      offset="95%"
+                      stopColor={SYSTEM_BLUE}
+                      stopOpacity={0.04}
+                    />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  stroke={
+                    theme.palette.mode === "dark"
+                      ? "rgba(255,255,255,0.12)"
+                      : "#e5e7eb"
+                  }
+                />
+                <XAxis
+                  dataKey="label"
+                  stroke={theme.palette.mode === "dark" ? "#ffff" : "#64748b"}
+                  tick={{
+                    fill: theme.palette.mode === "dark" ? "#ffff" : "#64748b",
+                  }}
+                />
+                <YAxis
+                  stroke={theme.palette.mode === "dark" ? "#ffff" : "#64748b"}
+                  tick={{
+                    fill: theme.palette.mode === "dark" ? "#ffff" : "#64748b",
+                  }}
+                  allowDecimals={false}
+                />
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: "rgba(255,255,255,0.95)",
-                    border: "1px solid #e5e7eb",
+                    backgroundColor:
+                      theme.palette.mode === "dark"
+                        ? "rgba(15, 23, 42, 0.95)"
+                        : "rgba(255,255,255,0.95)",
+                    border: `1px solid ${theme.palette.mode === "dark" ? "rgba(255,255,255,0.12)" : "#e5e7eb"}`,
                     borderRadius: "8px",
+                    color: theme.palette.mode === "dark" ? "#ffff" : "#0f172a",
                   }}
-                  formatter={(value) => value}
+                  labelStyle={{
+                    color: theme.palette.mode === "dark" ? "#ffff" : "#0f172a",
+                  }}
+                  formatter={(value) => [value, "Tổng báo cáo"]}
                 />
-                <Legend />
-                <Bar
-                  dataKey="pending"
-                  fill={STATUS_COLORS.pending}
-                  name="Chờ duyệt"
+                <Area
+                  type="monotone"
+                  dataKey="total"
+                  name="Tổng báo cáo"
+                  stroke={SYSTEM_BLUE}
+                  fill="url(#systemBlueArea)"
+                  strokeWidth={3}
+                  dot={{ r: 4, fill: SYSTEM_BLUE, stroke: SYSTEM_BLUE }}
+                  activeDot={{
+                    r: 6,
+                    fill: SYSTEM_BLUE,
+                    stroke: "#ffff",
+                    strokeWidth: 2,
+                  }}
                 />
-                <Bar
-                  dataKey="approved"
-                  fill={STATUS_COLORS.approved}
-                  name="Đã duyệt"
-                />
-                <Bar
-                  dataKey="rejected"
-                  fill={STATUS_COLORS.rejected}
-                  name="Từ chối"
-                />
-              </BarChart>
+              </AreaChart>
             </ResponsiveContainer>
           )}
         </MuiCard>
@@ -308,8 +353,8 @@ export default function DepartmentDetailPage() {
               >
                 <thead
                   style={{
-                    backgroundColor: "#f3f4f6",
-                    borderBottom: "1px solid #e5e7eb",
+                    backgroundColor: "#2563eb",
+                    borderBottom: "2px solid #1d4ed8",
                   }}
                 >
                   <tr>
@@ -317,8 +362,8 @@ export default function DepartmentDetailPage() {
                       style={{
                         padding: "12px 16px",
                         textAlign: "left",
-                        fontWeight: 600,
-                        color: "#374151",
+                        fontWeight: 700,
+                        color: "#ffffff",
                       }}
                     >
                       Tháng
@@ -327,8 +372,8 @@ export default function DepartmentDetailPage() {
                       style={{
                         padding: "12px 16px",
                         textAlign: "center",
-                        fontWeight: 600,
-                        color: "#374151",
+                        fontWeight: 700,
+                        color: "#ffffff",
                       }}
                     >
                       Chờ duyệt
@@ -337,8 +382,8 @@ export default function DepartmentDetailPage() {
                       style={{
                         padding: "12px 16px",
                         textAlign: "center",
-                        fontWeight: 600,
-                        color: "#374151",
+                        fontWeight: 700,
+                        color: "#ffffff",
                       }}
                     >
                       Đã duyệt
@@ -347,8 +392,8 @@ export default function DepartmentDetailPage() {
                       style={{
                         padding: "12px 16px",
                         textAlign: "center",
-                        fontWeight: 600,
-                        color: "#374151",
+                        fontWeight: 700,
+                        color: "#ffffff",
                       }}
                     >
                       Từ chối
@@ -357,8 +402,8 @@ export default function DepartmentDetailPage() {
                       style={{
                         padding: "12px 16px",
                         textAlign: "center",
-                        fontWeight: 600,
-                        color: "#374151",
+                        fontWeight: 700,
+                        color: "#ffffff",
                       }}
                     >
                       Tổng
