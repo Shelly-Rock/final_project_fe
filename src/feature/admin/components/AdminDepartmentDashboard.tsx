@@ -106,7 +106,11 @@ const DepartmentCard: React.FC<{ dept: DepartmentCardData }> = ({ dept }) => {
       className="rounded-lg hover:bg-surface-card/80 transition-all flex flex-col justify-between h-full shadow-md hover:shadow-lg cursor-pointer"
       style={{
         background: getCardBackground(theme),
-        border: isDark ? "none" : `1px solid ${theme.palette.divider}`,
+        border: isDark
+          ? "1px solid rgba(255, 255, 255, 0.12)"
+          : `1px solid ${theme.palette.divider}`,
+        borderRadius: "8px",
+        color: isDark ? "#ffff" : theme.palette.text.primary,
         padding: "12px",
         minHeight: "150px",
       }}
@@ -114,17 +118,13 @@ const DepartmentCard: React.FC<{ dept: DepartmentCardData }> = ({ dept }) => {
       <div>
         <div className="flex items-start justify-between mb-2.5">
           <div className="flex items-center gap-1.5">
-            <div
-              className="w-6 h-6 rounded flex items-center justify-center font-bold text-[12px]"
-              style={{
-                backgroundColor: color.accent + "20",
-                color: color.accent,
-              }}
-            >
-              {dept.abbr}
-            </div>
             <div>
-              <p className="text-[12px] font-bold leading-tight">{dept.name}</p>
+              <p
+                className="text-[12px] font-bold leading-tight"
+                style={{ color: isDark ? "#ffff" : theme.palette.text.primary }}
+              >
+                {dept.name}
+              </p>
               <span className="text-[12px] opacity-70 leading-tight">
                 {dept.totalProjects} ĐT • {dept.totalStudents} SV
               </span>
@@ -248,22 +248,21 @@ const StatCard = ({
         background: getCardBackground(theme),
         border: "1px solid",
         borderColor: "divider",
-        boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
+        boxShadow: "none",
+        color: "#fff",
       }}
     >
-      <CardContentDiv padding={3}>
+      <CardContentDiv padding={2}>
         <Box
           sx={{
             display: "flex",
             justifyContent: "space-between",
             alignItems: "flex-start",
-            mb: 1.5,
+            gap: 1.5,
+            mb: 1,
           }}
         >
-          <Typography
-            variant="caption"
-            sx={{ display: "block", opacity: 0.7, fontWeight: 500 }}
-          >
+          <Typography variant="body2" sx={{ color: "#fff" }}>
             {label}
           </Typography>
           {icon && (
@@ -274,25 +273,34 @@ const StatCard = ({
                 justifyContent: "center",
                 width: 32,
                 height: 32,
-                borderRadius: 1,
+                borderRadius: 1.5,
                 backgroundColor: `${iconColor}15`,
+                color: iconColor,
               }}
             >
-              <Box sx={{ color: iconColor, display: "flex", fontSize: 18 }}>
-                {icon}
-              </Box>
+              {icon}
             </Box>
           )}
         </Box>
-        <Typography variant="h5" sx={{ fontWeight: "bold", mb: 0.5 }}>
-          {value}
-        </Typography>
-        <Typography
-          variant="caption"
-          sx={{ display: "block", color: subtextColor, fontSize: "9px" }}
-        >
-          {subtext}
-        </Typography>
+
+        <Box sx={{ display: "flex", alignItems: "baseline", gap: 1 }}>
+          <Typography variant="h4" sx={{ fontWeight: 700, color: "#fff" }}>
+            {value}
+          </Typography>
+          <Typography variant="body2" sx={{ color: "#fff" }}>
+            {subtext}
+          </Typography>
+        </Box>
+
+        <Box
+          sx={{
+            mt: 1.5,
+            height: 4,
+            width: "100%",
+            borderRadius: 999,
+            backgroundColor: `${iconColor}30`,
+          }}
+        />
       </CardContentDiv>
     </Card>
   );
