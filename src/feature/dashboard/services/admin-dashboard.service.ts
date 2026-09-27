@@ -53,7 +53,10 @@ export interface DepartmentProjectStats {
 export interface DepartmentStats {
   id: string;
   name: string;
+  department_id?: string;
+  department_name?: string;
   faculty: string;
+  faculty_id?: string | null;
   secretary: string;
   teacherCount?: number;
   teachers?: number;

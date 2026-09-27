@@ -7,6 +7,8 @@ import {
   adminDashboardService,
   type DepartmentStats,
 } from "@/feature/dashboard/services/admin-dashboard.service";
+import { facultyService } from "@/feature/admin/services";
+import type { Faculty } from "@/feature/admin/types";
 import { AdminDepartmentOperations } from "./AdminDepartmentOperations";
 import { Card, CardContentDiv } from "@/shared/components/Card";
 import { Users, BookOpen, BarChart3, FileText, Eye } from "lucide-react";
@@ -17,6 +19,8 @@ interface DepartmentCardData {
   id: string;
   name: string;
   abbr: string;
+  facultyId: string | null;
+  facultyName: string;
   totalProjects: number;
   totalStudents: number;
   teacherCount: number;
@@ -27,6 +31,13 @@ interface DepartmentCardData {
   status: "on-time" | "delayed" | "warning";
   color: "blue" | "green" | "orange" | "purple";
   location: string;
+}
+
+interface FacultyGroup {
+  faculty: Faculty | null;
+  facultyId: string | null;
+  facultyName: string;
+  departments: DepartmentCardData[];
 }
 
 const departmentColors = {
@@ -320,7 +331,12 @@ export const AdminDepartmentDashboard: React.FC = () => {
     queryFn: () => adminDashboardService.getDepartmentStats(),
   });
 
-  const departments = useMemo(() => {
+  const { data: faculties } = useQuery({
+    queryKey: ["admin-faculties"],
+    queryFn: () => facultyService.getAll(),
+  });
+
+  const departmentCards = useMemo<DepartmentCardData[]>(() => {
     return (deptStats ?? []).map((dept, index) => {
       const totalProjects = getProjectsTotal(dept);
       const stageCount = getProjectsApproved(dept);
@@ -332,6 +348,8 @@ export const AdminDepartmentDashboard: React.FC = () => {
         id: dept.id,
         name: dept.name,
         abbr: getDepartmentAbbr(dept.id, dept.name),
+        facultyId: dept.faculty_id ?? null,
+        facultyName: dept.faculty || "Chưa rõ khoa",
         totalProjects,
         totalStudents: 0,
         teacherCount: getTeacherCount(dept),
@@ -350,6 +368,39 @@ export const AdminDepartmentDashboard: React.FC = () => {
       } satisfies DepartmentCardData;
     });
   }, [deptStats]);
+
+  // Gom bộ môn theo khoa. Khoa mới tạo chưa có bộ môn vẫn xuất hiện (danh sách rỗng)
+  // để admin thấy ngay khoa vừa thêm trên dashboard.
+  const facultyGroups = useMemo<FacultyGroup[]>(() => {
+    const facultyList = faculties ?? [];
+    const groups = new Map<string, FacultyGroup>();
+
+    facultyList.forEach((faculty) => {
+      groups.set(faculty.id, {
+        faculty,
+        facultyId: faculty.id,
+        facultyName: faculty.name,
+        departments: [],
+      });
+    });
+
+    departmentCards.forEach((dept) => {
+      const key = dept.facultyId ?? "__unassigned__";
+      if (!groups.has(key)) {
+        groups.set(key, {
+          faculty: null,
+          facultyId: dept.facultyId,
+          facultyName: dept.facultyName,
+          departments: [],
+        });
+      }
+      groups.get(key)?.departments.push(dept);
+    });
+
+    return Array.from(groups.values());
+  }, [faculties, departmentCards]);
+
+  const departments = departmentCards;
 
   const totalProjects = dashboardStats?.summary.totalProjects ?? 0;
   const totalStudents = dashboardStats?.summary.totalStudents ?? 0;
@@ -463,7 +514,7 @@ export const AdminDepartmentDashboard: React.FC = () => {
                 color: "#4ade80",
               }}
             >
-              LIVE • {departments.length} Khoa/Bộ môn
+              LIVE • {facultyGroups.length} Khoa • {departments.length} Bộ môn
             </span>
           </Box>
 
@@ -521,9 +572,9 @@ export const AdminDepartmentDashboard: React.FC = () => {
             iconColor="#8b5cf6"
           />
           <StatCard
-            label="Khoa/Bộ môn"
-            value={departments.length}
-            subtext={`${averageCompletionRate}% TB hoàn thành`}
+            label="Khoa"
+            value={facultyGroups.length}
+            subtext={`${departments.length} bộ môn`}
             subtextColor="success.main"
             icon={<BarChart3 size={18} />}
             iconColor="#f59e0b"
@@ -539,12 +590,81 @@ export const AdminDepartmentDashboard: React.FC = () => {
           }}
         ></div>
 
-        {/* Department Cards Grid - 4 columns */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
-          {departments.map((dept) => (
-            <DepartmentCard key={dept.id} dept={dept} />
-          ))}
-        </div>
+        {/* Department Cards grouped by faculty */}
+        {facultyGroups.length > 0 && (
+          <Typography variant="caption" sx={{ color: "text.secondary" }}>
+            Tỷ lệ đề tài đã duyệt trung bình: {averageCompletionRate}%
+          </Typography>
+        )}
+        {facultyGroups.map((group) => (
+          <Box key={group.facultyId ?? "__unassigned__"}>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 1.5,
+                mb: 1.5,
+              }}
+            >
+              <Typography
+                variant="subtitle1"
+                sx={{ fontWeight: 700, color: "text.primary" }}
+              >
+                {group.facultyName}
+              </Typography>
+              <Typography variant="caption" sx={{ color: "text.secondary" }}>
+                {group.departments.length} bộ môn
+              </Typography>
+              {group.facultyId && (
+                <Button
+                  size="small"
+                  variant="text"
+                  onClick={() =>
+                    router.push(
+                      `/department/faculties?facultyId=${encodeURIComponent(group.facultyId!)}`,
+                    )
+                  }
+                  sx={{ textTransform: "none", fontWeight: 600 }}
+                >
+                  Quản lý khoa
+                </Button>
+              )}
+            </Box>
+
+            {group.departments.length === 0 ? (
+              <div
+                className="rounded-lg flex items-center justify-center text-[12px] opacity-60"
+                style={{
+                  background: getCardBackground(theme),
+                  border: `1px dashed ${
+                    theme.palette.mode === "dark"
+                      ? "rgba(255, 255, 255, 0.12)"
+                      : theme.palette.divider
+                  }`,
+                  borderRadius: "8px",
+                  padding: "24px 12px",
+                }}
+              >
+                Khoa mới tạo — chưa có bộ môn nào
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+                {group.departments.map((dept) => (
+                  <DepartmentCard key={dept.id} dept={dept} />
+                ))}
+              </div>
+            )}
+          </Box>
+        ))}
+
+        {facultyGroups.length === 0 && (
+          <Typography
+            color="text.secondary"
+            sx={{ textAlign: "center", py: 4 }}
+          >
+            Chưa có khoa nào. Hãy tạo khoa tại trang Quản lý Khoa.
+          </Typography>
+        )}
 
         <AdminDepartmentOperations />
       </Box>

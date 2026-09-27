@@ -1,7 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Box, Button } from "@mui/material";
 import { ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
@@ -15,37 +16,53 @@ import type {
 import { RoleGate } from "@/shared/components/PermissionGuard/PermissionGuard";
 import { useUserRole } from "@/shared/hooks/useUserRole";
 
+const FACULTIES_QUERY_KEY = ["admin-faculties"] as const;
+// Xóa khoa có thể làm đổi số liệu "n bộ môn" trên dashboard
+const DEPARTMENT_RELATED_KEYS = [
+  "admin-faculties",
+  "admin-department-stats",
+  "admin-dashboard",
+  "secretary-department-list",
+] as const;
+
 function getErrorMessage(error: unknown, fallback: string) {
   return error instanceof Error ? error.message : fallback;
 }
 
 export default function FacultyManagementPage() {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const userRole = useUserRole();
   const isAdmin = userRole === "admin";
 
-  const [faculties, setFaculties] = useState<Faculty[]>([]);
-  const [loading, setLoading] = useState(true);
   const [selectedFaculty, setSelectedFaculty] = useState<Faculty | null>(null);
   const [formDialogOpen, setFormDialogOpen] = useState(false);
-  const [formLoading, setFormLoading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [searchValue, setSearchValue] = useState("");
   const [filterValue, setFilterValue] = useState("all");
 
-  const refreshFaculties = useCallback(() => {
-    setLoading(true);
-    facultyService
-      .getAll()
-      .then(setFaculties)
-      .catch((error) =>
-        toast.error(getErrorMessage(error, "Không thể tải danh sách khoa")),
-      )
-      .finally(() => setLoading(false));
-  }, []);
+  const { data: faculties = [], isLoading: loading } = useQuery({
+    queryKey: FACULTIES_QUERY_KEY,
+    queryFn: () => facultyService.getAll(),
+  });
 
-  useEffect(() => {
-    refreshFaculties();
-  }, [refreshFaculties]);
+  const invalidateRelated = useCallback(async () => {
+    await Promise.all(
+      DEPARTMENT_RELATED_KEYS.map((key) =>
+        queryClient.invalidateQueries({ queryKey: [key] }),
+      ),
+    );
+  }, [queryClient]);
+
+  const deleteMutation = useMutation({
+    mutationFn: (faculty: Faculty) => facultyService.delete(faculty.id),
+    onSuccess: async () => {
+      toast.success("Đã xóa khoa");
+      await invalidateRelated();
+    },
+    onError: (error) =>
+      toast.error(getErrorMessage(error, "Xóa khoa thất bại")),
+  });
 
   const displayedFaculties = useMemo(() => {
     const search = searchValue.trim().toLowerCase();
@@ -80,19 +97,13 @@ export default function FacultyManagementPage() {
     );
     if (!confirmed) return;
 
-    try {
-      await facultyService.delete(faculty.id);
-      toast.success("Đã xóa khoa");
-      refreshFaculties();
-    } catch (error) {
-      toast.error(getErrorMessage(error, "Xóa khoa thất bại"));
-    }
+    await deleteMutation.mutateAsync(faculty).catch(() => undefined);
   };
 
   const handleFormSubmit = async (
     data: CreateFacultyInput | UpdateFacultyInput,
   ) => {
-    setFormLoading(true);
+    setSubmitting(true);
     try {
       if (selectedFaculty) {
         await facultyService.update(
@@ -105,7 +116,7 @@ export default function FacultyManagementPage() {
         toast.success("Tạo khoa thành công");
       }
       setFormDialogOpen(false);
-      refreshFaculties();
+      await invalidateRelated();
     } catch (error) {
       toast.error(
         getErrorMessage(
@@ -114,7 +125,7 @@ export default function FacultyManagementPage() {
         ),
       );
     } finally {
-      setFormLoading(false);
+      setSubmitting(false);
     }
   };
 
@@ -156,7 +167,7 @@ export default function FacultyManagementPage() {
         <FacultyFormDialog
           open={formDialogOpen}
           faculty={selectedFaculty}
-          loading={formLoading}
+          loading={submitting}
           onClose={() => setFormDialogOpen(false)}
           onSubmit={handleFormSubmit}
         />
