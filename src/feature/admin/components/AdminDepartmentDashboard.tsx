@@ -10,7 +10,7 @@ import {
 import { AdminDepartmentOperations } from "./AdminDepartmentOperations";
 import { Card, CardContentDiv } from "@/shared/components/Card";
 import { Users, BookOpen, BarChart3, FileText, Eye } from "lucide-react";
-import { Box, Typography, useTheme } from "@mui/material";
+import { Box, Button, Typography, useTheme } from "@mui/material";
 import { getCardBackground } from "@/shared/constants/gradients";
 
 interface DepartmentCardData {
@@ -300,6 +300,7 @@ const StatCard = ({
 
 export const AdminDepartmentDashboard: React.FC = () => {
   const theme = useTheme();
+  const router = useRouter();
 
   const { data: dashboardStats, isLoading: statsLoading } = useQuery({
     queryKey: ["admin-dashboard"],
@@ -419,34 +420,64 @@ export const AdminDepartmentDashboard: React.FC = () => {
         {/* Status Indicator */}
         <Box
           sx={{
-            display: "inline-flex",
+            display: "flex",
             alignItems: "center",
-            gap: 1,
-            px: 2,
-            py: 0.5,
-            bgcolor: "emerald.500/10",
-            borderRadius: "9999px",
-            width: "fit-content",
+            justifyContent: "space-between",
+            gap: 2,
+            flexWrap: "wrap",
           }}
         >
-          <span
-            style={{
-              width: "6px",
-              height: "6px",
-              borderRadius: "50%",
-              backgroundColor: "#10b981",
-              animation: "pulse 2s infinite",
-            }}
-          />
-          <span
-            style={{
-              fontSize: "11px",
-              fontWeight: 500,
-              color: "#4ade80",
+          <Box
+            sx={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 1,
+              px: 2,
+              py: 0.5,
+              bgcolor: "emerald.500/10",
+              borderRadius: "9999px",
+              width: "fit-content",
             }}
           >
-            LIVE • {departments.length} Khoa/Bộ môn
-          </span>
+            <span
+              style={{
+                width: "6px",
+                height: "6px",
+                borderRadius: "50%",
+                backgroundColor: "#10b981",
+                animation: "pulse 2s infinite",
+              }}
+            />
+            <span
+              style={{
+                fontSize: "11px",
+                fontWeight: 500,
+                color: "#4ade80",
+              }}
+            >
+              LIVE • {departments.length} Khoa/Bộ môn
+            </span>
+          </Box>
+
+          <Button
+            variant="contained"
+            onClick={() => router.push("/department/faculties")}
+            sx={{
+              borderRadius: 2,
+              px: 2.5,
+              py: 0.75,
+              textTransform: "none",
+              fontWeight: 700,
+              backgroundColor: "#2563eb",
+              boxShadow: "0 8px 20px rgba(37, 99, 235, 0.24)",
+              "&:hover": {
+                backgroundColor: "#1d4ed8",
+                boxShadow: "0 10px 24px rgba(37, 99, 235, 0.3)",
+              },
+            }}
+          >
+            Quản lý Khoa
+          </Button>
         </Box>
 
         {/* KPI Stats Cards */}

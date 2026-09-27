@@ -4,7 +4,6 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Box } from "@mui/material";
 import { toast } from "sonner";
 import { FacultyFormDialog, FacultyTable } from "@/feature/admin/components";
-import { PageHeader } from "@/shared/components";
 import { facultyService } from "@/feature/admin/services";
 import type {
   CreateFacultyInput,
@@ -128,17 +127,6 @@ export default function FacultyManagementPage() {
       }
     >
       <Box sx={{ p: 3, width: "100%" }}>
-        <PageHeader
-          title="Quản lý Khoa"
-          subtitle="Tạo, cập nhật và theo dõi trạng thái các khoa trong hệ thống"
-          breadcrumbs={[
-            { label: "Dashboard Khoa", href: "/department" },
-            { label: "Quản lý Khoa" },
-          ]}
-          showBgImage={false}
-          sx={{ mb: 3 }}
-        />
-
         <FacultyTable
           faculties={displayedFaculties}
           loading={loading}
