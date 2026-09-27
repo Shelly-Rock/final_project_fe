@@ -75,6 +75,10 @@ export const teacherService = {
     await teacherApiService.remove(code);
   },
 
+  async deleteMany(codes: string[]): Promise<void> {
+    await teacherApiService.deleteMany(codes);
+  },
+
   /**
    * Import danh sách giảng viên từ file Excel
    */
