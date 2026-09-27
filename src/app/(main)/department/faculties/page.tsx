@@ -56,14 +56,14 @@ function FacultyManagementContent() {
     queryFn: () => facultyService.getAll(),
   });
 
-  // Đang mở chi tiết một khoa (dashboard bấm vào card khoa) -> hiện sidebar
+  // Đang mở chi tiết một khoa (dashboard bấm vào card khoa) -> hiện sidebar.
+  // Dùng trực tiếp focusFacultyId từ URL, không phụ thuộc vào danh sách
+  // faculties đã tải xong, để bấm card luôn ra đúng giao diện chi tiết.
   const [detailFacultyId, setDetailFacultyId] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!focusFacultyId) return;
-    if (!faculties.some((f) => f.id === focusFacultyId)) return;
     setDetailFacultyId(focusFacultyId);
-  }, [faculties, focusFacultyId]);
+  }, [focusFacultyId]);
 
   const closeDetail = useCallback(() => {
     setDetailFacultyId(null);
