@@ -1,7 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Box } from "@mui/material";
+import { useRouter } from "next/navigation";
+import { Box, Button } from "@mui/material";
+import { ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { FacultyFormDialog, FacultyTable } from "@/feature/admin/components";
 import { facultyService } from "@/feature/admin/services";
@@ -18,6 +20,7 @@ function getErrorMessage(error: unknown, fallback: string) {
 }
 
 export default function FacultyManagementPage() {
+  const router = useRouter();
   const userRole = useUserRole();
   const isAdmin = userRole === "admin";
 
@@ -127,6 +130,15 @@ export default function FacultyManagementPage() {
       }
     >
       <Box sx={{ p: 3, width: "100%" }}>
+        <Button
+          variant="outlined"
+          startIcon={<ArrowLeft size={18} />}
+          onClick={() => router.push("/department")}
+          sx={{ mb: 2, textTransform: "none", fontWeight: 600 }}
+        >
+          Quay lại
+        </Button>
+
         <FacultyTable
           faculties={displayedFaculties}
           loading={loading}
