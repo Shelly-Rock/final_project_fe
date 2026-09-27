@@ -6,7 +6,11 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Box, Button } from "@mui/material";
 import { ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
-import { FacultyFormDialog, FacultyTable } from "@/feature/admin/components";
+import {
+  FacultyDetailPanel,
+  FacultyFormDialog,
+  FacultyTable,
+} from "@/feature/admin/components";
 import { facultyService } from "@/feature/admin/services";
 import type {
   CreateFacultyInput,
@@ -20,6 +24,8 @@ const FACULTIES_QUERY_KEY = ["admin-faculties"] as const;
 // Xóa khoa có thể làm đổi số liệu "n bộ môn" trên dashboard
 const DEPARTMENT_RELATED_KEYS = [
   "admin-faculties",
+  "admin-faculty-stats",
+  "admin-faculty-detail",
   "admin-department-stats",
   "admin-dashboard",
   "secretary-department-list",
@@ -50,13 +56,21 @@ function FacultyManagementContent() {
     queryFn: () => facultyService.getAll(),
   });
 
+  // Đang mở chi tiết một khoa (dashboard bấm vào card khoa) -> hiện sidebar
+  const [detailFacultyId, setDetailFacultyId] = useState<string | null>(null);
+
   useEffect(() => {
     if (!focusFacultyId) return;
-    const target = faculties.find((f) => f.id === focusFacultyId);
-    if (!target) return;
-    setSelectedFaculty(target);
-    setFormDialogOpen(true);
+    if (!faculties.some((f) => f.id === focusFacultyId)) return;
+    setDetailFacultyId(focusFacultyId);
   }, [faculties, focusFacultyId]);
+
+  const closeDetail = useCallback(() => {
+    setDetailFacultyId(null);
+    if (focusFacultyId) {
+      router.replace("/department/faculties");
+    }
+  }, [focusFacultyId, router]);
 
   const invalidateRelated = useCallback(async () => {
     await Promise.all(
@@ -153,28 +167,37 @@ function FacultyManagementContent() {
       }
     >
       <Box sx={{ p: 3, width: "100%" }}>
-        <Button
-          variant="outlined"
-          startIcon={<ArrowLeft size={18} />}
-          onClick={() => router.push("/department")}
-          sx={{ mb: 2, textTransform: "none", fontWeight: 600 }}
-        >
-          Quay lại
-        </Button>
+        {detailFacultyId ? (
+          <FacultyDetailPanel
+            facultyId={detailFacultyId}
+            onBack={closeDetail}
+          />
+        ) : (
+          <>
+            <Button
+              variant="outlined"
+              startIcon={<ArrowLeft size={18} />}
+              onClick={() => router.push("/department")}
+              sx={{ mb: 2, textTransform: "none", fontWeight: 600 }}
+            >
+              Quay lại
+            </Button>
 
-        <FacultyTable
-          faculties={displayedFaculties}
-          loading={loading}
-          canCreate={isAdmin}
-          canDelete={isAdmin}
-          searchValue={searchValue}
-          onSearchChange={setSearchValue}
-          filterValue={filterValue}
-          onFilterChange={setFilterValue}
-          onCreate={handleCreate}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-        />
+            <FacultyTable
+              faculties={displayedFaculties}
+              loading={loading}
+              canCreate={isAdmin}
+              canDelete={isAdmin}
+              searchValue={searchValue}
+              onSearchChange={setSearchValue}
+              filterValue={filterValue}
+              onFilterChange={setFilterValue}
+              onCreate={handleCreate}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+            />
+          </>
+        )}
 
         <FacultyFormDialog
           open={formDialogOpen}

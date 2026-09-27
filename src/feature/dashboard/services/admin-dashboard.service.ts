@@ -44,10 +44,10 @@ export interface AdminDashboardStats {
 }
 
 export interface DepartmentProjectStats {
-  total?: number;
-  pending?: number;
-  approved?: number;
-  rejected?: number;
+  total: number;
+  pending: number;
+  approved: number;
+  rejected: number;
 }
 
 export interface DepartmentStats {
@@ -60,8 +60,48 @@ export interface DepartmentStats {
   secretary: string;
   teacherCount?: number;
   teachers?: number;
-  projects: number | DepartmentProjectStats;
+  projects: DepartmentProjectStats;
   topics?: number;
+  reports?: number;
+}
+
+export interface FacultyStats {
+  id: string;
+  name: string;
+  description: string | null;
+  is_active: boolean;
+  department_count: number;
+  teacher_count: number;
+  topic_count: number;
+  projects: {
+    total: number;
+    pending: number;
+    approved: number;
+    rejected: number;
+  };
+  reports: number;
+}
+
+export interface FacultyDetail {
+  faculty: {
+    id: string;
+    name: string;
+    description: string | null;
+    is_active: boolean;
+  };
+  summary: {
+    department_count: number;
+    teacher_count: number;
+    topic_count: number;
+    report_count: number;
+    projects: {
+      total: number;
+      pending: number;
+      approved: number;
+      rejected: number;
+    };
+  };
+  departments: DepartmentStats[];
 }
 
 class AdminDashboardService {
@@ -98,6 +138,16 @@ class AdminDashboardService {
 
   async getDepartmentStats(): Promise<DepartmentStats[]> {
     return apiClient.get<DepartmentStats[]>("/dashboard/admin/departments");
+  }
+
+  async getFacultyStats(): Promise<FacultyStats[]> {
+    return apiClient.get<FacultyStats[]>("/dashboard/admin/faculties");
+  }
+
+  async getFacultyDetail(facultyId: string): Promise<FacultyDetail> {
+    return apiClient.get<FacultyDetail>(
+      `/dashboard/admin/faculties/${encodeURIComponent(facultyId)}`,
+    );
   }
 }
 

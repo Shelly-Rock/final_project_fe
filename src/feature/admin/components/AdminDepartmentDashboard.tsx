@@ -1,63 +1,17 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React from "react";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import {
   adminDashboardService,
-  type DepartmentStats,
+  type FacultyStats,
 } from "@/feature/dashboard/services/admin-dashboard.service";
-import { facultyService } from "@/feature/admin/services";
-import type { Faculty } from "@/feature/admin/types";
 import { AdminDepartmentOperations } from "./AdminDepartmentOperations";
 import { Card, CardContentDiv } from "@/shared/components/Card";
 import { Users, BookOpen, BarChart3, FileText, Eye } from "lucide-react";
 import { Box, Button, Typography, useTheme } from "@mui/material";
 import { getCardBackground } from "@/shared/constants/gradients";
-
-interface DepartmentCardData {
-  id: string;
-  name: string;
-  abbr: string;
-  facultyId: string | null;
-  facultyName: string;
-  totalProjects: number;
-  totalStudents: number;
-  teacherCount: number;
-  councilCount: number;
-  completionRate: number;
-  stageDescription: string;
-  stageCount: number;
-  pendingProjects: number;
-  status: "on-time" | "delayed" | "warning";
-  color: "blue" | "green" | "orange" | "purple";
-  location: string;
-}
-
-interface FacultyGroup {
-  faculty: Faculty | null;
-  facultyId: string | null;
-  facultyName: string;
-  departments: DepartmentCardData[];
-}
-
-/** Dữ liệu hiển thị cho card KHOA (gom từ các bộ môn thuộc khoa) */
-interface FacultyCardData {
-  id: string;
-  name: string;
-  abbr: string;
-  description: string | null;
-  isActive: boolean;
-  departmentCount: number;
-  teacherCount: number;
-  totalProjects: number;
-  approvedProjects: number;
-  pendingProjects: number;
-  completionRate: number;
-  status: "on-time" | "delayed" | "warning";
-  statusLabel: string;
-  color: "blue" | "green" | "orange" | "purple";
-}
 
 const departmentColors = {
   blue: {
@@ -78,33 +32,10 @@ const departmentColors = {
   },
 };
 
-const colorOrder: DepartmentCardData["color"][] = [
-  "blue",
-  "green",
-  "orange",
-  "purple",
-];
+const colorOrder = ["blue", "green", "orange", "purple"] as const;
+type CardColor = (typeof colorOrder)[number];
 
-const getProjectsTotal = (dept: DepartmentStats) => {
-  if (typeof dept.projects === "number") return dept.projects;
-  return dept.projects?.total ?? 0;
-};
-
-const getProjectsApproved = (dept: DepartmentStats) => {
-  if (typeof dept.projects === "number") return dept.projects;
-  return dept.projects?.approved ?? 0;
-};
-
-const getProjectsPending = (dept: DepartmentStats) => {
-  if (typeof dept.projects === "number") return 0;
-  return dept.projects?.pending ?? 0;
-};
-
-const getTeacherCount = (dept: DepartmentStats) => {
-  return dept.teacherCount ?? dept.teachers ?? 0;
-};
-
-const getDepartmentAbbr = (id: string, name: string) => {
+const getFacultyAbbr = (id: string, name: string) => {
   const fromId = id.split("_").filter(Boolean).at(-1);
   if (fromId) return fromId.slice(0, 4).toUpperCase();
 
@@ -117,11 +48,32 @@ const getDepartmentAbbr = (id: string, name: string) => {
     .toUpperCase();
 };
 
-const FacultyCard: React.FC<{ faculty: FacultyCardData }> = ({ faculty }) => {
-  const color = departmentColors[faculty.color];
+const getFacultyStatusLabel = (rate: number, isActive: boolean) => {
+  if (!isActive) return "Tạm ngưng";
+  if (rate >= 80) return "Đúng tiến độ";
+  if (rate >= 60) return "Cảnh báo";
+  return "Trễ hạn";
+};
+
+const FacultyCard: React.FC<{
+  faculty: FacultyStats;
+  color: CardColor;
+}> = ({ faculty, color: colorKey }) => {
+  const color = departmentColors[colorKey];
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
   const router = useRouter();
+
+  const totalProjects = faculty.projects.total;
+  const approvedProjects = faculty.projects.approved;
+  const pendingProjects = faculty.projects.pending;
+  const teacherCount = faculty.teacher_count;
+  const departmentCount = faculty.department_count;
+  const completionRate = totalProjects
+    ? Math.round((approvedProjects / totalProjects) * 100)
+    : 0;
+  const abbr = getFacultyAbbr(faculty.id, faculty.name);
+  const statusLabel = getFacultyStatusLabel(completionRate, faculty.is_active);
 
   const openDetail = () => {
     router.push(
@@ -163,7 +115,7 @@ const FacultyCard: React.FC<{ faculty: FacultyCardData }> = ({ faculty }) => {
                 {faculty.name}
               </p>
               <span className="text-[12px] opacity-70 leading-tight">
-                {faculty.departmentCount} BM • {faculty.totalProjects} ĐT
+                {departmentCount} BM • {totalProjects} ĐT
               </span>
             </div>
           </div>
@@ -184,14 +136,14 @@ const FacultyCard: React.FC<{ faculty: FacultyCardData }> = ({ faculty }) => {
                 fill="none"
                 r="14"
                 stroke={color.accent}
-                strokeDasharray={`${faculty.completionRate}, 100`}
+                strokeDasharray={`${completionRate}, 100`}
                 strokeDashoffset="0"
                 strokeLinecap="round"
                 strokeWidth="3.5"
               />
             </svg>
             <span className="absolute inset-0 flex items-center justify-center text-[10px] font-bold leading-none">
-              {faculty.completionRate}%
+              {completionRate}%
             </span>
           </div>
         </div>
@@ -200,7 +152,7 @@ const FacultyCard: React.FC<{ faculty: FacultyCardData }> = ({ faculty }) => {
           <div className="flex justify-between text-[12px] font-medium opacity-70">
             <span>Đề tài đã duyệt</span>
             <span style={{ color: color.accent }} className="font-bold">
-              {faculty.approvedProjects}/{faculty.totalProjects}
+              {approvedProjects}/{totalProjects}
             </span>
           </div>
           <div className="grid grid-cols-4 gap-0.5 h-1">
@@ -210,7 +162,7 @@ const FacultyCard: React.FC<{ faculty: FacultyCardData }> = ({ faculty }) => {
                 className="rounded-full"
                 style={{
                   backgroundColor:
-                    stage <= Math.ceil(faculty.completionRate / 25)
+                    stage <= Math.ceil(completionRate / 25)
                       ? color.accent
                       : isDark
                         ? "rgba(100, 116, 139, 0.3)"
@@ -223,21 +175,21 @@ const FacultyCard: React.FC<{ faculty: FacultyCardData }> = ({ faculty }) => {
 
         <div className="flex items-center justify-between mt-2 pt-1 text-[12px]">
           <span className="opacity-70">
-            Chờ duyệt: <b>{faculty.pendingProjects}</b>
+            Chờ duyệt: <b>{pendingProjects}</b>
           </span>
           <span className="opacity-70">
-            GVHD: <b>{faculty.teacherCount}</b>
+            GVHD: <b>{teacherCount}</b>
           </span>
           <span style={{ color: color.accent }} className="font-semibold">
-            {faculty.statusLabel}
+            {statusLabel}
           </span>
         </div>
       </div>
 
       <div className="mt-2 pt-1 flex items-center justify-between">
         <span className="text-[12px] opacity-60 font-mono">
-          {faculty.abbr}
-          {faculty.isActive ? "" : " • Tạm ngưng"}
+          {abbr}
+          {faculty.is_active ? "" : " • Tạm ngưng"}
         </span>
         <button
           type="button"
@@ -349,140 +301,22 @@ export const AdminDepartmentDashboard: React.FC = () => {
     queryFn: () => adminDashboardService.getAdminStats(),
   });
 
-  const { data: deptStats, isLoading: deptLoading } = useQuery({
-    queryKey: ["admin-department-stats"],
-    queryFn: () => adminDashboardService.getDepartmentStats(),
+  const { data: facultyStats, isLoading: facultyLoading } = useQuery({
+    queryKey: ["admin-faculty-stats"],
+    queryFn: () => adminDashboardService.getFacultyStats(),
   });
 
-  const { data: faculties } = useQuery({
-    queryKey: ["admin-faculties"],
-    queryFn: () => facultyService.getAll(),
-  });
-
-  const departmentCards = useMemo<DepartmentCardData[]>(() => {
-    return (deptStats ?? []).map((dept, index) => {
-      const totalProjects = getProjectsTotal(dept);
-      const stageCount = getProjectsApproved(dept);
-      const completionRate = totalProjects
-        ? Math.round((stageCount / totalProjects) * 100)
-        : 0;
-
-      return {
-        id: dept.id,
-        name: dept.name,
-        abbr: getDepartmentAbbr(dept.id, dept.name),
-        facultyId: dept.faculty_id ?? null,
-        facultyName: dept.faculty || "Chưa rõ khoa",
-        totalProjects,
-        totalStudents: 0,
-        teacherCount: getTeacherCount(dept),
-        councilCount: 0,
-        completionRate,
-        stageDescription: "Đề tài đã duyệt",
-        stageCount,
-        pendingProjects: getProjectsPending(dept),
-        status:
-          completionRate >= 80
-            ? "on-time"
-            : completionRate >= 60
-              ? "warning"
-              : "delayed",
-        color: colorOrder[index % colorOrder.length],
-        location: dept.faculty || "Chưa rõ khoa",
-      } satisfies DepartmentCardData;
-    });
-  }, [deptStats]);
-
-  // Gom bộ môn theo khoa. Khoa mới tạo chưa có bộ môn vẫn xuất hiện (số liệu 0)
-  // để admin thấy ngay khoa vừa thêm trên dashboard.
-  const facultyGroups = useMemo<FacultyGroup[]>(() => {
-    const facultyList = faculties ?? [];
-    const groups = new Map<string, FacultyGroup>();
-
-    facultyList.forEach((faculty) => {
-      groups.set(faculty.id, {
-        faculty,
-        facultyId: faculty.id,
-        facultyName: faculty.name,
-        departments: [],
-      });
-    });
-
-    departmentCards.forEach((dept) => {
-      const key = dept.facultyId ?? "__unassigned__";
-      if (!groups.has(key)) {
-        groups.set(key, {
-          faculty: null,
-          facultyId: dept.facultyId,
-          facultyName: dept.facultyName,
-          departments: [],
-        });
-      }
-      groups.get(key)?.departments.push(dept);
-    });
-
-    return Array.from(groups.values());
-  }, [faculties, departmentCards]);
-
-  // Mỗi khoa -> một card, tổng hợp số liệu từ các bộ môn thuộc khoa.
-  const facultyCards = useMemo<FacultyCardData[]>(() => {
-    return facultyGroups.map((group, index) => {
-      const depts = group.departments;
-
-      const totalProjects = depts.reduce((sum, d) => sum + d.totalProjects, 0);
-      const approvedProjects = depts.reduce((sum, d) => sum + d.stageCount, 0);
-      const pendingProjects = depts.reduce(
-        (sum, d) => sum + d.pendingProjects,
-        0,
-      );
-      const teacherCount = depts.reduce((sum, d) => sum + d.teacherCount, 0);
-
-      const completionRate = totalProjects
-        ? Math.round((approvedProjects / totalProjects) * 100)
-        : 0;
-
-      const status: FacultyCardData["status"] =
-        completionRate >= 80
-          ? "on-time"
-          : completionRate >= 60
-            ? "warning"
-            : "delayed";
-
-      return {
-        id: group.facultyId ?? "__unassigned__",
-        name: group.facultyName,
-        abbr: getDepartmentAbbr(
-          group.facultyId ?? group.facultyName,
-          group.facultyName,
-        ),
-        description: group.faculty?.description ?? null,
-        isActive: group.faculty?.isActive ?? true,
-        departmentCount: depts.length,
-        teacherCount,
-        totalProjects,
-        approvedProjects,
-        pendingProjects,
-        completionRate,
-        status,
-        statusLabel: !group.faculty?.isActive
-          ? "Tạm ngưng"
-          : status === "on-time"
-            ? "Đúng tiến độ"
-            : status === "delayed"
-              ? "Trễ hạn"
-              : "Cảnh báo",
-        color: colorOrder[index % colorOrder.length],
-      } satisfies FacultyCardData;
-    });
-  }, [facultyGroups]);
-
-  const departments = departmentCards;
+  const facultyCards = facultyStats ?? [];
+  const departmentCount = facultyCards.reduce(
+    (sum, f) => sum + f.department_count,
+    0,
+  );
 
   const totalProjects = dashboardStats?.summary.totalProjects ?? 0;
   const totalStudents = dashboardStats?.summary.totalStudents ?? 0;
   const totalTeachers = dashboardStats?.summary.totalTeachers ?? 0;
 
-  if (statsLoading || deptLoading) {
+  if (statsLoading || facultyLoading) {
     return (
       <Box
         sx={{
@@ -584,7 +418,7 @@ export const AdminDepartmentDashboard: React.FC = () => {
                 color: "#4ade80",
               }}
             >
-              LIVE • {facultyCards.length} Khoa • {departments.length} Bộ môn
+              LIVE • {facultyCards.length} Khoa • {departmentCount} Bộ môn
             </span>
           </Box>
 
@@ -644,7 +478,7 @@ export const AdminDepartmentDashboard: React.FC = () => {
           <StatCard
             label="Khoa"
             value={facultyCards.length}
-            subtext={`${departments.length} bộ môn`}
+            subtext={`${departmentCount} bộ môn`}
             subtextColor="success.main"
             icon={<BarChart3 size={18} />}
             iconColor="#f59e0b"
@@ -662,8 +496,12 @@ export const AdminDepartmentDashboard: React.FC = () => {
 
         {/* Faculty Cards Grid - 4 columns */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
-          {facultyCards.map((faculty) => (
-            <FacultyCard key={faculty.id} faculty={faculty} />
+          {facultyCards.map((faculty, index) => (
+            <FacultyCard
+              key={faculty.id}
+              faculty={faculty}
+              color={colorOrder[index % colorOrder.length]}
+            />
           ))}
         </div>
 
