@@ -76,14 +76,12 @@ const FacultyCard: React.FC<{
   const statusLabel = getFacultyStatusLabel(completionRate, faculty.is_active);
 
   const openDetail = () => {
-    // Bấm card khoa -> mở thẳng trang bộ môn đầu tiên của khoa (giống
-    // dashboard của thư ký). Khoa chưa có bộ môn thì quay lại trang quản lý khoa.
-    const firstDepartmentId = faculty.department_ids?.[0];
-    router.push(
-      firstDepartmentId
-        ? `/department/${encodeURIComponent(firstDepartmentId)}`
-        : `/department/faculties?facultyId=${encodeURIComponent(faculty.id)}`,
-    );
+    // Bấm card khoa -> luôn mở trang /department/<id>.
+    // Ưu tiên bộ môn đầu tiên của khoa; khoa chưa có bộ môn thì dùng chính
+    // mã khoa (ví dụ khoa "3" -> /department/3). Không bao giờ rơi về
+    // /department/faculties?facultyId=...
+    const targetId = faculty.department_ids?.[0] ?? faculty.id;
+    router.push(`/department/${encodeURIComponent(targetId)}`);
   };
 
   return (
