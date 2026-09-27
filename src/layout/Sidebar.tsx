@@ -22,6 +22,17 @@ interface SidebarProps {
   onMobileClose?: () => void;
 }
 
+// Các route "home" của phần Khoa: hiển thị full-width, không dùng sidebar chính.
+// Sidebar chỉ hiện lại khi đi vào trang chi tiết (VD /department/faculties, /department/BM_KTPM)
+const HIDDEN_SIDEBAR_PREFIXES = ["/department"];
+
+export function shouldHideSidebar(pathname: string | null): boolean {
+  if (!pathname) return false;
+  return HIDDEN_SIDEBAR_PREFIXES.some(
+    (prefix) => pathname === prefix || pathname === `${prefix}/`,
+  );
+}
+
 export function Sidebar({
   collapsed = false,
   onToggle,
@@ -32,6 +43,8 @@ export function Sidebar({
   const { role } = usePermissionContext();
   const { departmentId } = useDepartmentContext();
   const isDesktop = useMediaQuery("(min-width: 1024px)");
+
+  const hidden = shouldHideSidebar(pathname);
 
   const menuSections = useMemo(() => {
     if (!role) return [];
@@ -87,6 +100,9 @@ export function Sidebar({
   const toggleSection = useCallback((key: string) => {
     setOpenSections((prev) => ({ ...prev, [key]: !prev[key] }));
   }, []);
+
+  // Trang home Khoa: ẩn hoàn toàn sidebar chính
+  if (hidden) return null;
 
   return (
     <>

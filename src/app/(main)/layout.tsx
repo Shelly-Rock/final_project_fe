@@ -4,10 +4,11 @@ import { useEffect, useState } from "react";
 import "@/styles/main.scss";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import { AppProviders } from "@/core/providers";
-import { Sidebar } from "@/layout/Sidebar";
+import { Sidebar, shouldHideSidebar } from "@/layout/Sidebar";
 import { Header, HeaderSlotProvider } from "@/layout/Header";
 import { ChatbotButton } from "@/shared/components/ChatbotButton/ChatbotButton";
 import { useSession } from "next-auth/react";
+import { usePathname } from "next/navigation";
 import { useMediaQuery } from "@/shared/hooks";
 
 export default function MainLayout({
@@ -20,6 +21,8 @@ export default function MainLayout({
   const [mounted, setMounted] = useState(false);
   const isMobile = useMediaQuery("(max-width: 1024px)");
   const { data: session, status } = useSession();
+  const pathname = usePathname();
+  const hideSidebar = shouldHideSidebar(pathname);
 
   useEffect(() => {
     setMounted(true);
@@ -82,7 +85,7 @@ export default function MainLayout({
       <HeaderSlotProvider>
         <div className="app-shell">
           {/* Mobile overlay */}
-          {mobileSidebarOpen && isMobile && (
+          {mobileSidebarOpen && isMobile && !hideSidebar && (
             <div
               className="sidebar-overlay"
               onClick={() => setMobileSidebarOpen(false)}
@@ -90,7 +93,7 @@ export default function MainLayout({
           )}
 
           {/* Mobile toggle button on header */}
-          {isMobile && (
+          {isMobile && !hideSidebar && (
             <button
               type="button"
               className="sidebar-mobile-toggle"
@@ -101,12 +104,14 @@ export default function MainLayout({
             </button>
           )}
 
-          <Sidebar
-            collapsed={sidebarCollapsed}
-            onToggle={() => setSidebarCollapsed((prev) => !prev)}
-            mobileOpen={mobileSidebarOpen}
-            onMobileClose={() => setMobileSidebarOpen(false)}
-          />
+          {!hideSidebar && (
+            <Sidebar
+              collapsed={sidebarCollapsed}
+              onToggle={() => setSidebarCollapsed((prev) => !prev)}
+              mobileOpen={mobileSidebarOpen}
+              onMobileClose={() => setMobileSidebarOpen(false)}
+            />
+          )}
           <div
             className={`app-main ${sidebarCollapsed ? "sidebar-collapsed" : ""}`}
           >
