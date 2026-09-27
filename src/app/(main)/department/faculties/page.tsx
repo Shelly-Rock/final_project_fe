@@ -1,7 +1,7 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Box, Button } from "@mui/material";
 import { ArrowLeft } from "lucide-react";
@@ -29,11 +29,15 @@ function getErrorMessage(error: unknown, fallback: string) {
   return error instanceof Error ? error.message : fallback;
 }
 
-export default function FacultyManagementPage() {
+function FacultyManagementContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const queryClient = useQueryClient();
   const userRole = useUserRole();
   const isAdmin = userRole === "admin";
+
+  // Dashboard điều hướng tới đây kèm facultyId để mở sẵn form sửa khoa đó
+  const focusFacultyId = searchParams.get("facultyId");
 
   const [selectedFaculty, setSelectedFaculty] = useState<Faculty | null>(null);
   const [formDialogOpen, setFormDialogOpen] = useState(false);
@@ -45,6 +49,14 @@ export default function FacultyManagementPage() {
     queryKey: FACULTIES_QUERY_KEY,
     queryFn: () => facultyService.getAll(),
   });
+
+  useEffect(() => {
+    if (!focusFacultyId) return;
+    const target = faculties.find((f) => f.id === focusFacultyId);
+    if (!target) return;
+    setSelectedFaculty(target);
+    setFormDialogOpen(true);
+  }, [faculties, focusFacultyId]);
 
   const invalidateRelated = useCallback(async () => {
     await Promise.all(
@@ -168,10 +180,24 @@ export default function FacultyManagementPage() {
           open={formDialogOpen}
           faculty={selectedFaculty}
           loading={submitting}
-          onClose={() => setFormDialogOpen(false)}
+          onClose={() => {
+            setFormDialogOpen(false);
+            setSelectedFaculty(null);
+            if (focusFacultyId) {
+              router.replace("/department/faculties");
+            }
+          }}
           onSubmit={handleFormSubmit}
         />
       </Box>
     </RoleGate>
+  );
+}
+
+export default function FacultyManagementPage() {
+  return (
+    <Suspense fallback={null}>
+      <FacultyManagementContent />
+    </Suspense>
   );
 }

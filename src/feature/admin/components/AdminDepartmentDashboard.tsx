@@ -28,6 +28,7 @@ interface DepartmentCardData {
   completionRate: number;
   stageDescription: string;
   stageCount: number;
+  pendingProjects: number;
   status: "on-time" | "delayed" | "warning";
   color: "blue" | "green" | "orange" | "purple";
   location: string;
@@ -38,6 +39,24 @@ interface FacultyGroup {
   facultyId: string | null;
   facultyName: string;
   departments: DepartmentCardData[];
+}
+
+/** Dữ liệu hiển thị cho card KHOA (gom từ các bộ môn thuộc khoa) */
+interface FacultyCardData {
+  id: string;
+  name: string;
+  abbr: string;
+  description: string | null;
+  isActive: boolean;
+  departmentCount: number;
+  teacherCount: number;
+  totalProjects: number;
+  approvedProjects: number;
+  pendingProjects: number;
+  completionRate: number;
+  status: "on-time" | "delayed" | "warning";
+  statusLabel: string;
+  color: "blue" | "green" | "orange" | "purple";
 }
 
 const departmentColors = {
@@ -76,6 +95,11 @@ const getProjectsApproved = (dept: DepartmentStats) => {
   return dept.projects?.approved ?? 0;
 };
 
+const getProjectsPending = (dept: DepartmentStats) => {
+  if (typeof dept.projects === "number") return 0;
+  return dept.projects?.pending ?? 0;
+};
+
 const getTeacherCount = (dept: DepartmentStats) => {
   return dept.teacherCount ?? dept.teachers ?? 0;
 };
@@ -93,14 +117,16 @@ const getDepartmentAbbr = (id: string, name: string) => {
     .toUpperCase();
 };
 
-const DepartmentCard: React.FC<{ dept: DepartmentCardData }> = ({ dept }) => {
-  const color = departmentColors[dept.color];
+const FacultyCard: React.FC<{ faculty: FacultyCardData }> = ({ faculty }) => {
+  const color = departmentColors[faculty.color];
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
   const router = useRouter();
 
   const openDetail = () => {
-    router.push(`/department/${encodeURIComponent(dept.id)}`);
+    router.push(
+      `/department/faculties?facultyId=${encodeURIComponent(faculty.id)}`,
+    );
   };
 
   return (
@@ -134,10 +160,10 @@ const DepartmentCard: React.FC<{ dept: DepartmentCardData }> = ({ dept }) => {
                 className="text-[12px] font-bold leading-tight"
                 style={{ color: isDark ? "#ffff" : theme.palette.text.primary }}
               >
-                {dept.name}
+                {faculty.name}
               </p>
               <span className="text-[12px] opacity-70 leading-tight">
-                {dept.totalProjects} ĐT • {dept.totalStudents} SV
+                {faculty.departmentCount} BM • {faculty.totalProjects} ĐT
               </span>
             </div>
           </div>
@@ -158,23 +184,23 @@ const DepartmentCard: React.FC<{ dept: DepartmentCardData }> = ({ dept }) => {
                 fill="none"
                 r="14"
                 stroke={color.accent}
-                strokeDasharray={`${dept.completionRate}, 100`}
+                strokeDasharray={`${faculty.completionRate}, 100`}
                 strokeDashoffset="0"
                 strokeLinecap="round"
                 strokeWidth="3.5"
               />
             </svg>
             <span className="absolute inset-0 flex items-center justify-center text-[10px] font-bold leading-none">
-              {dept.completionRate}%
+              {faculty.completionRate}%
             </span>
           </div>
         </div>
 
         <div className="mt-2 space-y-1">
           <div className="flex justify-between text-[12px] font-medium opacity-70">
-            <span>{dept.stageDescription}</span>
+            <span>Đề tài đã duyệt</span>
             <span style={{ color: color.accent }} className="font-bold">
-              {dept.stageCount}/{dept.totalProjects}
+              {faculty.approvedProjects}/{faculty.totalProjects}
             </span>
           </div>
           <div className="grid grid-cols-4 gap-0.5 h-1">
@@ -184,7 +210,7 @@ const DepartmentCard: React.FC<{ dept: DepartmentCardData }> = ({ dept }) => {
                 className="rounded-full"
                 style={{
                   backgroundColor:
-                    stage <= Math.ceil(dept.completionRate / 25)
+                    stage <= Math.ceil(faculty.completionRate / 25)
                       ? color.accent
                       : isDark
                         ? "rgba(100, 116, 139, 0.3)"
@@ -197,28 +223,25 @@ const DepartmentCard: React.FC<{ dept: DepartmentCardData }> = ({ dept }) => {
 
         <div className="flex items-center justify-between mt-2 pt-1 text-[12px]">
           <span className="opacity-70">
-            Hội đồng: <b>{dept.councilCount}</b>
+            Chờ duyệt: <b>{faculty.pendingProjects}</b>
           </span>
           <span className="opacity-70">
-            GVHD: <b>{dept.teacherCount}</b>
+            GVHD: <b>{faculty.teacherCount}</b>
           </span>
           <span style={{ color: color.accent }} className="font-semibold">
-            {dept.status === "on-time"
-              ? "Đúng tiến độ"
-              : dept.status === "delayed"
-                ? "Trễ hạn"
-                : "Cảnh báo"}
+            {faculty.statusLabel}
           </span>
         </div>
       </div>
 
       <div className="mt-2 pt-1 flex items-center justify-between">
         <span className="text-[12px] opacity-60 font-mono">
-          {dept.location}
+          {faculty.abbr}
+          {faculty.isActive ? "" : " • Tạm ngưng"}
         </span>
         <button
           type="button"
-          aria-label={`Xem chi tiết ${dept.name}`}
+          aria-label={`Xem chi tiết ${faculty.name}`}
           className="flex items-center justify-center transition-all hover:scale-110"
           style={{ color: color.accent }}
           onClick={(e) => {
@@ -357,6 +380,7 @@ export const AdminDepartmentDashboard: React.FC = () => {
         completionRate,
         stageDescription: "Đề tài đã duyệt",
         stageCount,
+        pendingProjects: getProjectsPending(dept),
         status:
           completionRate >= 80
             ? "on-time"
@@ -369,7 +393,7 @@ export const AdminDepartmentDashboard: React.FC = () => {
     });
   }, [deptStats]);
 
-  // Gom bộ môn theo khoa. Khoa mới tạo chưa có bộ môn vẫn xuất hiện (danh sách rỗng)
+  // Gom bộ môn theo khoa. Khoa mới tạo chưa có bộ môn vẫn xuất hiện (số liệu 0)
   // để admin thấy ngay khoa vừa thêm trên dashboard.
   const facultyGroups = useMemo<FacultyGroup[]>(() => {
     const facultyList = faculties ?? [];
@@ -400,17 +424,63 @@ export const AdminDepartmentDashboard: React.FC = () => {
     return Array.from(groups.values());
   }, [faculties, departmentCards]);
 
+  // Mỗi khoa -> một card, tổng hợp số liệu từ các bộ môn thuộc khoa.
+  const facultyCards = useMemo<FacultyCardData[]>(() => {
+    return facultyGroups.map((group, index) => {
+      const depts = group.departments;
+
+      const totalProjects = depts.reduce((sum, d) => sum + d.totalProjects, 0);
+      const approvedProjects = depts.reduce((sum, d) => sum + d.stageCount, 0);
+      const pendingProjects = depts.reduce(
+        (sum, d) => sum + d.pendingProjects,
+        0,
+      );
+      const teacherCount = depts.reduce((sum, d) => sum + d.teacherCount, 0);
+
+      const completionRate = totalProjects
+        ? Math.round((approvedProjects / totalProjects) * 100)
+        : 0;
+
+      const status: FacultyCardData["status"] =
+        completionRate >= 80
+          ? "on-time"
+          : completionRate >= 60
+            ? "warning"
+            : "delayed";
+
+      return {
+        id: group.facultyId ?? "__unassigned__",
+        name: group.facultyName,
+        abbr: getDepartmentAbbr(
+          group.facultyId ?? group.facultyName,
+          group.facultyName,
+        ),
+        description: group.faculty?.description ?? null,
+        isActive: group.faculty?.isActive ?? true,
+        departmentCount: depts.length,
+        teacherCount,
+        totalProjects,
+        approvedProjects,
+        pendingProjects,
+        completionRate,
+        status,
+        statusLabel: !group.faculty?.isActive
+          ? "Tạm ngưng"
+          : status === "on-time"
+            ? "Đúng tiến độ"
+            : status === "delayed"
+              ? "Trễ hạn"
+              : "Cảnh báo",
+        color: colorOrder[index % colorOrder.length],
+      } satisfies FacultyCardData;
+    });
+  }, [facultyGroups]);
+
   const departments = departmentCards;
 
   const totalProjects = dashboardStats?.summary.totalProjects ?? 0;
   const totalStudents = dashboardStats?.summary.totalStudents ?? 0;
   const totalTeachers = dashboardStats?.summary.totalTeachers ?? 0;
-  const averageCompletionRate = departments.length
-    ? Math.round(
-        departments.reduce((sum, dept) => sum + dept.completionRate, 0) /
-          departments.length,
-      )
-    : 0;
 
   if (statsLoading || deptLoading) {
     return (
@@ -514,7 +584,7 @@ export const AdminDepartmentDashboard: React.FC = () => {
                 color: "#4ade80",
               }}
             >
-              LIVE • {facultyGroups.length} Khoa • {departments.length} Bộ môn
+              LIVE • {facultyCards.length} Khoa • {departments.length} Bộ môn
             </span>
           </Box>
 
@@ -573,7 +643,7 @@ export const AdminDepartmentDashboard: React.FC = () => {
           />
           <StatCard
             label="Khoa"
-            value={facultyGroups.length}
+            value={facultyCards.length}
             subtext={`${departments.length} bộ môn`}
             subtextColor="success.main"
             icon={<BarChart3 size={18} />}
@@ -590,74 +660,14 @@ export const AdminDepartmentDashboard: React.FC = () => {
           }}
         ></div>
 
-        {/* Department Cards grouped by faculty */}
-        {facultyGroups.length > 0 && (
-          <Typography variant="caption" sx={{ color: "text.secondary" }}>
-            Tỷ lệ đề tài đã duyệt trung bình: {averageCompletionRate}%
-          </Typography>
-        )}
-        {facultyGroups.map((group) => (
-          <Box key={group.facultyId ?? "__unassigned__"}>
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                gap: 1.5,
-                mb: 1.5,
-              }}
-            >
-              <Typography
-                variant="subtitle1"
-                sx={{ fontWeight: 700, color: "text.primary" }}
-              >
-                {group.facultyName}
-              </Typography>
-              <Typography variant="caption" sx={{ color: "text.secondary" }}>
-                {group.departments.length} bộ môn
-              </Typography>
-              {group.facultyId && (
-                <Button
-                  size="small"
-                  variant="text"
-                  onClick={() =>
-                    router.push(
-                      `/department/faculties?facultyId=${encodeURIComponent(group.facultyId!)}`,
-                    )
-                  }
-                  sx={{ textTransform: "none", fontWeight: 600 }}
-                >
-                  Quản lý khoa
-                </Button>
-              )}
-            </Box>
+        {/* Faculty Cards Grid - 4 columns */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+          {facultyCards.map((faculty) => (
+            <FacultyCard key={faculty.id} faculty={faculty} />
+          ))}
+        </div>
 
-            {group.departments.length === 0 ? (
-              <div
-                className="rounded-lg flex items-center justify-center text-[12px] opacity-60"
-                style={{
-                  background: getCardBackground(theme),
-                  border: `1px dashed ${
-                    theme.palette.mode === "dark"
-                      ? "rgba(255, 255, 255, 0.12)"
-                      : theme.palette.divider
-                  }`,
-                  borderRadius: "8px",
-                  padding: "24px 12px",
-                }}
-              >
-                Khoa mới tạo — chưa có bộ môn nào
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
-                {group.departments.map((dept) => (
-                  <DepartmentCard key={dept.id} dept={dept} />
-                ))}
-              </div>
-            )}
-          </Box>
-        ))}
-
-        {facultyGroups.length === 0 && (
+        {facultyCards.length === 0 && (
           <Typography
             color="text.secondary"
             sx={{ textAlign: "center", py: 4 }}
