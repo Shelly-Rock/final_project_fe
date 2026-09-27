@@ -187,11 +187,20 @@ export default function TeacherManagementPage() {
       const result = await teacherService.importFile(file);
       refreshTeachers();
       toast.success(result.message || `Đã import ${result.count} giảng viên`);
-    } catch (error) {
-      const message =
-        error?.response?.data?.message ||
-        error?.message ||
-        "Import thất bại. Vui lòng kiểm tra lại file Excel.";
+    } catch (error: unknown) {
+      let message = "Import thất bại. Vui lòng kiểm tra lại file Excel.";
+
+      if (typeof error === "object" && error !== null) {
+        const typedError = error as {
+          response?: { data?: { message?: string | string[] } };
+          message?: string;
+        };
+        const backendMessage = typedError.response?.data?.message;
+        message = Array.isArray(backendMessage)
+          ? backendMessage.join("\n")
+          : backendMessage || typedError.message || message;
+      }
+
       toast.error(message);
     }
   };

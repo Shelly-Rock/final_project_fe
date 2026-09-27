@@ -202,7 +202,6 @@ class TeacherApiService {
     const { data } = await apiClient.post<TeacherImportResponse>(
       "/teachers/import",
       formData,
-      { headers: { "Content-Type": "multipart/form-data" } },
     );
     return data;
   }
