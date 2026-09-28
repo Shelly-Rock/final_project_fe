@@ -40,6 +40,27 @@ export interface UserWithRoles {
   }[];
 }
 
+/** Tài khoản thư ký được liên kết 1-1 với một khoa. */
+export interface SecretaryAccount {
+  id: number;
+  userId: number;
+  secretaryId: string;
+  username: string;
+  email: string;
+  facultyId: string;
+  facultyName: string;
+  isActive: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface SecretaryAccountInput {
+  username?: string;
+  email?: string;
+  password?: string;
+  facultyId: string;
+}
+
 export interface PaginatedResult<T> {
   data: T[];
   total: number;
@@ -107,6 +128,78 @@ class RoleService {
       role_ids: roleIds,
     });
     return response.data;
+  }
+
+  // ==================== SECRETARY ACCOUNTS ====================
+
+  private mapSecretary(raw: any): SecretaryAccount {
+    const user = raw?.user ?? {};
+    const faculty = raw?.faculty ?? {};
+    return {
+      id: Number(raw?.id ?? raw?.secretary_id ?? 0),
+      userId: Number(raw?.userId ?? raw?.user_id ?? user?.id ?? 0),
+      secretaryId: String(
+        raw?.secretaryId ?? raw?.secretary_id ?? raw?.id ?? "",
+      ),
+      username: String(raw?.username ?? user?.username ?? ""),
+      email: String(raw?.email ?? user?.email ?? ""),
+      facultyId: String(raw?.facultyId ?? raw?.faculty_id ?? faculty?.id ?? ""),
+      facultyName: String(
+        raw?.facultyName ?? raw?.faculty_name ?? faculty?.name ?? "",
+      ),
+      isActive: Boolean(
+        raw?.isActive ?? raw?.is_active ?? user?.is_active ?? true,
+      ),
+      createdAt: raw?.createdAt ?? raw?.created_at,
+      updatedAt: raw?.updatedAt ?? raw?.updated_at,
+    };
+  }
+
+  private toSecretaryPayload(input: SecretaryAccountInput) {
+    return {
+      ...(input.username ? { username: input.username } : {}),
+      ...(input.email ? { email: input.email } : {}),
+      ...(input.password ? { password: input.password } : {}),
+      faculty_id: input.facultyId,
+    };
+  }
+
+  async getSecretaryAccounts(): Promise<SecretaryAccount[]> {
+    const response: any = await apiClient.get("/users/secretaries", {
+      params: { page: 1, limit: 100 },
+    });
+    const payload = response?.data ?? response;
+    const rows = Array.isArray(payload)
+      ? payload
+      : Array.isArray(payload?.data)
+        ? payload.data
+        : [];
+    return rows.map((row: any) => this.mapSecretary(row));
+  }
+
+  async createSecretaryAccount(
+    input: SecretaryAccountInput,
+  ): Promise<SecretaryAccount> {
+    const response: any = await apiClient.post(
+      "/users/secretaries",
+      this.toSecretaryPayload(input),
+    );
+    return this.mapSecretary(response?.data ?? response);
+  }
+
+  async updateSecretaryAccount(
+    id: number,
+    input: SecretaryAccountInput,
+  ): Promise<SecretaryAccount> {
+    const response: any = await apiClient.patch(
+      `/users/secretaries/${id}`,
+      this.toSecretaryPayload(input),
+    );
+    return this.mapSecretary(response?.data ?? response);
+  }
+
+  async deleteSecretaryAccount(id: number): Promise<void> {
+    await apiClient.delete(`/users/secretaries/${id}`);
   }
 
   // ==================== ME ====================

@@ -44,6 +44,7 @@ import {
 import { ROLE_COLORS, type Role } from "@/core/permissions/types";
 import { Dialog } from "@/shared/components/Dialog";
 import { MultiSelect } from "@/shared/components/Select";
+import { SecretaryAccountsTab } from "@/feature/role/components/SecretaryAccountsTab";
 
 // ---------- Helpers ----------
 
@@ -732,6 +733,11 @@ export default function RolePermissionsPage() {
             iconPosition="start"
             label="Tài khoản & vai trò"
           />
+          <Tab
+            icon={<Users size={16} />}
+            iconPosition="start"
+            label="Thư ký khoa"
+          />
         </Tabs>
         <Box sx={{ p: 2.5 }}>
           {tab === 0 && (
@@ -742,6 +748,7 @@ export default function RolePermissionsPage() {
             />
           )}
           {tab === 1 && <UsersTab roles={roles} />}
+          {tab === 2 && <SecretaryAccountsTab />}
         </Box>
       </Paper>
     </Box>
