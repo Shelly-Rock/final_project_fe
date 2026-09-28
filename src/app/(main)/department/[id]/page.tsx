@@ -28,11 +28,11 @@ import {
 import { useUserRole } from "@/shared/hooks/useUserRole";
 import { ROLE } from "@/core/permissions/types";
 import {
-  departmentService,
-  DepartmentSummary,
-  DepartmentProgressStats,
+  facultyService,
+  FacultySummary,
+  FacultyProgressStats,
 } from "@/feature/dashboard/services/department.service";
-import { DepartmentDetailSecretary } from "@/feature/dashboard/components/DepartmentDetailSecretary";
+import { FacultyDetailSecretary } from "@/feature/dashboard/components/DepartmentDetailSecretary";
 
 const SYSTEM_BLUE = "#2563eb";
 
@@ -46,13 +46,13 @@ const getCardBackground = (theme: Theme) => {
 export default function DepartmentDetailPage() {
   const router = useRouter();
   const params = useParams();
-  const departmentId = params.id as string;
+  const facultyId = params.id as string;
   const userRole = useUserRole();
   const theme = useTheme();
 
-  const [department, setDepartment] = useState<DepartmentSummary | null>(null);
+  const [department, setDepartment] = useState<FacultySummary | null>(null);
   const [progressStats, setProgressStats] =
-    useState<DepartmentProgressStats | null>(null);
+    useState<FacultyProgressStats | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -60,11 +60,11 @@ export default function DepartmentDetailPage() {
       setLoading(true);
       try {
         if (userRole === ROLE.SECRETARY) {
-          // Secretary view is handled by DepartmentDetailSecretary component
+          // Secretary view is handled by FacultyDetailSecretary component
         } else {
           const [deptData, statsData] = await Promise.all([
-            departmentService.getDepartmentDetail(departmentId),
-            departmentService.getDepartmentProgressStats(departmentId),
+            facultyService.getFacultyDetail(facultyId),
+            facultyService.getFacultyProgressStats(facultyId),
           ]);
           setDepartment(deptData);
           setProgressStats(statsData);
@@ -78,7 +78,7 @@ export default function DepartmentDetailPage() {
       }
     };
     fetchData();
-  }, [departmentId, userRole]);
+  }, [facultyId, userRole]);
 
   if (loading) {
     return (
@@ -89,7 +89,7 @@ export default function DepartmentDetailPage() {
   }
 
   if (userRole === ROLE.SECRETARY) {
-    return <DepartmentDetailSecretary />;
+    return <FacultyDetailSecretary />;
   }
 
   if (!department || !progressStats) {
@@ -119,7 +119,7 @@ export default function DepartmentDetailPage() {
             Quay lại
           </Button>
           <PageHeader
-            title={`${department.department_name}`}
+            title={`${department.faculty_name}`}
             subtitle="Thống kê tiến độ và báo cáo của khoa"
             showBgImage
           />

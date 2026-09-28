@@ -27,8 +27,8 @@ import { PageHeader } from "@/shared/components";
 import { ArrowLeft } from "lucide-react";
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 import {
-  departmentService,
-  DepartmentSecretaryDetail,
+  facultyService,
+  FacultySecretaryDetail,
 } from "../services/department.service";
 
 const STATUS_COLORS = {
@@ -113,14 +113,15 @@ const StatCard = ({
   );
 };
 
-export const DepartmentDetailSecretary = () => {
+export const FacultyDetailSecretary = () => {
   const router = useRouter();
   const params = useParams();
-  const departmentId = params.id as string;
+  const facultyId = params.id as string;
   const theme = useTheme();
 
-  const [department, setDepartment] =
-    useState<DepartmentSecretaryDetail | null>(null);
+  const [department, setDepartment] = useState<FacultySecretaryDetail | null>(
+    null,
+  );
   const [loading, setLoading] = useState(true);
   const [openAddTopic, setOpenAddTopic] = useState(false);
 
@@ -128,8 +129,7 @@ export const DepartmentDetailSecretary = () => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const data =
-          await departmentService.getDepartmentSecretaryDetail(departmentId);
+        const data = await facultyService.getFacultySecretaryDetail(facultyId);
         setDepartment(data);
       } catch (e: unknown) {
         console.error("Error fetching department detail:", e);
@@ -139,7 +139,7 @@ export const DepartmentDetailSecretary = () => {
       }
     };
     fetchData();
-  }, [departmentId]);
+  }, [facultyId]);
 
   if (loading) {
     return (
@@ -178,9 +178,9 @@ export const DepartmentDetailSecretary = () => {
     <Box sx={{ p: 3, width: "100%" }}>
       {/* Page Header */}
       <PageHeader
-        title={department.departmentName}
+        title={department.facultyName}
         subtitle="Cổng quản lý, theo dõi thống kê và báo cáo tiến độ đề tài NCKH, đồ án chuyên ngành cấp khoa."
-        badge={`Mã BM: ${department.departmentCode}`}
+        badge={`Mã BM: ${department.facultyCode}`}
         showBackButton
         onBack={() => router.back()}
         showBgImage

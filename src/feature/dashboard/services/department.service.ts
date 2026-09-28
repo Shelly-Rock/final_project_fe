@@ -63,14 +63,14 @@ export interface FacultySecretaryDetail {
 class FacultyService {
   async getFaculties(): Promise<FacultySummary[]> {
     const response = await apiClient.get<{ data: FacultySummary[] }>(
-      "/dashboard/department",
+      "/dashboard/faculty",
     );
     return response.data;
   }
 
   async getFacultyDetail(facultyId: string): Promise<FacultySummary> {
     const response = await apiClient.get<{ data: FacultySummary }>(
-      `/dashboard/department/${encodeURIComponent(facultyId)}`,
+      `/dashboard/faculty/${encodeURIComponent(facultyId)}`,
     );
     return response.data;
   }
@@ -79,7 +79,7 @@ class FacultyService {
     facultyId: string,
   ): Promise<FacultyProgressStats> {
     const response = await apiClient.get<{ data: FacultyProgressStats }>(
-      `/dashboard/department/${encodeURIComponent(facultyId)}/progress-reports`,
+      `/dashboard/faculty/${encodeURIComponent(facultyId)}/progress-reports`,
     );
     return response.data;
   }
@@ -88,21 +88,21 @@ class FacultyService {
     facultyId: string,
   ): Promise<FacultySecretaryDetail> {
     const response = await apiClient.get<{ data: FacultySecretaryDetail }>(
-      `/dashboard/department/${encodeURIComponent(facultyId)}/secretary-detail`,
+      `/dashboard/faculty/${encodeURIComponent(facultyId)}/secretary-detail`,
     );
     return response.data;
   }
 
   async getSecretaryFacultyOverview(): Promise<SecretaryFacultyOverview> {
     const response = await apiClient.get<{ data: SecretaryFacultyOverview }>(
-      `/dashboard/secretary/department-overview`,
+      `/dashboard/secretary/faculty-overview`,
     );
     return response.data;
   }
 
   async getSecretaryFacultyTopics(): Promise<FacultyTopic[]> {
     const response = await apiClient.get<{ data: FacultyTopic[] }>(
-      `/dashboard/secretary/department-topics`,
+      `/dashboard/secretary/faculty-topics`,
     );
     return response.data;
   }

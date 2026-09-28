@@ -6,7 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useUserRole } from "@/shared/hooks/useUserRole";
 import { RoleGate } from "@/shared/components/PermissionGuard/PermissionGuard";
 import { AdminDepartmentDashboard } from "@/feature/admin/components";
-import { departmentService } from "@/feature/dashboard/services/department.service";
+import { facultyService } from "@/feature/dashboard/services/department.service";
 
 export default function DepartmentPage() {
   const router = useRouter();
@@ -14,22 +14,22 @@ export default function DepartmentPage() {
 
   const { data: departments, isLoading } = useQuery({
     queryKey: ["secretary-department-list"],
-    queryFn: () => departmentService.getDepartments(),
+    queryFn: () => facultyService.getFaculties(),
     enabled: userRole === "secretary",
   });
 
   useEffect(() => {
     if (userRole !== "secretary" || isLoading) return;
-    const departmentId = departments?.[0]?.department_id;
-    if (departmentId) {
-      router.replace(`/department/${encodeURIComponent(departmentId)}`);
+    const facultyId = departments?.[0]?.faculty_id;
+    if (facultyId) {
+      router.replace(`/department/${encodeURIComponent(facultyId)}`);
     }
   }, [departments, isLoading, router, userRole]);
 
   if (userRole === "secretary") {
     if (isLoading) return null;
 
-    if (!departments?.[0]?.department_id) {
+    if (!departments?.[0]?.faculty_id) {
       return (
         <div className="w-full p-3 text-center">
           <h6 className="text-red-600">Thư ký chưa được gán bộ môn/khoa</h6>

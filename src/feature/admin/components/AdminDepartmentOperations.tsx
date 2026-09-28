@@ -227,7 +227,7 @@ async function loadOperations() {
     limit: 100,
     totalPages: 0,
     periodId: period.id,
-    facets: { statuses: [], faculties: [], departments: [], teachers: [] },
+    facets: { statuses: [], faculties: [], teachers: [] },
   });
   const teacherPage = settled(results[1], {
     items: [] as TeacherOverrideRow[],
