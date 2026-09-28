@@ -70,10 +70,7 @@ export interface FacultyStats {
   name: string;
   description: string | null;
   is_active: boolean;
-  department_count: number;
   teacher_count: number;
-  topic_count: number;
-  department_ids: string[];
   projects: {
     total: number;
     pending: number;
@@ -91,7 +88,6 @@ export interface FacultyDetail {
     is_active: boolean;
   };
   summary: {
-    department_count: number;
     teacher_count: number;
     topic_count: number;
     report_count: number;
@@ -102,7 +98,6 @@ export interface FacultyDetail {
       rejected: number;
     };
   };
-  departments: DepartmentStats[];
 }
 
 class AdminDashboardService {

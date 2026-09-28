@@ -68,7 +68,6 @@ const FacultyCard: React.FC<{
   const approvedProjects = faculty.projects.approved;
   const pendingProjects = faculty.projects.pending;
   const teacherCount = faculty.teacher_count;
-  const departmentCount = faculty.department_count;
   const completionRate = totalProjects
     ? Math.round((approvedProjects / totalProjects) * 100)
     : 0;
@@ -76,12 +75,8 @@ const FacultyCard: React.FC<{
   const statusLabel = getFacultyStatusLabel(completionRate, faculty.is_active);
 
   const openDetail = () => {
-    // Bấm card khoa -> luôn mở trang /department/<id>.
-    // Ưu tiên bộ môn đầu tiên của khoa; khoa chưa có bộ môn thì dùng chính
-    // mã khoa (ví dụ khoa "3" -> /department/3). Không bao giờ rơi về
-    // /department/faculties?facultyId=...
-    const targetId = faculty.department_ids?.[0] ?? faculty.id;
-    router.push(`/department/${encodeURIComponent(targetId)}`);
+    // Card khoa luôn dẫn tới /department/<mã khoa>.
+    router.push(`/department/${encodeURIComponent(faculty.id)}`);
   };
 
   return (
@@ -118,7 +113,7 @@ const FacultyCard: React.FC<{
                 {faculty.name}
               </p>
               <span className="text-[12px] opacity-70 leading-tight">
-                {departmentCount} BM • {totalProjects} ĐT
+                {totalProjects} ĐT • {teacherCount} GV
               </span>
             </div>
           </div>
@@ -310,10 +305,7 @@ export const AdminDepartmentDashboard: React.FC = () => {
   });
 
   const facultyCards = facultyStats ?? [];
-  const departmentCount = facultyCards.reduce(
-    (sum, f) => sum + f.department_count,
-    0,
-  );
+  const departmentCount = facultyCards.length;
 
   const totalProjects = dashboardStats?.summary.totalProjects ?? 0;
   const totalStudents = dashboardStats?.summary.totalStudents ?? 0;
@@ -421,7 +413,7 @@ export const AdminDepartmentDashboard: React.FC = () => {
                 color: "#4ade80",
               }}
             >
-              LIVE • {facultyCards.length} Khoa • {departmentCount} Bộ môn
+              LIVE • {facultyCards.length} Khoa • {totalProjects} ĐT
             </span>
           </Box>
 
@@ -481,7 +473,7 @@ export const AdminDepartmentDashboard: React.FC = () => {
           <StatCard
             label="Khoa"
             value={facultyCards.length}
-            subtext={`${departmentCount} bộ môn`}
+            subtext="Toàn hệ thống"
             subtextColor="success.main"
             icon={<BarChart3 size={18} />}
             iconColor="#f59e0b"
