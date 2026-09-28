@@ -154,7 +154,7 @@ export const FacultyDetailSecretary = () => {
       <Box sx={{ p: 3 }}>
         <Button
           startIcon={<ArrowLeft size={20} />}
-          onClick={() => router.back()}
+          onClick={() => router.push("/department")}
         >
           Quay lại
         </Button>
@@ -182,7 +182,7 @@ export const FacultyDetailSecretary = () => {
         subtitle="Cổng quản lý, theo dõi thống kê và báo cáo tiến độ đề tài NCKH, đồ án chuyên ngành cấp khoa."
         badge={`Mã BM: ${department.facultyCode}`}
         showBackButton
-        onBack={() => router.back()}
+        onBack={() => router.push("/department")}
         showBgImage
       />
 

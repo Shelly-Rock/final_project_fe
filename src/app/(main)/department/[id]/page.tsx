@@ -97,7 +97,7 @@ export default function DepartmentDetailPage() {
       <Box sx={{ p: 3 }}>
         <Button
           startIcon={<ArrowLeft size={20} />}
-          onClick={() => router.back()}
+          onClick={() => router.push("/department")}
           sx={{ mb: 2 }}
         >
           Quay lại
@@ -113,7 +113,7 @@ export default function DepartmentDetailPage() {
         <Box sx={{ mb: 3 }}>
           <Button
             startIcon={<ArrowLeft size={20} />}
-            onClick={() => router.back()}
+            onClick={() => router.push("/department")}
             sx={{ mb: 2 }}
           >
             Quay lại

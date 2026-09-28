@@ -221,6 +221,7 @@ export function TopicManageTable() {
 
   useEffect(() => {
     setFacultyId((current) => {
+      if (scopedFacultyId) return scopedFacultyId;
       if (!current) return current;
       return facultyOptions.some((option) => option.value === current)
         ? current
@@ -232,7 +233,7 @@ export function TopicManageTable() {
         ? current
         : "";
     });
-  }, [facultyOptions, teacherOptions]);
+  }, [facultyOptions, scopedFacultyId, teacherOptions]);
 
   useEffect(() => {
     setPage(0);
@@ -477,6 +478,7 @@ export function TopicManageTable() {
           size="small"
           value={facultyId}
           onChange={setFacultyId}
+          disabled={!!scopedFacultyId}
           options={[{ value: "", label: "Tất cả khoa" }, ...facultyOptions]}
         />
       </Box>
@@ -541,7 +543,7 @@ export function TopicManageTable() {
         <Button
           variant="outlined"
           onClick={() => {
-            setFacultyId("");
+            setFacultyId(scopedFacultyId);
             setTeacherId("");
             setStatus("");
             setRegistrationStatus("");
