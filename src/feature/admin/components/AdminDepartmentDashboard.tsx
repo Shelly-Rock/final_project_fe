@@ -224,6 +224,11 @@ const StatCard = ({
   iconColor = "#3b82f6",
 }: StatCardProps) => {
   const theme = useTheme();
+  const isDark = theme.palette.mode === "dark";
+  const primaryText = isDark ? "#fff" : theme.palette.text.primary;
+  const secondaryText = isDark
+    ? "rgba(255, 255, 255, 0.72)"
+    : theme.palette.text.secondary;
 
   return (
     <Card
@@ -233,7 +238,7 @@ const StatCard = ({
         border: "1px solid",
         borderColor: "divider",
         boxShadow: "none",
-        color: "#fff",
+        color: primaryText,
       }}
     >
       <CardContentDiv padding={2}>
@@ -246,7 +251,7 @@ const StatCard = ({
             mb: 1,
           }}
         >
-          <Typography variant="body2" sx={{ color: "#fff" }}>
+          <Typography variant="body2" sx={{ color: primaryText }}>
             {label}
           </Typography>
           {icon && (
@@ -268,10 +273,10 @@ const StatCard = ({
         </Box>
 
         <Box sx={{ display: "flex", alignItems: "baseline", gap: 1 }}>
-          <Typography variant="h4" sx={{ fontWeight: 700, color: "#fff" }}>
+          <Typography variant="h4" sx={{ fontWeight: 700, color: primaryText }}>
             {value}
           </Typography>
-          <Typography variant="body2" sx={{ color: "#fff" }}>
+          <Typography variant="body2" sx={{ color: secondaryText }}>
             {subtext}
           </Typography>
         </Box>
