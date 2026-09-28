@@ -317,9 +317,13 @@ class PeriodService {
   // TEACHER QUOTA MANAGEMENT
   // ============================================================
 
-  async getTeacherQuotas(periodId: number): Promise<TeacherQuota[]> {
+  async getTeacherQuotas(
+    periodId: number,
+    facultyId?: string,
+  ): Promise<TeacherQuota[]> {
     const response = await apiClient.get<ApiResponse<BackendTeacherQuota[]>>(
       `/registration-periods/${periodId}/teacher-quotas`,
+      { params: facultyId ? { facultyId } : undefined },
     );
     const quotas = unwrap(response)
       .map(mapTeacherQuota)
@@ -361,8 +365,8 @@ class PeriodService {
   // TOPIC MODERATION
   // ============================================================
 
-  async getTopics(periodId: number): Promise<Topic[]> {
-    const topics = await this.loadAllManagedTopics(periodId);
+  async getTopics(periodId: number, facultyId?: string): Promise<Topic[]> {
+    const topics = await this.loadAllManagedTopics(periodId, facultyId);
     this.topics = [
       ...this.topics.filter((topic) => topic.periodId !== periodId),
       ...topics,
@@ -534,12 +538,19 @@ class PeriodService {
     };
   }
 
-  private async loadAllManagedTopics(periodId: number): Promise<Topic[]> {
-    const firstPage = await this.getManagedTopicPage(periodId, 1);
+  private async loadAllManagedTopics(
+    periodId: number,
+    facultyId?: string,
+  ): Promise<Topic[]> {
+    const firstPage = await this.getManagedTopicPage(periodId, 1, facultyId);
     const topics = firstPage.items.map(mapTopic);
 
     for (let page = 2; page <= firstPage.totalPages; page += 1) {
-      const nextPage = await this.getManagedTopicPage(periodId, page);
+      const nextPage = await this.getManagedTopicPage(
+        periodId,
+        page,
+        facultyId,
+      );
       topics.push(...nextPage.items.map(mapTopic));
     }
 
@@ -552,12 +563,14 @@ class PeriodService {
   private async getManagedTopicPage(
     periodId: number,
     page: number,
+    facultyId?: string,
   ): Promise<BackendManagedTopicPage> {
     const response = await apiClient.get<ApiResponse<BackendManagedTopicPage>>(
       "/topics/manage",
       {
         params: {
           periodId,
+          facultyId,
           page,
           limit: 100,
           sortBy: "createdAt",

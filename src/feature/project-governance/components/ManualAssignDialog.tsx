@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import {
   Alert,
   Box,
@@ -31,6 +32,8 @@ export function ManualAssignDialog({
   onClose,
   onSaved,
 }: ManualAssignDialogProps) {
+  const searchParams = useSearchParams();
+  const facultyId = searchParams.get("facultyId") || undefined;
   const [search, setSearch] = useState("");
   const debounced = useDebouncedValue(search, 400);
   const [students, setStudents] = useState<StudentWithoutTopic[]>([]);
@@ -47,6 +50,7 @@ export function ManualAssignDialog({
     try {
       const response = await topicManageService.studentsWithoutTopic({
         periodId: topic.periodId,
+        facultyId,
         search: debounced.trim() || undefined,
         page: 1,
         limit: 100,
@@ -59,7 +63,7 @@ export function ManualAssignDialog({
     } finally {
       setLoading(false);
     }
-  }, [debounced, open, topic]);
+  }, [debounced, facultyId, open, topic]);
 
   useEffect(() => {
     if (!open) return;

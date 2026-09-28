@@ -361,6 +361,7 @@ export interface TopicManageParams {
 
 export interface SearchPeriodEntityParams {
   periodId: number;
+  facultyId?: string;
   search?: string;
   page?: number;
   limit?: number;

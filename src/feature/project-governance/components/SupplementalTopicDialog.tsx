@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import {
   Alert,
   Box,
@@ -32,6 +33,8 @@ export function SupplementalTopicDialog({
   onClose,
   onCreated,
 }: SupplementalTopicDialogProps) {
+  const searchParams = useSearchParams();
+  const facultyId = searchParams.get("facultyId") || undefined;
   const [teachers, setTeachers] = useState<TeacherWithQuota[]>([]);
   const [teacherId, setTeacherId] = useState("");
   const [name, setName] = useState("");
@@ -53,6 +56,7 @@ export function SupplementalTopicDialog({
     try {
       const response = await topicManageService.teachersWithQuota({
         periodId,
+        facultyId,
         page: 1,
         limit: 100,
       });
@@ -64,7 +68,7 @@ export function SupplementalTopicDialog({
     } finally {
       setLoadingTeachers(false);
     }
-  }, [open, periodId]);
+  }, [facultyId, open, periodId]);
 
   const loadStudents = useCallback(async () => {
     if (!open || !periodId) return;
@@ -72,6 +76,7 @@ export function SupplementalTopicDialog({
     try {
       const response = await topicManageService.studentsWithoutTopic({
         periodId,
+        facultyId,
         search: debouncedStudentSearch.trim() || undefined,
         page: 1,
         limit: 100,
@@ -84,7 +89,7 @@ export function SupplementalTopicDialog({
     } finally {
       setLoadingStudents(false);
     }
-  }, [debouncedStudentSearch, open, periodId]);
+  }, [debouncedStudentSearch, facultyId, open, periodId]);
 
   useEffect(() => {
     if (!open) return;

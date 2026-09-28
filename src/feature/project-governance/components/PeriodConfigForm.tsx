@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import {
   Alert,
   Box,
@@ -53,6 +54,8 @@ const getCardBackground = (theme: Theme): string => {
 };
 
 export function PeriodConfigForm() {
+  const searchParams = useSearchParams();
+  const facultyId = searchParams.get("facultyId") || undefined;
   const muiTheme = useTheme();
   const isDark = muiTheme.palette.mode === "dark";
   const [periods, setPeriods] = useState<PeriodOption[]>([]);
@@ -74,7 +77,13 @@ export function PeriodConfigForm() {
   const loadPeriods = useCallback(async () => {
     setLoadingPeriods(true);
     try {
-      const items = await periodService.getAll();
+      const items = await periodService.getAll({
+        search: "",
+        semester: "all",
+        schoolYear: "all",
+        status: "all",
+        facultyId,
+      });
       const options: PeriodOption[] = items.map((period) => ({
         id: period.id,
         name: period.name,
@@ -96,7 +105,7 @@ export function PeriodConfigForm() {
     } finally {
       setLoadingPeriods(false);
     }
-  }, []);
+  }, [facultyId]);
 
   const loadConfig = useCallback(async (periodId: number) => {
     setLoadingConfig(true);

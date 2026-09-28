@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import {
   Alert,
   Box,
@@ -38,6 +39,8 @@ export function ForceEditTopicDialog({
   onClose,
   onSaved,
 }: ForceEditTopicDialogProps) {
+  const searchParams = useSearchParams();
+  const facultyId = searchParams.get("facultyId") || undefined;
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [maxStudents, setMaxStudents] = useState("1");
@@ -62,7 +65,12 @@ export function ForceEditTopicDialog({
     let active = true;
     setLoadingTeachers(true);
     topicManageService
-      .teachersWithQuota({ periodId: topic.periodId, page: 1, limit: 100 })
+      .teachersWithQuota({
+        periodId: topic.periodId,
+        facultyId,
+        page: 1,
+        limit: 100,
+      })
       .then((response) => {
         if (!active) return;
         const items = [...response.items];

@@ -100,7 +100,13 @@ export function TopicManageTable() {
   useEffect(() => {
     let active = true;
     periodService
-      .getAll()
+      .getAll({
+        search: "",
+        semester: "all",
+        schoolYear: "all",
+        status: "all",
+        facultyId: scopedFacultyId || undefined,
+      })
       .then((items) => {
         if (!active) return;
         setPeriods(items.map((p) => ({ id: p.id, name: p.name })));
@@ -119,7 +125,7 @@ export function TopicManageTable() {
     return () => {
       active = false;
     };
-  }, []);
+  }, [scopedFacultyId]);
 
   const requestIdRef = useRef(0);
   const exportingRef = useRef(false);

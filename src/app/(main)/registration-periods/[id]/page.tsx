@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { Box, useTheme } from "@mui/material";
 import {
   QuotaAdjustDialog,
@@ -34,6 +34,8 @@ export default function PeriodDetailPage() {
   const theme = useTheme();
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const facultyId = searchParams.get("facultyId") || undefined;
   const periodId = Number(params.id);
 
   // Period state
@@ -93,27 +95,27 @@ export default function PeriodDetailPage() {
   const loadQuotas = useCallback(async () => {
     setQuotaLoading(true);
     try {
-      const data = await periodService.getTeacherQuotas(periodId);
+      const data = await periodService.getTeacherQuotas(periodId, facultyId);
       setQuotas(data);
     } catch {
       toast.error("Không thể tải chỉ tiêu giảng viên");
     } finally {
       setQuotaLoading(false);
     }
-  }, [periodId]);
+  }, [facultyId, periodId]);
 
   // Load topics
   const loadTopics = useCallback(async () => {
     setTopicLoading(true);
     try {
-      const data = await periodService.getTopics(periodId);
+      const data = await periodService.getTopics(periodId, facultyId);
       setTopics(data);
     } catch {
       toast.error("Không thể tải danh sách đề tài");
     } finally {
       setTopicLoading(false);
     }
-  }, [periodId]);
+  }, [facultyId, periodId]);
 
   // Load exception requests
   const loadExceptionRequests = useCallback(async () => {
