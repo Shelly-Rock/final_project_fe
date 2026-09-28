@@ -23,7 +23,7 @@ import {
   type CreateLecturerInput,
   type UpdateLecturerInput,
 } from "@/feature/admin/types";
-import { facultyService, departmentService } from "@/feature/admin/services";
+import { facultyService } from "@/feature/admin/services";
 import { teacherService } from "@/feature/teacher/services/teacher.service";
 import { HeaderTools } from "@/layout/Header";
 import { Search, Filter } from "lucide-react";
@@ -34,15 +34,8 @@ interface Faculty {
   name: string;
 }
 
-interface Department {
-  id: string;
-  name: string;
-  facultyId: string;
-}
-
 export default function TeacherManagementPage() {
   const searchParams = useSearchParams();
-  const scopedDepartmentId = searchParams.get("departmentId");
 
   // Lecturers state
   const [teachers, setTeachers] = useState<Lecturer[]>([]);
@@ -55,22 +48,14 @@ export default function TeacherManagementPage() {
   const [formLoading, setFormLoading] = useState(false);
   const [importDialogOpen, setImportDialogOpen] = useState(false);
 
-  // Filter state - cascading Faculty -> Department
+  // Filter state by faculty
   const [filterFaculty, setFilterFaculty] = useState("all");
-  const [filterDepartment, setFilterDepartment] = useState(
-    scopedDepartmentId || "all",
-  );
   const [search, setSearch] = useState("");
   const [khoaAnchorEl, setKhoaAnchorEl] = useState<HTMLElement | null>(null);
 
   // Faculty/Department from API
   const [faculties, setFaculties] = useState<Faculty[]>([]);
-  const [allDepartments, setAllDepartments] = useState<Department[]>([]);
   const [loadingFaculties, setLoadingFaculties] = useState(true);
-
-  useEffect(() => {
-    setFilterDepartment(scopedDepartmentId || "all");
-  }, [scopedDepartmentId]);
 
   // Load faculties on mount
   useEffect(() => {
@@ -84,30 +69,8 @@ export default function TeacherManagementPage() {
       .finally(() => setLoadingFaculties(false));
   }, []);
 
-  // Load departments when faculties change
-  useEffect(() => {
-    if (faculties.length === 0) return;
-    departmentService
-      .getAll()
-      .then(setAllDepartments)
-      .catch(() => {
-        toast.error("Không thể tải danh sách bộ môn");
-        setAllDepartments([]);
-      });
-  }, [faculties]);
-
-  // Derived departments based on selected faculty
-  const availableDepartments = useMemo(() => {
-    if (filterFaculty === "all") {
-      return allDepartments;
-    }
-    return allDepartments.filter((d) => d.facultyId === filterFaculty);
-  }, [filterFaculty, allDepartments]);
-
-  // Reset department filter when faculty changes
   const handleFacultyChange = (facultyId: string) => {
     setFilterFaculty(facultyId);
-    setFilterDepartment(scopedDepartmentId || "all");
   };
 
   // Refresh teachers list
@@ -116,12 +79,11 @@ export default function TeacherManagementPage() {
     teacherService
       .getAll({
         facultyId: filterFaculty === "all" ? undefined : filterFaculty,
-        departmentId: filterDepartment === "all" ? undefined : filterDepartment,
       })
       .then(({ teachers }) => setTeachers(teachers))
       .catch(() => toast.error("Không thể tải danh sách giảng viên"))
       .finally(() => setLoading(false));
-  }, [filterFaculty, filterDepartment]);
+  }, [filterFaculty]);
 
   // Initial load & re-filter when filter changes
   useEffect(() => {
@@ -238,7 +200,7 @@ export default function TeacherManagementPage() {
   };
 
   const handleExport = () => {
-    exportTeachersToExcel(teachers, faculties, allDepartments);
+    exportTeachersToExcel(teachers, faculties);
     toast.success("Đã xuất file Excel");
   };
 
@@ -319,14 +281,10 @@ export default function TeacherManagementPage() {
               onClick={(e) => setKhoaAnchorEl(e.currentTarget)}
               sx={{
                 color:
-                  filterFaculty !== "all" || scopedDepartmentId
-                    ? "primary.main"
-                    : "text.secondary",
+                  filterFaculty !== "all" ? "primary.main" : "text.secondary",
                 border: "1px solid",
                 borderColor:
-                  filterFaculty !== "all" || scopedDepartmentId
-                    ? "primary.main"
-                    : "divider",
+                  filterFaculty !== "all" ? "primary.main" : "divider",
                 borderRadius: 2,
                 width: 36,
                 height: 36,
@@ -335,7 +293,7 @@ export default function TeacherManagementPage() {
               <Badge
                 color="primary"
                 variant="dot"
-                invisible={filterFaculty === "all" && !scopedDepartmentId}
+                invisible={filterFaculty === "all"}
               >
                 <Filter size={16} />
               </Badge>
@@ -353,7 +311,6 @@ export default function TeacherManagementPage() {
                 handleFacultyChange("all");
                 setKhoaAnchorEl(null);
               }}
-              disabled={!!scopedDepartmentId}
             >
               Tất cả khoa
             </MenuItem>
@@ -376,7 +333,6 @@ export default function TeacherManagementPage() {
         teachers={filteredTeachers}
         loading={loading}
         faculties={faculties}
-        departments={availableDepartments}
         onView={handleViewTeacher}
         onEdit={handleEditTeacher}
         onDelete={handleDeleteTeacher}
@@ -395,7 +351,6 @@ export default function TeacherManagementPage() {
         teacher={selectedTeacher}
         loading={formLoading}
         faculties={faculties}
-        departments={allDepartments}
       />
 
       <TeacherDetailDialog
@@ -406,7 +361,6 @@ export default function TeacherManagementPage() {
         }}
         teacher={selectedViewTeacher}
         faculties={faculties}
-        departments={allDepartments}
       />
 
       <ImportExcelDialog
@@ -414,7 +368,6 @@ export default function TeacherManagementPage() {
         onClose={() => setImportDialogOpen(false)}
         onImport={handleImport}
         faculties={faculties}
-        departments={allDepartments}
       />
     </Box>
   );

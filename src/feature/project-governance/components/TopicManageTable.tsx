@@ -52,7 +52,7 @@ const TOPIC_STATUS_OPTIONS: Array<{ value: TopicStatus; label: string }> = (
 
 export function TopicManageTable() {
   const searchParams = useSearchParams();
-  const scopedDepartmentId = searchParams.get("departmentId") || "";
+  const scopedFacultyId = searchParams.get("facultyId") || "";
 
   const [periods, setPeriods] = useState<Array<{ id: number; name: string }>>(
     [],
@@ -62,8 +62,7 @@ export function TopicManageTable() {
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebouncedValue(search, 450);
 
-  const [facultyId, setFacultyId] = useState("");
-  const [departmentId, setDepartmentId] = useState(scopedDepartmentId);
+  const [facultyId, setFacultyId] = useState(scopedFacultyId);
   const [teacherId, setTeacherId] = useState("");
   const [status, setStatus] = useState("");
   const [registrationStatus, setRegistrationStatus] = useState("");
@@ -72,9 +71,6 @@ export function TopicManageTable() {
   const [rows, setRows] = useState<ManagedTopicRow[]>([]);
   const [total, setTotal] = useState(0);
   const [facultyOptions, setFacultyOptions] = useState<
-    Array<{ value: string; label: string }>
-  >([]);
-  const [departmentOptions, setDepartmentOptions] = useState<
     Array<{ value: string; label: string }>
   >([]);
   const [teacherOptions, setTeacherOptions] = useState<
@@ -98,8 +94,8 @@ export function TopicManageTable() {
   const [genDialogOpen, setGenDialogOpen] = useState(false);
 
   useEffect(() => {
-    setDepartmentId(scopedDepartmentId);
-  }, [scopedDepartmentId]);
+    setFacultyId(scopedFacultyId);
+  }, [scopedFacultyId]);
 
   useEffect(() => {
     let active = true;
@@ -140,7 +136,6 @@ export function TopicManageTable() {
     const q = debouncedSearch.trim();
     if (q) params.search = q;
     if (facultyId) params.facultyId = facultyId;
-    if (departmentId) params.departmentId = departmentId;
     if (teacherId) params.teacherId = Number(teacherId);
     if (status) params.status = status as TopicStatus;
     if (registrationStatus)
@@ -150,7 +145,6 @@ export function TopicManageTable() {
     return params;
   }, [
     debouncedSearch,
-    departmentId,
     facultyId,
     isSupplemental,
     periodId,
@@ -189,12 +183,6 @@ export function TopicManageTable() {
           label: item.name,
         })),
       );
-      setDepartmentOptions(
-        (res.facets?.departments ?? []).map((item) => ({
-          value: item.id,
-          label: item.name,
-        })),
-      );
       setTeacherOptions(
         (res.facets?.teachers ?? []).map((item) => ({
           value: String(item.id),
@@ -219,7 +207,6 @@ export function TopicManageTable() {
   }, [
     debouncedSearch,
     facultyId,
-    departmentId,
     teacherId,
     status,
     registrationStatus,
@@ -233,19 +220,13 @@ export function TopicManageTable() {
         ? current
         : "";
     });
-    setDepartmentId((current) => {
-      if (!current || scopedDepartmentId) return current;
-      return departmentOptions.some((option) => option.value === current)
-        ? current
-        : "";
-    });
     setTeacherId((current) => {
       if (!current) return current;
       return teacherOptions.some((option) => option.value === current)
         ? current
         : "";
     });
-  }, [facultyOptions, departmentOptions, teacherOptions, scopedDepartmentId]);
+  }, [facultyOptions, teacherOptions]);
 
   useEffect(() => {
     setPage(0);
@@ -360,7 +341,7 @@ export function TopicManageTable() {
             </Typography>
             <Typography variant="caption" color="text.secondary">
               {row.teacher.teacherId} ·{" "}
-              {row.teacher.departmentName ?? "Chưa rõ bộ môn"}
+              {row.teacher.facultyName ?? "Chưa rõ khoa"}
             </Typography>
             <Typography
               variant="caption"
@@ -492,14 +473,6 @@ export function TopicManageTable() {
           onChange={setFacultyId}
           options={[{ value: "", label: "Tất cả khoa" }, ...facultyOptions]}
         />
-        <Select
-          label="Bộ môn"
-          size="small"
-          value={departmentId}
-          onChange={setDepartmentId}
-          options={[{ value: "", label: "Tất cả BM" }, ...departmentOptions]}
-          disabled={!!scopedDepartmentId}
-        />
       </Box>
 
       <Box
@@ -563,7 +536,6 @@ export function TopicManageTable() {
           variant="outlined"
           onClick={() => {
             setFacultyId("");
-            setDepartmentId(scopedDepartmentId);
             setTeacherId("");
             setStatus("");
             setRegistrationStatus("");

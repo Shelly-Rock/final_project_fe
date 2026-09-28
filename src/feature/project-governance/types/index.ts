@@ -158,9 +158,7 @@ export interface TeacherOverrideRow {
   name: string;
   email: string;
   faculty_id: string | null;
-  department_id: string | null;
   faculty: { id: string; name: string } | null;
-  department: { id: string; name: string } | null;
   assignedQuota: number;
   submittedTopics: number;
   remainingTopics: number;
@@ -182,7 +180,6 @@ export interface ListTeacherOverridesParams {
   periodId: number;
   search?: string;
   facultyId?: string;
-  departmentId?: string;
   page?: number;
   limit?: number;
 }
@@ -279,8 +276,6 @@ export interface ManagedTopicTeacher {
   teacherId: string;
   name: string;
   email: string;
-  departmentId: string | null;
-  departmentName: string | null;
   facultyId: string | null;
   facultyName: string | null;
 }
@@ -346,7 +341,6 @@ export interface ManagedTopicPage extends Paginated<ManagedTopicRow> {
   facets: {
     statuses: Array<{ value: TopicStatus; label: string; count: number }>;
     faculties: Array<{ id: string; name: string }>;
-    departments: Array<{ id: string; name: string; facultyId: string | null }>;
     teachers: Array<{ id: number; teacherId: string; name: string }>;
   };
 }
@@ -355,7 +349,6 @@ export interface TopicManageParams {
   periodId?: number;
   search?: string;
   facultyId?: string;
-  departmentId?: string;
   teacherId?: number;
   status?: TopicStatus;
   registrationStatus?: ProjectStatus;
@@ -395,8 +388,6 @@ export interface TeacherWithQuota {
   teacherId: string;
   name: string;
   email: string;
-  departmentId: string | null;
-  departmentName: string | null;
   facultyId: string | null;
   facultyName: string | null;
   assignedQuota: number;

@@ -1,6 +1,6 @@
 // ====================================
 // ADMINISTRATIVE STRUCTURE TYPES
-// Faculty -> Department -> Lecturer
+// Faculty -> Lecturer
 // ====================================
 
 /**
@@ -28,15 +28,18 @@ export interface UpdateFacultyInput {
   isActive: boolean;
 }
 
-/**
- * Bộ môn (Department)
- */
+/** @deprecated Legacy UI compatibility; departments are no longer persisted. */
 export interface Department {
   id: string;
   name: string;
-  facultyId: string; // FK to Faculty
+  facultyId: string;
+  /** @deprecated */
+  departmentId?: string;
 }
 
+/**
+ * Bộ môn (Department)
+ */
 // ====================================
 // LECTURER TYPES
 // ====================================
@@ -53,7 +56,8 @@ export interface Lecturer {
   email: string;
   phone?: string;
   facultyId: string;
-  departmentId: string;
+  /** @deprecated */
+  departmentId?: string;
   academicTitle?: string; // Học hàm, học vị (ThS, TS, PGS, GS)
   position?: string; // Chức vụ (Trưởng ngành, Phó trưởng ngành...)
   dateOfBirth?: string;
@@ -74,7 +78,6 @@ export interface CreateLecturerInput {
   email: string;
   phone?: string;
   facultyId: string;
-  departmentId: string;
   academicTitle?: string;
   position?: string;
   dateOfBirth?: string;
@@ -105,12 +108,13 @@ export type TopicStatus = "Approved" | "Pending" | "Closed";
 export type TopicRegistrationStatus = "OPEN" | "FULL" | "LOCKED";
 
 /**
- * Chuyên ngành (Specialization) - map với Department
+ * Chuyên ngành (Specialization)
  */
 export interface Specialization {
   id: string;
   name: string;
-  departmentId: string;
+  /** @deprecated */
+  departmentId?: string;
 }
 
 /**

@@ -16,9 +16,7 @@ export interface TeacherApiResponse {
   email: string;
   phone?: string;
   faculty_id: string;
-  department_id: string;
   faculty_name: string;
-  department_name: string;
   academic_title?: string;
   position?: string;
   date_of_birth?: string;
@@ -53,7 +51,6 @@ function mapApiToLecturer(api: TeacherApiResponse): Lecturer {
     email: api.email,
     phone: api.phone,
     facultyId: api.faculty_id,
-    departmentId: api.department_id,
     academicTitle: api.academic_title,
     position: api.position,
     dateOfBirth: api.date_of_birth,
@@ -79,7 +76,6 @@ function mapLecturerToCreatePayload(input: CreateLecturerInput) {
     email: input.email,
     phone: input.phone,
     facultyId: input.facultyId,
-    departmentId: input.departmentId,
     academicTitle: input.academicTitle,
     position: input.position,
     dateOfBirth: input.dateOfBirth,
@@ -100,8 +96,6 @@ function mapLecturerToUpdatePayload(input: UpdateLecturerInput) {
   if (input.email !== undefined) payload.email = input.email;
   if (input.phone !== undefined) payload.phone = input.phone;
   if (input.facultyId !== undefined) payload.facultyId = input.facultyId;
-  if (input.departmentId !== undefined)
-    payload.departmentId = input.departmentId;
   if (input.academicTitle !== undefined)
     payload.academicTitle = input.academicTitle;
   if (input.position !== undefined) payload.position = input.position;
@@ -125,7 +119,6 @@ class TeacherApiService {
     pageSize?: number;
     search?: string;
     facultyId?: string;
-    departmentId?: string;
     status?: "active" | "inactive";
   }): Promise<{
     teachers: Lecturer[];

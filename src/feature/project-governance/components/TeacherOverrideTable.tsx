@@ -33,7 +33,7 @@ export function TeacherOverrideTable({
   onReloadStats,
 }: TeacherOverrideTableProps) {
   const searchParams = useSearchParams();
-  const scopedDepartmentId = searchParams.get("departmentId") || undefined;
+  const scopedFacultyId = searchParams.get("facultyId") || undefined;
 
   const [search, setSearch] = useState("");
   const debounced = useDebouncedValue(search, 450);
@@ -55,7 +55,7 @@ export function TeacherOverrideTable({
         search: debounced.trim() || undefined,
         page: page + 1,
         limit: rowsPerPage,
-        departmentId: scopedDepartmentId,
+        facultyId: scopedFacultyId,
       });
       setRows(page1.items ?? []);
       setTotal(page1.total ?? 0);
@@ -64,7 +64,7 @@ export function TeacherOverrideTable({
     } finally {
       setLoading(false);
     }
-  }, [debounced, page, periodId, rowsPerPage, scopedDepartmentId]);
+  }, [debounced, page, periodId, rowsPerPage, scopedFacultyId]);
 
   useEffect(() => {
     fetch();
@@ -73,7 +73,7 @@ export function TeacherOverrideTable({
   useEffect(() => {
     setPage(0);
     setSelectedKeys([]);
-  }, [debounced, periodId, scopedDepartmentId]);
+  }, [debounced, periodId, scopedFacultyId]);
 
   const selectedTeacherIds = useMemo(
     () =>

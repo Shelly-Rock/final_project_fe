@@ -9,7 +9,6 @@ interface TeacherDetailDialogProps {
   onClose: () => void;
   teacher: Lecturer | null;
   faculties?: { id: string; name: string }[];
-  departments?: { id: string; name: string }[];
 }
 
 const getStatusColor = (status: Lecturer["status"]) => {
@@ -52,15 +51,11 @@ export function TeacherDetailDialog({
   onClose,
   teacher,
   faculties = [],
-  departments = [],
 }: TeacherDetailDialogProps) {
   if (!teacher) return null;
 
   const facultyName =
     faculties.find((faculty) => faculty.id === teacher.facultyId)?.name || "—";
-  const departmentName =
-    departments.find((department) => department.id === teacher.departmentId)
-      ?.name || "—";
 
   return (
     <Dialog
@@ -122,13 +117,6 @@ export function TeacherDetailDialog({
               Khoa
             </Typography>
             <Typography variant="body2">{facultyName}</Typography>
-          </Grid>
-
-          <Grid item xs={12} sm={6}>
-            <Typography variant="caption" color="text.secondary">
-              Bộ môn
-            </Typography>
-            <Typography variant="body2">{departmentName}</Typography>
           </Grid>
 
           <Grid item xs={12} sm={6}>

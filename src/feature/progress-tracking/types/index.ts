@@ -44,7 +44,7 @@ export interface Template {
   fileUrl: string;
   fileName: string;
   fileSize: number;
-  departmentId: string | null;
+  facultyId: string | null;
   periodId: number | null;
   isCloned: boolean;
   createdAt: string;

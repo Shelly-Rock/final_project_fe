@@ -1,8 +1,8 @@
 import { apiClient } from "@/shared/services/api-client";
 
-export interface DepartmentSummary {
-  department_id: string;
-  department_name: string;
+export interface FacultySummary {
+  faculty_id: string;
+  faculty_name: string;
   teachers: number;
   projects: {
     total: number;
@@ -22,8 +22,8 @@ export interface ProgressReportSeries {
   total: number;
 }
 
-export interface DepartmentProgressStats {
-  department: {
+export interface FacultyProgressStats {
+  faculty: {
     id: string;
     name: string;
   };
@@ -46,10 +46,10 @@ export interface TopicItem {
   status: "completed" | "pending" | "delayed";
 }
 
-export interface DepartmentSecretaryDetail {
-  departmentId: string;
-  departmentName: string;
-  departmentCode: string;
+export interface FacultySecretaryDetail {
+  facultyId: string;
+  facultyName: string;
+  facultyCode: string;
   totalTeachers: number;
   totalTopics: number;
   completedTopics: number;
@@ -60,56 +60,56 @@ export interface DepartmentSecretaryDetail {
   topics: TopicItem[];
 }
 
-class DepartmentService {
-  async getDepartments(): Promise<DepartmentSummary[]> {
-    const response = await apiClient.get<{ data: DepartmentSummary[] }>(
+class FacultyService {
+  async getFaculties(): Promise<FacultySummary[]> {
+    const response = await apiClient.get<{ data: FacultySummary[] }>(
       "/dashboard/department",
     );
     return response.data;
   }
 
-  async getDepartmentDetail(departmentId: string): Promise<DepartmentSummary> {
-    const response = await apiClient.get<{ data: DepartmentSummary }>(
-      `/dashboard/department/${encodeURIComponent(departmentId)}`,
+  async getFacultyDetail(facultyId: string): Promise<FacultySummary> {
+    const response = await apiClient.get<{ data: FacultySummary }>(
+      `/dashboard/department/${encodeURIComponent(facultyId)}`,
     );
     return response.data;
   }
 
-  async getDepartmentProgressStats(
-    departmentId: string,
-  ): Promise<DepartmentProgressStats> {
-    const response = await apiClient.get<{ data: DepartmentProgressStats }>(
-      `/dashboard/department/${encodeURIComponent(departmentId)}/progress-reports`,
+  async getFacultyProgressStats(
+    facultyId: string,
+  ): Promise<FacultyProgressStats> {
+    const response = await apiClient.get<{ data: FacultyProgressStats }>(
+      `/dashboard/department/${encodeURIComponent(facultyId)}/progress-reports`,
     );
     return response.data;
   }
 
-  async getDepartmentSecretaryDetail(
-    departmentId: string,
-  ): Promise<DepartmentSecretaryDetail> {
-    const response = await apiClient.get<{ data: DepartmentSecretaryDetail }>(
-      `/dashboard/department/${encodeURIComponent(departmentId)}/secretary-detail`,
+  async getFacultySecretaryDetail(
+    facultyId: string,
+  ): Promise<FacultySecretaryDetail> {
+    const response = await apiClient.get<{ data: FacultySecretaryDetail }>(
+      `/dashboard/department/${encodeURIComponent(facultyId)}/secretary-detail`,
     );
     return response.data;
   }
 
-  async getSecretaryDepartmentOverview(): Promise<SecretaryDepartmentOverview> {
-    const response = await apiClient.get<{ data: SecretaryDepartmentOverview }>(
+  async getSecretaryFacultyOverview(): Promise<SecretaryFacultyOverview> {
+    const response = await apiClient.get<{ data: SecretaryFacultyOverview }>(
       `/dashboard/secretary/department-overview`,
     );
     return response.data;
   }
 
-  async getSecretaryDepartmentTopics(): Promise<DepartmentTopic[]> {
-    const response = await apiClient.get<{ data: DepartmentTopic[] }>(
+  async getSecretaryFacultyTopics(): Promise<FacultyTopic[]> {
+    const response = await apiClient.get<{ data: FacultyTopic[] }>(
       `/dashboard/secretary/department-topics`,
     );
     return response.data;
   }
 }
 
-export interface SecretaryDepartmentOverview {
-  department: {
+export interface SecretaryFacultyOverview {
+  faculty: {
     id: string;
     name: string;
     code: string;
@@ -134,7 +134,7 @@ export interface SecretaryDepartmentOverview {
   }>;
 }
 
-export interface DepartmentTopic {
+export interface FacultyTopic {
   id: string;
   name: string;
   code: string;
@@ -146,4 +146,4 @@ export interface DepartmentTopic {
   completionRate: number;
 }
 
-export const departmentService = new DepartmentService();
+export const facultyService = new FacultyService();

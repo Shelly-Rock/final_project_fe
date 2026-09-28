@@ -21,8 +21,8 @@ export type TeacherParticipationStatus = "assigned" | "accepted" | "declined";
 /**
  * Cấu hình sĩ số tối đa theo ngành
  */
-export interface DepartmentStudentLimit {
-  department: string; // Tên ngành/khoa
+export interface FacultyStudentLimit {
+  faculty: string;
   maxStudents: number; // Số sinh viên tối đa cho mỗi đề tài của ngành này
 }
 
@@ -41,7 +41,7 @@ export interface RegistrationPeriod {
   status: PeriodStatus;
   description?: string;
   // Cấu hình sĩ số tối đa theo ngành - Thư ký cấu hình khi tạo đợt
-  departmentStudentLimits?: DepartmentStudentLimit[];
+  facultyStudentLimits?: FacultyStudentLimit[];
   createdAt: string;
   updatedAt: string;
 }
@@ -54,7 +54,7 @@ export interface TeacherQuota {
   periodId: number;
   teacherId: number;
   teacherName: string;
-  department: string; // Khoa
+  faculty: string;
   assignedQuota: number; // Chỉ tiêu được gán (có thể khác default)
   submittedTopics: number; // Số đề tài đã nộp
   maxStudents: number; // Tổng SV tối đa (thường = assignedQuota)
@@ -89,7 +89,7 @@ export interface TeacherParticipation {
   periodId: number;
   teacherId: number;
   teacherName: string;
-  department: string;
+  faculty: string;
   email: string;
   assignedQuota: number;
   status: TeacherParticipationStatus;
@@ -110,7 +110,7 @@ export interface CreatePeriodInput {
   studentDeadline: string;
   defaultQuota: number;
   description?: string;
-  departmentStudentLimits?: DepartmentStudentLimit[];
+  facultyStudentLimits?: FacultyStudentLimit[];
 }
 
 export interface UpdatePeriodInput extends Partial<CreatePeriodInput> {

@@ -6,14 +6,13 @@ export interface AdminDashboardStats {
     totalTeachers: number;
     totalProjects: number;
     totalUsers?: number;
-    totalDepartments: number;
-    totalFaculties?: number;
+    totalFaculties: number;
   };
   overview?: {
     students: number;
     teachers: number;
     projects: number;
-    departments: number;
+    faculties: number;
     topics: number;
     alerts: number;
   };
@@ -43,24 +42,22 @@ export interface AdminDashboardStats {
   };
 }
 
-export interface DepartmentProjectStats {
+export interface FacultyProjectStats {
   total: number;
   pending: number;
   approved: number;
   rejected: number;
 }
 
-export interface DepartmentStats {
+export interface FacultyStatsLegacy {
   id: string;
   name: string;
-  department_id?: string;
-  department_name?: string;
   faculty: string;
   faculty_id?: string | null;
   secretary: string;
   teacherCount?: number;
   teachers?: number;
-  projects: DepartmentProjectStats;
+  projects: FacultyProjectStats;
   topics?: number;
   reports?: number;
 }
@@ -113,7 +110,7 @@ class AdminDashboardService {
         totalStudents: overview?.students ?? 0,
         totalTeachers: overview?.teachers ?? 0,
         totalProjects: overview?.projects ?? 0,
-        totalDepartments: overview?.departments ?? 0,
+        totalFaculties: overview?.faculties ?? 0,
       },
       reports: response.reports ??
         response.reportStats ?? {
@@ -130,10 +127,6 @@ class AdminDashboardService {
           total: 0,
         },
     };
-  }
-
-  async getDepartmentStats(): Promise<DepartmentStats[]> {
-    return apiClient.get<DepartmentStats[]>("/dashboard/admin/departments");
   }
 
   async getFacultyStats(): Promise<FacultyStats[]> {

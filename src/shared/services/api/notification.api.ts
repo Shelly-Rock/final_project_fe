@@ -94,23 +94,23 @@ export const notificationApi = {
     return res || { users: [] };
   },
 
-  getDepartments: async (): Promise<{
-    departments: Array<{ id: string; name: string }>;
+  getFaculties: async (): Promise<{
+    faculties: Array<{ id: string; name: string }>;
   }> => {
     const res = await apiClient.get<{
-      departments: Array<{ id: string; name: string }>;
-    }>("/notifications/compose/departments");
-    return res || { departments: [] };
+      faculties: Array<{ id: string; name: string }>;
+    }>("/notifications/compose/faculties");
+    return res || { faculties: [] };
   },
 
-  getUsersByDepartment: async (
-    deptId: string,
+  getUsersByFaculty: async (
+    facultyId: string,
   ): Promise<{
     users: Array<{ id: number; name: string; email: string; role: string }>;
   }> => {
     const res = await apiClient.get<{
       users: Array<{ id: number; name: string; email: string; role: string }>;
-    }>(`/notifications/compose/departments/${deptId}/users`);
+    }>(`/notifications/compose/faculties/${facultyId}/users`);
     return res || { users: [] };
   },
 

@@ -17,13 +17,9 @@ interface TeacherTableProps {
   teachers: Lecturer[];
   loading?: boolean;
   filterFaculty?: string;
-  filterDepartment?: string;
   onFilterFacultyChange?: (value: string) => void;
-  onFilterDepartmentChange?: (value: string) => void;
   faculties?: { id: string; name: string }[];
-  departments?: { id: string; name: string }[];
   allFaculties?: { id: string; name: string }[];
-  allDepartments?: { id: string; name: string; facultyId: string }[];
   onView?: (teacher: Lecturer) => void;
   onEdit?: (teacher: Lecturer) => void;
   onDelete?: (teacher: Lecturer) => void;
@@ -43,7 +39,6 @@ export function TeacherTable({
   teachers,
   loading = false,
   faculties = [],
-  departments = [],
   onView,
   onEdit,
   onDelete,
@@ -64,11 +59,6 @@ export function TeacherTable({
     const map = new Map(faculties.map((f) => [f.id, f.name]));
     return (id: string) => map.get(id) ?? "Không xác định";
   }, [faculties]);
-
-  const getDepartmentNameById = useMemo(() => {
-    const map = new Map(departments.map((d) => [d.id, d.name]));
-    return (id: string) => map.get(id) ?? "Không xác định";
-  }, [departments]);
 
   const columns: Column<Lecturer>[] = [
     {
@@ -121,16 +111,6 @@ export function TeacherTable({
       format: (_, row) => (
         <Typography variant="body2" sx={{ color: textColor }}>
           {getFacultyNameById(row.facultyId)}
-        </Typography>
-      ),
-    },
-    {
-      id: "departmentId",
-      label: "Bộ môn",
-      minWidth: 180,
-      format: (_, row) => (
-        <Typography variant="body2" sx={{ color: textColor }}>
-          {getDepartmentNameById(row.departmentId)}
         </Typography>
       ),
     },

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, Input, Select, Textarea, Button } from "@/shared/components";
 import type { SelectOption } from "@/shared/types";
 import type { Lecturer, CreateLecturerInput } from "@/feature/admin/types";
@@ -11,12 +11,6 @@ interface Faculty {
   name: string;
 }
 
-interface Department {
-  id: string;
-  name: string;
-  facultyId?: string;
-}
-
 interface TeacherFormDialogProps {
   open: boolean;
   onClose: () => void;
@@ -24,7 +18,6 @@ interface TeacherFormDialogProps {
   teacher: Lecturer | null;
   loading?: boolean;
   faculties?: Faculty[];
-  departments?: Department[];
 }
 
 const GENDER_OPTIONS: SelectOption[] = [
@@ -54,7 +47,6 @@ const INITIAL_FORM_DATA: CreateLecturerInput = {
   email: "",
   phone: "",
   facultyId: "",
-  departmentId: "",
   academicTitle: "",
   position: "",
   dateOfBirth: "",
@@ -69,7 +61,6 @@ export function TeacherFormDialog({
   teacher,
   loading = false,
   faculties = [],
-  departments = [],
 }: TeacherFormDialogProps) {
   const [formData, setFormData] =
     useState<CreateLecturerInput>(INITIAL_FORM_DATA);
@@ -79,22 +70,10 @@ export function TeacherFormDialog({
 
   const isEditing = !!teacher;
 
-  // Derived departments based on selected faculty
-  const availableDepartments = useMemo(() => {
-    if (!formData.facultyId) return [];
-    return departments.filter((d) => d.facultyId === formData.facultyId);
-  }, [formData.facultyId, departments]);
-
   // Faculty options
   const facultyOptions: SelectOption[] = faculties.map((f) => ({
     value: f.id,
     label: f.name,
-  }));
-
-  // Department options (based on selected faculty)
-  const departmentOptions: SelectOption[] = availableDepartments.map((d) => ({
-    value: d.id,
-    label: d.name,
   }));
 
   // Reset form state when dialog opens
@@ -107,7 +86,6 @@ export function TeacherFormDialog({
           email: teacher.email,
           phone: teacher.phone || "",
           facultyId: teacher.facultyId,
-          departmentId: teacher.departmentId,
           academicTitle: teacher.academicTitle || "",
           position: teacher.position || "",
           dateOfBirth: teacher.dateOfBirth || "",
@@ -162,7 +140,6 @@ export function TeacherFormDialog({
       newErrors.email = "Email không hợp lệ";
     }
     if (!formData.facultyId) newErrors.facultyId = "Khoa là bắt buộc";
-    if (!formData.departmentId) newErrors.departmentId = "Bộ môn là bắt buộc";
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -222,22 +199,10 @@ export function TeacherFormDialog({
           value={formData.facultyId}
           onChange={(val) => {
             handleChange("facultyId", val);
-            handleChange("departmentId", "");
           }}
           options={facultyOptions}
           error={!!errors.facultyId}
           helperText={errors.facultyId}
-          required
-        />
-
-        <Select
-          label="Bộ môn"
-          value={formData.departmentId}
-          onChange={(val) => handleChange("departmentId", val)}
-          options={departmentOptions}
-          error={!!errors.departmentId}
-          helperText={errors.departmentId}
-          disabled={!formData.facultyId}
           required
         />
 

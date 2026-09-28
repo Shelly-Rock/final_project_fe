@@ -20,7 +20,7 @@ interface PeriodFormDialogProps {
   onSubmit: (data: CreatePeriodInput) => Promise<void>;
   period?: RegistrationPeriod | null;
   loading?: boolean;
-  secretaryDepartment?: string; // Ngành của thư ký đang đăng nhập
+  secretaryFaculty?: string;
 }
 
 const semesterOptions = semesters.map((s) => ({
@@ -39,7 +39,7 @@ export function PeriodFormDialog({
   onSubmit,
   period,
   loading = false,
-  secretaryDepartment,
+  secretaryFaculty,
 }: PeriodFormDialogProps) {
   const isEdit = !!period;
   const prevOpenRef = useRef<boolean>(open);
@@ -48,7 +48,7 @@ export function PeriodFormDialog({
   const [quotaError, setQuotaError] = useState(false);
 
   // State cho sĩ số tối đa theo ngành
-  const [departmentMaxStudents, setDepartmentMaxStudents] = useState("3");
+  const [facultyMaxStudents, setFacultyMaxStudents] = useState("3");
   const [studentsError, setStudentsError] = useState(false);
 
   // State cho học kỳ và năm học (controlled để tránh conflict với Select component)
@@ -62,8 +62,8 @@ export function PeriodFormDialog({
     // Chỉ reset khi dialog vừa được mở (open từ false -> true)
     if (open && !prevOpenRef.current) {
       setDefaultQuota(period?.defaultQuota?.toString() || "");
-      setDepartmentMaxStudents(
-        period?.departmentStudentLimits?.[0]?.maxStudents?.toString() || "3",
+      setFacultyMaxStudents(
+        period?.facultyStudentLimits?.[0]?.maxStudents?.toString() || "3",
       );
       setSemester(period?.semester || "1");
       setSchoolYear(period?.schoolYear || "2025-2026");
@@ -82,9 +82,9 @@ export function PeriodFormDialog({
     );
   };
 
-  // Validate department max students
-  const handleDepartmentStudentsChange = (value: string) => {
-    setDepartmentMaxStudents(value);
+  // Validate faculty max students
+  const handleFacultyStudentsChange = (value: string) => {
+    setFacultyMaxStudents(value);
     const numeric = value === "" ? null : parseInt(value, 10);
     setStudentsError(
       numeric !== null && (numeric < MIN_STUDENTS || numeric > MAX_STUDENTS),
@@ -93,7 +93,7 @@ export function PeriodFormDialog({
 
   const numericQuota = defaultQuota === "" ? null : parseInt(defaultQuota, 10);
   const numericStudents =
-    departmentMaxStudents === "" ? null : parseInt(departmentMaxStudents, 10);
+    facultyMaxStudents === "" ? null : parseInt(facultyMaxStudents, 10);
 
   const getQuotaHelperText = () => {
     if (defaultQuota === "") {
@@ -109,7 +109,7 @@ export function PeriodFormDialog({
   };
 
   const getStudentsHelperText = () => {
-    if (departmentMaxStudents === "") {
+    if (facultyMaxStudents === "") {
       return `Số sinh viên tối đa trên mỗi đề tài (${MIN_STUDENTS}-${MAX_STUDENTS})`;
     }
     if (numericStudents !== null && numericStudents < MIN_STUDENTS) {
@@ -147,8 +147,8 @@ export function PeriodFormDialog({
     const formData = new FormData(e.currentTarget);
 
     // Tạo cấu hình sĩ số theo ngành của thư ký
-    const departmentStudentLimits = secretaryDepartment
-      ? [{ department: secretaryDepartment, maxStudents: numericStudents! }]
+    const facultyStudentLimits = secretaryFaculty
+      ? [{ faculty: secretaryFaculty, maxStudents: numericStudents! }]
       : [];
 
     const data: CreatePeriodInput = {
@@ -160,10 +160,8 @@ export function PeriodFormDialog({
       studentDeadline: formData.get("studentDeadline") as string,
       defaultQuota: numericQuota!,
       description: (formData.get("description") as string) || undefined,
-      departmentStudentLimits:
-        departmentStudentLimits.length > 0
-          ? departmentStudentLimits
-          : undefined,
+      facultyStudentLimits:
+        facultyStudentLimits.length > 0 ? facultyStudentLimits : undefined,
     };
 
     await onSubmit(data);
@@ -293,11 +291,11 @@ export function PeriodFormDialog({
 
             <Box sx={{ maxWidth: 300 }}>
               <Input
-                name="departmentMaxStudents"
+                name="facultyMaxStudents"
                 label="Sĩ số tối đa"
                 type="number"
-                value={departmentMaxStudents}
-                onChange={(e) => handleDepartmentStudentsChange(e.target.value)}
+                value={facultyMaxStudents}
+                onChange={(e) => handleFacultyStudentsChange(e.target.value)}
                 helperText={getStudentsHelperText()}
                 error={studentsError}
                 required
@@ -309,27 +307,26 @@ export function PeriodFormDialog({
               />
             </Box>
 
-            {secretaryDepartment && (
+            {secretaryFaculty && (
               <Typography
                 variant="caption"
                 color="text.secondary"
                 sx={{ display: "block", mt: 1 }}
               >
-                Ngành: {secretaryDepartment}
+                Khoa: {secretaryFaculty}
               </Typography>
             )}
 
             {isEdit &&
-              period?.departmentStudentLimits &&
-              period.departmentStudentLimits.length > 0 && (
+              period?.facultyStudentLimits &&
+              period.facultyStudentLimits.length > 0 && (
                 <Typography
                   variant="caption"
                   color="text.secondary"
                   sx={{ display: "block", mt: 1 }}
                 >
-                  Ngành áp dụng: {period.departmentStudentLimits[0].department}{" "}
-                  - Sĩ số tối đa:{" "}
-                  {period.departmentStudentLimits[0].maxStudents}
+                  Khoa áp dụng: {period.facultyStudentLimits[0].faculty} - Sĩ số
+                  tối đa: {period.facultyStudentLimits[0].maxStudents}
                 </Typography>
               )}
           </Box>

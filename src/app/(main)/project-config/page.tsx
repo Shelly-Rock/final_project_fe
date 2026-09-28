@@ -35,7 +35,7 @@ const getCardBackground = (theme: Theme) => {
 export default function ProjectConfigPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const departmentId = searchParams.get("departmentId") || undefined;
+  const facultyId = searchParams.get("facultyId") || undefined;
   const theme = useTheme();
   const { role } = usePermissionContext();
   const [tab, setTab] = useState(0);
@@ -93,8 +93,8 @@ export default function ProjectConfigPage() {
           {tab === 0 && <PeriodConfigForm />}
           {tab === 1 && (
             <TemplateList
-              key={`templates-${refreshKey}-${departmentId ?? "all"}`}
-              departmentId={departmentId}
+              key={`templates-${refreshKey}-${facultyId ?? "all"}`}
+              facultyId={facultyId}
               onUploadClick={() => setUploadDialogOpen(true)}
               onReplaceClick={(t) => {
                 setReplaceTemplate(t);
@@ -102,7 +102,7 @@ export default function ProjectConfigPage() {
               }}
             />
           )}
-          {tab === 2 && <TopicManageTable key={departmentId ?? "all"} />}
+          {tab === 2 && <TopicManageTable key={facultyId ?? "all"} />}
         </Box>
       </Paper>
 

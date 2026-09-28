@@ -75,8 +75,6 @@ export function ForceEditTopicDialog({
             teacherId: topic.teacher.teacherId,
             name: topic.teacher.name,
             email: topic.teacher.email,
-            departmentId: topic.teacher.departmentId,
-            departmentName: topic.teacher.departmentName,
             facultyId: topic.teacher.facultyId,
             facultyName: topic.teacher.facultyName,
             assignedQuota: 0,

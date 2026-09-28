@@ -17,7 +17,6 @@ export const teacherService = {
     pageSize?: number;
     search?: string;
     facultyId?: string;
-    departmentId?: string;
     status?: "active" | "inactive";
   }): Promise<{ teachers: Lecturer[]; total: number }> {
     const result = await teacherApiService.getAll(params);
@@ -41,7 +40,6 @@ export const teacherService = {
       email: data.email,
       phone: data.phone,
       facultyId: data.facultyId,
-      departmentId: data.departmentId,
       academicTitle: data.academicTitle,
       position: data.position,
       dateOfBirth: data.dateOfBirth,

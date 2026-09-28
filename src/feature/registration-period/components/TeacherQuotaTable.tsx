@@ -38,7 +38,7 @@ export function TeacherQuotaTable({
       ),
     },
     {
-      id: "department",
+      id: "faculty",
       label: "Khoa",
       minWidth: 150,
     },

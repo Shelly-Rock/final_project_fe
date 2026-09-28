@@ -218,7 +218,7 @@ export function SupplementalTopicDialog({
             loadingTeachers
               ? "Đang tải giảng viên..."
               : selectedTeacher
-                ? `Bộ môn: ${selectedTeacher.departmentName ?? "—"} · Khoa: ${selectedTeacher.facultyName ?? "—"}`
+                ? `Khoa: ${selectedTeacher.facultyName ?? "—"}`
                 : "Chỉ liệt kê giảng viên còn chỉ tiêu."
           }
         />

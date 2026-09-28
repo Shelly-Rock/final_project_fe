@@ -42,7 +42,7 @@ interface ImportExcelDialogProps {
   onClose: () => void;
   onImport: (file: File) => void | Promise<void>;
   faculties: Faculty[];
-  departments: Department[];
+  departments?: Department[];
 }
 
 export function ImportExcelDialog({
@@ -50,7 +50,7 @@ export function ImportExcelDialog({
   onClose,
   onImport,
   faculties,
-  departments,
+  departments = [],
 }: ImportExcelDialogProps) {
   const [rows, setRows] = useState<TeacherImportRow[]>([]);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -79,16 +79,11 @@ export function ImportExcelDialog({
     [faculties],
   );
 
-  // Helper to find department by name
   const findDepartmentIdByName = useCallback(
     (name: string, facultyId?: string): string => {
-      const depts = facultyId
-        ? departments.filter((d) => d.facultyId === facultyId)
-        : departments;
-
-      const found = depts.find((d) =>
-        d.name.toLowerCase().includes(name.toLowerCase()),
-      );
+      const found = departments
+        .filter((item) => !facultyId || item.facultyId === facultyId)
+        .find((item) => item.name.toLowerCase().includes(name.toLowerCase()));
       return found?.id || "";
     },
     [departments],
@@ -209,7 +204,7 @@ export function ImportExcelDialog({
       reader.readAsArrayBuffer(file);
       event.target.value = "";
     },
-    [findFacultyIdByName, findDepartmentIdByName],
+    [findFacultyIdByName],
   );
 
   const handleRemoveRow = (index: number) => {

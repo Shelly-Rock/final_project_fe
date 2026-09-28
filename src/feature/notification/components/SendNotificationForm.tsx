@@ -95,7 +95,7 @@ interface Recipient {
   role?: string;
 }
 
-interface Department {
+interface Faculty {
   id: string;
   name: string;
 }
@@ -393,7 +393,7 @@ const SendNotificationForm: React.FC<SendNotificationFormProps> = ({
   const titleVal = watch("title") || "";
   const messageVal = watch("message") || "";
 
-  const [departments, setDepartments] = useState<Department[]>([]);
+  const [departments, setDepartments] = useState<Faculty[]>([]);
   const [recipients, setRecipients] = useState<Recipient[]>([]);
   const [loadingDepts, setLoadingDepts] = useState(false);
   const [loadingRecipients, setLoadingRecipients] = useState(false);
@@ -456,10 +456,10 @@ const SendNotificationForm: React.FC<SendNotificationFormProps> = ({
   const loadDepartments = async () => {
     setLoadingDepts(true);
     try {
-      const data = await apiClient.get<{ departments: Department[] }>(
-        "/notifications/compose/departments",
+      const data = await apiClient.get<{ faculties: Faculty[] }>(
+        "/notifications/compose/faculties",
       );
-      setDepartments(data.departments || []);
+      setDepartments(data.faculties || []);
     } catch {
       toast.error("Lỗi khi tải danh sách khoa/viện");
     } finally {
@@ -471,7 +471,7 @@ const SendNotificationForm: React.FC<SendNotificationFormProps> = ({
     setLoadingRecipients(true);
     try {
       const data = await apiClient.get<{ users: Recipient[] }>(
-        `/notifications/compose/departments/${deptId}/users`,
+        `/notifications/compose/faculties/${deptId}/users`,
       );
       setRecipients(data.users || []);
     } catch {

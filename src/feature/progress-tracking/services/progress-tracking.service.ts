@@ -40,7 +40,7 @@ export interface Template {
   fileUrl: string;
   fileName: string;
   fileSize: number;
-  departmentId: string | null;
+  facultyId: string | null;
   periodId: number | null;
   isCloned: boolean;
   createdAt: string;
@@ -141,7 +141,7 @@ function mapTemplate(raw: any): Template {
     fileUrl: raw.file_url,
     fileName: raw.file_name,
     fileSize: raw.file_size,
-    departmentId: raw.department_id,
+    facultyId: raw.faculty_id,
     periodId: raw.period_id,
     isCloned: raw.is_cloned,
     createdAt: raw.created_at,
@@ -233,15 +233,14 @@ class ProgressTrackingService {
   async getTemplates(params?: {
     page?: number;
     limit?: number;
-    departmentId?: string;
+    facultyId?: string;
     periodId?: number;
     isException?: boolean;
   }): Promise<PaginatedResult<Template>> {
     const searchParams = new URLSearchParams();
     if (params?.page) searchParams.set("page", String(params.page));
     if (params?.limit) searchParams.set("limit", String(params.limit));
-    if (params?.departmentId)
-      searchParams.set("department_id", params.departmentId);
+    if (params?.facultyId) searchParams.set("faculty_id", params.facultyId);
     if (params?.periodId)
       searchParams.set("period_id", String(params.periodId));
     if (params?.isException !== undefined)

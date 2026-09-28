@@ -348,7 +348,7 @@ export function TemplateUploadDialog({
 interface TemplateListProps {
   onUploadClick?: () => void;
   onReplaceClick?: (template: Template) => void;
-  departmentId?: string;
+  facultyId?: string;
   periodId?: number;
   showUploadButton?: boolean;
 }
@@ -356,7 +356,7 @@ interface TemplateListProps {
 export function TemplateList({
   onUploadClick,
   onReplaceClick,
-  departmentId,
+  facultyId,
   periodId,
   showUploadButton = true,
 }: TemplateListProps) {
@@ -369,7 +369,7 @@ export function TemplateList({
     setLoading(true);
     try {
       const result = await progressTrackingService.getTemplates({
-        departmentId: departmentId,
+        facultyId,
         periodId: periodId,
       });
       setTemplates(result.data);
@@ -378,7 +378,7 @@ export function TemplateList({
     } finally {
       setLoading(false);
     }
-  }, [departmentId, periodId]);
+  }, [facultyId, periodId]);
 
   useEffect(() => {
     loadTemplates();

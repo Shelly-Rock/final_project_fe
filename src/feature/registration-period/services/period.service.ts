@@ -13,7 +13,7 @@ import type {
   RejectTopicInput,
   PeriodFilters,
   ExceptionRequest,
-  DepartmentStudentLimit,
+  FacultyStudentLimit,
   PeriodStatus,
   QuotaStatus,
   TopicModerationStatus,
@@ -41,7 +41,7 @@ interface BackendRegistrationPeriod {
   default_quota: number;
   status: BackendPeriodStatus;
   description: string | null;
-  department_student_limits: unknown;
+  faculty_student_limits: unknown;
   created_at: string;
   updated_at: string;
 }
@@ -57,7 +57,7 @@ interface BackendTeacherQuota {
   last_notified_at: string | null;
   teachers?: {
     name: string;
-    department_id: string;
+    faculty_id: string;
   } | null;
 }
 
@@ -134,21 +134,21 @@ function mapTopicStatus(status: BackendTopicStatus): TopicModerationStatus {
   }
 }
 
-function mapDepartmentStudentLimits(value: unknown): DepartmentStudentLimit[] {
+function mapFacultyStudentLimits(value: unknown): FacultyStudentLimit[] {
   if (!Array.isArray(value)) return [];
 
   return value.flatMap((item) => {
     if (!item || typeof item !== "object") return [];
 
     const record = item as Record<string, unknown>;
-    const department = record.department;
+    const faculty = record.faculty;
     const maxStudents = record.maxStudents ?? record.max_students;
 
-    if (typeof department !== "string" || typeof maxStudents !== "number") {
+    if (typeof faculty !== "string" || typeof maxStudents !== "number") {
       return [];
     }
 
-    return [{ department, maxStudents }];
+    return [{ faculty, maxStudents }];
   });
 }
 
@@ -164,8 +164,8 @@ function mapPeriod(period: BackendRegistrationPeriod): RegistrationPeriod {
     defaultQuota: period.default_quota,
     status: mapPeriodStatus(period.status),
     description: period.description ?? undefined,
-    departmentStudentLimits: mapDepartmentStudentLimits(
-      period.department_student_limits,
+    facultyStudentLimits: mapFacultyStudentLimits(
+      period.faculty_student_limits,
     ),
     createdAt: period.created_at,
     updatedAt: period.updated_at,
@@ -178,7 +178,7 @@ function mapTeacherQuota(quota: BackendTeacherQuota): TeacherQuota {
     periodId: quota.period_id,
     teacherId: quota.teacher_id,
     teacherName: quota.teachers?.name ?? "Chưa xác định",
-    department: quota.teachers?.department_id ?? "Chưa xác định",
+    faculty: quota.teachers?.faculty_id ?? "Chưa xác định",
     assignedQuota: quota.assigned_quota,
     submittedTopics: quota.submitted_topics,
     maxStudents: quota.max_students,
@@ -477,29 +477,29 @@ class PeriodService {
       .reverse();
   }
 
-  getDepartmentStudentLimits(periodId: number): DepartmentStudentLimit[] {
+  getFacultyStudentLimits(periodId: number): FacultyStudentLimit[] {
     const period = this.periods.find((item) => item.id === periodId);
-    return period?.departmentStudentLimits ?? [];
+    return period?.facultyStudentLimits ?? [];
   }
 
-  getMaxStudentsForDepartment(periodId: number, department: string): number {
-    const limit = this.getDepartmentStudentLimits(periodId).find(
-      (item) => item.department === department,
+  getMaxStudentsForFaculty(periodId: number, faculty: string): number {
+    const limit = this.getFacultyStudentLimits(periodId).find(
+      (item) => item.faculty === faculty,
     );
     return limit?.maxStudents ?? 3;
   }
 
   validateTopicMaxStudents(
     periodId: number,
-    department: string,
+    faculty: string,
     requestedMaxStudents: number,
   ): { valid: boolean; message?: string } {
-    const maxAllowed = this.getMaxStudentsForDepartment(periodId, department);
+    const maxAllowed = this.getMaxStudentsForFaculty(periodId, faculty);
 
     if (requestedMaxStudents > maxAllowed) {
       return {
         valid: false,
-        message: `Sĩ số tối đa cho ngành "${department}" là ${maxAllowed} sinh viên. Vượt quá giới hạn cho phép.`,
+        message: `Sĩ số tối đa cho khoa "${faculty}" là ${maxAllowed} sinh viên. Vượt quá giới hạn cho phép.`,
       };
     }
 

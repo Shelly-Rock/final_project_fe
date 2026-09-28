@@ -110,7 +110,7 @@ export function QuotaAdjustDialog({
               </span>
             </div>
             <div style={{ fontSize: "0.875rem", color: "#64748b" }}>
-              Khoa: {teacherQuota.department}
+              Khoa: {teacherQuota.faculty}
             </div>
             <div style={{ fontSize: "0.875rem", color: "#64748b" }}>
               Đã nộp: {teacherQuota.submittedTopics} đề tài

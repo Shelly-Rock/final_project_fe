@@ -101,9 +101,9 @@ export const AdminDashboard: React.FC = () => {
     queryFn: () => adminDashboardService.getAdminStats(),
   });
 
-  const { data: departmentStats } = useQuery({
-    queryKey: ["admin-department-stats"],
-    queryFn: () => adminDashboardService.getDepartmentStats(),
+  const { data: facultyStats } = useQuery({
+    queryKey: ["admin-faculty-stats"],
+    queryFn: () => adminDashboardService.getFacultyStats(),
   });
 
   const projectStatus =
@@ -126,17 +126,17 @@ export const AdminDashboard: React.FC = () => {
       ]
     : [];
 
-  const departmentMetrics =
-    departmentStats?.map((dept) => ({
-      name: dept.name,
+  const facultyMetrics =
+    facultyStats?.map((faculty) => ({
+      name: faculty.name,
       totalStudents: 0,
-      totalTeachers: dept.teacherCount ?? dept.teachers ?? 0,
-      totalProjects: getProjectStat(dept.projects, "total"),
-      approvedProjects: getProjectStat(dept.projects, "approved"),
-      pendingProjects: getProjectStat(dept.projects, "pending"),
-      rejectedProjects: getProjectStat(dept.projects, "rejected"),
-      faculty: dept.faculty,
-      secretary: dept.secretary,
+      totalTeachers: faculty.teacher_count,
+      totalProjects: getProjectStat(faculty.projects, "total"),
+      approvedProjects: getProjectStat(faculty.projects, "approved"),
+      pendingProjects: getProjectStat(faculty.projects, "pending"),
+      rejectedProjects: getProjectStat(faculty.projects, "rejected"),
+      faculty: faculty.name,
+      secretary: "",
     })) || [];
 
   if (isLoading) {
@@ -194,7 +194,7 @@ export const AdminDashboard: React.FC = () => {
         />
         <StatCard
           label="Tổng Khoa"
-          value={dashboardStats?.summary.totalDepartments}
+          value={dashboardStats?.summary.totalFaculties}
           icon={<TrendingUp size={24} style={{ color: "#f59e0b" }} />}
         />
       </Box>
@@ -279,7 +279,7 @@ export const AdminDashboard: React.FC = () => {
                   <CardHeader title="Thống Kê Theo Khoa" />
                   <CardContentDiv>
                     <ResponsiveContainer width="100%" height={400}>
-                      <BarChart data={departmentMetrics}>
+                      <BarChart data={facultyMetrics}>
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis dataKey="name" />
                         <YAxis />
@@ -355,7 +355,7 @@ export const AdminDashboard: React.FC = () => {
         onChange={setSelectedTab}
       />
 
-      {/* Department Table */}
+      {/* Faculty Table */}
       <Box sx={{ mt: 4 }}>
         <Card variant="elevation">
           <CardHeader title="Chi Tiết Các Khoa" />
@@ -448,7 +448,7 @@ export const AdminDashboard: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {departmentMetrics.map((dept, idx) => (
+                  {facultyMetrics.map((faculty, idx) => (
                     <tr key={idx} style={{ borderBottom: "1px solid #e5e7eb" }}>
                       <td
                         style={{
@@ -457,7 +457,7 @@ export const AdminDashboard: React.FC = () => {
                           color: "#111827",
                         }}
                       >
-                        {dept.name}
+                        {faculty.name}
                       </td>
                       <td
                         style={{
@@ -466,7 +466,7 @@ export const AdminDashboard: React.FC = () => {
                           color: "#4b5563",
                         }}
                       >
-                        {dept.totalTeachers}
+                        {faculty.totalTeachers}
                       </td>
                       <td
                         style={{
@@ -475,7 +475,7 @@ export const AdminDashboard: React.FC = () => {
                           color: "#4b5563",
                         }}
                       >
-                        {dept.totalProjects}
+                        {faculty.totalProjects}
                       </td>
                       <td
                         style={{
@@ -485,7 +485,7 @@ export const AdminDashboard: React.FC = () => {
                           fontWeight: 500,
                         }}
                       >
-                        {dept.approvedProjects}
+                        {faculty.approvedProjects}
                       </td>
                       <td
                         style={{
@@ -495,7 +495,7 @@ export const AdminDashboard: React.FC = () => {
                           fontWeight: 500,
                         }}
                       >
-                        {dept.pendingProjects}
+                        {faculty.pendingProjects}
                       </td>
                       <td
                         style={{
@@ -505,10 +505,10 @@ export const AdminDashboard: React.FC = () => {
                           fontWeight: 500,
                         }}
                       >
-                        {dept.rejectedProjects}
+                        {faculty.rejectedProjects}
                       </td>
                       <td style={{ padding: "16px 24px", color: "#4b5563" }}>
-                        {dept.secretary}
+                        {faculty.secretary}
                       </td>
                     </tr>
                   ))}
