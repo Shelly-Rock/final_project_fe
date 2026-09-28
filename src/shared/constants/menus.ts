@@ -71,6 +71,13 @@ export const MENU_SECTIONS: MenuSection[] = [
         roles: ["admin", "secretary"],
       },
       {
+        key: "faculty-management",
+        label: "Quản lý Khoa",
+        icon: Icon.peopleTeam,
+        path: "/department/faculties",
+        roles: ["admin", "secretary"],
+      },
+      {
         key: "admin-progress",
         label: "Theo dõi tiến trình",
         icon: Icon.graphUp,
