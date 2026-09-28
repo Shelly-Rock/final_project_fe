@@ -204,7 +204,7 @@ const SendNotificationForm: React.FC<SendNotificationFormProps> = ({
   onClose,
 }) => {
   const searchParams = useSearchParams();
-  const scopedDepartmentId = searchParams.get("departmentId") || "";
+  const scopedFacultyId = searchParams.get("facultyId") || "";
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
   const t = isDark
@@ -397,7 +397,7 @@ const SendNotificationForm: React.FC<SendNotificationFormProps> = ({
   const [recipients, setRecipients] = useState<Recipient[]>([]);
   const [loadingDepts, setLoadingDepts] = useState(false);
   const [loadingRecipients, setLoadingRecipients] = useState(false);
-  const [selectedDept, setSelectedDept] = useState<string>(scopedDepartmentId);
+  const [selectedDept, setSelectedDept] = useState<string>(scopedFacultyId);
   const [deptOpen, setDeptOpen] = useState(false);
   const [fileName, setFileName] = useState<string>("");
   const [fileSize, setFileSize] = useState<number>(0);
@@ -408,9 +408,9 @@ const SendNotificationForm: React.FC<SendNotificationFormProps> = ({
   }, []);
 
   useEffect(() => {
-    setSelectedDept(scopedDepartmentId);
+    setSelectedDept(scopedFacultyId);
     setValue("recipientIds", []);
-  }, [scopedDepartmentId, setValue]);
+  }, [scopedFacultyId, setValue]);
 
   useEffect(() => {
     setValue("recipientIds", []);
@@ -510,7 +510,7 @@ const SendNotificationForm: React.FC<SendNotificationFormProps> = ({
       if (editorRef.current) editorRef.current.innerHTML = "";
       setFileName("");
       setFileSize(0);
-      setSelectedDept(scopedDepartmentId);
+      setSelectedDept(scopedFacultyId);
       onSuccess?.();
       if (saveDraft) onClose?.();
     } catch (error) {
@@ -715,10 +715,10 @@ const SendNotificationForm: React.FC<SendNotificationFormProps> = ({
                   <button
                     type="button"
                     onClick={() => {
-                      if (scopedDepartmentId) return;
+                      if (scopedFacultyId) return;
                       setDeptOpen((v) => !v);
                     }}
-                    disabled={loadingDepts || !!scopedDepartmentId}
+                    disabled={loadingDepts || !!scopedFacultyId}
                     className="w-full flex items-center justify-between cursor-pointer disabled:opacity-50"
                     style={{
                       height: 44,
@@ -755,7 +755,7 @@ const SendNotificationForm: React.FC<SendNotificationFormProps> = ({
                       }}
                     />
                   </button>
-                  {deptOpen && !scopedDepartmentId && (
+                  {deptOpen && !scopedFacultyId && (
                     <div
                       className="absolute z-20 overflow-hidden overflow-y-auto"
                       style={{

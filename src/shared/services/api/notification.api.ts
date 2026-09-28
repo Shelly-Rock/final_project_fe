@@ -13,6 +13,7 @@ export const notificationApi = {
   getNotifications: async (params?: {
     page?: number;
     limit?: number;
+    facultyId?: string;
   }): Promise<{
     notifications: INotification[];
     total: number;
@@ -26,7 +27,7 @@ export const notificationApi = {
     const res = await apiClient.get<NotificationListResponse>(
       "/notifications",
       {
-        params: { page, limit },
+        params: { page, limit, facultyId: params?.facultyId },
       },
     );
 

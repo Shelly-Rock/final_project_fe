@@ -135,6 +135,7 @@ class DefenseService {
     status?: DefenseSessionStatus;
     defenseDate?: string;
     room?: string;
+    facultyId?: string;
   }): Promise<PaginatedResult<DefenseSession>> {
     const searchParams = new URLSearchParams();
     if (params?.page) searchParams.set("page", String(params.page));
@@ -145,6 +146,7 @@ class DefenseService {
     if (params?.defenseDate)
       searchParams.set("defense_date", params.defenseDate);
     if (params?.room) searchParams.set("room", params.room);
+    if (params?.facultyId) searchParams.set("faculty_id", params.facultyId);
 
     const response: any = await apiClient.get(
       `${API_BASE}?${searchParams.toString()}`,
@@ -163,10 +165,13 @@ class DefenseService {
     return mapDefenseSession(response);
   }
 
-  async getAvailableProjects(): Promise<any[]> {
+  async getAvailableProjects(facultyId?: string): Promise<any[]> {
     try {
+      const query = facultyId
+        ? `?faculty_id=${encodeURIComponent(facultyId)}`
+        : "";
       const response: any = await apiClient.get(
-        "/defense-sessions/projects/available",
+        `/defense-sessions/projects/available${query}`,
       );
       return response || [];
     } catch (_error) {
@@ -311,8 +316,13 @@ class DefenseService {
 
   // ==================== STATISTICS ====================
 
-  async getStats(): Promise<DefenseStats> {
-    const response: any = await apiClient.get(`${API_BASE}/stats/summary`);
+  async getStats(facultyId?: string): Promise<DefenseStats> {
+    const query = facultyId
+      ? `?faculty_id=${encodeURIComponent(facultyId)}`
+      : "";
+    const response: any = await apiClient.get(
+      `${API_BASE}/stats/summary${query}`,
+    );
     return {
       totalSessions: response.total_sessions || 0,
       scheduled: response.scheduled || 0,

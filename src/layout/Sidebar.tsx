@@ -7,8 +7,8 @@ import { usePermissionContext } from "@/core/providers/PermissionProvider";
 import { getMenuSectionsForRole } from "@/shared/constants/menus";
 import { useMediaQuery } from "@/shared/hooks";
 import {
-  buildDepartmentScopedPath,
-  useDepartmentContext,
+  buildFacultyScopedPath,
+  useFacultyContext,
 } from "@/shared/hooks/useDepartmentContext";
 import { default as Logo } from "@/assets/image/png/logo.png";
 import { default as LogoCollapsed } from "@/assets/image/png/logo02.png";
@@ -41,7 +41,7 @@ export function Sidebar({
 }: SidebarProps) {
   const pathname = usePathname();
   const { role } = usePermissionContext();
-  const { departmentId } = useDepartmentContext();
+  const { facultyId } = useFacultyContext();
   const isDesktop = useMediaQuery("(min-width: 1024px)");
 
   const hidden = shouldHideSidebar(pathname);
@@ -211,10 +211,10 @@ export function Sidebar({
                       className="sidebar-menu"
                     >
                       {section.items.map((item) => {
-                        const href = buildDepartmentScopedPath(
+                        const href = buildFacultyScopedPath(
                           item.path,
                           item.key,
-                          departmentId,
+                          facultyId,
                         );
                         return (
                           <li

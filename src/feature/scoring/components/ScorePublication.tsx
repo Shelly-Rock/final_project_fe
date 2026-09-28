@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   Box,
   Chip,
@@ -30,6 +30,8 @@ function studentName(row: TranscriptDetail) {
 
 export function ScorePublicationPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const facultyId = searchParams.get("facultyId") || undefined;
   const [loading, setLoading] = useState(true);
   const [rows, setRows] = useState<TranscriptDetail[]>([]);
   const [page, setPage] = useState(1);
@@ -43,6 +45,7 @@ export function ScorePublicationPage() {
         page,
         limit: 20,
         published: tab === "published",
+        facultyId,
       });
       setRows(data.data);
       setTotal(data.meta.total);
@@ -51,7 +54,7 @@ export function ScorePublicationPage() {
     } finally {
       setLoading(false);
     }
-  }, [page, tab]);
+  }, [page, tab, facultyId]);
 
   useEffect(() => {
     fetchRows();
@@ -122,7 +125,10 @@ export function ScorePublicationPage() {
       icon: <FileText size={16} />,
       label: (row) => (row.isPublished ? "Xem bảng điểm" : "Tính & công bố"),
       color: "primary",
-      onClick: (row) => router.push(`/scoring/transcript/${row.projectId}`),
+      onClick: (row) =>
+        router.push(
+          `/scoring/transcript/${row.projectId}${facultyId ? `?facultyId=${encodeURIComponent(facultyId)}` : ""}`,
+        ),
     },
   ];
 

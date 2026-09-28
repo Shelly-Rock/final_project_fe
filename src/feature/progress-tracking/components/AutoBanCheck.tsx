@@ -62,10 +62,12 @@ const STATUS_LABELS: Record<ProgressStatus, string> = {
 
 interface ProgressStatsCardsProps {
   teacherId?: number;
+  facultyId?: string;
 }
 
 export function ProgressStatsCards({
   teacherId: _teacherId,
+  facultyId,
 }: ProgressStatsCardsProps) {
   const [stats, setStats] = useState<ProgressStatistics | null>(null);
   const [loading, setLoading] = useState(true);
@@ -73,14 +75,14 @@ export function ProgressStatsCards({
   const loadStats = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await progressTrackingService.getStatistics();
+      const data = await progressTrackingService.getStatistics(facultyId);
       setStats(data);
     } catch {
       toast.error("Không thể tải thống kê");
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [facultyId]);
 
   useEffect(() => {
     loadStats();
@@ -365,19 +367,25 @@ export function StudentProgressTable({
 
 interface BanWarningsListProps {
   teacherId?: number;
+  facultyId?: string;
 }
 
-export function BanWarningsList({ teacherId }: BanWarningsListProps) {
+export function BanWarningsList({
+  teacherId,
+  facultyId,
+}: BanWarningsListProps) {
   const [warnings, setWarnings] = useState<BanWarning[]>([]);
   const [loading, setLoading] = useState(true);
 
   const checkBans = useCallback(async () => {
     setLoading(true);
     try {
-      const allWarnings = await progressTrackingService.getBanWarnings();
+      const allWarnings =
+        await progressTrackingService.getBanWarnings(facultyId);
       if (teacherId !== undefined) {
         const progressList = await progressTrackingService.getStudentProgress({
           teacherId,
+          facultyId,
           page: 1,
           limit: 100,
         });
@@ -396,7 +404,7 @@ export function BanWarningsList({ teacherId }: BanWarningsListProps) {
     } finally {
       setLoading(false);
     }
-  }, [teacherId]);
+  }, [facultyId, teacherId]);
 
   useEffect(() => {
     checkBans();
@@ -458,11 +466,13 @@ export function BanWarningsList({ teacherId }: BanWarningsListProps) {
 
 interface BannedStudentsListProps {
   teacherId?: number;
+  facultyId?: string;
   onUnban?: (studentId: number) => void;
 }
 
 export function BannedStudentsList({
   teacherId: _teacherId,
+  facultyId,
   onUnban,
 }: BannedStudentsListProps) {
   const [bannedStudents, setBannedStudents] = useState<StudentProgress[]>([]);
@@ -473,14 +483,14 @@ export function BannedStudentsList({
   const loadBannedStudents = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await progressTrackingService.getBannedStudents();
+      const data = await progressTrackingService.getBannedStudents(facultyId);
       setBannedStudents(data);
     } catch {
       toast.error("Không thể tải danh sách sinh viên bị cấm");
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [facultyId]);
 
   useEffect(() => {
     loadBannedStudents();
@@ -702,10 +712,12 @@ export function StudentDetailDialog({
 // ============================================================
 
 interface AutoBanCheckComponentProps {
+  facultyId?: string;
   onBanDetected?: (bannedStudentIds: number[]) => void;
 }
 
 export function AutoBanCheckComponent({
+  facultyId,
   onBanDetected,
 }: AutoBanCheckComponentProps) {
   const [checking, setChecking] = useState(false);
@@ -723,7 +735,7 @@ export function AutoBanCheckComponent({
         );
         onBanDetected?.(bannedIds);
       }
-      const warnings = await progressTrackingService.getBanWarnings();
+      const warnings = await progressTrackingService.getBanWarnings(facultyId);
       if (warnings.length > 0) {
         toast.info(`${warnings.length} sinh viên sắp bị cấm thi`, {
           description: warnings
@@ -736,7 +748,7 @@ export function AutoBanCheckComponent({
     } finally {
       setChecking(false);
     }
-  }, [onBanDetected]);
+  }, [facultyId, onBanDetected]);
 
   const tooltip = lastCheck
     ? `Lần kiểm tra cuối: ${lastCheck.toLocaleTimeString("vi-VN")}`

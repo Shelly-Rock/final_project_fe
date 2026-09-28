@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useCallback, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import {
   Box,
   Typography,
@@ -94,7 +95,7 @@ function TabPanel(props: TabPanelProps) {
 // All Reports Review Component (Admin)
 // ============================================================
 
-function AllReportsReview() {
+function AllReportsReview({ facultyId }: { facultyId?: string }) {
   const [reports, setReports] = useState<ProgressReport[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedReport, setSelectedReport] = useState<ProgressReport | null>(
@@ -114,6 +115,7 @@ function AllReportsReview() {
       const result = await progressTrackingService.getReports({
         page: 1,
         limit: 100,
+        facultyId,
       });
       setReports(result.data);
     } catch {
@@ -121,7 +123,7 @@ function AllReportsReview() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [facultyId]);
 
   useEffect(() => {
     loadReports();
@@ -395,7 +397,7 @@ function AllReportsReview() {
 // All Students Progress Component (Admin)
 // ============================================================
 
-function AllStudentsProgress() {
+function AllStudentsProgress({ facultyId }: { facultyId?: string }) {
   const [progressList, setProgressList] = useState<StudentProgress[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<ProgressStatus | "ALL">(
@@ -410,6 +412,7 @@ function AllStudentsProgress() {
       const result = await progressTrackingService.getStudentProgress({
         page: 1,
         limit: 100,
+        facultyId,
       });
       setProgressList(result.data);
     } catch {
@@ -417,7 +420,7 @@ function AllStudentsProgress() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [facultyId]);
 
   useEffect(() => {
     loadProgress();
@@ -652,6 +655,8 @@ function AllStudentsProgress() {
 // ============================================================
 
 export default function AdminProgressPage() {
+  const searchParams = useSearchParams();
+  const facultyId = searchParams.get("facultyId") || undefined;
   const theme = useTheme();
   const [tabValue, setTabValue] = useState(0);
   const [notificationDialogOpen, setNotificationDialogOpen] = useState(false);
@@ -664,10 +669,13 @@ export default function AdminProgressPage() {
   return (
     <Box sx={{ p: 3, width: "100%" }}>
       {/* Ban Warnings */}
-      <BanWarningsList />
+      <BanWarningsList facultyId={facultyId} />
 
       {/* Statistics Cards */}
-      <ProgressStatsCards key={`stats-${refreshKey}`} />
+      <ProgressStatsCards
+        key={`stats-${refreshKey}-${facultyId ?? "all"}`}
+        facultyId={facultyId}
+      />
 
       {/* Tabs */}
       <Paper sx={{ mb: 2, background: getCardBackground(theme) }}>
@@ -710,7 +718,7 @@ export default function AdminProgressPage() {
               flexShrink: 0,
             }}
           >
-            <AutoBanCheckComponent />
+            <AutoBanCheckComponent facultyId={facultyId} />
             <Button
               variant="outlined"
               size="small"
@@ -724,15 +732,24 @@ export default function AdminProgressPage() {
       </Paper>
 
       <TabPanel value={tabValue} index={0}>
-        <AllStudentsProgress key={`progress-${refreshKey}`} />
+        <AllStudentsProgress
+          key={`progress-${refreshKey}-${facultyId ?? "all"}`}
+          facultyId={facultyId}
+        />
       </TabPanel>
 
       <TabPanel value={tabValue} index={1}>
-        <AllReportsReview key={`reports-${refreshKey}`} />
+        <AllReportsReview
+          key={`reports-${refreshKey}-${facultyId ?? "all"}`}
+          facultyId={facultyId}
+        />
       </TabPanel>
 
       <TabPanel value={tabValue} index={2}>
-        <BannedStudentsList />
+        <BannedStudentsList
+          key={`banned-${refreshKey}-${facultyId ?? "all"}`}
+          facultyId={facultyId}
+        />
       </TabPanel>
 
       {/* Notification Dialog */}

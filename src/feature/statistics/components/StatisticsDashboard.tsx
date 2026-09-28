@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import {
   Box,
   Button,
@@ -63,6 +64,8 @@ function StatCard({
 }
 
 export function StatisticsDashboardPage() {
+  const searchParams = useSearchParams();
+  const facultyId = searchParams.get("facultyId") || undefined;
   const [loading, setLoading] = useState(true);
   const [exporting, setExporting] = useState(false);
   const [periodId, setPeriodId] = useState<number | "">("");
@@ -75,8 +78,8 @@ export function StatisticsDashboardPage() {
       setLoading(true);
       const pid = periodId === "" ? undefined : periodId;
       const [report, rows] = await Promise.all([
-        getAcademicReport(pid),
-        getTeacherProductivity(pid),
+        getAcademicReport(pid, facultyId),
+        getTeacherProductivity(pid, facultyId),
       ]);
       setAcademic(report);
       setTeachers(rows);
@@ -85,14 +88,20 @@ export function StatisticsDashboardPage() {
     } finally {
       setLoading(false);
     }
-  }, [periodId]);
+  }, [facultyId, periodId]);
 
   useEffect(() => {
     periodService
-      .getAll()
+      .getAll({
+        search: "",
+        semester: "all",
+        schoolYear: "all",
+        status: "all",
+        facultyId,
+      })
       .then((list) => setPeriods(list.map((p) => ({ id: p.id, name: p.name }))))
       .catch(() => undefined);
-  }, []);
+  }, [facultyId]);
 
   useEffect(() => {
     load();
@@ -101,7 +110,10 @@ export function StatisticsDashboardPage() {
   const handleExport = async () => {
     try {
       setExporting(true);
-      await exportStatisticsExcel(periodId === "" ? undefined : periodId);
+      await exportStatisticsExcel(
+        periodId === "" ? undefined : periodId,
+        facultyId,
+      );
       toast.success("Đã xuất file Excel");
     } catch (err) {
       toast.error((err as Error).message || "Không thể xuất Excel");

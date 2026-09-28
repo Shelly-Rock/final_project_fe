@@ -33,6 +33,7 @@ export interface AuditQueryParams {
   action?: string;
   from?: string;
   to?: string;
+  facultyId?: string;
 }
 
 export interface PaginatedAuditLogs {
@@ -50,14 +51,20 @@ class AuditService {
     const searchParams = new URLSearchParams();
     if (params?.page) searchParams.set("page", String(params.page));
     if (params?.limit) searchParams.set("limit", String(params.limit));
-    if (params?.entity_type) searchParams.set("entity_type", params.entity_type);
-    if (params?.entity_id) searchParams.set("entity_id", String(params.entity_id));
-    if (params?.actor_user_id) searchParams.set("actor_user_id", String(params.actor_user_id));
+    if (params?.entity_type)
+      searchParams.set("entity_type", params.entity_type);
+    if (params?.entity_id)
+      searchParams.set("entity_id", String(params.entity_id));
+    if (params?.actor_user_id)
+      searchParams.set("actor_user_id", String(params.actor_user_id));
     if (params?.action) searchParams.set("action", params.action);
     if (params?.from) searchParams.set("from", params.from);
     if (params?.to) searchParams.set("to", params.to);
+    if (params?.facultyId) searchParams.set("facultyId", params.facultyId);
 
-    const response: any = await apiClient.get(`/audit?${searchParams.toString()}`);
+    const response: any = await apiClient.get(
+      `/audit?${searchParams.toString()}`,
+    );
     return {
       data: response.data || [],
       total: response.total || 0,

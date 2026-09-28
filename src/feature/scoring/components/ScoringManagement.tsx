@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   Box,
   Tabs,
@@ -115,6 +115,8 @@ interface ActionItem {
 
 export function ScoringManagementPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const facultyId = searchParams.get("facultyId") || undefined;
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
   const ink = theme.palette.text.primary;
@@ -164,12 +166,12 @@ export function ScoringManagementPage() {
   const loadOverview = useCallback(async () => {
     const [scoresRes, resultsRes, openM, doneM, draftT, pubT] =
       await Promise.allSettled([
-        getAllScores({ page: 1, limit: 100 }),
-        getAllResults({ page: 1, limit: 100 }),
-        getMeetings({ page: 1, limit: 100, finalized: false }),
-        getMeetings({ page: 1, limit: 100, finalized: true }),
-        getTranscripts({ page: 1, limit: 100, published: false }),
-        getTranscripts({ page: 1, limit: 100, published: true }),
+        getAllScores({ page: 1, limit: 100, facultyId }),
+        getAllResults({ page: 1, limit: 100, facultyId }),
+        getMeetings({ page: 1, limit: 100, finalized: false, facultyId }),
+        getMeetings({ page: 1, limit: 100, finalized: true, facultyId }),
+        getTranscripts({ page: 1, limit: 100, published: false, facultyId }),
+        getTranscripts({ page: 1, limit: 100, published: true, facultyId }),
       ]);
     if (scoresRes.status === "fulfilled") {
       const list = scoresRes.value.data ?? [];
@@ -187,7 +189,7 @@ export function ScoringManagementPage() {
     if (draftT.status === "fulfilled")
       setTranscriptsDraft(draftT.value.data ?? []);
     if (pubT.status === "fulfilled") setTranscriptsPub(pubT.value.data ?? []);
-  }, []);
+  }, [facultyId]);
 
   const fetchScores = useCallback(async () => {
     try {
@@ -197,6 +199,7 @@ export function ScoringManagementPage() {
         limit: 20,
         ...(scoringType !== "ALL" ? { scoringType } : {}),
         ...(status !== "ALL" ? { status } : {}),
+        facultyId,
       });
       setScores(data.data);
       setTotal(data.meta.total);
@@ -205,12 +208,12 @@ export function ScoringManagementPage() {
     } finally {
       setLoading(false);
     }
-  }, [page, scoringType, status]);
+  }, [page, scoringType, status, facultyId]);
 
   const fetchResults = useCallback(async () => {
     try {
       setLoading(true);
-      const data = await getAllResults({ page, limit: 20 });
+      const data = await getAllResults({ page, limit: 20, facultyId });
       setResults(data.data);
       setTotal(data.meta.total);
     } catch {
@@ -218,7 +221,7 @@ export function ScoringManagementPage() {
     } finally {
       setLoading(false);
     }
-  }, [page]);
+  }, [page, facultyId]);
 
   useEffect(() => {
     loadOverview();
@@ -419,7 +422,10 @@ export function ScoringManagementPage() {
         kind: "ready",
         title: `${m.projectCode} — đủ phiếu, sẵn sàng chốt`,
         subtitle: `${studentName(m.student)} · ${m.scoredCount}/${m.totalCount} phiếu`,
-        onClick: () => router.push(`/scoring/meeting/${m.projectId}`),
+        onClick: () =>
+          router.push(
+            `/scoring/meeting/${m.projectId}${facultyId ? `?facultyId=${encodeURIComponent(facultyId)}` : ""}`,
+          ),
       });
     });
     readyToPublish.slice(0, 2).forEach((t) => {
@@ -428,7 +434,10 @@ export function ScoringManagementPage() {
         kind: "ready",
         title: `${t.projectCode} — chờ công bố điểm`,
         subtitle: `${studentName(t.student)} · điểm ${t.finalScore ?? "—"}`,
-        onClick: () => router.push(`/scoring/transcript/${t.projectId}`),
+        onClick: () =>
+          router.push(
+            `/scoring/transcript/${t.projectId}${facultyId ? `?facultyId=${encodeURIComponent(facultyId)}` : ""}`,
+          ),
       });
     });
     return items.slice(0, 6);

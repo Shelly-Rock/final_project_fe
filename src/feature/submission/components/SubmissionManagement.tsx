@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
+import { useSearchParams } from "next/navigation";
 import { submissionService, Submission, SubmissionStatus } from "../services";
 import { toast } from "sonner";
 import { SubmissionStats } from "./SubmissionStats";
@@ -15,6 +16,8 @@ interface SubmissionWithName extends Submission {
 }
 
 export function SubmissionManagement() {
+  const searchParams = useSearchParams();
+  const facultyId = searchParams.get("facultyId") || undefined;
   const [submissions, setSubmissions] = useState<SubmissionWithName[]>([]);
   const [loading, setLoading] = useState(false);
   const [pagination, setPagination] = useState({
@@ -45,6 +48,7 @@ export function SubmissionManagement() {
         page: current,
         limit: pageSize,
         status: statusFilter || undefined,
+        facultyId,
       });
       setSubmissions(result.data as SubmissionWithName[]);
       setPagination((prev) => ({ ...prev, total: result.total }));
@@ -53,16 +57,16 @@ export function SubmissionManagement() {
     } finally {
       setLoading(false);
     }
-  }, [current, pageSize, statusFilter]);
+  }, [current, pageSize, statusFilter, facultyId]);
 
   const fetchStats = useCallback(async () => {
     try {
-      const result = await submissionService.getStats();
+      const result = await submissionService.getStats(facultyId);
       setStats(result);
     } catch {
       // silent fail for stats
     }
-  }, []);
+  }, [facultyId]);
 
   useEffect(() => {
     fetchSubmissions();

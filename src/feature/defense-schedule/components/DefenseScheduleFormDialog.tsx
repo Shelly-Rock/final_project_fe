@@ -34,6 +34,7 @@ interface DefenseScheduleFormDialogProps {
   session?: DefenseSession | null;
   loading?: boolean;
   committees: Committee[];
+  facultyId?: string;
 }
 
 export function DefenseScheduleFormDialog({
@@ -43,6 +44,7 @@ export function DefenseScheduleFormDialog({
   session,
   loading = false,
   committees,
+  facultyId,
 }: DefenseScheduleFormDialogProps) {
   const isEdit = !!session;
   const prevOpenRef = useRef<boolean>(open);
@@ -64,12 +66,12 @@ export function DefenseScheduleFormDialog({
   useEffect(() => {
     if (open) {
       import("../services").then(({ defenseService }) => {
-        defenseService.getAvailableProjects().then((projects) => {
+        defenseService.getAvailableProjects(facultyId).then((projects) => {
           setAvailableProjects(projects);
         });
       });
     }
-  }, [open]);
+  }, [open, facultyId]);
 
   // ---- Reset form khi dialog mở ----
   useEffect(() => {

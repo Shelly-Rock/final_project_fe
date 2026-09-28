@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useSearchParams } from "next/navigation";
 import { Box } from "@mui/material";
 import {
   PeriodTable,
@@ -17,6 +18,8 @@ import { ClipboardList } from "lucide-react";
 import { toast } from "sonner";
 
 export default function RegistrationPeriodManagementPage() {
+  const searchParams = useSearchParams();
+  const facultyId = searchParams.get("facultyId") || undefined;
   // Periods state
   const [allPeriods, setAllPeriods] = useState<RegistrationPeriod[]>([]);
   const [periodLoading, setPeriodLoading] = useState(true);
@@ -33,13 +36,19 @@ export default function RegistrationPeriodManagementPage() {
   const refreshPeriods = useCallback(() => {
     setPeriodLoading(true);
     periodService
-      .getAll()
+      .getAll({
+        search: "",
+        semester: "all",
+        schoolYear: "all",
+        status: "all",
+        facultyId,
+      })
       .then((data) => {
         setAllPeriods(data);
       })
       .catch(() => toast.error("Không thể tải danh sách đợt đăng ký"))
       .finally(() => setPeriodLoading(false));
-  }, []);
+  }, [facultyId]);
 
   // Filter and search periods - derived state
   const displayedPeriods = allPeriods.filter((period) => {

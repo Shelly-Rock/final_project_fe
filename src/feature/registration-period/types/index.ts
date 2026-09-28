@@ -139,6 +139,7 @@ export interface PeriodFilters {
   semester: string;
   schoolYear: string;
   status: PeriodStatus | "all";
+  facultyId?: string;
 }
 
 // ============================================================

@@ -306,6 +306,7 @@ class ProgressTrackingService {
     status?: ReportStatus;
     studentId?: number;
     teacherId?: number;
+    facultyId?: string;
   }): Promise<PaginatedResult<ProgressReport>> {
     const searchParams = new URLSearchParams();
     if (params?.page) searchParams.set("page", String(params.page));
@@ -315,6 +316,7 @@ class ProgressTrackingService {
       searchParams.set("student_id", String(params.studentId));
     if (params?.teacherId)
       searchParams.set("teacher_id", String(params.teacherId));
+    if (params?.facultyId) searchParams.set("faculty_id", params.facultyId);
 
     const response: any = await apiClient.get(
       `${API_BASE}/reports?${searchParams.toString()}`,
@@ -393,6 +395,7 @@ class ProgressTrackingService {
     status?: ProgressStatus;
     isBanned?: boolean;
     teacherId?: number;
+    facultyId?: string;
   }): Promise<PaginatedResult<StudentProgress>> {
     const searchParams = new URLSearchParams();
     if (params?.page) searchParams.set("page", String(params.page));
@@ -402,6 +405,7 @@ class ProgressTrackingService {
       searchParams.set("is_banned", String(params.isBanned));
     if (params?.teacherId !== undefined)
       searchParams.set("teacher_id", String(params.teacherId));
+    if (params?.facultyId) searchParams.set("faculty_id", params.facultyId);
 
     const response: any = await apiClient.get(
       `${API_BASE}/students/progress?${searchParams.toString()}`,
@@ -580,13 +584,21 @@ class ProgressTrackingService {
 
   // ==================== STATISTICS ====================
 
-  async getStatistics(): Promise<ProgressStatistics> {
-    const response: any = await apiClient.get(`${API_BASE}/stats`);
+  async getStatistics(facultyId?: string): Promise<ProgressStatistics> {
+    const query = facultyId
+      ? `?faculty_id=${encodeURIComponent(facultyId)}`
+      : "";
+    const response: any = await apiClient.get(`${API_BASE}/stats${query}`);
     return mapStats(response);
   }
 
-  async getBanWarnings(): Promise<BanWarning[]> {
-    const response: any = await apiClient.get(`${API_BASE}/stats/ban-warnings`);
+  async getBanWarnings(facultyId?: string): Promise<BanWarning[]> {
+    const query = facultyId
+      ? `?faculty_id=${encodeURIComponent(facultyId)}`
+      : "";
+    const response: any = await apiClient.get(
+      `${API_BASE}/stats/ban-warnings${query}`,
+    );
     const warnings = Array.isArray(response) ? response : response.data || [];
     return warnings.map((raw: any) => ({
       studentId: raw.student_id,
@@ -597,9 +609,12 @@ class ProgressTrackingService {
     }));
   }
 
-  async getBannedStudents(): Promise<StudentProgress[]> {
+  async getBannedStudents(facultyId?: string): Promise<StudentProgress[]> {
+    const query = facultyId
+      ? `?faculty_id=${encodeURIComponent(facultyId)}`
+      : "";
     const response: any = await apiClient.get(
-      `${API_BASE}/stats/banned-students`,
+      `${API_BASE}/stats/banned-students${query}`,
     );
     const students = Array.isArray(response) ? response : response.data || [];
     return students.map(mapProgress);

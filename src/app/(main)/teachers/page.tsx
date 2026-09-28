@@ -36,6 +36,7 @@ interface Faculty {
 
 export default function TeacherManagementPage() {
   const searchParams = useSearchParams();
+  const scopedFacultyId = searchParams.get("facultyId");
 
   // Lecturers state
   const [teachers, setTeachers] = useState<Lecturer[]>([]);
@@ -49,13 +50,17 @@ export default function TeacherManagementPage() {
   const [importDialogOpen, setImportDialogOpen] = useState(false);
 
   // Filter state by faculty
-  const [filterFaculty, setFilterFaculty] = useState("all");
+  const [filterFaculty, setFilterFaculty] = useState(scopedFacultyId || "all");
   const [search, setSearch] = useState("");
   const [khoaAnchorEl, setKhoaAnchorEl] = useState<HTMLElement | null>(null);
 
   // Faculty/Department from API
   const [faculties, setFaculties] = useState<Faculty[]>([]);
   const [loadingFaculties, setLoadingFaculties] = useState(true);
+
+  useEffect(() => {
+    setFilterFaculty(scopedFacultyId || "all");
+  }, [scopedFacultyId]);
 
   // Load faculties on mount
   useEffect(() => {
@@ -307,6 +312,7 @@ export default function TeacherManagementPage() {
           >
             <MenuItem
               selected={filterFaculty === "all"}
+              disabled={!!scopedFacultyId}
               onClick={() => {
                 handleFacultyChange("all");
                 setKhoaAnchorEl(null);
@@ -318,6 +324,7 @@ export default function TeacherManagementPage() {
               <MenuItem
                 key={faculty.id}
                 selected={filterFaculty === faculty.id}
+                disabled={!!scopedFacultyId && faculty.id !== scopedFacultyId}
                 onClick={() => {
                   handleFacultyChange(faculty.id);
                   setKhoaAnchorEl(null);

@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   Box,
   Button,
@@ -107,6 +107,8 @@ function formatDeadline(iso: string) {
 
 export function PostDefenseRankingPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const facultyId = searchParams.get("facultyId") || undefined;
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
   const ink = theme.palette.text.primary;
@@ -137,7 +139,7 @@ export function PostDefenseRankingPage() {
   const fetchRows = useCallback(async () => {
     try {
       setLoading(true);
-      const data = await getPostDefenseList({ page, limit: 50 });
+      const data = await getPostDefenseList({ page, limit: 50, facultyId });
       setRows(data.data);
       setTotal(data.meta.total);
     } catch {
@@ -145,7 +147,7 @@ export function PostDefenseRankingPage() {
     } finally {
       setLoading(false);
     }
-  }, [page]);
+  }, [page, facultyId]);
 
   useEffect(() => {
     fetchRows();
@@ -394,7 +396,12 @@ export function PostDefenseRankingPage() {
       icon: <Printer size={16} />,
       label: "In biểu mẫu",
       variant: "outlined",
-      onClick: () => router.push("/scoring/post-defense/print"),
+      onClick: () =>
+        router.push(
+          facultyId
+            ? `/scoring/post-defense/print?facultyId=${encodeURIComponent(facultyId)}`
+            : "/scoring/post-defense/print",
+        ),
     },
     {
       id: "rank",

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
+import { useSearchParams } from "next/navigation";
 import axios from "axios";
 import {
   Box,
@@ -32,6 +33,8 @@ const INITIAL_FILTERS: StudentFilters = {
 };
 
 export default function StudentManagementPage() {
+  const searchParams = useSearchParams();
+  const facultyId = searchParams.get("facultyId") || undefined;
   const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState<StudentFilters>(INITIAL_FILTERS);
@@ -60,7 +63,7 @@ export default function StudentManagementPage() {
   const refreshStudents = () => {
     setLoading(true);
     studentService
-      .getAll()
+      .getAll({ facultyId })
       .then((data) => setStudents(data))
       .catch(() => showSnackbar("Không thể tải danh sách sinh viên", "error"))
       .finally(() => setLoading(false));
@@ -71,7 +74,7 @@ export default function StudentManagementPage() {
     let isMounted = true;
     setLoading(true);
     studentService
-      .getAll()
+      .getAll({ facultyId })
       .then((data) => {
         if (isMounted) setStudents(data);
       })
@@ -86,7 +89,7 @@ export default function StudentManagementPage() {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [facultyId]);
 
   const filteredStudents = students.filter((student) => {
     if (filters.search) {

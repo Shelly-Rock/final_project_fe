@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import {
   Box,
   Paper,
@@ -34,6 +35,8 @@ import CheckIcon from "@mui/icons-material/Check";
 import SearchIcon from "@mui/icons-material/Search";
 
 export default function NotificationPage() {
+  const searchParams = useSearchParams();
+  const facultyId = searchParams.get("facultyId") || undefined;
   const theme = useTheme();
   const [notifications, setNotifications] = useState<INotification[]>([]);
   const [loading, setLoading] = useState(true);
@@ -52,10 +55,17 @@ export default function NotificationPage() {
         const data = await notificationApi.getNotifications({
           page: 1,
           limit: 50,
+          facultyId,
         });
         setNotifications(data.notifications);
         setError(null);
       } catch {
+        // A scoped page must never fall back to unscoped demo notifications.
+        if (facultyId) {
+          setNotifications([]);
+          setError(null);
+          return;
+        }
         // API not implemented - use mock data for development
         const mockNotifications: INotification[] = [
           {
@@ -129,7 +139,7 @@ export default function NotificationPage() {
 
   useEffect(() => {
     fetchNotifications();
-  }, []);
+  }, [facultyId]);
 
   const handleDelete = async (id: number) => {
     try {

@@ -63,14 +63,17 @@ const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 class StudentService {
   private useApi = true; // Toggle to false to use mock data
 
-  async getAll(): Promise<Student[]> {
+  async getAll(params?: { facultyId?: string }): Promise<Student[]> {
     if (!this.useApi) {
       await delay(300);
       return [...mockStudents];
     }
 
     try {
-      const resp = await studentApiService.getAll({ limit: 100 });
+      const resp = await studentApiService.getAll({
+        limit: 100,
+        facultyId: params?.facultyId,
+      });
       return resp.students.map(mapApiToStudent);
     } catch (error) {
       throw error;

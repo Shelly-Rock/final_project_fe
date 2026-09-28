@@ -234,6 +234,7 @@ class PeriodService {
           filters?.status && filters.status !== "all"
             ? filters.status.toUpperCase()
             : undefined,
+        facultyId: filters?.facultyId || undefined,
       },
     });
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { useSearchParams } from "next/navigation";
 import {
   Box,
   Paper,
@@ -83,6 +84,8 @@ const getEntityName = (log: AuditLog): string => {
 };
 
 export default function AuditPage() {
+  const searchParams = useSearchParams();
+  const facultyId = searchParams.get("facultyId") || undefined;
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
 
@@ -101,6 +104,7 @@ export default function AuditPage() {
         page,
         limit,
         ...filters,
+        facultyId,
       });
       setLogs(res.data);
       setTotal(res.total);
@@ -111,7 +115,7 @@ export default function AuditPage() {
     } finally {
       setLoading(false);
     }
-  }, [page, filters]);
+  }, [facultyId, page, filters]);
 
   useEffect(() => {
     fetchLogs();

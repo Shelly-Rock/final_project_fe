@@ -164,6 +164,7 @@ class SubmissionService {
     status?: SubmissionStatus;
     studentId?: number;
     topicId?: number;
+    facultyId?: string;
   }): Promise<PaginatedResult<Submission>> {
     const searchParams = new URLSearchParams();
     if (params?.page) searchParams.set("page", String(params.page));
@@ -172,6 +173,7 @@ class SubmissionService {
     if (params?.studentId)
       searchParams.set("student_id", String(params.studentId));
     if (params?.topicId) searchParams.set("topic_id", String(params.topicId));
+    if (params?.facultyId) searchParams.set("faculty_id", params.facultyId);
 
     const response = await apiClient.get<PaginatedRawSubmissionResponse>(
       `${API_BASE}?${searchParams.toString()}`,
@@ -249,9 +251,12 @@ class SubmissionService {
     }));
   }
 
-  async getStats(): Promise<SubmissionStats> {
+  async getStats(facultyId?: string): Promise<SubmissionStats> {
+    const query = facultyId
+      ? `?faculty_id=${encodeURIComponent(facultyId)}`
+      : "";
     const response = await apiClient.get<StatsSummaryResponse>(
-      `${API_BASE}/stats/summary`,
+      `${API_BASE}/stats/summary${query}`,
     );
     return {
       total: response.total || 0,

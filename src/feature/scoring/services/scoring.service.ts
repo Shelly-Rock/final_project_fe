@@ -296,6 +296,7 @@ export const getAllScores = async (
     teacherId: number;
     projectId: number;
     studentId: number;
+    facultyId: string;
   }>,
 ): Promise<PaginatedResponse<Score>> => {
   const queryParams = new URLSearchParams();
@@ -309,6 +310,7 @@ export const getAllScores = async (
     queryParams.set("projectId", params.projectId.toString());
   if (params?.studentId)
     queryParams.set("studentId", params.studentId.toString());
+  if (params?.facultyId) queryParams.set("facultyId", params.facultyId);
 
   const res = await apiClient.get<PaginatedResponse<Score> | Score[]>(
     `${API_BASE}?${queryParams.toString()}`,
@@ -318,13 +320,14 @@ export const getAllScores = async (
 
 // Get all scoring results
 export const getAllResults = async (
-  params?: Partial<{ page: number; limit: number }>,
+  params?: Partial<{ page: number; limit: number; facultyId: string }>,
 ): Promise<
   PaginatedResponse<ScoringResult & { project?: any; student?: any }>
 > => {
   const queryParams = new URLSearchParams();
   if (params?.page) queryParams.set("page", params.page.toString());
   if (params?.limit) queryParams.set("limit", params.limit.toString());
+  if (params?.facultyId) queryParams.set("facultyId", params.facultyId);
 
   return apiClient.get(`${API_BASE}/results?${queryParams.toString()}`);
 };
@@ -447,7 +450,12 @@ export interface MeetingDetail {
 }
 
 export const getMeetings = async (
-  params?: Partial<{ page: number; limit: number; finalized: boolean }>,
+  params?: Partial<{
+    page: number;
+    limit: number;
+    finalized: boolean;
+    facultyId: string;
+  }>,
 ): Promise<PaginatedResponse<MeetingListItem>> => {
   const queryParams = new URLSearchParams();
   if (params?.page) queryParams.set("page", params.page.toString());
@@ -455,6 +463,7 @@ export const getMeetings = async (
   if (params?.finalized !== undefined) {
     queryParams.set("finalized", String(params.finalized));
   }
+  if (params?.facultyId) queryParams.set("facultyId", params.facultyId);
   return apiClient.get(`${API_BASE}/meetings?${queryParams.toString()}`);
 };
 
@@ -536,7 +545,12 @@ export interface TranscriptDetail {
 }
 
 export const getTranscripts = async (
-  params?: Partial<{ page: number; limit: number; published: boolean }>,
+  params?: Partial<{
+    page: number;
+    limit: number;
+    published: boolean;
+    facultyId: string;
+  }>,
 ): Promise<PaginatedResponse<TranscriptDetail>> => {
   const queryParams = new URLSearchParams();
   if (params?.page) queryParams.set("page", params.page.toString());
@@ -544,6 +558,7 @@ export const getTranscripts = async (
   if (params?.published !== undefined) {
     queryParams.set("published", String(params.published));
   }
+  if (params?.facultyId) queryParams.set("facultyId", params.facultyId);
   return apiClient.get(`${API_BASE}/transcripts?${queryParams.toString()}`);
 };
 
@@ -608,11 +623,12 @@ export interface StudentRevisionDetail extends TranscriptDetail {
 }
 
 export const getPostDefenseList = async (
-  params?: Partial<{ page: number; limit: number }>,
+  params?: Partial<{ page: number; limit: number; facultyId: string }>,
 ): Promise<PaginatedResponse<PostDefenseRow>> => {
   const queryParams = new URLSearchParams();
   if (params?.page) queryParams.set("page", params.page.toString());
   if (params?.limit) queryParams.set("limit", params.limit.toString());
+  if (params?.facultyId) queryParams.set("facultyId", params.facultyId);
   return apiClient.get(`${API_BASE}/post-defense?${queryParams.toString()}`);
 };
 
@@ -640,11 +656,14 @@ export const setRevisionWindow = async (
   );
 };
 
-export const getPrintSheet = async (): Promise<{
+export const getPrintSheet = async (
+  facultyId?: string,
+): Promise<{
   data: PostDefenseRow[];
   generatedAt: string;
 }> => {
-  return apiClient.get(`${API_BASE}/post-defense/print`);
+  const query = facultyId ? `?facultyId=${encodeURIComponent(facultyId)}` : "";
+  return apiClient.get(`${API_BASE}/post-defense/print${query}`);
 };
 
 export type StudentRevisionResponse =

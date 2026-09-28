@@ -125,11 +125,13 @@ class CommitteeService {
     page?: number;
     limit?: number;
     name?: string;
+    facultyId?: string;
   }): Promise<PaginatedResult<Committee>> {
     const searchParams = new URLSearchParams();
     if (params?.page) searchParams.set("page", String(params.page));
     if (params?.limit) searchParams.set("limit", String(params.limit));
     if (params?.name) searchParams.set("name", params.name);
+    if (params?.facultyId) searchParams.set("faculty_id", params.facultyId);
 
     const response: any = await apiClient.get(
       `${API_BASE}?${searchParams.toString()}`,
@@ -195,15 +197,23 @@ class CommitteeService {
 
   // ==================== TEACHERS ====================
 
-  async getAvailableTeachers(): Promise<TeacherBasic[]> {
-    const response: any = await apiClient.get(`${API_BASE}/teachers/available`);
+  async getAvailableTeachers(facultyId?: string): Promise<TeacherBasic[]> {
+    const query = facultyId
+      ? `?faculty_id=${encodeURIComponent(facultyId)}`
+      : "";
+    const response: any = await apiClient.get(
+      `${API_BASE}/teachers/available${query}`,
+    );
     const teachers = Array.isArray(response) ? response : response.data || [];
     return teachers.map(mapTeacher);
   }
 
-  async getExternalReviewers(): Promise<TeacherBasic[]> {
+  async getExternalReviewers(facultyId?: string): Promise<TeacherBasic[]> {
+    const query = facultyId
+      ? `?faculty_id=${encodeURIComponent(facultyId)}`
+      : "";
     const response: any = await apiClient.get(
-      `${API_BASE}/teachers/external-reviewers`,
+      `${API_BASE}/teachers/external-reviewers${query}`,
     );
     const teachers = Array.isArray(response) ? response : response.data || [];
     return teachers.map(mapTeacher);
@@ -219,8 +229,13 @@ class CommitteeService {
 
   // ==================== STATISTICS ====================
 
-  async getStats(): Promise<CommitteeStats> {
-    const response: any = await apiClient.get(`${API_BASE}/stats/summary`);
+  async getStats(facultyId?: string): Promise<CommitteeStats> {
+    const query = facultyId
+      ? `?faculty_id=${encodeURIComponent(facultyId)}`
+      : "";
+    const response: any = await apiClient.get(
+      `${API_BASE}/stats/summary${query}`,
+    );
     return {
       totalCommittees: response.total_committees || 0,
       committeesWithFullMembers: response.committees_with_full_members || 0,

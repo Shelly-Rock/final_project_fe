@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
+import { useSearchParams } from "next/navigation";
 import { Typography, Alert } from "@mui/material";
 import {
   committeeService,
@@ -15,6 +16,8 @@ import { CommitteeStats as CommitteeStatsComponent } from "./CommitteeStats";
 import { ConfirmDialog } from "@/shared/components";
 
 export default function CommitteeManagement() {
+  const searchParams = useSearchParams();
+  const facultyId = searchParams.get("facultyId") || undefined;
   const [committees, setCommittees] = useState<Committee[]>([]);
   const [teachers, setTeachers] = useState<TeacherBasic[]>([]);
   const [excludedTeacherIds, setExcludedTeacherIds] = useState<number[]>([]);
@@ -45,6 +48,7 @@ export default function CommitteeManagement() {
       const result = await committeeService.getCommittees({
         page: current,
         limit: pageSize,
+        facultyId,
       });
       setCommittees(result.data);
       setPagination((prev) => ({ ...prev, total: result.total }));
@@ -53,27 +57,27 @@ export default function CommitteeManagement() {
     } finally {
       setLoading(false);
     }
-  }, [current, pageSize]);
+  }, [current, pageSize, facultyId]);
 
   const fetchTeachers = useCallback(async () => {
     try {
-      const result = await committeeService.getAvailableTeachers();
+      const result = await committeeService.getAvailableTeachers(facultyId);
       setTeachers(result);
       const excluded = await committeeService.getExcludedTeachers();
       setExcludedTeacherIds(excluded);
     } catch {
       // ignore
     }
-  }, []);
+  }, [facultyId]);
 
   const fetchStats = useCallback(async () => {
     try {
-      const result = await committeeService.getStats();
+      const result = await committeeService.getStats(facultyId);
       setStats(result);
     } catch {
       // ignore
     }
-  }, []);
+  }, [facultyId]);
 
   useEffect(() => {
     fetchCommittees();

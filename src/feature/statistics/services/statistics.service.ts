@@ -56,8 +56,12 @@ export interface TeacherProductivityRow {
 
 export const getAcademicReport = async (
   periodId?: number,
+  facultyId?: string,
 ): Promise<AcademicReport> => {
-  const query = periodId ? `?periodId=${periodId}` : "";
+  const params = new URLSearchParams();
+  if (periodId) params.set("periodId", String(periodId));
+  if (facultyId) params.set("facultyId", facultyId);
+  const query = params.toString() ? `?${params.toString()}` : "";
   const response = await apiClient.get<ApiResponse<AcademicReport>>(
     `${API_BASE}/academic${query}`,
   );
@@ -66,8 +70,12 @@ export const getAcademicReport = async (
 
 export const getTeacherProductivity = async (
   periodId?: number,
+  facultyId?: string,
 ): Promise<TeacherProductivityRow[]> => {
-  const query = periodId ? `?periodId=${periodId}` : "";
+  const params = new URLSearchParams();
+  if (periodId) params.set("periodId", String(periodId));
+  if (facultyId) params.set("facultyId", facultyId);
+  const query = params.toString() ? `?${params.toString()}` : "";
   const response = await apiClient.get<ApiResponse<TeacherProductivityRow[]>>(
     `${API_BASE}/teacher-productivity${query}`,
   );
@@ -76,11 +84,12 @@ export const getTeacherProductivity = async (
 
 export const exportStatisticsExcel = async (
   periodId?: number,
+  facultyId?: string,
 ): Promise<void> => {
   const { blob, filename } = await apiClient.downloadBlob(
     `${API_BASE}/export`,
     {
-      params: periodId ? { periodId } : undefined,
+      params: periodId || facultyId ? { periodId, facultyId } : undefined,
     },
   );
   saveBlob(blob, filename || "thong_ke_giai_doan_8.xlsx");

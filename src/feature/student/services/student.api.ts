@@ -64,6 +64,7 @@ class StudentApiService {
     limit?: number;
     search?: string;
     status?: string;
+    facultyId?: string;
   }): Promise<StudentListResponse> {
     const { data } = await apiClient.get<StudentListResponse>("/students", {
       params,

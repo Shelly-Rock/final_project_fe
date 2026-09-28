@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   Box,
   Button,
@@ -40,6 +40,8 @@ function medalColor(rank: number | null) {
 
 export function OfficialScoreSheetPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const facultyId = searchParams.get("facultyId") || undefined;
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
   const ink = theme.palette.text.primary;
@@ -52,7 +54,7 @@ export function OfficialScoreSheetPage() {
     const load = async () => {
       try {
         setLoading(true);
-        const data = await getPrintSheet();
+        const data = await getPrintSheet(facultyId);
         setRows(data.data);
         setGeneratedAt(data.generatedAt);
       } catch {
@@ -62,7 +64,7 @@ export function OfficialScoreSheetPage() {
       }
     };
     load();
-  }, []);
+  }, [facultyId]);
 
   const ranked = useMemo(
     () => rows.filter((r) => r.rank != null).length,
@@ -93,7 +95,13 @@ export function OfficialScoreSheetPage() {
         <Button
           variant="outlined"
           startIcon={<ArrowLeft size={16} />}
-          onClick={() => router.push("/scoring/post-defense")}
+          onClick={() =>
+            router.push(
+              facultyId
+                ? `/scoring/post-defense?facultyId=${encodeURIComponent(facultyId)}`
+                : "/scoring/post-defense",
+            )
+          }
           sx={{ textTransform: "none", fontWeight: 600 }}
         >
           Quay lại xếp hạng

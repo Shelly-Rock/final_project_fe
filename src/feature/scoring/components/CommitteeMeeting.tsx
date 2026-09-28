@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   Box,
   Chip,
@@ -43,6 +43,8 @@ function statusChip(row: MeetingListItem) {
 
 export function CommitteeMeetingPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const facultyId = searchParams.get("facultyId") || undefined;
   const [loading, setLoading] = useState(true);
   const [rows, setRows] = useState<MeetingListItem[]>([]);
   const [page, setPage] = useState(1);
@@ -56,6 +58,7 @@ export function CommitteeMeetingPage() {
         page,
         limit: 20,
         finalized: tab === "done",
+        facultyId,
       });
       setRows(data.data);
       setTotal(data.meta.total);
@@ -64,7 +67,7 @@ export function CommitteeMeetingPage() {
     } finally {
       setLoading(false);
     }
-  }, [page, tab]);
+  }, [page, tab, facultyId]);
 
   useEffect(() => {
     fetchMeetings();
@@ -122,7 +125,10 @@ export function CommitteeMeetingPage() {
       icon: <Users size={16} />,
       label: (row) => (row.isFinalized ? "Xem" : "Họp hội đồng"),
       color: "primary",
-      onClick: (row) => router.push(`/scoring/meeting/${row.projectId}`),
+      onClick: (row) =>
+        router.push(
+          `/scoring/meeting/${row.projectId}${facultyId ? `?facultyId=${encodeURIComponent(facultyId)}` : ""}`,
+        ),
     },
   ];
 

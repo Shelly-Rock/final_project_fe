@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
+import { useSearchParams } from "next/navigation";
 import { Typography, Alert } from "@mui/material";
 import { defenseService, DefenseSession } from "../services";
 import { committeeService, type Committee } from "../../committee/services";
@@ -11,6 +12,8 @@ import { DefenseScheduleStats } from "./DefenseScheduleStats";
 import { ConfirmDialog } from "@/shared/components";
 
 export default function DefenseScheduleManagement() {
+  const searchParams = useSearchParams();
+  const facultyId = searchParams.get("facultyId") || undefined;
   const [sessions, setSessions] = useState<DefenseSession[]>([]);
   const [committees, setCommittees] = useState<Committee[]>([]);
   const [loading, setLoading] = useState(false);
@@ -42,6 +45,7 @@ export default function DefenseScheduleManagement() {
       const result = await defenseService.getDefenseSessions({
         page: current,
         limit: pageSize,
+        facultyId,
       });
       setSessions(result.data);
       setPagination((prev) => ({ ...prev, total: result.total }));
@@ -50,25 +54,28 @@ export default function DefenseScheduleManagement() {
     } finally {
       setLoading(false);
     }
-  }, [current, pageSize]);
+  }, [current, pageSize, facultyId]);
 
   const fetchCommittees = useCallback(async () => {
     try {
-      const result = await committeeService.getCommittees({ limit: 100 });
+      const result = await committeeService.getCommittees({
+        limit: 100,
+        facultyId,
+      });
       setCommittees(result.data);
     } catch {
       // ignore
     }
-  }, []);
+  }, [facultyId]);
 
   const fetchStats = useCallback(async () => {
     try {
-      const result = await defenseService.getStats();
+      const result = await defenseService.getStats(facultyId);
       setStats(result);
     } catch {
       // ignore
     }
-  }, []);
+  }, [facultyId]);
 
   useEffect(() => {
     fetchSessions();
@@ -210,6 +217,7 @@ export default function DefenseScheduleManagement() {
         session={editingSession}
         loading={submitting}
         committees={committees}
+        facultyId={facultyId}
       />
 
       <ConfirmDialog
