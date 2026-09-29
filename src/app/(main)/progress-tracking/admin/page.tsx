@@ -54,6 +54,7 @@ import type {
   ProgressStatus,
   ReportStatus,
 } from "@/feature/progress-tracking/types";
+import { SubmissionManagement } from "@/feature/submission/components";
 import {
   PageHeader,
   DataTable,
@@ -302,27 +303,42 @@ function AllReportsReview({ facultyId }: { facultyId?: string }) {
                 Sinh viên: {selectedReport?.studentName} • GV:{" "}
                 {selectedReport?.teacherName}
               </Typography>
+              {selectedReport?.fileUrl && (
+                <Box sx={{ mt: 2 }}>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    href={selectedReport.fileUrl}
+                    target="_blank"
+                    rel="noopener"
+                    download={selectedReport.fileName || "download"}
+                    startIcon={<DescriptionIcon />}
+                  >
+                    Xem nội dung báo cáo
+                  </Button>
+                </Box>
+              )}
             </Box>
 
-            <Box>
-              <Typography variant="subtitle2" gutterBottom>
-                Nội dung báo cáo
-              </Typography>
-              <Paper
-                variant="outlined"
-                sx={{
-                  p: 2,
-                  bgcolor: "background.default",
-                  maxHeight: 200,
-                  overflow: "auto",
-                }}
-                dangerouslySetInnerHTML={{
-                  __html: selectedReport?.content || "",
-                }}
-              />
-            </Box>
-
-            <Divider />
+            {selectedReport?.feedback && (
+              <Box sx={{ mt: 2 }}>
+                <Typography variant="subtitle2" gutterBottom color="primary">
+                  Nhận xét từ GVHD:
+                </Typography>
+                <Paper
+                  variant="outlined"
+                  sx={{
+                    p: 2,
+                    bgcolor: "warning.lighter",
+                  }}
+                >
+                  <Typography variant="body2">
+                    {selectedReport.feedback}
+                  </Typography>
+                </Paper>
+              </Box>
+            )}
+            <Divider sx={{ my: 2 }} />
 
             <Box>
               <Typography variant="subtitle2" gutterBottom>
@@ -351,19 +367,6 @@ function AllReportsReview({ facultyId }: { facultyId?: string }) {
                 </Button>
               </Box>
             </Box>
-
-            {reviewStatus === "APPROVED" && (
-              <TextField
-                label="Điểm (1-10)"
-                type="number"
-                value={score ?? ""}
-                onChange={(e) =>
-                  setScore(parseInt(e.target.value) || undefined)
-                }
-                inputProps={{ min: 1, max: 10 }}
-                sx={{ width: 150 }}
-              />
-            )}
 
             <TextField
               label="Phản hồi"
@@ -678,58 +681,29 @@ export default function AdminProgressPage() {
       />
 
       {/* Tabs */}
-      <Paper sx={{ mb: 2, background: getCardBackground(theme) }}>
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            borderBottom: 1,
-            borderColor: "divider",
-            pr: 2,
-            gap: 1,
-          }}
+      <Box sx={{ mb: 2 }}>
+        <Tabs
+          value={tabValue}
+          onChange={(_, v) => setTabValue(v)}
+          sx={{ borderBottom: 1, borderColor: "divider" }}
         >
-          <Tabs
-            value={tabValue}
-            onChange={(_, v) => setTabValue(v)}
-            sx={{ flex: 1, minWidth: 0 }}
-          >
-            <Tab
-              label="Tiến độ sinh viên"
-              icon={<DescriptionIcon />}
-              iconPosition="start"
-            />
-            <Tab
-              label="Duyệt báo cáo"
-              icon={<ReviewIcon />}
-              iconPosition="start"
-            />
-            <Tab
-              label="Sinh viên bị cấm"
-              icon={<BlockIcon />}
-              iconPosition="start"
-            />
-          </Tabs>
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              gap: 1,
-              flexShrink: 0,
-            }}
-          >
-            <AutoBanCheckComponent facultyId={facultyId} />
-            <Button
-              variant="outlined"
-              size="small"
-              startIcon={<NotificationsIcon />}
-              onClick={() => setNotificationDialogOpen(true)}
-            >
-              Thông báo
-            </Button>
-          </Box>
-        </Box>
-      </Paper>
+          <Tab
+            label="Tiến độ sinh viên"
+            icon={<DescriptionIcon />}
+            iconPosition="start"
+          />
+          <Tab
+            label="Duyệt báo cáo"
+            icon={<ReviewIcon />}
+            iconPosition="start"
+          />
+          <Tab
+            label="Bài nộp cuối kỳ"
+            icon={<DescriptionIcon />}
+            iconPosition="start"
+          />
+        </Tabs>
+      </Box>
 
       <TabPanel value={tabValue} index={0}>
         <AllStudentsProgress
@@ -746,10 +720,7 @@ export default function AdminProgressPage() {
       </TabPanel>
 
       <TabPanel value={tabValue} index={2}>
-        <BannedStudentsList
-          key={`banned-${refreshKey}-${facultyId ?? "all"}`}
-          facultyId={facultyId}
-        />
+        <SubmissionManagement />
       </TabPanel>
 
       {/* Notification Dialog */}

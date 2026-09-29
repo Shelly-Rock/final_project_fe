@@ -100,7 +100,7 @@ export function ProgressStatsCards({
 
   return (
     <Grid container spacing={2} sx={{ mb: 3 }}>
-      <Grid item xs={6} sm={4} md={2}>
+      <Grid item xs={12} sm={6} md>
         <Card>
           <CardContent sx={{ textAlign: "center", py: 2 }}>
             <Typography variant="h4" color="primary" fontWeight={700}>
@@ -112,7 +112,7 @@ export function ProgressStatsCards({
           </CardContent>
         </Card>
       </Grid>
-      <Grid item xs={6} sm={4} md={2}>
+      <Grid item xs={12} sm={6} md>
         <Card>
           <CardContent sx={{ textAlign: "center", py: 2 }}>
             <Typography variant="h4" color="success.main" fontWeight={700}>
@@ -124,7 +124,7 @@ export function ProgressStatsCards({
           </CardContent>
         </Card>
       </Grid>
-      <Grid item xs={6} sm={4} md={2}>
+      <Grid item xs={12} sm={6} md>
         <Card>
           <CardContent sx={{ textAlign: "center", py: 2 }}>
             <Typography variant="h4" color="warning.main" fontWeight={700}>
@@ -136,19 +136,8 @@ export function ProgressStatsCards({
           </CardContent>
         </Card>
       </Grid>
-      <Grid item xs={6} sm={4} md={2}>
-        <Card>
-          <CardContent sx={{ textAlign: "center", py: 2 }}>
-            <Typography variant="h4" color="error.main" fontWeight={700}>
-              {stats.bannedStudents}
-            </Typography>
-            <Typography variant="caption" color="text.secondary">
-              Bị cấm thi
-            </Typography>
-          </CardContent>
-        </Card>
-      </Grid>
-      <Grid item xs={6} sm={4} md={2}>
+
+      <Grid item xs={12} sm={6} md>
         <Card>
           <CardContent sx={{ textAlign: "center", py: 2 }}>
             <Typography variant="h4" color="info.main" fontWeight={700}>
@@ -160,7 +149,7 @@ export function ProgressStatsCards({
           </CardContent>
         </Card>
       </Grid>
-      <Grid item xs={6} sm={4} md={2}>
+      <Grid item xs={12} sm={6} md>
         <Card>
           <CardContent sx={{ textAlign: "center", py: 2 }}>
             <Typography variant="h4" color="success.main" fontWeight={700}>

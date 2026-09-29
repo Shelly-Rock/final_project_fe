@@ -551,7 +551,8 @@ export function AdminDepartmentOperations() {
           overdueReports > 0
             ? "due"
             : isLater(
-                  stageOf(stages, "FORM_02") ??
+                  stageOf(stages, "SECRETARY_REVIEW") ??
+                    stageOf(stages, "FORM_02") ??
                     stageOf(stages, "PERIODIC_REPORT"),
                 )
               ? "later"

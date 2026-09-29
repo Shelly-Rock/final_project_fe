@@ -7,8 +7,12 @@ import { DataTable } from "@/shared/components";
 import { Badge } from "@/shared/components";
 import type { Column, Action, HeaderAction } from "@/shared/components";
 import type { MyTopic } from "../types";
+import { Select } from "@/shared/components";
 
 interface TopicDataTableProps {
+  periods?: { value: string; label: string; status?: string }[];
+  selectedPeriodId?: string;
+  onPeriodChange?: (value: string) => void;
   topics: MyTopic[];
   loading?: boolean;
   searchValue?: string;
@@ -40,6 +44,9 @@ const registrationStatusConfig = {
 };
 
 export function TopicDataTable({
+  periods = [],
+  selectedPeriodId = "all",
+  onPeriodChange,
   topics,
   loading = false,
   searchValue = "",
@@ -215,6 +222,20 @@ export function TopicDataTable({
         rowKey="id"
         actions={actions}
         headerActions={headerActions}
+        extraToolbarActions={
+          periods.length > 0 ? (
+            <Box sx={{ width: 200, mr: 1 }}>
+              <Select
+                name="periodFilter"
+                options={periods}
+                value={selectedPeriodId}
+                onChange={(value) => onPeriodChange?.(value as string)}
+                size="small"
+                fullWidth
+              />
+            </Box>
+          ) : null
+        }
         loading={loading}
         emptyMessage="Chưa có đề tài nào"
         showSearchInput

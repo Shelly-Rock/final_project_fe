@@ -53,11 +53,15 @@ const TOPIC_STATUS_OPTIONS: Array<{ value: TopicStatus; label: string }> = (
 export function TopicManageTable() {
   const searchParams = useSearchParams();
   const scopedFacultyId = searchParams.get("facultyId") || "";
+  const scopedDepartmentId = searchParams.get("departmentId") || "";
+  const urlPeriodId = searchParams.get("periodId");
 
   const [periods, setPeriods] = useState<Array<{ id: number; name: string }>>(
     [],
   );
-  const [periodId, setPeriodId] = useState<number | null>(null);
+  const [periodId, setPeriodId] = useState<number | null>(
+    urlPeriodId ? Number(urlPeriodId) : null,
+  );
 
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebouncedValue(search, 450);
@@ -275,13 +279,13 @@ export function TopicManageTable() {
         ? ` VD: ${result.samples.map((s) => s.code).join(", ")}`
         : "";
       toast.success(
-        `Đã sinh ${result.generated} mã, bỏ qua ${result.skipped}.${detail}`,
+        `Đã cấp ${result.generated} mã, bỏ qua ${result.skipped}.${detail}`,
       );
       setSelectedKeys([]);
       setRefreshKey((v) => v + 1);
       setGenDialogOpen(false);
     } catch (error) {
-      toast.error(errorMessage(error, "Không thể sinh mã đề tài."));
+      toast.error(errorMessage(error, "Không thể cấp mã đề tài."));
     } finally {
       setGeneratingCodes(false);
       generatingCodesRef.current = false;
@@ -647,10 +651,10 @@ export function TopicManageTable() {
           {
             id: "gen-code",
             label: generatingCodes
-              ? "Đang sinh mã..."
+              ? "Đang cấp mã..."
               : selectedIds.length
-                ? `Sinh mã (${selectedIds.length})`
-                : "Sinh mã (toàn đợt)",
+                ? `Cấp mã (${selectedIds.length})`
+                : "Cấp mã đề tài",
             onClick: () => setGenDialogOpen(true),
             variant: "outlined",
             disabled: busy,

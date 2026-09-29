@@ -2,7 +2,16 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
-import { Typography, Alert } from "@mui/material";
+import {
+  Typography,
+  Alert,
+  Box,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+} from "@mui/material";
+import { periodService } from "@/feature/registration-period/services";
 import { defenseService, DefenseSession } from "../services";
 import { committeeService, type Committee } from "../../committee/services";
 import { toast } from "sonner";
@@ -14,6 +23,8 @@ import { ConfirmDialog } from "@/shared/components";
 export default function DefenseScheduleManagement() {
   const searchParams = useSearchParams();
   const facultyId = searchParams.get("facultyId") || undefined;
+  const [periodId, setPeriodId] = useState<number | undefined>(undefined);
+  const [periods, setPeriods] = useState<{ id: number; name: string }[]>([]);
   const [sessions, setSessions] = useState<DefenseSession[]>([]);
   const [committees, setCommittees] = useState<Committee[]>([]);
   const [loading, setLoading] = useState(false);
@@ -39,6 +50,18 @@ export default function DefenseScheduleManagement() {
 
   const { current, pageSize } = pagination;
 
+  const fetchPeriods = useCallback(async () => {
+    try {
+      const result = await periodService.getAll();
+      setPeriods(result.map((p) => ({ id: p.id, name: p.name })));
+      setPeriodId(
+        (current) => current ?? result.find((p) => p.status === "open")?.id,
+      );
+    } catch {
+      // ignore
+    }
+  }, []);
+
   const fetchSessions = useCallback(async () => {
     setLoading(true);
     try {
@@ -46,6 +69,7 @@ export default function DefenseScheduleManagement() {
         page: current,
         limit: pageSize,
         facultyId,
+        periodId,
       });
       setSessions(result.data);
       setPagination((prev) => ({ ...prev, total: result.total }));
@@ -54,36 +78,42 @@ export default function DefenseScheduleManagement() {
     } finally {
       setLoading(false);
     }
-  }, [current, pageSize, facultyId]);
+  }, [current, pageSize, facultyId, periodId]);
 
   const fetchCommittees = useCallback(async () => {
     try {
       const result = await committeeService.getCommittees({
         limit: 100,
         facultyId,
+        periodId,
       });
       setCommittees(result.data);
     } catch {
       // ignore
     }
-  }, [facultyId]);
+  }, [facultyId, periodId]);
 
   const fetchStats = useCallback(async () => {
     try {
-      const result = await defenseService.getStats(facultyId);
+      const result = await defenseService.getStats(facultyId, periodId);
       setStats(result);
     } catch {
       // ignore
     }
-  }, [facultyId]);
+  }, [facultyId, periodId]);
 
   useEffect(() => {
     fetchSessions();
     fetchCommittees();
     fetchStats();
-  }, [fetchSessions, fetchCommittees, fetchStats]);
+    fetchPeriods();
+  }, [fetchSessions, fetchCommittees, fetchStats, fetchPeriods]);
 
   const openCreateModal = () => {
+    if (!periodId) {
+      toast.error("Vui lòng chọn đợt đăng ký trước khi tạo lịch bảo vệ");
+      return;
+    }
     setEditingSession(null);
     setModalVisible(true);
   };
@@ -181,6 +211,30 @@ export default function DefenseScheduleManagement() {
     <>
       <DefenseScheduleStats stats={stats} />
 
+      <Box sx={{ mt: 3, mb: 3, display: "flex", alignItems: "center", gap: 2 }}>
+        <FormControl size="small" sx={{ minWidth: 300 }}>
+          <InputLabel>Chọn đợt đăng ký</InputLabel>
+          <Select
+            label="Chọn đợt đăng ký"
+            value={periodId ?? ""}
+            onChange={(e) => {
+              const val = e.target.value;
+              setPeriodId(val === "" ? undefined : Number(val));
+              setPagination((p) => ({ ...p, current: 1 }));
+            }}
+          >
+            <MenuItem value="">
+              <em>Tất cả đợt</em>
+            </MenuItem>
+            {periods.map((p) => (
+              <MenuItem key={p.id} value={p.id}>
+                {p.name}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      </Box>
+
       <Alert severity="info" sx={{ mb: 3 }}>
         <Typography variant="body2">
           <strong>Tự động tính toán:</strong> Hệ thống tự động tính toán thời
@@ -218,6 +272,7 @@ export default function DefenseScheduleManagement() {
         loading={submitting}
         committees={committees}
         facultyId={facultyId}
+        periodId={periodId}
       />
 
       <ConfirmDialog

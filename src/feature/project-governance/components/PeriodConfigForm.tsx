@@ -59,7 +59,10 @@ export function PeriodConfigForm() {
   const muiTheme = useTheme();
   const isDark = muiTheme.palette.mode === "dark";
   const [periods, setPeriods] = useState<PeriodOption[]>([]);
-  const [selectedPeriodId, setSelectedPeriodId] = useState<number | null>(null);
+  const urlPeriodId = searchParams.get("periodId");
+  const [selectedPeriodId, setSelectedPeriodId] = useState<number | null>(
+    urlPeriodId ? Number(urlPeriodId) : null,
+  );
   const [loadingPeriods, setLoadingPeriods] = useState(true);
   const [loadingConfig, setLoadingConfig] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -198,6 +201,7 @@ export function PeriodConfigForm() {
       registration: stageDeadlineOf(governance.stages, "STUDENT_REGISTRATION"),
       approval: stageDeadlineOf(governance.stages, "TEACHER_APPROVAL"),
       form02: stageDeadlineOf(governance.stages, "FORM_02"),
+      secretaryReview: stageDeadlineOf(governance.stages, "SECRETARY_REVIEW"),
       finalSubmission: stageDeadlineOf(governance.stages, "FINAL_SUBMISSION"),
     };
   }, [governance]);
@@ -234,7 +238,7 @@ export function PeriodConfigForm() {
           value={selectedPeriodId ? String(selectedPeriodId) : ""}
           options={periods.map((period) => ({
             value: String(period.id),
-            label: `${period.name} · ${period.schoolYear} (Kỳ ${period.semester}) · ${period.status}`,
+            label: period.name,
           }))}
           onChange={(value) => setSelectedPeriodId(Number(value) || null)}
           sx={{ width: { xs: "100%", sm: 420 }, maxWidth: "100%" }}
@@ -390,6 +394,11 @@ export function PeriodConfigForm() {
                       key: "form02",
                       label: "Biểu mẫu số 02",
                       stage: activeStageInfo.form02,
+                    },
+                    activeStageInfo?.secretaryReview && {
+                      key: "secretaryReview",
+                      label: "Duyệt đề tài",
+                      stage: activeStageInfo.secretaryReview,
                     },
                     activeStageInfo?.finalSubmission && {
                       key: "final",

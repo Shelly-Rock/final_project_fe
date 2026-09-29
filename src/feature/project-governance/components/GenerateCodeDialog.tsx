@@ -32,7 +32,7 @@ export const GenerateCodeDialog: React.FC<GenerateCodeDialogProps> = ({
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <form onSubmit={handleSubmit}>
-        <DialogTitle>Sinh mã đề tài</DialogTitle>
+        <DialogTitle>Cấp mã đề tài</DialogTitle>
         <DialogContent dividers>
           <Typography variant="body2" sx={{ mb: 3 }}>
             Hệ thống sẽ tự động cấp mã cho <strong>{count}</strong> đề tài theo
@@ -53,7 +53,7 @@ export const GenerateCodeDialog: React.FC<GenerateCodeDialogProps> = ({
         <DialogActions>
           <Button onClick={onClose}>Hủy</Button>
           <Button type="submit" variant="contained">
-            Bắt đầu sinh mã
+            Cấp mã đề tài
           </Button>
         </DialogActions>
       </form>

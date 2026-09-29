@@ -195,8 +195,11 @@ interface GetMyTopicsResponse {
 }
 
 class MyTopicService {
-  async getAll(): Promise<MyTopic[]> {
-    const { data } = await apiClient.get<GetMyTopicsResponse>("/topics/mine");
+  async getAll(periodId?: string): Promise<MyTopic[]> {
+    const params = periodId && periodId !== "all" ? { periodId } : {};
+    const { data } = await apiClient.get<GetMyTopicsResponse>("/topics/mine", {
+      params,
+    });
     const items = data.items || [];
     return items.map(mapBackendToMyTopic);
   }
@@ -263,8 +266,8 @@ class MyTopicService {
     return mapBackendToMyTopic(data);
   }
 
-  async getPendingRequests(): Promise<PendingRequest[]> {
-    const topics = await this.getAll();
+  async getPendingRequests(periodId?: string): Promise<PendingRequest[]> {
+    const topics = await this.getAll(periodId);
     const pending: PendingRequest[] = [];
     topics.forEach((topic) => {
       topic.registeredStudents

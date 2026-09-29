@@ -138,6 +138,7 @@ export function PeriodTable({
       label: "Sửa",
       color: "primary" as const,
       onClick: (row) => onEdit(row),
+      disabled: (row) => row.status !== "upcoming",
     },
     {
       id: "delete",
@@ -145,6 +146,7 @@ export function PeriodTable({
       label: "Xóa",
       color: "error" as const,
       onClick: (row) => onDelete(row),
+      disabled: (row) => row.status !== "upcoming",
     },
   ];
 

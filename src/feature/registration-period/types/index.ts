@@ -106,9 +106,9 @@ export interface CreatePeriodInput {
   semester: "1" | "2" | "3";
   schoolYear: string;
   startDate: string;
-  teacherDeadline: string;
-  studentDeadline: string;
-  defaultQuota: number;
+  teacherDeadline?: string;
+  studentDeadline?: string;
+  defaultQuota?: number;
   description?: string;
   facultyStudentLimits?: FacultyStudentLimit[];
 }
@@ -189,4 +189,13 @@ export interface ExceptionRequest {
   requestedAt: string;
   status: "pending" | "approved" | "rejected";
   rejectionReason?: string;
+}
+
+export interface PeriodStats {
+  totalTopics: number;
+  pendingTopics: number;
+  approvedTopics: number;
+  rejectedTopics: number;
+  totalQuotas: number;
+  insufficientTeachers: number;
 }

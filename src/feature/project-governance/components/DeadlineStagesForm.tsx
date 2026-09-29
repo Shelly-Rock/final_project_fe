@@ -36,6 +36,7 @@ const STAGE_ACCENT: Record<DeadlineType, string> = {
   STUDENT_REGISTRATION: "#0f766e",
   TEACHER_APPROVAL: "#4f46e5",
   FORM_02: "#c2410c",
+  SECRETARY_REVIEW: "#c2410c",
   PERIODIC_REPORT: "#7c3aed",
   FINAL_SUBMISSION: "#be123c",
 };

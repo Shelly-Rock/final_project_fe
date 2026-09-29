@@ -2,10 +2,12 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Box } from "@mui/material";
 import {
   PeriodTable,
-  PeriodFormDialog,
+  CreatePeriodDialog,
+  EditPeriodDialog,
 } from "@/feature/registration-period/components";
 import {
   periodService,
@@ -13,13 +15,14 @@ import {
   type CreatePeriodInput,
   type UpdatePeriodInput,
 } from "@/feature/registration-period";
-import { PageHeader } from "@/shared/components";
+import { PageHeader, ConfirmDialog } from "@/shared/components";
 import { ClipboardList } from "lucide-react";
 import { toast } from "sonner";
 
 export default function RegistrationPeriodManagementPage() {
   const searchParams = useSearchParams();
   const facultyId = searchParams.get("facultyId") || undefined;
+  const router = useRouter();
   // Periods state
   const [allPeriods, setAllPeriods] = useState<RegistrationPeriod[]>([]);
   const [periodLoading, setPeriodLoading] = useState(true);
@@ -27,6 +30,9 @@ export default function RegistrationPeriodManagementPage() {
     useState<RegistrationPeriod | null>(null);
   const [formDialogOpen, setFormDialogOpen] = useState(false);
   const [formLoading, setFormLoading] = useState(false);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [periodToDelete, setPeriodToDelete] =
+    useState<RegistrationPeriod | null>(null);
 
   // Search and filter state
   const [searchValue, setSearchValue] = useState("");
@@ -87,38 +93,49 @@ export default function RegistrationPeriodManagementPage() {
     setFormDialogOpen(true);
   };
 
-  const handleDeletePeriod = async (period: RegistrationPeriod) => {
-    const confirmed = window.confirm(
-      `Bạn có chắc muốn xóa đợt "${period.name}"?\n\nHành động này cũng sẽ xóa tất cả chỉ tiêu giảng viên và đề tài liên quan.`,
-    );
-    if (!confirmed) return;
+  const handleDeletePeriod = (period: RegistrationPeriod) => {
+    setPeriodToDelete(period);
+    setDeleteConfirmOpen(true);
+  };
 
+  const executeDelete = async () => {
+    if (!periodToDelete) return;
     try {
-      await periodService.delete(period.id);
+      await periodService.delete(periodToDelete.id);
       refreshPeriods();
       toast.success("Đã xóa đợt đăng ký");
     } catch {
       toast.error("Xóa thất bại");
+    } finally {
+      setDeleteConfirmOpen(false);
+      setPeriodToDelete(null);
     }
   };
 
-  const handleFormSubmit = async (data: CreatePeriodInput) => {
+  const handleCreateSubmit = async (data: CreatePeriodInput) => {
     setFormLoading(true);
     try {
-      if (selectedPeriod) {
-        await periodService.update(
-          selectedPeriod.id,
-          data as UpdatePeriodInput,
-        );
-        toast.success("Cập nhật thành công");
-      } else {
-        await periodService.create(data);
-        toast.success("Tạo mới thành công");
-      }
+      const createdPeriod = await periodService.create(data);
+      toast.success("Tạo mới thành công");
+      setFormDialogOpen(false);
+      // Điều hướng ngay sang trang chi tiết để kích hoạt
+      router.push(`/registration-periods/${createdPeriod.id}`);
+    } catch {
+      toast.error("Tạo mới thất bại");
+      setFormLoading(false); // Only stop loading if failed, else keep loading during redirect
+    }
+  };
+
+  const handleEditSubmit = async (data: UpdatePeriodInput) => {
+    if (!selectedPeriod) return;
+    setFormLoading(true);
+    try {
+      await periodService.update(selectedPeriod.id, data);
+      toast.success("Cập nhật thành công");
       refreshPeriods();
       setFormDialogOpen(false);
     } catch {
-      toast.error(selectedPeriod ? "Cập nhật thất bại" : "Tạo mới thất bại");
+      toast.error("Cập nhật thất bại");
     } finally {
       setFormLoading(false);
     }
@@ -139,12 +156,36 @@ export default function RegistrationPeriodManagementPage() {
       />
 
       {/* Dialogs */}
-      <PeriodFormDialog
-        open={formDialogOpen}
-        onClose={() => setFormDialogOpen(false)}
-        onSubmit={handleFormSubmit}
-        period={selectedPeriod}
-        loading={formLoading}
+      {selectedPeriod ? (
+        <EditPeriodDialog
+          open={formDialogOpen}
+          onClose={() => setFormDialogOpen(false)}
+          onSubmit={handleEditSubmit}
+          period={selectedPeriod}
+          loading={formLoading}
+        />
+      ) : (
+        <CreatePeriodDialog
+          open={formDialogOpen}
+          onClose={() => setFormDialogOpen(false)}
+          onSubmit={handleCreateSubmit}
+          loading={formLoading}
+        />
+      )}
+
+      {/* Confirm Delete Dialog */}
+      <ConfirmDialog
+        open={deleteConfirmOpen}
+        onClose={() => setDeleteConfirmOpen(false)}
+        onConfirm={executeDelete}
+        title="Xóa đợt đăng ký"
+        description={
+          periodToDelete
+            ? `Bạn có chắc muốn xóa đợt "${periodToDelete.name}"?\n\nHành động này cũng sẽ xóa tất cả chỉ tiêu giảng viên và đề tài liên quan.`
+            : ""
+        }
+        confirmText="Xóa"
+        variant="danger"
       />
     </Box>
   );

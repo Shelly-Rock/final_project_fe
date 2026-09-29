@@ -47,7 +47,7 @@ export function StudentRevisionPage() {
       const response = await getMyRevision();
       if (response.available === false) {
         setDetail(null);
-        setError(response.reason);
+        setError(response.reason || null);
         return;
       }
       setDetail(response);

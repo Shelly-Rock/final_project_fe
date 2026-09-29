@@ -4,6 +4,11 @@ import { Box, Grid, Typography, Chip, Divider } from "@mui/material";
 import { Dialog } from "@/shared/components";
 import { DataTable } from "@/shared/components";
 import type { Score, ScoringResult } from "../services";
+import { exportSummaryScoreSheetWord } from "../services";
+import { toast } from "sonner";
+import { Download } from "lucide-react";
+import { useState } from "react";
+import { Button } from "@mui/material";
 import {
   ScoringCriteria,
   ScoringStatusLabels,
@@ -82,6 +87,34 @@ export function ScoringResultDetailsDialog({
   onClose,
   result,
 }: ScoringResultDetailsDialogProps) {
+  const [isExporting, setIsExporting] = useState(false);
+  const handleExportSummary = async () => {
+    if (!result?.project?.projectId) return;
+    try {
+      setIsExporting(true);
+      const { blob } = await exportSummaryScoreSheetWord(
+        Number(result.project.projectId),
+      );
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `Phieu_Tong_Hop_${result.project.projectCode || "NIIE"}.docx`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      toast.success("Xuất phiếu tổng hợp thành công!");
+    } catch (error: unknown) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Không thể xuất phiếu tổng hợp",
+      );
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   return (
     <Dialog
       open={open}

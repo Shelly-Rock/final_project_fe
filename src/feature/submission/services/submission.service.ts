@@ -2,7 +2,11 @@
 
 const API_BASE = "/submissions";
 
-export type SubmissionStatus = "PENDING" | "APPROVED" | "REJECTED";
+export type SubmissionStatus =
+  | "PENDING"
+  | "APPROVED_BY_TEACHER"
+  | "APPROVED"
+  | "REJECTED";
 export type SubmissionType = "WORD" | "PDF" | "POWERPOINT";
 
 export interface Submission {

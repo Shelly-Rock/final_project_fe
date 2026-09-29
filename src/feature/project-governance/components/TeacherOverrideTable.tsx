@@ -230,7 +230,7 @@ export function TeacherOverrideTable({
             md: "minmax(180px, 260px) minmax(140px, 180px) auto",
           },
           gap: 1.5,
-          alignItems: "center",
+          alignItems: "flex-start",
         }}
       >
         <TextField
@@ -249,8 +249,8 @@ export function TeacherOverrideTable({
           value={assignedQuota}
           onChange={(event) => setAssignedQuota(event.target.value)}
           disabled={saving}
-          inputProps={{ min: 1, max: maxTopicLimit, step: 1 }}
-          helperText={`≤ trần ${maxTopicLimit}`}
+          inputProps={{ min: 3, max: maxTopicLimit, step: 1 }}
+          helperText={`Tối thiểu 3, tối đa ${maxTopicLimit}.`}
           fullWidth
         />
 
@@ -259,7 +259,7 @@ export function TeacherOverrideTable({
             display: "flex",
             gap: 1,
             flexWrap: "wrap",
-            alignItems: "center",
+            alignItems: "flex-start",
           }}
         >
           <TextField
@@ -282,6 +282,7 @@ export function TeacherOverrideTable({
             disabled={
               saving || selectedTeacherIds.length === 0 || !!bulkDisabledReason
             }
+            sx={{ height: 40 }}
           >
             {saving ? (
               <CircularProgress size={18} color="inherit" />

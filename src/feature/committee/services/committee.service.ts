@@ -126,12 +126,15 @@ class CommitteeService {
     limit?: number;
     name?: string;
     facultyId?: string;
+    periodId?: number;
   }): Promise<PaginatedResult<Committee>> {
     const searchParams = new URLSearchParams();
     if (params?.page) searchParams.set("page", String(params.page));
     if (params?.limit) searchParams.set("limit", String(params.limit));
     if (params?.name) searchParams.set("name", params.name);
     if (params?.facultyId) searchParams.set("faculty_id", params.facultyId);
+    if (params?.periodId)
+      searchParams.set("period_id", String(params.periodId));
 
     const response: any = await apiClient.get(
       `${API_BASE}?${searchParams.toString()}`,
@@ -152,6 +155,7 @@ class CommitteeService {
 
   async createCommittee(data: {
     name: string;
+    periodId: number;
     chairmanId?: number;
     secretaryId?: number;
     internal1Id?: number;
@@ -160,6 +164,7 @@ class CommitteeService {
   }): Promise<Committee> {
     const response: any = await apiClient.post(API_BASE, {
       name: data.name,
+      period_id: data.periodId,
       chairman_id: data.chairmanId,
       secretary_id: data.secretaryId,
       internal_1_id: data.internal1Id,
@@ -219,6 +224,17 @@ class CommitteeService {
     return teachers.map(mapTeacher);
   }
 
+  async getTeacherConflicts(
+    teacherId: number,
+    committeeId?: number,
+  ): Promise<string[]> {
+    const query = committeeId ? `?committee_id=${committeeId}` : "";
+    const response: any = await apiClient.get(
+      `${API_BASE}/teachers/${teacherId}/conflicts${query}`,
+    );
+    return Array.isArray(response) ? response : [];
+  }
+
   async getExcludedTeachers(committeeId?: number): Promise<number[]> {
     const url = committeeId
       ? `${API_BASE}/teachers/excluded?committee_id=${committeeId}`
@@ -229,7 +245,10 @@ class CommitteeService {
 
   // ==================== STATISTICS ====================
 
-  async getStats(facultyId?: string): Promise<CommitteeStats> {
+  async getStats(
+    facultyId?: string,
+    periodId?: number,
+  ): Promise<CommitteeStats> {
     const query = facultyId
       ? `?faculty_id=${encodeURIComponent(facultyId)}`
       : "";

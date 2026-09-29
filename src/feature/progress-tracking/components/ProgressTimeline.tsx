@@ -124,8 +124,9 @@ export function ProgressTimeline({
             ? dayjs(now).isBefore(dayjs(prevNode.deadlineAt))
             : false;
 
-          // Only PERIODIC_REPORT needs an explicit student submission
-          const isSubmittable = node.type === "PERIODIC_REPORT";
+          // Both PERIODIC_REPORT and FORM_02 need explicit student submissions
+          const isSubmittable =
+            node.type === "PERIODIC_REPORT" || node.type === "FORM_02";
 
           return (
             <Step key={node.id} expanded={true}>
@@ -285,16 +286,25 @@ export function ProgressTimeline({
                               Đánh giá / Nhận xét
                             </Button>
                           )}
-                          {!isTeacherView && onUploadClick && !isPast && (
-                            <Button
-                              size="small"
-                              variant="outlined"
-                              sx={{ mt: 1 }}
-                              onClick={() => onUploadClick(node.id, node.label)}
-                            >
-                              Cập nhật bài nộp
-                            </Button>
-                          )}
+                          {!isTeacherView &&
+                            onUploadClick &&
+                            !isPast &&
+                            ![
+                              "APPROVED",
+                              "APPROVED_BY_TEACHER",
+                              "ARCHIVED",
+                            ].includes(node.submission.status) && (
+                              <Button
+                                size="small"
+                                variant="outlined"
+                                sx={{ mt: 1 }}
+                                onClick={() =>
+                                  onUploadClick(node.id, node.label)
+                                }
+                              >
+                                Cập nhật bài nộp
+                              </Button>
+                            )}
                         </Box>
                       ) : (
                         <Box

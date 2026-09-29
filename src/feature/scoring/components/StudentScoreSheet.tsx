@@ -41,7 +41,7 @@ export function StudentScoreSheetPage() {
         const response = await getMyTranscript();
         if (response.available === false) {
           setDetail(null);
-          setError(response.reason);
+          setError(response.reason || null);
           return;
         }
         setDetail(response);

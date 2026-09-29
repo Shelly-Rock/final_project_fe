@@ -62,7 +62,7 @@ export function CommitteeTable({
       id: "members",
       label: "Thành viên",
       format: (_, row) => (
-        <Box>
+        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.75 }}>
           {renderMemberTag(row.chairmanId, row.chairmanName, "Chủ tịch")}
           {renderMemberTag(row.secretaryId, row.secretaryName, "Thư ký")}
           {renderMemberTag(row.internal1Id, row.internal1Name, "PB trong 1")}
@@ -73,7 +73,6 @@ export function CommitteeTable({
               label={`PB ngoài: ${er.name}`}
               size="small"
               color="success"
-              sx={{ mb: 0.5 }}
             />
           ))}
         </Box>

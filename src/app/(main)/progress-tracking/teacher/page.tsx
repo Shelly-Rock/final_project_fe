@@ -28,6 +28,7 @@ import {
   RateReview as ReviewIcon,
 } from "@mui/icons-material";
 import { toast } from "sonner";
+import { SubmissionManagement } from "@/feature/submission/components";
 import {
   StudentProgressTable,
   ProgressStatsCards,
@@ -266,24 +267,21 @@ function PendingReportsList({
                 Sinh viên: {selectedReport?.studentName} • Tháng{" "}
                 {selectedReport?.month}/{selectedReport?.year}
               </Typography>
-            </Box>
-
-            <Box>
-              <Typography variant="subtitle2" gutterBottom>
-                Nội dung báo cáo
-              </Typography>
-              <Paper
-                variant="outlined"
-                sx={{
-                  p: 2,
-                  bgcolor: "background.default",
-                  maxHeight: 200,
-                  overflow: "auto",
-                }}
-                dangerouslySetInnerHTML={{
-                  __html: selectedReport?.content || "",
-                }}
-              />
+              {selectedReport?.fileUrl && (
+                <Box sx={{ mt: 2 }}>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    href={selectedReport.fileUrl}
+                    target="_blank"
+                    rel="noopener"
+                    download={selectedReport.fileName || "download"}
+                    startIcon={<DescriptionIcon />}
+                  >
+                    Xem nội dung báo cáo
+                  </Button>
+                </Box>
+              )}
             </Box>
 
             <Divider />
@@ -403,31 +401,6 @@ export default function TeacherProgressPage() {
 
   return (
     <Box sx={{ p: 3, width: "100%" }}>
-      {/* Quick Actions */}
-      <Paper sx={{ p: 2, mb: 3 }}>
-        <Box
-          sx={{
-            display: "flex",
-            gap: 2,
-            flexWrap: "wrap",
-            alignItems: "center",
-          }}
-        >
-          <AutoBanCheckComponent />
-          <Button
-            variant="outlined"
-            startIcon={<NotificationsIcon />}
-            onClick={() => setNotificationDrawerOpen(true)}
-          >
-            Thông báo
-          </Button>
-          <Box sx={{ flex: 1 }} />
-          <Typography variant="body2" color="text.secondary">
-            Giảng viên: <strong>{user?.name}</strong>
-          </Typography>
-        </Box>
-      </Paper>
-
       {/* Ban Warnings */}
       <BanWarningsList teacherId={teacherId} />
 
@@ -435,7 +408,7 @@ export default function TeacherProgressPage() {
       <ProgressStatsCards teacherId={teacherId} key={`stats-${refreshKey}`} />
 
       {/* Tabs */}
-      <Paper sx={{ mb: 2 }}>
+      <Box sx={{ mb: 2 }}>
         <Tabs
           value={tabValue}
           onChange={(_, v) => setTabValue(v)}
@@ -452,8 +425,8 @@ export default function TeacherProgressPage() {
             iconPosition="start"
           />
           <Tab
-            label="Sinh viên bị cấm"
-            icon={<BlockIcon />}
+            label="Bài nộp cuối kỳ"
+            icon={<DescriptionIcon />}
             iconPosition="start"
           />
         </Tabs>
@@ -477,18 +450,9 @@ export default function TeacherProgressPage() {
         </TabPanel>
 
         <TabPanel value={tabValue} index={2}>
-          <BannedStudentsList
-            teacherId={teacherId}
-            onUnban={(studentId: number) => {
-              progressTrackingService.updateStudentProgress(studentId, {
-                status: "ON_TRACK",
-              });
-              toast.success("Đã bỏ cấm thi cho sinh viên");
-              handleRefresh();
-            }}
-          />
+          <SubmissionManagement />
         </TabPanel>
-      </Paper>
+      </Box>
 
       {/* Status Update Dialog */}
       {teacherId !== undefined && (

@@ -29,6 +29,7 @@ import {
 interface DeadlineOption {
   id: number;
   label: string;
+  type: string;
 }
 import {
   Upload as UploadIcon,
@@ -49,6 +50,7 @@ interface TemplateUploadDialogProps {
   onClose: () => void;
   onSuccess?: (template: Template) => void;
   replaceTemplate?: Template | null;
+  periodId?: number;
 }
 
 export function TemplateUploadDialog({
@@ -56,8 +58,8 @@ export function TemplateUploadDialog({
   onClose,
   onSuccess,
   replaceTemplate,
+  periodId,
 }: TemplateUploadDialogProps) {
-  const [periodId, setPeriodId] = useState<number | "">("");
   const [deadlineIds, setDeadlineIds] = useState<number[]>([]);
   const [deadlines, setDeadlines] = useState<DeadlineOption[]>([]);
   const [name, setName] = useState("");
@@ -84,7 +86,14 @@ export function TemplateUploadDialog({
           const result = await progressTrackingService.getTimeline({
             periodId: periodId as number,
           });
-          setDeadlines(result);
+          const EXCLUDED = [
+            "TOPIC_CREATION",
+            "SECRETARY_REVIEW",
+            "STUDENT_REGISTRATION",
+            "TEACHER_APPROVAL",
+          ];
+          const filtered = result.filter((d) => !EXCLUDED.includes(d.type));
+          setDeadlines(filtered);
         } catch (error) {
           console.error("Failed to load timelines", error);
         }
@@ -189,7 +198,6 @@ export function TemplateUploadDialog({
   };
 
   const handleClose = () => {
-    setPeriodId("");
     setName("");
     setDescription("");
     setFile(null);

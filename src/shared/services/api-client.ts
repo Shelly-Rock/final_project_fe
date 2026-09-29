@@ -7,6 +7,7 @@ const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api/v1";
 
 interface ApiClientOptions extends RequestInit {
+  responseType?: "json" | "blob";
   params?: Record<string, string | number | boolean | undefined>;
 }
 

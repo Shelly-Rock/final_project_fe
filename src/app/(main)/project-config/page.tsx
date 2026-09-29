@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
+
 import { useSearchParams } from "next/navigation";
 import {
   Box,
@@ -32,10 +33,12 @@ const getCardBackground = (theme: Theme) => {
     : theme.palette.background.paper;
 };
 
-export default function ProjectConfigPage() {
+function ProjectConfigContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const facultyId = searchParams.get("facultyId") || undefined;
+  const periodIdStr = searchParams.get("periodId");
+  const periodId = periodIdStr ? Number(periodIdStr) : undefined;
   const theme = useTheme();
   const { role } = usePermissionContext();
   const [tab, setTab] = useState(0);
@@ -81,7 +84,7 @@ export default function ProjectConfigPage() {
           <Tab
             icon={<FileText size={16} />}
             iconPosition="start"
-            label="Biểu mẫu (Templates)"
+            label="Quản lý danh sách biểu mẫu"
           />
           <Tab
             icon={<ClipboardCheck size={16} />}
@@ -95,6 +98,7 @@ export default function ProjectConfigPage() {
             <TemplateList
               key={`templates-${refreshKey}-${facultyId ?? "all"}`}
               facultyId={facultyId}
+              periodId={periodId}
               onUploadClick={() => setUploadDialogOpen(true)}
               onReplaceClick={(t) => {
                 setReplaceTemplate(t);
@@ -109,6 +113,7 @@ export default function ProjectConfigPage() {
       <TemplateUploadDialog
         open={uploadDialogOpen}
         replaceTemplate={replaceTemplate}
+        periodId={periodId}
         onClose={() => {
           setUploadDialogOpen(false);
           setReplaceTemplate(null);
@@ -118,5 +123,19 @@ export default function ProjectConfigPage() {
         }}
       />
     </Box>
+  );
+}
+
+export default function ProjectConfigPage() {
+  return (
+    <Suspense
+      fallback={
+        <Box sx={{ p: 3, display: "flex", justifyContent: "center", py: 8 }}>
+          <CircularProgress />
+        </Box>
+      }
+    >
+      <ProjectConfigContent />
+    </Suspense>
   );
 }

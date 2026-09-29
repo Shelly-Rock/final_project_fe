@@ -135,13 +135,6 @@ export const MENU_SECTIONS: MenuSection[] = [
     section: "Bảo vệ",
     items: [
       {
-        key: "submissions",
-        label: "Nộp bài cuối kỳ",
-        icon: Icon.fileEarmarkArrowUp,
-        path: "/submission/admin",
-        roles: ["admin", "secretary"],
-      },
-      {
         key: "committees",
         label: "Hội đồng bảo vệ",
         icon: Icon.peopleTeam,

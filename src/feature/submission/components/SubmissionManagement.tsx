@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { submissionService, Submission, SubmissionStatus } from "../services";
 import { toast } from "sonner";
 import { SubmissionStats } from "./SubmissionStats";
@@ -16,6 +17,8 @@ interface SubmissionWithName extends Submission {
 }
 
 export function SubmissionManagement() {
+  const { data: session } = useSession();
+  const userRole = session?.user?.role?.toUpperCase() || "TEACHER";
   const searchParams = useSearchParams();
   const facultyId = searchParams.get("facultyId") || undefined;
   const [submissions, setSubmissions] = useState<SubmissionWithName[]>([]);
@@ -112,6 +115,7 @@ export function SubmissionManagement() {
       <SubmissionStats stats={stats} />
 
       <SubmissionTable
+        currentUserRole={userRole}
         submissions={submissions}
         loading={loading}
         pagination={pagination}
@@ -122,7 +126,7 @@ export function SubmissionManagement() {
         }}
         onApprove={(row) => openReviewModal(row, "APPROVED")}
         onReject={(row) => openReviewModal(row, "REJECTED")}
-        onView={(row) => window.open(row.fileName, "_blank")}
+        onView={(row) => window.open(row.fileUrl, "_blank")}
         onPageChange={(page) =>
           setPagination({ ...pagination, current: page + 1 })
         }

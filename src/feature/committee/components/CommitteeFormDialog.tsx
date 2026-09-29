@@ -4,8 +4,8 @@
 // CommitteeFormDialog — Form tạo / sửa Hội đồng bảo vệ
 //
 // Logic đặc thù (Nghiệp vụ Giai đoạn 3):
-//  - Chủ tịch, Thư ký, Phản biện trong: chỉ được chọn từ danh sách
-//    availableTeachers (đã được lọc bỏ các GV đang bận ở HĐ khác).
+//  - Chủ tịch: chọn từ allTeachers để vẫn thấy GV bận và cảnh báo
+//    xung đột inline; Thư ký / Phản biện trong: chỉ từ availableTeachers.
 //  - Phản biện ngoài: dùng allTeachers (được phép ngồi nhiều HĐ).
 //  - excludedTeacherIds: danh sách ID GVHD của các đề tài thuộc HĐ này —
 //    bị loại khỏi TẤT CẢ dropdown để tránh GV tự chấm sinh viên của mình.
@@ -33,7 +33,10 @@ interface CommitteeFormDialogProps {
     internal1Id?: number;
     internal2Id?: number;
     externalReviewerIds: number[];
+    periodId?: number;
   }) => Promise<void>;
+  periods?: { id: number; name: string }[];
+  periodId?: number;
   committee?: Committee | null;
   loading?: boolean;
   /** Tất cả GV trong hệ thống (dùng cho dropdown Phản biện ngoài) */
@@ -51,6 +54,7 @@ export function CommitteeFormDialog({
   open,
   onClose,
   onSubmit,
+  periodId,
   committee,
   loading = false,
   allTeachers,
@@ -59,6 +63,7 @@ export function CommitteeFormDialog({
 }: CommitteeFormDialogProps) {
   const isEdit = !!committee;
   const prevOpenRef = useRef<boolean>(open);
+  const [chairmanConflict, setChairmanConflict] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -68,6 +73,35 @@ export function CommitteeFormDialog({
     internal2Id: null as number | null,
     externalReviewerIds: [] as number[],
   });
+
+  useEffect(() => {
+    if (!open || !formData.chairmanId) {
+      setChairmanConflict(null);
+      return;
+    }
+    if (isEdit && committee && formData.chairmanId === committee.chairmanId) {
+      setChairmanConflict(null);
+      return;
+    }
+
+    let cancelled = false;
+    import("../services").then(({ committeeService }) => {
+      committeeService
+        .getTeacherConflicts(formData.chairmanId as number, committee?.id)
+        .then((conflicts) => {
+          if (!cancelled) {
+            setChairmanConflict(conflicts.length ? conflicts.join(", ") : null);
+          }
+        })
+        .catch(() => {
+          if (!cancelled) setChairmanConflict(null);
+        });
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [open, formData.chairmanId, committee, isEdit]);
 
   // ---- Reset form khi dialog mở ----
   useEffect(() => {
@@ -123,6 +157,18 @@ export function CommitteeFormDialog({
    *  2. GV đang được chọn ở vị trí khác trong cùng form — để tránh trùng vai
    *     (ngoại trừ chính vị trí hiện tại đang xét — currentId)
    */
+  const getChairmanOptions = () => {
+    const otherSelected = selectedFixedIds.filter(
+      (id) => id !== formData.chairmanId,
+    );
+    return allTeachers
+      .filter((t) => !otherSelected.includes(t.id))
+      .map((t) => ({
+        value: String(t.id),
+        label: `${t.name} (${t.teacherId})${excludedTeacherIds.includes(t.id) ? " — Đã thuộc hội đồng khác" : ""}`,
+      }));
+  };
+
   const getFixedOptions = (currentId: number | null) => {
     const otherSelected = selectedFixedIds.filter((id) => id !== currentId);
     return availableTeachers
@@ -155,8 +201,10 @@ export function CommitteeFormDialog({
   // ---- Validation trước khi submit ----
   const handleSubmit = async () => {
     if (!formData.name.trim()) return;
+    if (!isEdit && !periodId) return;
     await onSubmit({
       name: formData.name.trim(),
+      periodId,
       chairmanId: formData.chairmanId ?? undefined,
       secretaryId: formData.secretaryId ?? undefined,
       internal1Id: formData.internal1Id ?? undefined,
@@ -165,7 +213,11 @@ export function CommitteeFormDialog({
     });
   };
 
-  const isSubmitDisabled = loading || !formData.name.trim();
+  const isSubmitDisabled =
+    loading ||
+    !formData.name.trim() ||
+    (!isEdit && !periodId) ||
+    Boolean(chairmanConflict);
 
   return (
     <Dialog
@@ -183,14 +235,16 @@ export function CommitteeFormDialog({
           <Button variant="outlined" onClick={onClose} disabled={loading}>
             Hủy
           </Button>
-          <Button
-            variant="contained"
-            onClick={handleSubmit}
-            disabled={isSubmitDisabled}
-            loading={loading}
-          >
-            {isEdit ? "Lưu thay đổi" : "Tạo mới"}
-          </Button>
+          {!chairmanConflict && (
+            <Button
+              variant="contained"
+              onClick={handleSubmit}
+              disabled={isSubmitDisabled}
+              loading={loading}
+            >
+              {isEdit ? "Lưu thay đổi" : "Tạo mới"}
+            </Button>
+          )}
         </>
       }
     >
@@ -224,6 +278,16 @@ export function CommitteeFormDialog({
         )}
 
         {/* Hàng 1: Chủ tịch + Thư ký */}
+        {chairmanConflict && (
+          <Alert severity="error" sx={{ mb: 3 }}>
+            <Typography variant="body2">
+              <strong>Xung đột:</strong> Giảng viên được chọn làm{" "}
+              <strong>Chủ tịch</strong> {chairmanConflict}. Vui lòng chọn Chủ
+              tịch khác trước khi tạo hội đồng.
+            </Typography>
+          </Alert>
+        )}
+
         <Grid container spacing={2} sx={{ mb: 3 }}>
           <Grid item xs={6}>
             <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>
@@ -251,7 +315,7 @@ export function CommitteeFormDialog({
                       chairmanId: v ? Number(v) : null,
                     })
                   }
-                  options={getFixedOptions(formData.chairmanId)}
+                  options={getChairmanOptions()}
                   fullWidth
                 />
               </span>

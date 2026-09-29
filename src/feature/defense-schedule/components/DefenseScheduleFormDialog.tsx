@@ -35,6 +35,7 @@ interface DefenseScheduleFormDialogProps {
   loading?: boolean;
   committees: Committee[];
   facultyId?: string;
+  periodId?: number;
 }
 
 export function DefenseScheduleFormDialog({
@@ -45,14 +46,26 @@ export function DefenseScheduleFormDialog({
   loading = false,
   committees,
   facultyId,
+  periodId,
 }: DefenseScheduleFormDialogProps) {
   const isEdit = !!session;
   const prevOpenRef = useRef<boolean>(open);
 
-  const [availableProjects, setAvailableProjects] = useState<
-    { id: number; projectCode?: string; name: string; studentName?: string }[]
+  const [availableGroups, setAvailableGroups] = useState<
+    {
+      key: string;
+      topicId: number | null;
+      id: number;
+      projectCode?: string;
+      name: string;
+      projectIds: number[];
+      supervisorIds?: number[];
+      studentNames?: string;
+      students?: { name: string; mssv: string }[];
+    }[]
   >([]);
 
+  const [topicIds, setTopicIds] = useState<number[]>([]);
   const [formData, setFormData] = useState({
     committeeId: null as number | null,
     defenseDate: dayjs().format("YYYY-MM-DD"),
@@ -62,31 +75,208 @@ export function DefenseScheduleFormDialog({
     projectIds: [] as number[],
   });
 
-  // ---- Fetch available projects ----
-  useEffect(() => {
-    if (open) {
-      import("../services").then(({ defenseService }) => {
-        defenseService.getAvailableProjects(facultyId).then((projects) => {
-          setAvailableProjects(projects);
-        });
-      });
+  const groupIdToProjectIds = useMemo(() => {
+    const m = new Map<number, number[]>();
+    for (const g of availableGroups) m.set(g.id, g.projectIds);
+    return m;
+  }, [availableGroups]);
+
+  const selectedCommittee = useMemo(
+    () =>
+      formData.committeeId
+        ? (committees.find((c) => c.id === formData.committeeId) ?? null)
+        : null,
+    [committees, formData.committeeId],
+  );
+
+  const excludedSupervisorIds = useMemo(() => {
+    if (!selectedCommittee) return new Set<number>();
+    const ids = [
+      selectedCommittee.chairmanId,
+      selectedCommittee.secretaryId,
+      selectedCommittee.internal1Id,
+      selectedCommittee.internal2Id,
+    ].flatMap((id) => (id != null ? [id] : []));
+    for (const reviewer of selectedCommittee.externalReviewers || []) {
+      ids.push(reviewer.id);
     }
-  }, [open, facultyId]);
+    return new Set(ids);
+  }, [selectedCommittee]);
+
+  const visibleGroups = useMemo(
+    () =>
+      availableGroups.filter(
+        (group) =>
+          !group.supervisorIds?.some(
+            (supervisorId) =>
+              supervisorId != null && excludedSupervisorIds.has(supervisorId),
+          ),
+      ),
+    [availableGroups, excludedSupervisorIds],
+  );
+
+  const topicIdToProjectIds = useMemo(() => {
+    const m = new Map<number, number[]>();
+    for (const g of availableGroups)
+      if (g.topicId != null) m.set(g.topicId, g.projectIds);
+    return m;
+  }, [availableGroups]);
+
+  const visibleGroupIds = useMemo(
+    () => new Set(visibleGroups.map((group) => group.id)),
+    [visibleGroups],
+  );
+
+  const projectIdToTopicKey = useMemo(() => {
+    const m = new Map<number, number>();
+    for (const g of availableGroups)
+      for (const pid of g.projectIds) m.set(pid, g.id);
+    return m;
+  }, [availableGroups]);
+
+  // ---- Fetch available topics/groups ----
+  useEffect(() => {
+    if (!open) return;
+    const activeCommitteeId =
+      session?.committeeId ?? formData.committeeId ?? undefined;
+    let cancelled = false;
+
+    type RawAvailableGroup = {
+      key?: string;
+      topicId?: number | null;
+      id?: number;
+      projectCode?: string;
+      name?: string;
+      projectIds?: number[];
+      supervisorIds?: (number | null)[];
+      studentNames?: string;
+      studentName?: string;
+      students?: { name: string; mssv: string }[];
+    };
+
+    import("../services").then(({ defenseService }) => {
+      defenseService
+        .getAvailableProjects(
+          facultyId,
+          periodId,
+          activeCommitteeId ?? undefined,
+        )
+        .then((groups: RawAvailableGroup[]) => {
+          if (cancelled) return;
+          const normalized: typeof availableGroups = (groups || []).map(
+            (g) => ({
+              key:
+                g.key ||
+                (g.topicId != null ? `topic:${g.topicId}` : `project:${g.id}`),
+              topicId: g.topicId ?? null,
+              id: g.id ?? g.topicId ?? g.projectIds?.[0] ?? 0,
+              projectCode: g.projectCode,
+              name: g.name ?? "",
+              projectIds: g.projectIds ?? (g.id != null ? [g.id] : []),
+              supervisorIds: Array.isArray(g.supervisorIds)
+                ? g.supervisorIds
+                    .filter(
+                      (supervisorId): supervisorId is number =>
+                        supervisorId != null,
+                    )
+                    .map((supervisorId) => Number(supervisorId))
+                : [],
+              studentNames: g.studentNames ?? g.studentName ?? "",
+              students: g.students ?? [],
+            }),
+          );
+          const existingGroupsByKey = new Map<
+            string,
+            (typeof normalized)[number]
+          >();
+          for (const p of session?.projects ?? []) {
+            const topicId = p.topicId ?? null;
+            const key =
+              topicId != null ? `topic:${topicId}` : `project:${p.projectId}`;
+            const existing = existingGroupsByKey.get(key);
+            if (existing) {
+              if (!existing.projectIds.includes(p.projectId)) {
+                existing.projectIds.push(p.projectId);
+              }
+              const supervisorId = p.teacherId;
+              if (supervisorId != null && existing.supervisorIds) {
+                existing.supervisorIds.push(supervisorId);
+              }
+              const studentName = p.studentName || "";
+              existing.studentNames = [existing.studentNames, studentName]
+                .filter(Boolean)
+                .join(", ");
+              existing.students = [
+                ...(existing.students || []),
+                { name: studentName, mssv: p.studentMssv || "" },
+              ];
+            } else {
+              existingGroupsByKey.set(key, {
+                key,
+                topicId,
+                id: topicId ?? p.projectId,
+                projectCode: p.topicCode ?? p.projectCode,
+                name: p.topicName ?? p.projectName,
+                projectIds: [p.projectId],
+                supervisorIds: p.teacherId != null ? [p.teacherId] : [],
+                studentNames: p.studentName,
+                students: [{ name: p.studentName, mssv: p.studentMssv || "" }],
+              });
+            }
+          }
+          const byKey = new Map<string, (typeof normalized)[number]>();
+          for (const g of normalized) byKey.set(g.key, g);
+          for (const [k, v] of existingGroupsByKey)
+            if (!byKey.has(k)) byKey.set(k, v);
+          const merged = [...byKey.values()];
+          setAvailableGroups(merged);
+          // derive selected group ids from current projectIds if editing
+          const currentIds = new Set(formData.projectIds);
+          if (currentIds.size === 0 && session?.projects?.length) {
+            const fromSession = new Set(
+              (session.projects || []).map((p) => p.projectId),
+            );
+            const selectedKeys = new Set<number>();
+            for (const g of merged)
+              if (g.projectIds.some((pid) => fromSession.has(pid)))
+                selectedKeys.add(g.id);
+            setTopicIds([...selectedKeys]);
+          } else if (currentIds.size > 0) {
+            const selectedKeys = new Set<number>();
+            for (const g of merged)
+              if (g.projectIds.some((pid) => currentIds.has(pid)))
+                selectedKeys.add(g.id);
+            setTopicIds([...selectedKeys]);
+          }
+        });
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [open, facultyId, periodId, session, formData.committeeId]);
 
   // ---- Reset form khi dialog mở ----
   useEffect(() => {
     if (open && !prevOpenRef.current) {
       if (session) {
+        const ids = (session.projects || []).map(
+          (p: { projectId: number }) => p.projectId,
+        );
         setFormData({
           committeeId: session.committeeId,
           defenseDate: session.defenseDate,
           startTime: session.startTime,
           room: session.room || "",
           durationMinutes: session.durationMinutes,
-          projectIds: (session.projects || []).map(
-            (p: { projectId: number }) => p.projectId,
-          ),
+          projectIds: ids,
         });
+        const existingTopicIds = (session.projects || [])
+          .map((project) =>
+            project.topicId != null ? project.topicId : project.projectId,
+          )
+          .filter((value, index, values) => values.indexOf(value) === index);
+        setTopicIds(existingTopicIds);
       } else {
         setFormData({
           committeeId: null,
@@ -96,13 +286,47 @@ export function DefenseScheduleFormDialog({
           durationMinutes: 15,
           projectIds: [],
         });
+        setTopicIds([]);
       }
     }
     prevOpenRef.current = open;
   }, [open, session]);
 
-  // Số đề tài = số đề tài đã chọn trong form
-  const projectCount = formData.projectIds.length;
+  useEffect(() => {
+    if (isEdit) return;
+    if (excludedSupervisorIds.size === 0) return;
+    const cleaned = topicIds.filter((id) => visibleGroupIds.has(id));
+    if (cleaned.length === topicIds.length) return;
+    setTopicIds(cleaned);
+    const nextProjectIds: number[] = [];
+    for (const id of cleaned) {
+      const projectIds = groupIdToProjectIds.get(id) || [];
+      nextProjectIds.push(...projectIds);
+    }
+    setFormData((prev) => ({ ...prev, projectIds: nextProjectIds }));
+  }, [
+    topicIds,
+    visibleGroupIds,
+    excludedSupervisorIds,
+    isEdit,
+    groupIdToProjectIds,
+  ]);
+
+  // Keep projectIds in sync when topicIds changes (group -> expand to projectIds)
+  const handleTopicChange = (values: string[]) => {
+    const ids = values.map(Number);
+    setTopicIds(ids);
+    const expanded: number[] = [];
+    for (const tid of ids) {
+      const pids = groupIdToProjectIds.get(tid);
+      if (pids) expanded.push(...pids);
+      else expanded.push(tid);
+    }
+    setFormData((prev) => ({ ...prev, projectIds: expanded }));
+  };
+
+  // Số đề tài = số đề tài (nhóm theo topic) đã chọn
+  const projectCount = topicIds.length || formData.projectIds.length;
 
   // ---- Tính Thời gian dự kiến kết thúc ----
   const estimatedEndTime = useMemo(() => {
@@ -179,9 +403,16 @@ export function DefenseScheduleFormDialog({
               value={
                 formData.committeeId ? String(formData.committeeId) : undefined
               }
-              onChange={(v) =>
-                setFormData({ ...formData, committeeId: v ? Number(v) : null })
-              }
+              onChange={(v) => {
+                const nextCommitteeId = v ? Number(v) : null;
+                setFormData({
+                  ...formData,
+                  committeeId: nextCommitteeId,
+                  projectIds: [],
+                });
+                setTopicIds([]);
+                setAvailableGroups([]);
+              }}
               options={committees.map((c) => ({
                 value: String(c.id),
                 label: c.name,
@@ -226,25 +457,30 @@ export function DefenseScheduleFormDialog({
           </Grid>
         </Grid>
 
-        {/* Chọn đề tài */}
+        {/* Chọn đề tài - gom theo đề tài (topic), không lặp theo sinh viên */}
         <Box sx={{ mb: 3 }}>
           <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>
             Đề tài bảo vệ
           </Typography>
           <MultiSelect
             placeholder="Chọn các đề tài để bảo vệ..."
-            value={formData.projectIds.map(String)}
-            onChange={(v) =>
-              setFormData({
-                ...formData,
-                projectIds: (v as string[]).map(Number),
-              })
-            }
-            options={availableProjects.map((p) => ({
-              value: String(p.id),
-              label: `${p.projectCode || "N/A"} - ${p.name} (SV: ${p.studentName})`,
+            value={topicIds.map(String)}
+            onChange={(v) => handleTopicChange(v as string[])}
+            options={visibleGroups.map((g) => ({
+              value: String(g.id),
+              label: `${g.projectCode || "N/A"} - ${g.name}${g.studentNames ? ` (SV: ${g.studentNames})` : ""}`,
             }))}
           />
+          {!isEdit && formData.committeeId && visibleGroups.length === 0 ? (
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              sx={{ mt: 1, display: "block" }}
+            >
+              Không còn đề tài hợp lệ cho hội đồng này. Các đề tài do thành viên
+              hội đồng hướng dẫn đã được lọc bỏ.
+            </Typography>
+          ) : null}
         </Box>
 
         {/* Thời gian mỗi đề tài */}

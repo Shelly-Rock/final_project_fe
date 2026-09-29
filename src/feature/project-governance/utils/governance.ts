@@ -304,9 +304,10 @@ export function validateGovernanceInput(
     }
   });
 
+  const secretaryReviewTime = timeOf("SECRETARY_REVIEW");
   const form02Time = timeOf("FORM_02");
   const approvalTime = timeOf("TEACHER_APPROVAL");
-  const reportAnchor = form02Time ?? approvalTime;
+  const reportAnchor = secretaryReviewTime ?? approvalTime;
   const finalTime = timeOf("FINAL_SUBMISSION");
   if (reportAnchor !== null && finalTime !== null && reports.length > 0) {
     let previous = reportAnchor;

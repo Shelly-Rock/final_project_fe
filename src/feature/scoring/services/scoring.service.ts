@@ -28,80 +28,6 @@ export const ScoringTypeLabels: Record<ScoringType, string> = {
   COMMITTEE: "Hội đồng chấm",
 };
 
-const COMMITTEE_ROLES = new Set<string>([
-  "CHAIRMAN",
-  "SECRETARY",
-  "INTERNAL_REVIEWER",
-  "EXTERNAL_REVIEWER",
-]);
-
-export function normalizeScoringType(score: {
-  scoringType?: unknown;
-  role?: unknown;
-  scoring_type?: unknown;
-  type?: unknown;
-  scoreType?: unknown;
-}): ScoringType {
-  const raw =
-    score.scoringType ?? score.scoring_type ?? score.type ?? score.scoreType;
-  const v = String(raw ?? "")
-    .trim()
-    .toUpperCase()
-    .replace(/[\s-]/g, "_");
-
-  if (
-    v === "0" ||
-    v === "GVHD" ||
-    v === "SUPERVISOR" ||
-    v === "ADVISOR" ||
-    v === "LECTURER" ||
-    v.includes("GVHD") ||
-    v.includes("HUONG_DAN")
-  ) {
-    return "GVHD";
-  }
-  if (
-    v === "1" ||
-    v === "COMMITTEE" ||
-    v === "COUNCIL" ||
-    v === "BOARD" ||
-    v.includes("COMMITTEE") ||
-    v.includes("HOI_DONG")
-  ) {
-    return "COMMITTEE";
-  }
-  if (COMMITTEE_ROLES.has(String(score.role ?? "").toUpperCase())) {
-    return "COMMITTEE";
-  }
-  return "GVHD";
-}
-
-function normalizeScore(score: Score): Score {
-  return { ...score, scoringType: normalizeScoringType(score) };
-}
-
-function unwrapScorePage(
-  res:
-    | PaginatedResponse<Score>
-    | Score[]
-    | { data?: Score[]; meta?: PaginatedResponse<Score>["meta"] },
-): PaginatedResponse<Score> {
-  const data = Array.isArray(res)
-    ? res
-    : Array.isArray(res?.data)
-      ? res.data
-      : [];
-  const meta = Array.isArray(res)
-    ? { page: 1, limit: data.length, total: data.length, totalPages: 1 }
-    : {
-        page: res.meta?.page ?? 1,
-        limit: res.meta?.limit ?? data.length,
-        total: res.meta?.total ?? data.length,
-        totalPages: res.meta?.totalPages ?? 1,
-      };
-  return { data: data.map(normalizeScore), meta };
-}
-
 export const ScoringStatusLabels: Record<ScoringStatus, string> = {
   PENDING: "Chưa chấm",
   IN_PROGRESS: "Đang chấm",
@@ -144,6 +70,8 @@ export interface Score {
   weaknesses: string | null;
   createdAt: string;
   updatedAt: string;
+  isLocked?: boolean;
+  lockedReason?: string | null;
   project?: {
     projectId: string;
     projectCode: string;
@@ -284,6 +212,18 @@ export const exportMyScoreWord = async (
   });
 };
 
+// Export summary score sheet
+export const exportSummaryScoreSheetWord = async (
+  projectId: number,
+): Promise<{ blob: Blob; filename: string | null }> => {
+  return apiClient.downloadBlob(
+    `${API_BASE}/results/${projectId}/export-summary`,
+    {
+      method: "GET",
+    },
+  );
+};
+
 // ============ ADMIN FUNCTIONS ============
 
 // Get all scores
@@ -312,10 +252,7 @@ export const getAllScores = async (
     queryParams.set("studentId", params.studentId.toString());
   if (params?.facultyId) queryParams.set("facultyId", params.facultyId);
 
-  const res = await apiClient.get<PaginatedResponse<Score> | Score[]>(
-    `${API_BASE}?${queryParams.toString()}`,
-  );
-  return unwrapScorePage(res);
+  return apiClient.get(`${API_BASE}?${queryParams.toString()}`);
 };
 
 // Get all scoring results
@@ -507,6 +444,8 @@ export interface TranscriptComment {
 }
 
 export interface TranscriptDetail {
+  available?: boolean;
+  reason?: string | null;
   projectId: number;
   projectCode: string;
   projectName: string;
@@ -581,11 +520,7 @@ export const publishTranscript = async (
   return apiClient.post(`${API_BASE}/transcripts/${projectId}/publish`);
 };
 
-export type StudentTranscriptResponse =
-  | (TranscriptDetail & { available?: true })
-  | { available: false; reason: string };
-
-export const getMyTranscript = async (): Promise<StudentTranscriptResponse> => {
+export const getMyTranscript = async (): Promise<TranscriptDetail> => {
   return apiClient.get(`${API_BASE}/transcripts/me`);
 };
 
@@ -666,11 +601,7 @@ export const getPrintSheet = async (
   return apiClient.get(`${API_BASE}/post-defense/print${query}`);
 };
 
-export type StudentRevisionResponse =
-  | (StudentRevisionDetail & { available?: true })
-  | { available: false; reason: string };
-
-export const getMyRevision = async (): Promise<StudentRevisionResponse> => {
+export const getMyRevision = async (): Promise<StudentRevisionDetail> => {
   return apiClient.get(`${API_BASE}/revisions/me`);
 };
 

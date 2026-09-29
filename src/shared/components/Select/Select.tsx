@@ -116,8 +116,9 @@ export function MultiSelect({
         },
       }}
       onChange={(e) => {
-        const target = e.target as HTMLInputElement & { value: string[] };
-        onChange?.(target.value);
+        const raw = (e.target as unknown as { value: string[] | string }).value;
+        const next = Array.isArray(raw) ? raw : raw ? [raw] : [];
+        onChange?.(next);
       }}
     >
       {options.map((option) => (

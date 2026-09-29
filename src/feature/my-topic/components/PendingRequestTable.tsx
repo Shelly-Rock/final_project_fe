@@ -5,8 +5,12 @@ import { Tooltip, Typography, Box } from "@mui/material";
 import { DataTable } from "@/shared/components";
 import type { Column, Action } from "@/shared/components";
 import type { PendingRequest, MyTopic } from "../types";
+import { Select } from "@/shared/components";
 
 interface PendingRequestTableProps {
+  periods?: { value: string; label: string; status?: string }[];
+  selectedPeriodId?: string;
+  onPeriodChange?: (value: string) => void;
   requests: PendingRequest[];
   loading?: boolean;
   onApprove: (request: PendingRequest) => void;
@@ -14,6 +18,9 @@ interface PendingRequestTableProps {
 }
 
 export function PendingRequestTable({
+  periods = [],
+  selectedPeriodId = "all",
+  onPeriodChange,
   requests,
   loading = false,
   onApprove,
@@ -98,6 +105,20 @@ export function PendingRequestTable({
       loading={loading}
       emptyMessage="Không có yêu cầu nào chờ duyệt"
       showExportButton={false}
+      extraToolbarActions={
+        periods.length > 0 ? (
+          <Box sx={{ width: 200, mr: 1 }}>
+            <Select
+              name="periodFilter"
+              options={periods}
+              value={selectedPeriodId}
+              onChange={(value) => onPeriodChange?.(value as string)}
+              size="small"
+              fullWidth
+            />
+          </Box>
+        ) : null
+      }
       showImportButton={false}
       showFilterButton={false}
       showSearchInput={false}

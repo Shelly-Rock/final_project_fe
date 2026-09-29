@@ -4,6 +4,7 @@
 
 export type DeadlineType =
   | "TOPIC_CREATION"
+  | "SECRETARY_REVIEW"
   | "STUDENT_REGISTRATION"
   | "TEACHER_APPROVAL"
   | "FORM_02"

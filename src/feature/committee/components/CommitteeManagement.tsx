@@ -2,13 +2,22 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
-import { Typography, Alert } from "@mui/material";
+import {
+  Typography,
+  Alert,
+  Box,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+} from "@mui/material";
 import {
   committeeService,
   Committee,
   TeacherBasic,
   CommitteeStats,
 } from "../services";
+import { periodService } from "@/feature/registration-period/services";
 import { toast } from "sonner";
 import { CommitteeTable } from "./CommitteeTable";
 import { CommitteeFormDialog } from "./CommitteeFormDialog";
@@ -18,6 +27,8 @@ import { ConfirmDialog } from "@/shared/components";
 export default function CommitteeManagement() {
   const searchParams = useSearchParams();
   const facultyId = searchParams.get("facultyId") || undefined;
+  const [periodId, setPeriodId] = useState<number | undefined>(undefined);
+  const [periods, setPeriods] = useState<{ id: number; name: string }[]>([]);
   const [committees, setCommittees] = useState<Committee[]>([]);
   const [teachers, setTeachers] = useState<TeacherBasic[]>([]);
   const [excludedTeacherIds, setExcludedTeacherIds] = useState<number[]>([]);
@@ -49,6 +60,7 @@ export default function CommitteeManagement() {
         page: current,
         limit: pageSize,
         facultyId,
+        periodId,
       });
       setCommittees(result.data);
       setPagination((prev) => ({ ...prev, total: result.total }));
@@ -57,7 +69,19 @@ export default function CommitteeManagement() {
     } finally {
       setLoading(false);
     }
-  }, [current, pageSize, facultyId]);
+  }, [current, pageSize, facultyId, periodId]);
+
+  const fetchPeriods = useCallback(async () => {
+    try {
+      const result = await periodService.getAll();
+      setPeriods(result.map((p) => ({ id: p.id, name: p.name })));
+      setPeriodId(
+        (current) => current ?? result.find((p) => p.status === "open")?.id,
+      );
+    } catch {
+      // ignore
+    }
+  }, []);
 
   const fetchTeachers = useCallback(async () => {
     try {
@@ -72,23 +96,28 @@ export default function CommitteeManagement() {
 
   const fetchStats = useCallback(async () => {
     try {
-      const result = await committeeService.getStats(facultyId);
+      const result = await committeeService.getStats(facultyId, periodId);
       setStats(result);
     } catch {
       // ignore
     }
-  }, [facultyId]);
+  }, [facultyId, periodId]);
 
   useEffect(() => {
     fetchCommittees();
     fetchTeachers();
     fetchStats();
+    fetchPeriods();
   }, [fetchCommittees, fetchTeachers, fetchStats]);
 
-  const openCreateModal = () => {
+  const openCreateModal = async () => {
     setEditingCommittee(null);
-    // Khi tạo mới, không có đề tài nào được gán → không loại trừ GV nào
-    setExcludedTeacherIds([]);
+    try {
+      const excluded = await committeeService.getExcludedTeachers();
+      setExcludedTeacherIds(excluded);
+    } catch {
+      // keep current
+    }
     setModalVisible(true);
   };
 
@@ -111,6 +140,7 @@ export default function CommitteeManagement() {
     internal1Id?: number;
     internal2Id?: number;
     externalReviewerIds: number[];
+    periodId?: number;
   }) => {
     try {
       setSubmitting(true);
@@ -119,7 +149,12 @@ export default function CommitteeManagement() {
         await committeeService.updateCommittee(editingCommittee.id, data);
         toast.success("Cập nhật hội đồng thành công");
       } else {
-        await committeeService.createCommittee(data);
+        if (!periodId) {
+          toast.error("Vui lòng chọn đợt đăng ký trước khi tạo hội đồng");
+          setSubmitting(false);
+          return;
+        }
+        await committeeService.createCommittee({ ...data, periodId });
         toast.success("Tạo hội đồng thành công");
       }
 
@@ -127,8 +162,10 @@ export default function CommitteeManagement() {
       fetchCommittees();
       fetchTeachers();
       fetchStats();
-    } catch {
-      toast.error("Không thể lưu hội đồng");
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Không thể lưu hội đồng",
+      );
     } finally {
       setSubmitting(false);
     }
@@ -158,11 +195,35 @@ export default function CommitteeManagement() {
     <>
       <CommitteeStatsComponent stats={stats} />
 
+      <Box sx={{ mt: 3, mb: 3, display: "flex", alignItems: "center", gap: 2 }}>
+        <FormControl size="small" sx={{ minWidth: 300 }}>
+          <InputLabel>Chọn đợt đăng ký</InputLabel>
+          <Select
+            label="Chọn đợt đăng ký"
+            value={periodId ?? ""}
+            onChange={(e) => {
+              const val = e.target.value;
+              setPeriodId(val === "" ? undefined : Number(val));
+              setPagination((p) => ({ ...p, current: 1 }));
+            }}
+          >
+            <MenuItem value="">
+              <em>Tất cả đợt</em>
+            </MenuItem>
+            {periods.map((p) => (
+              <MenuItem key={p.id} value={p.id}>
+                {p.name}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      </Box>
+
       <Alert severity="info" sx={{ mb: 3 }}>
         <Typography variant="body2">
-          <strong>Lưu ý:</strong> Giảng viên hướng dẫn tuyệt đối không được ngồi
-          trong hội đồng chấm đề tài của mình. Phản biện ngoài có thể chấm ở
-          nhiều hội đồng khác nhau.
+          <strong>Lưu ý:</strong> Giảng viên hướng dẫn tuyệt đối không được tham
+          gia hội đồng chấm đề tài của mình. Phản biện ngoài có thể chấm ở nhiều
+          hội đồng khác nhau.
         </Typography>
       </Alert>
 
@@ -191,6 +252,8 @@ export default function CommitteeManagement() {
         availableTeachers={availableTeachers}
         allTeachers={teachers}
         excludedTeacherIds={excludedTeacherIds}
+        periods={periods}
+        periodId={periodId}
       />
 
       <ConfirmDialog

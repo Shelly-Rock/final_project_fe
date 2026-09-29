@@ -17,7 +17,8 @@ import {
   type PendingRequest,
   type CreateTopicInput,
 } from "@/feature/my-topic";
-import { PageHeader, Card, Tabs } from "@/shared/components";
+import { Card, Tabs } from "@/shared/components";
+import { periodService } from "@/feature/registration-period/services";
 import { toast } from "sonner";
 
 export default function MyTopicsPage() {
@@ -46,12 +47,50 @@ export default function MyTopicsPage() {
   // Search state
   const [searchValue, setSearchValue] = useState("");
 
+  // Filter state
+  const [selectedPeriodId, setSelectedPeriodId] = useState<string>("");
+  const [periods, setPeriods] = useState<
+    { value: string; label: string; status?: string }[]
+  >([]);
+  const [periodsLoaded, setPeriodsLoaded] = useState(false);
+
+  // Load periods
+  useEffect(() => {
+    periodService
+      .getAll()
+      .then((result) => {
+        const opts = [
+          { value: "all", label: "📋 Tất cả các đợt" },
+          ...result.map((p: { id: number; name: string; status: string }) => {
+            return {
+              value: String(p.id),
+              label: p.name,
+              status: p.status,
+            };
+          }),
+        ];
+        setPeriods(opts);
+
+        // Auto-select OPEN period if any
+        const openPeriod = result.find(
+          (p: { id: number; name: string; status: string }) =>
+            p.status === "open",
+        );
+        if (openPeriod) {
+          setSelectedPeriodId(String(openPeriod.id));
+        }
+        setPeriodsLoaded(true);
+      })
+      .catch(console.error);
+  }, []);
+
   // Refresh topics list (pending requests are derived from the same payload)
   const refreshTopics = useCallback(() => {
+    if (!periodsLoaded) return;
     setTopicsLoading(true);
     setRequestsLoading(true);
     myTopicService
-      .getAll()
+      .getAll(selectedPeriodId === "all" ? undefined : selectedPeriodId)
       .then((data) => {
         setAllTopics(data);
         setPendingRequests(
@@ -87,7 +126,7 @@ export default function MyTopicsPage() {
         setTopicsLoading(false);
         setRequestsLoading(false);
       });
-  }, []);
+  }, [selectedPeriodId, periodsLoaded]);
 
   // Initial load
   useEffect(() => {
@@ -271,6 +310,9 @@ export default function MyTopicsPage() {
       label: "Danh sách đề tài",
       content: (
         <TopicDataTable
+          periods={periods}
+          selectedPeriodId={selectedPeriodId}
+          onPeriodChange={setSelectedPeriodId}
           topics={displayedTopics}
           loading={topicsLoading}
           searchValue={searchValue}
@@ -288,6 +330,9 @@ export default function MyTopicsPage() {
       label: `Yêu cầu chờ duyệt${pendingCount > 0 ? ` (${pendingCount})` : ""}`,
       content: (
         <PendingRequestTable
+          periods={periods}
+          selectedPeriodId={selectedPeriodId}
+          onPeriodChange={setSelectedPeriodId}
           requests={pendingRequests}
           loading={requestsLoading}
           onApprove={handleApproveRequest}

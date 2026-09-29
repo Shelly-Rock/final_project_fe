@@ -81,6 +81,7 @@ export interface DataTableProps<T> {
   rowKey: keyof T;
   actions?: Action<T>[];
   headerActions?: HeaderAction[];
+  extraToolbarActions?: React.ReactNode;
   filterOptions?: FilterOption[];
   filterValue?: string;
   onFilterChange?: (value: string) => void;
@@ -146,6 +147,7 @@ export function DataTable<T extends object>({
   rowKey,
   actions,
   headerActions = DEFAULT_HEADER_ACTIONS,
+  extraToolbarActions,
   filterOptions = [],
   filterValue,
   onFilterChange,
@@ -289,7 +291,8 @@ export function DataTable<T extends object>({
     cascadingFilterOptions.length > 0 ||
     showExportButton ||
     showImportButton ||
-    headerActions.length > 0;
+    headerActions.length > 0 ||
+    !!extraToolbarActions;
 
   return (
     <Paper
@@ -471,6 +474,7 @@ export function DataTable<T extends object>({
                 Import
               </Button>
             )}
+            {extraToolbarActions}
             {headerActions.map((action) => (
               <Button
                 key={action.id}

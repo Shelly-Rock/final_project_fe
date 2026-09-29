@@ -80,6 +80,7 @@ export default function StudentSubmission({
     isLeader?: boolean;
   } | null>(null);
   const [checkingEligibility, setCheckingEligibility] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
 
   const [file, setFile] = useState<File | null>(null);
   const [fileError, setFileError] = useState<string | null>(null);
@@ -95,6 +96,15 @@ export default function StudentSubmission({
     const checkEligibility = async () => {
       setCheckingEligibility(true);
       try {
+        const submissions = await submissionService.getMySubmissions();
+        if (submissions && submissions.length > 0) {
+          setSubmission(submissions[0]);
+          // If they have a submission, we can assume they are eligible (as leader) to edit it
+          // as long as it's not approved.
+          setEligibility({ eligible: true, isLeader: true });
+          return;
+        }
+
         const result = await submissionService.getMyEligibility();
         setEligibility(result);
       } catch (error) {
@@ -196,6 +206,7 @@ export default function StudentSubmission({
 
       setStage("done");
       setSubmission(confirmed);
+      setIsEditing(false);
       toast.success("Nộp bài thành công! File đã được lưu trên hệ thống.");
     } catch (err) {
       setStage("error");
@@ -257,7 +268,7 @@ export default function StudentSubmission({
     );
   }
 
-  if (stage === "done" && submission) {
+  if (submission && !isEditing) {
     return (
       <Box sx={{ maxWidth: 600, mx: "auto", mt: 4 }}>
         <Card>
@@ -285,7 +296,7 @@ export default function StudentSubmission({
                 >
                   <FileText size={16} color="#64748b" />
                   <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                    {submission.fileName}
+                    {submission.originalName || submission.fileName}
                   </Typography>
                 </Box>
                 <Typography variant="caption" color="text.secondary">
@@ -301,6 +312,19 @@ export default function StudentSubmission({
                   onClick={() => window.open(submission.fileUrl, "_blank")}
                 >
                   Xem tài liệu trên Google Drive
+                </Button>
+              )}
+
+              {(submission.status === "PENDING" ||
+                submission.status === "REJECTED") && (
+                <Button
+                  variant="contained"
+                  size="small"
+                  color="warning"
+                  sx={{ ml: 2 }}
+                  onClick={() => setIsEditing(true)}
+                >
+                  Cập nhật bài nộp
                 </Button>
               )}
             </Box>

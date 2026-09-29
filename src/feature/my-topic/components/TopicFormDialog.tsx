@@ -17,6 +17,7 @@ import {
 import { Dialog } from "@/shared/components";
 import { Input } from "@/shared/components";
 import { Select } from "@/shared/components";
+import { periodService } from "@/feature/registration-period/services";
 import { Button } from "@/shared/components";
 import type { MyTopic, CreateTopicInput, Student } from "../types";
 import { myTopicService } from "../services/my-topic.service";
@@ -83,7 +84,38 @@ export function TopicFormDialog({
   const [technologies, setTechnologies] = useState("");
 
   // Form state - Tab 2: Chỉ tiêu đề tài
-  const [periodId, setPeriodId] = useState<string>("1");
+  const [periodId, setPeriodId] = useState<string>("");
+  const [periods, setPeriods] = useState<
+    { value: string; label: string; status?: string }[]
+  >([]);
+
+  useEffect(() => {
+    const loadPeriods = async () => {
+      try {
+        const result = await periodService.getAll();
+        const opts = result.map(
+          (p: { id: number; name: string; status: string }) => {
+            return {
+              value: String(p.id),
+              label: p.name,
+              status: p.status,
+            };
+          },
+        );
+        setPeriods(opts);
+        if (opts.length > 0 && !periodId) {
+          // Ưu tiên chọn đợt đang OPEN; fallback sang đợt đầu tiên
+          const openPeriod = opts.find(
+            (o: { value: string; status: string }) => o.status === "open",
+          );
+          setPeriodId(openPeriod ? openPeriod.value : opts[0].value);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    loadPeriods();
+  }, []);
   const [maxStudents, setMaxStudents] = useState<string>(
     DEFAULT_MAX_STUDENTS.toString(),
   );
@@ -136,7 +168,11 @@ export function TopicFormDialog({
       setTechnologies(topic?.technologies || "");
 
       // Tab 2
-      setPeriodId(String(topic?.periodId || "1"));
+      if (topic?.periodId) {
+        setPeriodId(String(topic.periodId));
+      } else if (periods.length > 0) {
+        setPeriodId(periods[0].value);
+      }
       setMaxStudents(String(topic?.maxStudents || DEFAULT_MAX_STUDENTS));
       setStudentQuery("");
       setStudentOptions([]);
@@ -436,6 +472,19 @@ export function TopicFormDialog({
           <Box
             sx={{ display: "flex", flexDirection: "column", gap: 2.5, mt: 1 }}
           >
+            {/* Đợt đăng ký - đặt đầu tiên để giảng viên chọn ngay khi tạo mới */}
+            {!isEdit && (
+              <Select
+                name="periodId"
+                label="Đợt đăng ký"
+                options={periods}
+                value={periodId}
+                onChange={(value) => setPeriodId(value)}
+                required
+                fullWidth
+              />
+            )}
+
             <Input
               name="name"
               label="Tên đề tài"
@@ -508,21 +557,6 @@ export function TopicFormDialog({
         {/* Tab 2: Chỉ tiêu đề tài */}
         <TabPanel value={activeTab} index={1}>
           <Box sx={{ display: "flex", flexDirection: "column", gap: 3, mt: 1 }}>
-            {/* Row 1: Đợt đăng ký */}
-            <Select
-              name="periodId"
-              label="Đợt đăng ký"
-              options={[
-                { value: "1", label: "HK1 2025-2026" },
-                { value: "2", label: "HK2 2025-2026" },
-              ]}
-              value={periodId}
-              onChange={(value) => setPeriodId(value)}
-              required
-              fullWidth
-              disabled={isEdit}
-            />
-
             {/* Row 2: Sĩ số tối đa */}
             <Box>
               <Input

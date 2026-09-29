@@ -18,6 +18,7 @@ export const ALLOWED_ALERT_OFFSETS = [0, 1, 3] as const;
 
 export const DEADLINE_TYPES: DeadlineType[] = [
   "TOPIC_CREATION",
+  "SECRETARY_REVIEW",
   "STUDENT_REGISTRATION",
   "TEACHER_APPROVAL",
   "FORM_02",
@@ -26,10 +27,11 @@ export const DEADLINE_TYPES: DeadlineType[] = [
 ];
 
 export const DEADLINE_TYPE_LABELS: Record<DeadlineType, string> = {
-  TOPIC_CREATION: "Tạo / chỉnh sửa đề tài",
+  TOPIC_CREATION: "Giảng viên tạo đề tài",
   STUDENT_REGISTRATION: "Sinh viên đăng ký đề tài",
   TEACHER_APPROVAL: "Giảng viên duyệt đăng ký",
   FORM_02: "Nộp biểu mẫu số 02",
+  SECRETARY_REVIEW: "Thư ký khoa duyệt / chỉnh sửa đề tài",
   PERIODIC_REPORT: "Báo cáo tiến độ định kỳ",
   FINAL_SUBMISSION: "Nộp đồ án cuối kỳ",
 };
@@ -43,6 +45,8 @@ export const DEADLINE_TYPE_HINTS: Record<DeadlineType, string> = {
     "Sau mốc này, các đăng ký chưa được giảng viên xử lý sẽ chuyển sang chờ Thư ký.",
   FORM_02:
     "Sau khi giảng viên duyệt đăng ký, sinh viên nộp biểu mẫu số 02 trong hạn này.",
+  SECRETARY_REVIEW:
+    "Thư ký khoa rà soát, loại bỏ hoặc chỉnh sửa các đề tài chưa đạt chuẩn trước khi sinh viên đăng ký.",
   PERIODIC_REPORT:
     "Cho phép nhiều mốc theo thứ tự; báo cáo chưa nộp sẽ được đánh dấu là thiếu.",
   FINAL_SUBMISSION: "Sau mốc này sinh viên không nộp đồ án cuối kỳ được nữa.",
@@ -51,6 +55,7 @@ export const DEADLINE_TYPE_HINTS: Record<DeadlineType, string> = {
 /** Thứ tự nghiệp vụ bắt buộc giữa các giai đoạn một-mốc (đồng bộ BE). */
 export const MAIN_DEADLINE_ORDERING: DeadlineType[] = [
   "TOPIC_CREATION",
+  "SECRETARY_REVIEW",
   "STUDENT_REGISTRATION",
   "TEACHER_APPROVAL",
   "FORM_02",
@@ -136,7 +141,7 @@ export const AUDIT_ACTION_LABELS: Record<TopicAuditAction, string> = {
   BULK_REJECT: "Từ chối hàng loạt",
   MANUAL_ASSIGN: "Gán sinh viên",
   SUPPLEMENTAL_CREATE: "Tạo đề tài bổ sung",
-  CODE_GENERATE: "Sinh mã đề tài",
+  CODE_GENERATE: "Cấp mã đề tài",
   CREATE: "Tạo đề tài",
   UPDATE: "Cập nhật đề tài",
   REGISTRATION_APPROVE: "Duyệt đăng ký",
@@ -167,9 +172,11 @@ export const STAGE_STATE_COLORS: Record<
  */
 export const DEFAULT_DEADLINE_OFFSET_DAYS: Record<DeadlineType, number> = {
   TOPIC_CREATION: 7,
+  SECRETARY_REVIEW: 14,
   STUDENT_REGISTRATION: 21,
   TEACHER_APPROVAL: 28,
   FORM_02: 35,
+
   PERIODIC_REPORT: 49,
   FINAL_SUBMISSION: 70,
 };

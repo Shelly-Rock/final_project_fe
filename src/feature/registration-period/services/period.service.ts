@@ -15,6 +15,7 @@ import type {
   ExceptionRequest,
   FacultyStudentLimit,
   PeriodStatus,
+  PeriodStats,
   QuotaStatus,
   TopicModerationStatus,
 } from "../types";
@@ -85,15 +86,6 @@ interface BackendManagedTopicPage {
   page: number;
   limit: number;
   totalPages: number;
-}
-
-interface PeriodStats {
-  totalTopics: number;
-  pendingTopics: number;
-  approvedTopics: number;
-  rejectedTopics: number;
-  totalQuotas: number;
-  insufficientTeachers: number;
 }
 
 interface BackendNotifyResult {
@@ -581,7 +573,7 @@ class PeriodService {
     return unwrap(response);
   }
 
-  private async refreshPeriodStats(periodId: number): Promise<PeriodStats> {
+  async getStats(periodId: number): Promise<PeriodStats> {
     const pending = this.pendingStatsRequests.get(periodId);
     if (pending) return pending;
 
@@ -605,7 +597,7 @@ class PeriodService {
 
   private async refreshPeriodStatsSafely(periodId: number): Promise<void> {
     try {
-      await this.refreshPeriodStats(periodId);
+      await this.getStats(periodId);
     } catch {
       // Dữ liệu danh sách chính vẫn dùng được; giữ thống kê cache gần nhất.
     }

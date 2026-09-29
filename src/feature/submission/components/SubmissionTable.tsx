@@ -32,6 +32,7 @@ interface SubmissionTableProps {
   onRowsPerPageChange: (pageSize: number) => void;
   filterValue?: SubmissionStatus | "";
   onFilterChange?: (value: SubmissionStatus | "") => void;
+  currentUserRole?: string;
 }
 
 const statusColors: Record<
@@ -39,12 +40,14 @@ const statusColors: Record<
   "default" | "primary" | "secondary" | "error" | "info" | "success" | "warning"
 > = {
   PENDING: "warning",
+  APPROVED_BY_TEACHER: "info",
   APPROVED: "success",
   REJECTED: "error",
 };
 
 const statusLabels: Record<SubmissionStatus, string> = {
   PENDING: "Chờ duyệt",
+  APPROVED_BY_TEACHER: "GV đã duyệt",
   APPROVED: "Đã duyệt",
   REJECTED: "Từ chối",
 };
@@ -52,6 +55,7 @@ const statusLabels: Record<SubmissionStatus, string> = {
 const STATUS_FILTERS: { value: SubmissionStatus | ""; label: string }[] = [
   { value: "", label: "Tất cả" },
   { value: "PENDING", label: "Chờ duyệt" },
+  { value: "APPROVED_BY_TEACHER", label: "GV đã duyệt" },
   { value: "APPROVED", label: "Đã duyệt" },
   { value: "REJECTED", label: "Từ chối" },
 ];
@@ -67,6 +71,7 @@ export function SubmissionTable({
   onRowsPerPageChange,
   filterValue = "",
   onFilterChange,
+  currentUserRole = "TEACHER",
 }: SubmissionTableProps) {
   const columns: Column<SubmissionWithName>[] = [
     {
@@ -100,7 +105,7 @@ export function SubmissionTable({
           href="#"
           onClick={(e) => {
             e.preventDefault();
-            window.open(row.fileName, "_blank");
+            window.open(row.fileUrl, "_blank");
           }}
           sx={{
             color: "primary.main",
@@ -108,7 +113,7 @@ export function SubmissionTable({
             "&:hover": { textDecoration: "underline" },
           }}
         >
-          {row.fileName}
+          {row.originalName || row.fileName}
         </Typography>
       ),
     },
@@ -142,7 +147,10 @@ export function SubmissionTable({
       label: "Duyệt",
       color: "success" as const,
       onClick: (row) => onApprove(row),
-      disabled: (row) => row.status !== "PENDING",
+      disabled: (row) =>
+        row.status === "APPROVED" ||
+        row.status === "REJECTED" ||
+        (currentUserRole === "TEACHER" && row.status === "APPROVED_BY_TEACHER"),
     },
     {
       id: "reject",
@@ -150,7 +158,10 @@ export function SubmissionTable({
       label: "Từ chối",
       color: "error" as const,
       onClick: (row) => onReject(row),
-      disabled: (row) => row.status !== "PENDING",
+      disabled: (row) =>
+        row.status === "APPROVED" ||
+        row.status === "REJECTED" ||
+        (currentUserRole === "TEACHER" && row.status === "APPROVED_BY_TEACHER"),
     },
     {
       id: "view",
