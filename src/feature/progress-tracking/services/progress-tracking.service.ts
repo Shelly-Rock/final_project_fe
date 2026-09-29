@@ -246,8 +246,9 @@ class ProgressTrackingService {
     if (params?.isException !== undefined)
       searchParams.set("is_exception", String(params.isException));
 
+    const query = searchParams.toString();
     const response: any = await apiClient.get(
-      `${API_BASE}/templates?${searchParams.toString()}`,
+      `${API_BASE}/templates${query ? `?${query}` : ""}`,
     );
     return {
       data: (response.data || []).map(mapTemplate),

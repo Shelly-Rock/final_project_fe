@@ -518,7 +518,7 @@ export function PeriodConfigForm() {
                   sx={{ display: "flex", alignItems: "center", gap: 1 }}
                 >
                   <Switch
-                    checked={alertOffsets.includes(offset)}
+                    checked={alertsEnabled && alertOffsets.includes(offset)}
                     onChange={(_, checked) =>
                       setAlertOffsets((values) =>
                         checked

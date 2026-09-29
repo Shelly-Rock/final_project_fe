@@ -33,8 +33,23 @@ interface TeacherImportRow {
   departmentId: string;
   academicTitle?: string;
   position?: string;
+  extraData?: string;
   status?: "pending" | "success" | "error";
   error?: string;
+}
+
+function normalizeHeader(value: string) {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/đ/g, "d")
+    .replace(/Đ/g, "D")
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, "");
+}
+
+function normalizeLookup(value: string) {
+  return normalizeHeader(value);
 }
 
 interface ImportExcelDialogProps {
@@ -71,8 +86,14 @@ export function ImportExcelDialog({
   // Helper to find faculty by name
   const findFacultyIdByName = useCallback(
     (name: string): string => {
-      const found = faculties.find((f) =>
-        f.name.toLowerCase().includes(name.toLowerCase()),
+      const normalized = normalizeLookup(name);
+      if (!normalized) return "";
+      const found = faculties.find(
+        (faculty) =>
+          normalizeLookup(faculty.id) === normalized ||
+          normalizeLookup(faculty.name) === normalized ||
+          normalizeLookup(faculty.name).includes(normalized) ||
+          normalized.includes(normalizeLookup(faculty.name)),
       );
       return found?.id || "";
     },
@@ -113,7 +134,7 @@ export function ImportExcelDialog({
           }
 
           const data = records
-            .map((record) => {
+            .map((record, index) => {
               const row: TeacherImportRow = {
                 code: "",
                 name: "",
@@ -125,15 +146,18 @@ export function ImportExcelDialog({
                 position: undefined,
                 status: "pending",
               };
+              const additionalData: Record<string, unknown> = {};
+              let explicitExtraData: Record<string, unknown> = {};
 
               Object.entries(record).forEach(([key, rawValue]) => {
-                const header = key.trim().toLowerCase();
+                const header = normalizeHeader(key);
                 const value = String(rawValue ?? "").trim();
                 switch (header) {
                   case "mã gv":
                   case "magv":
                   case "code":
                   case "teacher_code":
+                  case "teachercode":
                     row.code = value;
                     break;
                   case "họ tên":
@@ -153,10 +177,13 @@ export function ImportExcelDialog({
                   case "phone":
                   case "tel":
                   case "điện thoại":
+                  case "dienthoai":
                     row.phone = value;
                     break;
                   case "khoa":
                   case "faculty":
+                  case "facultyid":
+                  case "makhoa":
                   case "f":
                     row.facultyId = findFacultyIdByName(value);
                     break;
@@ -164,15 +191,20 @@ export function ImportExcelDialog({
                   case "bomon":
                   case "department":
                   case "chuyên ngành":
+                  case "chuyennganh":
                     row.departmentId = findDepartmentIdByName(
                       value,
                       row.facultyId,
                     );
+                    if (value) additionalData.department = value;
                     break;
                   case "học hàm":
                   case "hoc ham":
                   case "academic_title":
+                  case "academictitle":
+                  case "hocham":
                   case "học vị":
+                  case "hocvi":
                     row.academicTitle = value;
                     break;
                   case "chức vụ":
@@ -181,22 +213,60 @@ export function ImportExcelDialog({
                   case "title":
                     row.position = value;
                     break;
+                  case "dateofbirth":
+                  case "ngaysinh":
+                  case "gender":
+                  case "gioitinh":
+                  case "address":
+                  case "diachi":
+                    break;
+                  case "extradata":
+                  case "extrajson":
+                  case "jsondata":
+                  case "json":
+                    if (value) {
+                      const parsed = JSON.parse(value) as unknown;
+                      if (
+                        typeof parsed !== "object" ||
+                        parsed === null ||
+                        Array.isArray(parsed)
+                      ) {
+                        throw new Error(
+                          `Dòng ${index + 2}: extraData phải là JSON object`,
+                        );
+                      }
+                      explicitExtraData = parsed as Record<string, unknown>;
+                    }
+                    break;
+                  default:
+                    if (value) additionalData[key.trim()] = rawValue;
                 }
               });
+              const mergedExtraData = {
+                ...additionalData,
+                ...explicitExtraData,
+              };
+              row.extraData = Object.keys(mergedExtraData).length
+                ? JSON.stringify(mergedExtraData)
+                : "";
               return row;
             })
-            .filter((row) => row.code && row.name && row.email);
+            .filter(
+              (row) => row.code && row.name && row.email && row.facultyId,
+            );
 
           setRows(data);
           setFileError(
             data.length === 0
-              ? "Không tìm thấy dòng hợp lệ. Kiểm tra các cột code, name, email."
+              ? "Không tìm thấy dòng hợp lệ. Kiểm tra các cột code, name, email và faculty."
               : "",
           );
-        } catch {
+        } catch (error) {
           setRows([]);
           setFileError(
-            "Không thể đọc file. Vui lòng chọn file Excel hoặc CSV hợp lệ.",
+            error instanceof Error
+              ? error.message
+              : "Không thể đọc file. Vui lòng chọn file Excel hoặc CSV hợp lệ.",
           );
         }
       };
@@ -204,7 +274,7 @@ export function ImportExcelDialog({
       reader.readAsArrayBuffer(file);
       event.target.value = "";
     },
-    [findFacultyIdByName],
+    [findDepartmentIdByName, findFacultyIdByName],
   );
 
   const handleRemoveRow = (index: number) => {
@@ -251,6 +321,7 @@ export function ImportExcelDialog({
         dateOfBirth: "1990-01-15",
         gender: "MALE",
         address: "TP. Hồ Chí Minh",
+        extraData: '{"specialty":"AI"}',
       },
     ];
     const worksheet = XLSX.utils.json_to_sheet(rows);
@@ -281,6 +352,7 @@ export function ImportExcelDialog({
       title: "Bộ môn",
       render: (row) => getDepartmentName(row.departmentId),
     },
+    { key: "extraData", title: "Extra JSON" },
     {
       key: "actions",
       title: "Xóa",
@@ -340,12 +412,12 @@ export function ImportExcelDialog({
           }}
         >
           <Typography variant="body2">
-            File CSV cần có các cột:{" "}
-            <strong>code, name, email, faculty, department</strong> (Các cột
-            phone, academicTitle, position không bắt buộc)
+            File CSV cần có các cột: <strong>code, name, email, faculty</strong>
+            . Tên khoa hoặc mã khoa đều được chấp nhận.
           </Typography>
           <Typography variant="caption" sx={{ display: "block", mt: 1 }}>
-            Các cột tùy chọn: phone, academicTitle, position
+            Tùy chọn: phone, academicTitle, position, department và extraData
+            dạng JSON object. Các cột khác sẽ tự động được lưu vào extraData.
           </Typography>
         </Box>
       </Box>

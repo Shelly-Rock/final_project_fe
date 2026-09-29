@@ -195,12 +195,12 @@ export default function TeacherManagementPage() {
       refreshTeachers();
       toast.success(result.message || `Đã import ${result.count} giảng viên`);
     } catch (error: unknown) {
-      toast.error(
-        getErrorMessage(
-          error,
-          "Import thất bại. Vui lòng kiểm tra lại file Excel.",
-        ),
+      const message = getErrorMessage(
+        error,
+        "Import thất bại. Vui lòng kiểm tra lại file Excel.",
       );
+      toast.error(message);
+      throw new Error(message);
     }
   };
 
