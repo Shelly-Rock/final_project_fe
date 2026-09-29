@@ -14,7 +14,7 @@ interface Faculty {
 interface TeacherFormDialogProps {
   open: boolean;
   onClose: () => void;
-  onSubmit: (data: CreateLecturerInput) => void;
+  onSubmit: (data: CreateLecturerInput) => Promise<boolean>;
   teacher: Lecturer | null;
   loading?: boolean;
   faculties?: Faculty[];
@@ -88,7 +88,7 @@ export function TeacherFormDialog({
           facultyId: teacher.facultyId,
           academicTitle: teacher.academicTitle || "",
           position: teacher.position || "",
-          dateOfBirth: teacher.dateOfBirth || "",
+          dateOfBirth: teacher.dateOfBirth?.slice(0, 10) || "",
           gender: teacher.gender,
           address: teacher.address || "",
         });
@@ -133,13 +133,28 @@ export function TeacherFormDialog({
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
-    if (!formData.code) newErrors.code = "Mã GV là bắt buộc";
-    if (!formData.name) newErrors.name = "Họ tên là bắt buộc";
-    if (!formData.email) newErrors.email = "Email là bắt buộc";
+    if (!formData.code.trim()) newErrors.code = "Mã GV là bắt buộc";
+    else if (!/^[A-Za-z0-9._-]{2,50}$/.test(formData.code.trim()))
+      newErrors.code =
+        "Mã GV chỉ được chứa chữ, số, dấu chấm, gạch ngang hoặc gạch dưới";
+    if (!formData.name.trim()) newErrors.name = "Họ tên là bắt buộc";
+    if (!formData.email.trim()) newErrors.email = "Email là bắt buộc";
     if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       newErrors.email = "Email không hợp lệ";
     }
     if (!formData.facultyId) newErrors.facultyId = "Khoa là bắt buộc";
+    if (
+      formData.phone?.trim() &&
+      !/^0[35789][0-9]{8}$/.test(formData.phone.trim())
+    ) {
+      newErrors.phone = "Số điện thoại không đúng định dạng Việt Nam";
+    }
+    if (
+      formData.dateOfBirth &&
+      formData.dateOfBirth > new Date().toISOString().slice(0, 10)
+    ) {
+      newErrors.dateOfBirth = "Ngày sinh không được lớn hơn ngày hiện tại";
+    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -147,9 +162,11 @@ export function TeacherFormDialog({
 
   const handleSubmit = async () => {
     if (!validateForm()) return;
-    await onSubmit(formData);
-    setFormData(INITIAL_FORM_DATA);
-    setIsCodeAutoFilled(false);
+    const saved = await onSubmit(formData);
+    if (saved) {
+      setFormData(INITIAL_FORM_DATA);
+      setIsCodeAutoFilled(false);
+    }
   };
 
   return (
@@ -192,6 +209,8 @@ export function TeacherFormDialog({
           label="Số điện thoại"
           value={formData.phone}
           onChange={(e) => handleChange("phone", e.target.value)}
+          error={!!errors.phone}
+          helperText={errors.phone}
         />
 
         <Select
@@ -212,6 +231,8 @@ export function TeacherFormDialog({
           value={formData.dateOfBirth}
           onChange={(e) => handleChange("dateOfBirth", e.target.value)}
           InputLabelProps={{ shrink: true }}
+          error={!!errors.dateOfBirth}
+          helperText={errors.dateOfBirth}
         />
 
         <Select
@@ -245,7 +266,6 @@ export function TeacherFormDialog({
           label="Ghi chú"
           value={formData.address}
           onChange={(val) => handleChange("address", val)}
-          rows={3}
         />
 
         <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
