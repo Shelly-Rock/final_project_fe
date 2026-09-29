@@ -345,8 +345,7 @@ export default function TopicRegistrationPage() {
             bgcolor: "success.main",
           }}
         >
-          <CheckCircle size={28} color="#fff" />
-          <Typography variant="h6" fontWeight={700} color="#fff">
+          <Typography variant="h6" fontWeight={700} color="#ffffff">
             Yêu cầu đăng ký đề tài đã được phê duyệt
           </Typography>
         </Box>

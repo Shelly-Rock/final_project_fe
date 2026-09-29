@@ -121,6 +121,7 @@ function AllReportsReview({ facultyId }: { facultyId?: string }) {
       const result = await progressTrackingService.getReports({
         page: 1,
         limit: 100,
+        status: "APPROVED_BY_TEACHER",
         facultyId,
       });
       setReports(result.data);
@@ -170,6 +171,8 @@ function AllReportsReview({ facultyId }: { facultyId?: string }) {
 
   const getStatusChip = (status: ReportStatus) => {
     switch (status) {
+      case "APPROVED_BY_TEACHER":
+        return <Chip label="Giảng viên đã duyệt" color="info" size="small" />;
       case "APPROVED":
         return <Chip label="Đã duyệt" color="success" size="small" />;
       case "PENDING":
@@ -247,9 +250,7 @@ function AllReportsReview({ facultyId }: { facultyId?: string }) {
 
   const filterOptions: FilterOption[] = [
     { value: "ALL", label: "Tất cả" },
-    { value: "PENDING", label: "Chờ duyệt" },
-    { value: "APPROVED", label: "Đã duyệt" },
-    { value: "REJECTED", label: "Từ chối" },
+    { value: "APPROVED_BY_TEACHER", label: "Giảng viên đã duyệt" },
   ];
 
   return (

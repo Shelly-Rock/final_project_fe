@@ -111,7 +111,9 @@ export const notificationApi = {
   }> => {
     const res = await apiClient.get<{
       users: Array<{ id: number; name: string; email: string; role: string }>;
-    }>(`/notifications/compose/faculties/${facultyId}/users`);
+    }>(
+      `/notifications/compose/faculties/${encodeURIComponent(facultyId)}/users`,
+    );
     return res || { users: [] };
   },
 
@@ -138,6 +140,8 @@ export const notificationApi = {
     recipientIds: number[];
     saveDraft?: boolean;
     attachmentUrl?: string;
+    requireRead24h?: boolean;
+    pinToTop?: boolean;
   }): Promise<{
     message: string;
     notifications?: INotification[];

@@ -358,6 +358,25 @@ class ProgressTrackingService {
     return mapReport(response);
   }
 
+  async updateReport(data: {
+    reportId: number;
+    title: string;
+    content?: string;
+    fileUrl?: string;
+    fileName?: string;
+  }): Promise<ProgressReport> {
+    const response: any = await apiClient.put(
+      `${API_BASE}/reports/${data.reportId}`,
+      {
+        title: data.title,
+        content: data.content,
+        ...(data.fileUrl !== undefined ? { file_url: data.fileUrl } : {}),
+        ...(data.fileName !== undefined ? { file_name: data.fileName } : {}),
+      },
+    );
+    return mapReport(response);
+  }
+
   async reviewReport(data: {
     reportId: number;
     reviewerId?: number;
@@ -572,6 +591,7 @@ class ProgressTrackingService {
         ? {
             id: node.submission.id,
             title: node.submission.title,
+            content: node.submission.content,
             status: node.submission.status,
             fileUrl: node.submission.file_url,
             fileName: node.submission.file_name,
