@@ -35,9 +35,27 @@ type ImportRow = {
   diaChi?: string;
   deTai?: string;
   giangVienHuongDan?: string;
+  extraData?: string;
   status?: "pending" | "success" | "error";
   error?: string;
 };
+
+function normalizeHeader(value: string) {
+  const directAliases: Record<string, string> = {
+    khóa: "khoahoc",
+    "khóa học": "khoahoc",
+  };
+  const directAlias = directAliases[value.trim().toLowerCase()];
+  if (directAlias) return directAlias;
+
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/đ/g, "d")
+    .replace(/Đ/g, "D")
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, "");
+}
 
 export function StudentImportDialog({
   open,
@@ -73,7 +91,7 @@ export function StudentImportDialog({
           }
 
           const data = records
-            .map((record) => {
+            .map((record, index) => {
               const row: ImportRow = {
                 mssv: "",
                 hoTen: "",
@@ -85,9 +103,11 @@ export function StudentImportDialog({
                 giangVienHuongDan: "chưa có",
                 status: "pending",
               };
+              const additionalData: Record<string, unknown> = {};
+              let explicitExtraData: Record<string, unknown> = {};
 
               Object.entries(record).forEach(([key, rawValue]) => {
-                const header = key.trim().toLowerCase();
+                const header = normalizeHeader(key);
                 const value = String(rawValue ?? "").trim();
                 switch (header) {
                   case "mssv":
@@ -109,6 +129,7 @@ export function StudentImportDialog({
                     break;
                   case "hoten":
                   case "họ tên":
+                  case "fullname":
                   case "name":
                     row.hoTen = value;
                     break;
@@ -118,6 +139,8 @@ export function StudentImportDialog({
                     break;
                   case "khoa":
                   case "major":
+                  case "nganh":
+                  case "chuyennganh":
                     row.khoa = value;
                     break;
                   case "courseyear":
@@ -137,16 +160,21 @@ export function StudentImportDialog({
                   case "sodienthoai":
                   case "sdt":
                     row.soDienThoai = value;
+                    if (value) additionalData.phone = value;
                     break;
                   case "ngaysinh":
+                  case "dateofbirth":
                     row.ngaySinh = value;
                     break;
                   case "diachi":
                     row.diaChi = value;
+                    if (value) additionalData.address = value;
                     break;
                   case "detai":
                   case "đề tài":
                   case "thesis_topic":
+                  case "projectname":
+                  case "thesistopic":
                   case "thesis":
                     if (value) row.deTai = value;
                     break;
@@ -155,24 +183,63 @@ export function StudentImportDialog({
                   case "advisor":
                   case "teacher":
                   case "advisor_teacher":
+                  case "advisorteacher":
                     if (value) row.giangVienHuongDan = value;
                     break;
+                  case "extradata":
+                  case "extrajson":
+                  case "jsondata":
+                  case "dulieubosung":
+                  case "json":
+                    if (value) {
+                      const parsed = JSON.parse(value) as unknown;
+                      if (
+                        typeof parsed !== "object" ||
+                        parsed === null ||
+                        Array.isArray(parsed)
+                      ) {
+                        throw new Error(
+                          `Dòng ${index + 2}: extraData phải là JSON object`,
+                        );
+                      }
+                      explicitExtraData = parsed as Record<string, unknown>;
+                    }
+                    break;
+                  default:
+                    if (value) additionalData[key.trim()] = rawValue;
                 }
               });
+              const mergedExtraData = {
+                ...additionalData,
+                ...explicitExtraData,
+              };
+              row.extraData = Object.keys(mergedExtraData).length
+                ? JSON.stringify(mergedExtraData)
+                : "";
               return row;
             })
-            .filter((row) => row.mssv && row.hoTen);
+            .filter(
+              (row) =>
+                row.mssv &&
+                row.hoTen &&
+                row.gmail &&
+                row.khoa &&
+                row.khoaHoc &&
+                row.lop,
+            );
 
           setRows(data);
           setFileError(
             data.length === 0
-              ? "Không tìm thấy dòng hợp lệ. Kiểm tra các cột studentId, firstName, lastName và email."
+              ? "Không tìm thấy dòng hợp lệ. Kiểm tra các cột mssv, hoten, gmail, khoa, khoahoc và lop."
               : "",
           );
-        } catch {
+        } catch (error) {
           setRows([]);
           setFileError(
-            "Không thể đọc file. Vui lòng chọn file Excel hoặc CSV hợp lệ.",
+            error instanceof Error
+              ? error.message
+              : "Không thể đọc file. Vui lòng chọn file Excel hoặc CSV hợp lệ.",
           );
         }
       };
@@ -225,6 +292,7 @@ export function StudentImportDialog({
     { key: "khoa", title: "Khoa" },
     { key: "khoaHoc", title: "Khóa" },
     { key: "lop", title: "Lớp" },
+    { key: "extraData", title: "Extra JSON" },
     {
       key: "actions",
       title: "Xóa",
@@ -274,14 +342,14 @@ export function StudentImportDialog({
           }}
         >
           <Typography variant="body2">
-            File CSV cần có các cột:{" "}
-            <strong>mssv, hoten, gmail, khoa, khoahoc, lop</strong> (Các cột
-            &quot;detai&quot; và &quot;giangvienhuongdan&quot; không bắt buộc,
-            mặc định là &quot;chưa có&quot;)
+            File cần có các cột:{" "}
+            <strong>mssv, hoten, gmail, khoa, khoahoc, lop</strong>. Có thể dùng
+            tên tương đương như studentId, fullName, email, major, courseYear,
+            className.
           </Typography>
           <Typography variant="caption" sx={{ display: "block", mt: 1 }}>
-            Các cột tùy chọn: detai, giangvienhuongdan (mặc định: &quot;chưa
-            có&quot;)
+            Tùy chọn: ngày sinh, giới tính, đề tài và extraData dạng JSON
+            object. Các cột bổ sung khác sẽ tự động được lưu vào extraData.
           </Typography>
         </Box>
       </Box>
