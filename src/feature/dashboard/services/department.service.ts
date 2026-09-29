@@ -36,6 +36,13 @@ export interface FacultyProgressStats {
   series: ProgressReportSeries[];
 }
 
+export interface FacultyUpcomingEvent {
+  id: string;
+  at: string;
+  title: string;
+  detail: string;
+}
+
 export interface TopicItem {
   id: string;
   name: string;
@@ -80,6 +87,15 @@ class FacultyService {
   ): Promise<FacultyProgressStats> {
     const response = await apiClient.get<{ data: FacultyProgressStats }>(
       `/dashboard/faculty/${encodeURIComponent(facultyId)}/progress-reports`,
+    );
+    return response.data;
+  }
+
+  async getFacultyUpcomingEvents(
+    facultyId: string,
+  ): Promise<FacultyUpcomingEvent[]> {
+    const response = await apiClient.get<{ data: FacultyUpcomingEvent[] }>(
+      `/dashboard/faculty/${encodeURIComponent(facultyId)}/upcoming-events`,
     );
     return response.data;
   }

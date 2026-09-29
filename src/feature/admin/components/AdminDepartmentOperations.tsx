@@ -95,9 +95,10 @@ function formatDay(d: Date) {
 }
 
 function formatTime(iso: string) {
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return "";
-  return `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  const date = new Date(iso);
+  return Number.isNaN(date.getTime())
+    ? ""
+    : `${pad(date.getHours())}:${pad(date.getMinutes())}`;
 }
 
 function isSameDay(a: Date, b: Date) {
@@ -1657,126 +1658,130 @@ export function AdminDepartmentOperations() {
         )}
       </Box>
 
-      <Box sx={{ ...cardSx, ...darkCardSx }}>
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            mb: 2,
-          }}
-        >
-          <Typography sx={{ fontWeight: 700, fontSize: 16, color: C.ink }}>
-            Lịch 14 ngày tới
-          </Typography>
-          <Typography sx={{ fontSize: 12, color: isDark ? "#ffff" : C.faint }}>
-            {rangeLabel}
-          </Typography>
-        </Box>
-        {timeline.length === 0 ? (
-          <Typography
-            sx={{ fontSize: 13, color: isDark ? "#ffff" : C.muted, py: 2 }}
+      {false && (
+        <Box sx={{ ...cardSx, ...darkCardSx }}>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              mb: 2,
+            }}
           >
-            Không có mốc hạn nào trong 14 ngày tới.
-          </Typography>
-        ) : (
-          timeline.map((ev, i) => {
-            const today = isSameDay(ev.at, now);
-            return (
-              <Box
-                key={ev.id}
-                sx={{
-                  display: "grid",
-                  gridTemplateColumns: "72px 20px 1fr",
-                  gap: 1.5,
-                  alignItems: "stretch",
-                }}
-              >
-                <Box sx={{ pt: 1.25, textAlign: "right" }}>
-                  <Typography
-                    sx={{
-                      fontSize: 13,
-                      fontWeight: 700,
-                      color: isDark ? "#ffff" : today ? C.blue : C.ink,
-                    }}
-                  >
-                    {formatDay(ev.at)}
-                  </Typography>
-                  <Typography
-                    sx={{ fontSize: 11, color: isDark ? "#ffff" : C.faint }}
-                  >
-                    {today ? "Hôm nay" : WEEKDAYS[ev.at.getDay()]}
-                  </Typography>
-                </Box>
+            <Typography sx={{ fontWeight: 700, fontSize: 16, color: C.ink }}>
+              Lịch 14 ngày tới
+            </Typography>
+            <Typography
+              sx={{ fontSize: 12, color: isDark ? "#ffff" : C.faint }}
+            >
+              {rangeLabel}
+            </Typography>
+          </Box>
+          {timeline.length === 0 ? (
+            <Typography
+              sx={{ fontSize: 13, color: isDark ? "#ffff" : C.muted, py: 2 }}
+            >
+              Không có mốc hạn nào trong 14 ngày tới.
+            </Typography>
+          ) : (
+            timeline.map((ev, i) => {
+              const today = isSameDay(ev.at, now);
+              return (
                 <Box
+                  key={ev.id}
                   sx={{
-                    position: "relative",
-                    display: "flex",
-                    justifyContent: "center",
+                    display: "grid",
+                    gridTemplateColumns: "72px 20px 1fr",
+                    gap: 1.5,
+                    alignItems: "stretch",
                   }}
                 >
-                  {i < timeline.length - 1 && (
-                    <Box
+                  <Box sx={{ pt: 1.25, textAlign: "right" }}>
+                    <Typography
                       sx={{
-                        position: "absolute",
-                        top: 22,
-                        bottom: -8,
-                        width: 2,
-                        bgcolor: isDark
-                          ? "rgba(255, 255, 255, 0.16)"
-                          : "#eef2f6",
+                        fontSize: 13,
+                        fontWeight: 700,
+                        color: isDark ? "#ffff" : today ? C.blue : C.ink,
                       }}
-                    />
-                  )}
+                    >
+                      {formatDay(ev.at)}
+                    </Typography>
+                    <Typography
+                      sx={{ fontSize: 11, color: isDark ? "#ffff" : C.faint }}
+                    >
+                      {today ? "Hôm nay" : WEEKDAYS[ev.at.getDay()]}
+                    </Typography>
+                  </Box>
                   <Box
                     sx={{
-                      mt: 1.4,
-                      width: 12,
-                      height: 12,
-                      borderRadius: "50%",
-                      bgcolor: isDark ? "#101A34" : C.surface,
-                      border: `3px solid ${ev.color}`,
-                      zIndex: 1,
-                      boxShadow: today ? `0 0 0 4px ${ev.color}22` : "none",
-                    }}
-                  />
-                </Box>
-                <Box
-                  sx={{
-                    mb: 1.25,
-                    px: 2,
-                    py: 1.25,
-                    borderRadius: "12px",
-                    bgcolor: isDark ? "rgba(255, 255, 255, 0.06)" : ev.bg,
-                    border: isDark
-                      ? "1px solid rgba(255, 255, 255, 0.12)"
-                      : "none",
-                  }}
-                >
-                  <Typography
-                    sx={{
-                      fontSize: 14,
-                      fontWeight: 700,
-                      color: isDark ? "#ffff" : C.ink,
+                      position: "relative",
+                      display: "flex",
+                      justifyContent: "center",
                     }}
                   >
-                    {ev.title}
-                  </Typography>
-                  <Typography
+                    {i < timeline.length - 1 && (
+                      <Box
+                        sx={{
+                          position: "absolute",
+                          top: 22,
+                          bottom: -8,
+                          width: 2,
+                          bgcolor: isDark
+                            ? "rgba(255, 255, 255, 0.16)"
+                            : "#eef2f6",
+                        }}
+                      />
+                    )}
+                    <Box
+                      sx={{
+                        mt: 1.4,
+                        width: 12,
+                        height: 12,
+                        borderRadius: "50%",
+                        bgcolor: isDark ? "#101A34" : C.surface,
+                        border: `3px solid ${ev.color}`,
+                        zIndex: 1,
+                        boxShadow: today ? `0 0 0 4px ${ev.color}22` : "none",
+                      }}
+                    />
+                  </Box>
+                  <Box
                     sx={{
-                      fontSize: 12,
-                      color: isDark ? "#ffff" : C.muted,
-                      mt: 0.25,
+                      mb: 1.25,
+                      px: 2,
+                      py: 1.25,
+                      borderRadius: "12px",
+                      bgcolor: isDark ? "rgba(255, 255, 255, 0.06)" : ev.bg,
+                      border: isDark
+                        ? "1px solid rgba(255, 255, 255, 0.12)"
+                        : "none",
                     }}
                   >
-                    {ev.detail}
-                  </Typography>
+                    <Typography
+                      sx={{
+                        fontSize: 14,
+                        fontWeight: 700,
+                        color: isDark ? "#ffff" : C.ink,
+                      }}
+                    >
+                      {ev.title}
+                    </Typography>
+                    <Typography
+                      sx={{
+                        fontSize: 12,
+                        color: isDark ? "#ffff" : C.muted,
+                        mt: 0.25,
+                      }}
+                    >
+                      {ev.detail}
+                    </Typography>
+                  </Box>
                 </Box>
-              </Box>
-            );
-          })
-        )}
-      </Box>
+              );
+            })
+          )}
+        </Box>
+      )}
     </Box>
   );
 }
