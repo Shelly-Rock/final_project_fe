@@ -72,16 +72,6 @@ const cardSx = {
   boxShadow: "0 14px 36px rgba(15, 23, 42, 0.06)",
 };
 
-const WEEKDAYS = [
-  "Chủ nhật",
-  "Thứ 2",
-  "Thứ 3",
-  "Thứ 4",
-  "Thứ 5",
-  "Thứ 6",
-  "Thứ 7",
-];
-
 function settled<T>(r: PromiseSettledResult<T>, fallback: T): T {
   return r.status === "fulfilled" ? r.value : fallback;
 }
@@ -92,21 +82,6 @@ function pad(n: number) {
 
 function formatDay(d: Date) {
   return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}`;
-}
-
-function formatTime(iso: string) {
-  const date = new Date(iso);
-  return Number.isNaN(date.getTime())
-    ? ""
-    : `${pad(date.getHours())}:${pad(date.getMinutes())}`;
-}
-
-function isSameDay(a: Date, b: Date) {
-  return (
-    a.getFullYear() === b.getFullYear() &&
-    a.getMonth() === b.getMonth() &&
-    a.getDate() === b.getDate()
-  );
 }
 
 function stageOf(
@@ -143,27 +118,6 @@ interface TeacherRow {
   used: number;
   quota: number;
 }
-
-interface TimelineEvent {
-  id: string;
-  at: Date;
-  iso: string;
-  title: string;
-  detail: string;
-  color: string;
-  bg: string;
-}
-
-const STAGE_STYLE: Record<string, { color: string; bg: string }> = {
-  FORM_02: { color: C.blue, bg: "#eff6ff" },
-  STUDENT_REGISTRATION: { color: C.yellow, bg: "#fffbeb" },
-  TEACHER_APPROVAL: { color: C.yellow, bg: "#fffbeb" },
-  TOPIC_CREATION: { color: C.violet, bg: "#f5f3ff" },
-  PERIODIC_REPORT: { color: C.green, bg: "#ecfdf5" },
-  FINAL_SUBMISSION: { color: C.orange, bg: "#fff7ed" },
-  MEETING: { color: "#64748b", bg: "#f8fafc" },
-  DEFENSE: { color: C.violet, bg: "#f5f3ff" },
-};
 
 async function loadOperations() {
   const periods = await periodService.getAll();
@@ -368,7 +322,6 @@ export function AdminDepartmentOperations() {
   });
 
   const now = useMemo(() => new Date(), []);
-  const horizon = useMemo(() => new Date(now.getTime() + 14 * 86400000), [now]);
 
   const waitingSecretary = useMemo(
     () =>
@@ -629,95 +582,6 @@ export function AdminDepartmentOperations() {
     return items;
   }, [data, waitingSecretary, overdueReports, unlockedOrNoLead, overQuota]);
 
-  const timeline: TimelineEvent[] = useMemo(() => {
-    const events: TimelineEvent[] = [];
-    (data?.stages ?? [])
-      .filter((s) => s.enabled)
-      .forEach((s) => {
-        const at = new Date(s.deadlineAt);
-        if (Number.isNaN(at.getTime())) return;
-        if (at < new Date(now.getTime() - 12 * 3600000)) return;
-        if (at > horizon) return;
-        const style = STAGE_STYLE[s.type] ?? STAGE_STYLE.MEETING;
-        events.push({
-          id: `st-${s.id}`,
-          at,
-          iso: s.deadlineAt,
-          title: s.label,
-          detail: `${formatTime(s.deadlineAt) || "—"}  ·  ${
-            s.state === "OPEN"
-              ? "Đang mở"
-              : s.state === "CLOSED"
-                ? "Đã đóng"
-                : "Sắp tới"
-          }`,
-          color: style.color,
-          bg: style.bg,
-        });
-      });
-
-    const period = data?.period;
-    if (period) {
-      [
-        {
-          id: "p-sv",
-          iso: period.studentDeadline,
-          title: "Hạn xác nhận đăng ký SV",
-          type: "STUDENT_REGISTRATION",
-          extra: waitingSecretary
-            ? `${waitingSecretary} đơn chờ xử lý`
-            : "Đợt đăng ký",
-        },
-        {
-          id: "p-gv",
-          iso: period.teacherDeadline,
-          title: "Hạn giảng viên nộp đề tài",
-          type: "TOPIC_CREATION",
-          extra: "Hệ thống tự động",
-        },
-      ].forEach((p) => {
-        const at = new Date(p.iso);
-        if (Number.isNaN(at.getTime())) return;
-        if (at < new Date(now.getTime() - 12 * 3600000) || at > horizon) return;
-        if (events.some((e) => Math.abs(e.at.getTime() - at.getTime()) < 60000))
-          return;
-        const style = STAGE_STYLE[p.type] ?? STAGE_STYLE.MEETING;
-        events.push({
-          id: p.id,
-          at,
-          iso: p.iso,
-          title: p.title,
-          detail: `${formatTime(p.iso) || "—"}  ·  ${p.extra}`,
-          color: style.color,
-          bg: style.bg,
-        });
-      });
-    }
-
-    (data?.sessions ?? []).forEach((ss) => {
-      const at = new Date(`${ss.defenseDate}T${ss.startTime || "00:00"}`);
-      if (Number.isNaN(at.getTime())) return;
-      if (at < now || at > horizon) return;
-      const style = STAGE_STYLE.DEFENSE;
-      events.push({
-        id: `df-${ss.id}`,
-        at,
-        iso: at.toISOString(),
-        title: `Bảo vệ · ${ss.committeeName}`,
-        detail: `${ss.startTime || "—"}  ·  ${ss.room || "Chưa có phòng"}`,
-        color: style.color,
-        bg: style.bg,
-      });
-    });
-
-    return events.sort((a, b) => a.at.getTime() - b.at.getTime()).slice(0, 8);
-  }, [data, now, horizon, waitingSecretary]);
-
-  const rangeLabel =
-    timeline.length > 0
-      ? `${formatDay(timeline[0].at)} – ${formatDay(timeline[timeline.length - 1].at)}/${timeline[timeline.length - 1].at.getFullYear()}`
-      : `${formatDay(now)} – ${formatDay(horizon)}/${horizon.getFullYear()}`;
-
   if (isLoading) {
     return (
       <Box sx={{ display: "flex", flexDirection: "column", gap: 2.5 }}>
@@ -770,7 +634,7 @@ export function AdminDepartmentOperations() {
       <Box
         sx={{
           display: "grid",
-          gridTemplateColumns: { xs: "1fr", lg: "1.65fr 1fr" },
+          gridTemplateColumns: "1fr",
           gap: 2,
           alignItems: "stretch",
         }}
@@ -941,7 +805,17 @@ export function AdminDepartmentOperations() {
             })}
           </Box>
         </Box>
-        <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        <Box
+          sx={{
+            display: "grid",
+            gridTemplateColumns: {
+              xs: "1fr",
+              lg: "minmax(0, 1.2fr) minmax(0, 0.8fr)",
+            },
+            gap: 2,
+            alignItems: "stretch",
+          }}
+        >
           <Box
             sx={{
               ...cardSx,
@@ -1000,59 +874,74 @@ export function AdminDepartmentOperations() {
               />
             </Box>
 
-            <Box sx={{ position: "relative", height: 188 }}>
-              <ResponsiveContainer width="100%" height={188}>
-                <PieChart>
-                  <Pie
-                    data={donutFill}
-                    dataKey="value"
-                    innerRadius={58}
-                    outerRadius={80}
-                    paddingAngle={2}
-                    stroke={C.surface}
-                    strokeWidth={3}
-                  >
-                    {donutFill.map((d, i) => (
-                      <Cell key={i} fill={d.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip
-                    formatter={(v, n) => [`${v ?? 0} đề tài`, String(n)]}
-                    contentStyle={{
-                      borderRadius: 12,
-                      border: `1px solid ${C.line}`,
-                      boxShadow: "0 12px 28px rgba(15, 23, 42, 0.12)",
-                      fontSize: 12,
-                    }}
-                  />
-                </PieChart>
-              </ResponsiveContainer>
-              <Box
-                sx={{
-                  position: "absolute",
-                  inset: 0,
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  pointerEvents: "none",
-                }}
-              >
-                <Typography
+            {donutData.length > 0 ? (
+              <Box sx={{ position: "relative", height: 188 }}>
+                <ResponsiveContainer width="100%" height={188}>
+                  <PieChart>
+                    <Pie
+                      data={donutFill}
+                      dataKey="value"
+                      innerRadius={58}
+                      outerRadius={80}
+                      paddingAngle={2}
+                      stroke={C.surface}
+                      strokeWidth={3}
+                    >
+                      {donutFill.map((d, i) => (
+                        <Cell key={i} fill={d.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      formatter={(v, n) => [`${v ?? 0} đề tài`, String(n)]}
+                      contentStyle={{
+                        borderRadius: 12,
+                        border: `1px solid ${C.line}`,
+                        boxShadow: "0 12px 28px rgba(15, 23, 42, 0.12)",
+                        fontSize: 12,
+                      }}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+                <Box
                   sx={{
-                    fontSize: 30,
-                    fontWeight: 900,
-                    color: C.ink,
-                    lineHeight: 1,
+                    position: "absolute",
+                    inset: 0,
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    pointerEvents: "none",
                   }}
                 >
-                  {data?.topics.length ? `${dist.approveRate}%` : "—"}
-                </Typography>
-                <Typography sx={{ fontSize: 12, color: C.muted, mt: 0.5 }}>
-                  tỷ lệ duyệt
+                  <Typography
+                    sx={{
+                      fontSize: 30,
+                      fontWeight: 900,
+                      color: C.ink,
+                      lineHeight: 1,
+                    }}
+                  >
+                    {data?.topics.length ? `${dist.approveRate}%` : "—"}
+                  </Typography>
+                  <Typography sx={{ fontSize: 12, color: C.muted, mt: 0.5 }}>
+                    tỷ lệ duyệt
+                  </Typography>
+                </Box>
+              </Box>
+            ) : (
+              <Box
+                sx={{
+                  py: 3,
+                  textAlign: "center",
+                  borderRadius: "12px",
+                  bgcolor: "action.hover",
+                }}
+              >
+                <Typography variant="body2" color="text.secondary">
+                  Chưa có đề tài trong đợt hiện tại
                 </Typography>
               </Box>
-            </Box>
+            )}
 
             <Box sx={{ display: "grid", gap: 1, mt: 1 }}>
               {dist.slices.map((s) => (
@@ -1657,131 +1546,6 @@ export function AdminDepartmentOperations() {
           </Table>
         )}
       </Box>
-
-      {false && (
-        <Box sx={{ ...cardSx, ...darkCardSx }}>
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              mb: 2,
-            }}
-          >
-            <Typography sx={{ fontWeight: 700, fontSize: 16, color: C.ink }}>
-              Lịch 14 ngày tới
-            </Typography>
-            <Typography
-              sx={{ fontSize: 12, color: isDark ? "#ffff" : C.faint }}
-            >
-              {rangeLabel}
-            </Typography>
-          </Box>
-          {timeline.length === 0 ? (
-            <Typography
-              sx={{ fontSize: 13, color: isDark ? "#ffff" : C.muted, py: 2 }}
-            >
-              Không có mốc hạn nào trong 14 ngày tới.
-            </Typography>
-          ) : (
-            timeline.map((ev, i) => {
-              const today = isSameDay(ev.at, now);
-              return (
-                <Box
-                  key={ev.id}
-                  sx={{
-                    display: "grid",
-                    gridTemplateColumns: "72px 20px 1fr",
-                    gap: 1.5,
-                    alignItems: "stretch",
-                  }}
-                >
-                  <Box sx={{ pt: 1.25, textAlign: "right" }}>
-                    <Typography
-                      sx={{
-                        fontSize: 13,
-                        fontWeight: 700,
-                        color: isDark ? "#ffff" : today ? C.blue : C.ink,
-                      }}
-                    >
-                      {formatDay(ev.at)}
-                    </Typography>
-                    <Typography
-                      sx={{ fontSize: 11, color: isDark ? "#ffff" : C.faint }}
-                    >
-                      {today ? "Hôm nay" : WEEKDAYS[ev.at.getDay()]}
-                    </Typography>
-                  </Box>
-                  <Box
-                    sx={{
-                      position: "relative",
-                      display: "flex",
-                      justifyContent: "center",
-                    }}
-                  >
-                    {i < timeline.length - 1 && (
-                      <Box
-                        sx={{
-                          position: "absolute",
-                          top: 22,
-                          bottom: -8,
-                          width: 2,
-                          bgcolor: isDark
-                            ? "rgba(255, 255, 255, 0.16)"
-                            : "#eef2f6",
-                        }}
-                      />
-                    )}
-                    <Box
-                      sx={{
-                        mt: 1.4,
-                        width: 12,
-                        height: 12,
-                        borderRadius: "50%",
-                        bgcolor: isDark ? "#101A34" : C.surface,
-                        border: `3px solid ${ev.color}`,
-                        zIndex: 1,
-                        boxShadow: today ? `0 0 0 4px ${ev.color}22` : "none",
-                      }}
-                    />
-                  </Box>
-                  <Box
-                    sx={{
-                      mb: 1.25,
-                      px: 2,
-                      py: 1.25,
-                      borderRadius: "12px",
-                      bgcolor: isDark ? "rgba(255, 255, 255, 0.06)" : ev.bg,
-                      border: isDark
-                        ? "1px solid rgba(255, 255, 255, 0.12)"
-                        : "none",
-                    }}
-                  >
-                    <Typography
-                      sx={{
-                        fontSize: 14,
-                        fontWeight: 700,
-                        color: isDark ? "#ffff" : C.ink,
-                      }}
-                    >
-                      {ev.title}
-                    </Typography>
-                    <Typography
-                      sx={{
-                        fontSize: 12,
-                        color: isDark ? "#ffff" : C.muted,
-                        mt: 0.25,
-                      }}
-                    >
-                      {ev.detail}
-                    </Typography>
-                  </Box>
-                </Box>
-              );
-            })
-          )}
-        </Box>
-      )}
     </Box>
   );
 }

@@ -48,8 +48,13 @@ const getFacultyAbbr = (id: string, name: string) => {
     .toUpperCase();
 };
 
-const getFacultyStatusLabel = (rate: number, isActive: boolean) => {
+const getFacultyStatusLabel = (
+  rate: number,
+  isActive: boolean,
+  totalProjects: number,
+) => {
   if (!isActive) return "Tạm ngưng";
+  if (totalProjects === 0) return "Chưa có đề tài";
   if (rate >= 80) return "Đúng tiến độ";
   if (rate >= 60) return "Cảnh báo";
   return "Trễ hạn";
@@ -72,7 +77,11 @@ const FacultyCard: React.FC<{
     ? Math.round((approvedProjects / totalProjects) * 100)
     : 0;
   const abbr = getFacultyAbbr(faculty.id, faculty.name);
-  const statusLabel = getFacultyStatusLabel(completionRate, faculty.is_active);
+  const statusLabel = getFacultyStatusLabel(
+    completionRate,
+    faculty.is_active,
+    totalProjects,
+  );
 
   const openDetail = () => {
     // Card khoa luôn dẫn tới /department/<mã khoa>.
@@ -210,7 +219,6 @@ interface StatCardProps {
   label: string;
   value: number | string;
   subtext: string;
-  subtextColor?: string;
   icon?: React.ReactNode;
   iconColor?: string;
 }
@@ -219,7 +227,6 @@ const StatCard = ({
   label,
   value,
   subtext,
-  subtextColor = "success.main",
   icon,
   iconColor = "#3b82f6",
 }: StatCardProps) => {
@@ -296,7 +303,6 @@ const StatCard = ({
 };
 
 export const AdminDepartmentDashboard: React.FC = () => {
-  const theme = useTheme();
   const router = useRouter();
 
   const { data: dashboardStats, isLoading: statsLoading } = useQuery({
@@ -310,11 +316,13 @@ export const AdminDepartmentDashboard: React.FC = () => {
   });
 
   const facultyCards = facultyStats ?? [];
-  const departmentCount = facultyCards.length;
 
   const totalProjects = dashboardStats?.summary.totalProjects ?? 0;
   const totalStudents = dashboardStats?.summary.totalStudents ?? 0;
   const totalTeachers = dashboardStats?.summary.totalTeachers ?? 0;
+  const projectsPerTeacher = totalTeachers
+    ? (totalProjects / totalTeachers).toFixed(1)
+    : "0";
 
   if (statsLoading || facultyLoading) {
     return (
@@ -371,13 +379,12 @@ export const AdminDepartmentDashboard: React.FC = () => {
     >
       <Box
         sx={{
-          maxWidth: "7xl",
-          mx: "auto",
+          width: "100%",
           display: "flex",
           flexDirection: "column",
-          gap: 3,
-          px: 4,
-          py: 3,
+          gap: { xs: 2, md: 2.5 },
+          px: { xs: 2, sm: 3 },
+          py: { xs: 2, md: 3 },
         }}
       >
         {/* Status Indicator */}
@@ -447,7 +454,10 @@ export const AdminDepartmentDashboard: React.FC = () => {
         <Box
           sx={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
+            gridTemplateColumns: {
+              xs: "repeat(2, minmax(0, 1fr))",
+              md: "repeat(4, minmax(0, 1fr))",
+            },
             gap: 2,
           }}
         >
@@ -455,7 +465,6 @@ export const AdminDepartmentDashboard: React.FC = () => {
             label="Tổng Đề Tài"
             value={totalProjects}
             subtext="Toàn hệ thống"
-            subtextColor="success.main"
             icon={<FileText size={18} />}
             iconColor="#10b981"
           />
@@ -463,15 +472,13 @@ export const AdminDepartmentDashboard: React.FC = () => {
             label="Sinh Viên"
             value={totalStudents}
             subtext="Toàn hệ thống"
-            subtextColor="success.main"
             icon={<Users size={18} />}
             iconColor="#3b82f6"
           />
           <StatCard
             label="GVHD"
             value={totalTeachers}
-            subtext="5.8 ĐT/GV"
-            subtextColor="warning.main"
+            subtext={`${projectsPerTeacher} ĐT/GV`}
             icon={<BookOpen size={18} />}
             iconColor="#8b5cf6"
           />
@@ -479,23 +486,20 @@ export const AdminDepartmentDashboard: React.FC = () => {
             label="Khoa"
             value={facultyCards.length}
             subtext="Toàn hệ thống"
-            subtextColor="success.main"
             icon={<BarChart3 size={18} />}
             iconColor="#f59e0b"
           />
         </Box>
 
-        {/* Progress Bar */}
-        <div
-          className="p-3 rounded-lg shadow-sm hover:shadow-md transition-shadow"
-          style={{
-            background: getCardBackground(theme),
-            border: `1px solid ${theme.palette.divider}`,
+        {/* Faculty cards share the available width. */}
+        <Box
+          sx={{
+            display: "grid",
+            gridTemplateColumns:
+              "repeat(auto-fit, minmax(min(100%, 300px), 1fr))",
+            gap: 2,
           }}
-        ></div>
-
-        {/* Faculty Cards Grid - 4 columns */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+        >
           {facultyCards.map((faculty, index) => (
             <FacultyCard
               key={faculty.id}
@@ -503,7 +507,7 @@ export const AdminDepartmentDashboard: React.FC = () => {
               color={colorOrder[index % colorOrder.length]}
             />
           ))}
-        </div>
+        </Box>
 
         {facultyCards.length === 0 && (
           <Typography
