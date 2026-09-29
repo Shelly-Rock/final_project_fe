@@ -21,7 +21,13 @@ import {
   exportStudentsToExcel,
 } from "@/feature/student/components";
 import { studentService } from "@/feature/student/services";
-import type { Student, StudentFilters } from "@/feature/student/types";
+import { facultyService } from "@/feature/admin/services";
+import type { Faculty } from "@/feature/admin/types";
+import type {
+  Student,
+  StudentFilters,
+  CreateStudentInput,
+} from "@/feature/student/types";
 import { HeaderTools } from "@/layout/Header";
 import { Search, Filter } from "lucide-react";
 
@@ -36,6 +42,8 @@ export default function StudentManagementPage() {
   const searchParams = useSearchParams();
   const facultyId = searchParams.get("facultyId") || undefined;
   const [students, setStudents] = useState<Student[]>([]);
+  const [faculties, setFaculties] = useState<Faculty[]>([]);
+  const [facultiesLoading, setFacultiesLoading] = useState(true);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState<StudentFilters>(INITIAL_FILTERS);
   const [importDialogOpen, setImportDialogOpen] = useState(false);
@@ -91,7 +99,32 @@ export default function StudentManagementPage() {
     };
   }, [facultyId]);
 
+  useEffect(() => {
+    let isMounted = true;
+    facultyService
+      .getAll()
+      .then((data) => {
+        if (isMounted) setFaculties(data);
+      })
+      .catch(() => {
+        if (isMounted) showSnackbar("Không thể tải danh sách khoa", "error");
+      })
+      .finally(() => {
+        if (isMounted) setFacultiesLoading(false);
+      });
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const availableFaculties = useMemo(
+    () => faculties.filter((faculty) => !facultyId || faculty.id === facultyId),
+    [faculties, facultyId],
+  );
+  const scopedFacultyName = facultyId ? availableFaculties[0]?.name : undefined;
+
   const filteredStudents = students.filter((student) => {
+    if (facultyId && student.khoa !== scopedFacultyName) return false;
     if (filters.search) {
       const searchLower = filters.search.toLowerCase();
       const matchSearch =
@@ -110,9 +143,14 @@ export default function StudentManagementPage() {
   const khoaOptions = useMemo(
     () =>
       Array.from(
-        new Set(students.map((student) => student.khoa).filter(Boolean)),
+        new Set([
+          ...availableFaculties.map((faculty) => faculty.name),
+          ...(!facultyId
+            ? students.map((student) => student.khoa).filter(Boolean)
+            : []),
+        ]),
       ).sort(),
-    [students],
+    [availableFaculties, students, facultyId],
   );
 
   const handleImport = async (file: File) => {
@@ -185,36 +223,43 @@ export default function StudentManagementPage() {
     setFormDialogOpen(true);
   };
 
-  const handleSubmitStudent = async (data: {
-    mssv: string;
-    hoTen: string;
-    gmail: string;
-    khoa: string;
-    khoaHoc: string;
-    lop: string;
-    soDienThoai?: string;
-    ngaySinh?: string;
-    diaChi?: string;
-  }) => {
-    if (!selectedStudent) return;
-    if (!data.hoTen.trim() || !data.gmail.trim()) {
-      showSnackbar("Họ tên và email không được để trống", "error");
-      return;
+  const handleSubmitStudent = async (data: CreateStudentInput) => {
+    try {
+      if (selectedStudent) {
+        const updated = await studentService.update(selectedStudent.id, data);
+        if (!updated) throw new Error("Cập nhật sinh viên thất bại");
+        showSnackbar("Đã cập nhật sinh viên");
+      } else {
+        const selectedFaculty = availableFaculties.find(
+          (faculty) => faculty.name === data.khoa,
+        );
+        if (!selectedFaculty) throw new Error("Vui lòng chọn khoa hợp lệ");
+        await studentService.create(data);
+        showSnackbar("Đã thêm sinh viên");
+      }
+      setFormDialogOpen(false);
+      refreshStudents();
+    } catch (error) {
+      const responseData = axios.isAxiosError<{
+        message?: string | string[];
+        errors?: { field: string; message: string }[];
+      }>(error)
+        ? error.response?.data
+        : undefined;
+      const validationMessage = responseData?.errors
+        ?.map(({ field, message }) => `${field}: ${message}`)
+        .join("; ");
+      const responseMessage = responseData?.message;
+      showSnackbar(
+        validationMessage ||
+          (Array.isArray(responseMessage)
+            ? responseMessage.join(", ")
+            : responseMessage) ||
+          (error instanceof Error ? error.message : "Lưu sinh viên thất bại"),
+        "error",
+      );
+      throw error;
     }
-
-    const updated = await studentService.update(selectedStudent.id, data);
-    if (!updated) {
-      showSnackbar("Cập nhật sinh viên thất bại", "error");
-      return;
-    }
-    setStudents((currentStudents) =>
-      currentStudents.map((currentStudent) =>
-        currentStudent.id === updated.id ? updated : currentStudent,
-      ),
-    );
-    setFormDialogOpen(false);
-    refreshStudents();
-    showSnackbar("Đã cập nhật sinh viên");
   };
 
   const handleExport = async () => {
@@ -354,6 +399,8 @@ export default function StudentManagementPage() {
         onClose={() => setFormDialogOpen(false)}
         student={selectedStudent}
         onSubmit={handleSubmitStudent}
+        faculties={availableFaculties}
+        facultiesLoading={facultiesLoading}
       />
       <StudentDetailDialog
         open={detailDialogOpen}
