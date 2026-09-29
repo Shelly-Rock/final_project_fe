@@ -23,6 +23,7 @@ import { toast } from "sonner";
 import { Dialog } from "@/shared/components/Dialog";
 import { facultyService } from "@/feature/admin/services";
 import type { Faculty } from "@/feature/admin/types";
+import { isValidEmail } from "@/shared/utils/validation.utils";
 import {
   roleService,
   type SecretaryAccount,
@@ -55,6 +56,9 @@ export function SecretaryAccountsTab() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<SecretaryAccount | null>(null);
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
+  const [formErrors, setFormErrors] = useState<
+    Partial<Record<keyof FormState, string>>
+  >({});
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -98,6 +102,7 @@ export function SecretaryAccountsTab() {
   const openCreate = () => {
     setEditing(null);
     setForm(EMPTY_FORM);
+    setFormErrors({});
     setDialogOpen(true);
   };
 
@@ -109,6 +114,7 @@ export function SecretaryAccountsTab() {
       password: "",
       facultyId: account.facultyId,
     });
+    setFormErrors({});
     setDialogOpen(true);
   };
 
@@ -120,16 +126,18 @@ export function SecretaryAccountsTab() {
     const username = form.username.trim();
     const email = form.email.trim();
     const facultyId = form.facultyId.trim();
-    if (!username || !email || !facultyId || (!editing && !form.password)) {
-      toast.error(
-        editing
-          ? "Vui lòng nhập tài khoản, email và chọn khoa"
-          : "Vui lòng nhập đủ tài khoản, email, mật khẩu và khoa",
-      );
-      return;
-    }
-    if (usedFacultyIds.has(facultyId)) {
-      toast.error("Khoa này đã có thư ký");
+    const errors: Partial<Record<keyof FormState, string>> = {};
+    if (!username) errors.username = "Vui lòng nhập tài khoản";
+    if (!email) errors.email = "Vui lòng nhập email";
+    else if (!isValidEmail(email)) errors.email = "Email không hợp lệ";
+    if (!editing && !form.password) errors.password = "Vui lòng nhập mật khẩu";
+    else if (form.password && form.password.length < 6)
+      errors.password = "Mật khẩu phải có ít nhất 6 ký tự";
+    if (!facultyId) errors.facultyId = "Vui lòng chọn khoa";
+    else if (usedFacultyIds.has(facultyId))
+      errors.facultyId = "Khoa này đã có thư ký";
+    setFormErrors(errors);
+    if (Object.keys(errors).length > 0) {
       return;
     }
 
@@ -176,6 +184,7 @@ export function SecretaryAccountsTab() {
 
   const setField = (field: keyof FormState, value: string) => {
     setForm((current) => ({ ...current, [field]: value }));
+    setFormErrors((current) => ({ ...current, [field]: undefined }));
   };
 
   return (
@@ -319,6 +328,8 @@ export function SecretaryAccountsTab() {
             onChange={(e) => setField("username", e.target.value)}
             disabled={!!editing}
             required
+            error={!!formErrors.username}
+            helperText={formErrors.username}
             fullWidth
           />
           <TextField
@@ -327,6 +338,8 @@ export function SecretaryAccountsTab() {
             value={form.email}
             onChange={(e) => setField("email", e.target.value)}
             required
+            error={!!formErrors.email}
+            helperText={formErrors.email}
             fullWidth
           />
           <TextField
@@ -335,6 +348,8 @@ export function SecretaryAccountsTab() {
             value={form.password}
             onChange={(e) => setField("password", e.target.value)}
             required={!editing}
+            error={!!formErrors.password}
+            helperText={formErrors.password}
             fullWidth
           />
           <TextField
@@ -344,7 +359,10 @@ export function SecretaryAccountsTab() {
             onChange={(e) => setField("facultyId", e.target.value)}
             required
             fullWidth
-            helperText="Khoa đã có thư ký sẽ không xuất hiện"
+            error={!!formErrors.facultyId}
+            helperText={
+              formErrors.facultyId || "Khoa đã có thư ký sẽ không xuất hiện"
+            }
           >
             {availableFaculties.map((faculty) => (
               <MenuItem key={faculty.id} value={faculty.id}>

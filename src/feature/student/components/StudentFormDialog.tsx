@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { Grid } from "@mui/material";
-import { Dialog, Input, Label, Button } from "@/shared/components";
+import { Alert, Grid } from "@mui/material";
+import { Dialog, Input, Label, Button, Select } from "@/shared/components";
 import { DialogActions } from "@mui/material";
 import { Plus, Trash2 } from "lucide-react";
 import type { Student, CreateStudentInput } from "../types";
@@ -11,6 +11,8 @@ interface StudentFormDialogProps {
   onClose: () => void;
   student?: Student | null;
   onSubmit?: (data: CreateStudentInput) => Promise<void>;
+  faculties?: { id: string; name: string; isActive: boolean }[];
+  facultiesLoading?: boolean;
 }
 
 interface ExtraField {
@@ -63,18 +65,23 @@ export function StudentFormDialog({
   onClose,
   student,
   onSubmit,
+  faculties = [],
+  facultiesLoading = false,
 }: StudentFormDialogProps) {
   const [loading, setLoading] = useState(false);
+  const [submitError, setSubmitError] = useState("");
   const [formData, setFormData] = useState<CreateStudentInput>(emptyFormData);
   const [extraFields, setExtraFields] = useState<ExtraField[]>([]);
 
   useEffect(() => {
+    if (!open) return;
     const timer = setTimeout(() => {
       setFormData(studentToFormData(student));
       setExtraFields(extraDataToFields(student?.extraData));
+      setSubmitError("");
     }, 0);
     return () => clearTimeout(timer);
-  }, [student]);
+  }, [open, student]);
 
   const handleChange =
     (field: keyof CreateStudentInput) =>
@@ -84,6 +91,18 @@ export function StudentFormDialog({
 
   const handleSubmit = async () => {
     if (!onSubmit) return;
+    if (
+      !formData.mssv.trim() ||
+      !formData.hoTen.trim() ||
+      !formData.gmail.trim() ||
+      !formData.khoa ||
+      !formData.khoaHoc.trim() ||
+      !formData.lop.trim()
+    ) {
+      setSubmitError("Vui lòng điền đầy đủ các trường bắt buộc.");
+      return;
+    }
+    setSubmitError("");
     const extraData: Record<string, unknown> = {};
     for (const field of extraFields) {
       const key = field.key.trim();
@@ -95,15 +114,28 @@ export function StudentFormDialog({
       }
     }
     if (extraFields.some((field) => !field.key.trim())) {
+      setSubmitError("Vui lòng đặt tên cho thông tin bổ sung.");
       return;
     }
     setLoading(true);
     try {
       await onSubmit({ ...formData, extraData });
+    } catch {
+      // The page reports the API error and keeps the dialog open.
     } finally {
       setLoading(false);
     }
   };
+
+  const facultyOptions = faculties
+    .filter((faculty) => faculty.isActive || faculty.name === formData.khoa)
+    .map((faculty) => ({ value: faculty.name, label: faculty.name }));
+  if (
+    formData.khoa &&
+    !facultyOptions.some((option) => option.value === formData.khoa)
+  ) {
+    facultyOptions.push({ value: formData.khoa, label: formData.khoa });
+  }
 
   return (
     <Dialog
@@ -112,6 +144,11 @@ export function StudentFormDialog({
       title={student ? "Sửa thông tin sinh viên" : "Thêm sinh viên mới"}
       size="sm"
     >
+      {submitError && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {submitError}
+        </Alert>
+      )}
       <Grid container spacing={2}>
         <Grid item xs={12} sm={6}>
           <Label htmlFor="mssv" required>
@@ -149,10 +186,15 @@ export function StudentFormDialog({
           <Label htmlFor="khoa" required>
             Khoa
           </Label>
-          <Input
+          <Select
             id="khoa"
             value={formData.khoa}
-            onChange={handleChange("khoa")}
+            onChange={(value) =>
+              setFormData((prev) => ({ ...prev, khoa: value }))
+            }
+            options={facultyOptions}
+            placeholder={facultiesLoading ? "Đang tải khoa..." : "Chọn khoa"}
+            disabled={facultiesLoading || facultyOptions.length === 0}
           />
         </Grid>
         <Grid item xs={12} sm={6}>

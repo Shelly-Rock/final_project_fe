@@ -94,30 +94,29 @@ class StudentService {
     }
   }
 
-  async create(data: CreateStudentInput): Promise<Student> {
+  async create(data: CreateStudentInput): Promise<void> {
     if (!this.useApi) {
       await delay(500);
-      const newStudent: Student = {
-        id: Math.max(...mockStudents.map((s) => s.id), 0) + 1,
-        ...data,
-        trangThai: "active",
-      };
-      return newStudent;
+      return;
     }
 
-    const created = await studentApiService.create({
-      student_id: data.mssv,
-      first_name: data.hoTen.split(" ").slice(-1)[0] || data.hoTen,
-      last_name: data.hoTen.split(" ").slice(0, -1).join(" ") || data.hoTen,
-      email: data.gmail,
-      phone: data.soDienThoai,
-      date_of_birth: data.ngaySinh,
-      address: data.diaChi,
-      class_name: data.lop,
-      department_name: data.khoa,
-      enrollment_year: parseInt(data.khoaHoc) || new Date().getFullYear(),
+    const nameParts = data.hoTen.trim().split(/\s+/);
+    await studentApiService.create({
+      studentId: data.mssv.trim(),
+      firstName: nameParts.at(-1) || "",
+      lastName: nameParts.slice(0, -1).join(" ") || nameParts[0],
+      email: data.gmail.trim(),
+      className: data.lop.trim(),
+      major: data.khoa.trim(),
+      courseYear: parseInt(data.khoaHoc, 10) || new Date().getFullYear(),
+      academicYear: data.khoaHoc.trim(),
+      ...(data.ngaySinh ? { dateOfBirth: data.ngaySinh } : {}),
+      extraData: {
+        ...(data.extraData || {}),
+        phone: data.soDienThoai || "",
+        address: data.diaChi || "",
+      },
     });
-    return mapApiToStudent(created);
   }
 
   async createMany(
