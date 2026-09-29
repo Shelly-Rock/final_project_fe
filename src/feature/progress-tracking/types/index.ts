@@ -143,6 +143,7 @@ export interface TimelineNode {
   submission: {
     id: number;
     title: string;
+    content?: string;
     status: ReportStatus;
     fileUrl: string | null;
     fileName: string | null;

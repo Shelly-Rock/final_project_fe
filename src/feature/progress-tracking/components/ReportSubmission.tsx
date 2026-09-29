@@ -37,7 +37,7 @@ import {
 } from "@mui/icons-material";
 import { toast } from "sonner";
 import { progressTrackingService } from "../services";
-import type { ProgressReport, ReportStatus } from "../types";
+import type { ProgressReport, ReportStatus, TimelineNode } from "../types";
 import { apiClient } from "@/shared/services/api-client";
 
 interface ReportSubmissionDialogProps {
@@ -47,6 +47,7 @@ interface ReportSubmissionDialogProps {
   studentId: number;
   deadlineId?: number;
   deadlineLabel?: string;
+  submission?: TimelineNode["submission"];
 }
 
 export function ReportSubmissionDialog({
@@ -56,6 +57,7 @@ export function ReportSubmissionDialog({
   studentId,
   deadlineId,
   deadlineLabel,
+  submission,
 }: ReportSubmissionDialogProps) {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
@@ -66,21 +68,21 @@ export function ReportSubmissionDialog({
   useEffect(() => {
     if (open) {
       if (deadlineId && deadlineLabel) {
-        setTitle(deadlineLabel);
+        setTitle(submission?.title || deadlineLabel);
       } else {
         setTitle("");
       }
-      setContent("");
+      setContent(submission?.content || "");
       setFile(null);
     }
-  }, [open, deadlineId, deadlineLabel]);
+  }, [open, deadlineId, deadlineLabel, submission]);
 
   const handleSubmit = async () => {
     if (!title.trim()) {
       toast.error("Vui lòng nhập tiêu đề báo cáo");
       return;
     }
-    if (!file) {
+    if (!file && !submission?.fileUrl) {
       toast.error("Vui lòng đính kèm file báo cáo/biểu mẫu");
       return;
     }
@@ -100,14 +102,21 @@ export function ReportSubmissionDialog({
         fileName = file.name;
       }
 
-      const report = await progressTrackingService.submitReport({
-        studentId,
-        title: title.trim(),
-        content: content.trim(),
-        deadlineId,
-        fileUrl,
-        fileName,
-      });
+      const report = submission
+        ? await progressTrackingService.updateReport({
+            reportId: submission.id,
+            title: title.trim(),
+            content: content.trim(),
+            ...(file ? { fileUrl, fileName } : {}),
+          })
+        : await progressTrackingService.submitReport({
+            studentId,
+            title: title.trim(),
+            content: content.trim(),
+            deadlineId,
+            fileUrl,
+            fileName,
+          });
 
       if (onSuccess) {
         onSuccess(report);

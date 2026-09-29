@@ -463,7 +463,7 @@ export function TopicManageTable() {
         }}
       >
         <Select
-          label="Đợt đồ án"
+          label="Đợt đăng ký"
           size="small"
           value={periodId ? String(periodId) : ""}
           onChange={(v) => setPeriodId(Number(v) || null)}
@@ -578,7 +578,7 @@ export function TopicManageTable() {
         onSelectionChange={setSelectedKeys}
         emptyMessage={
           !periodId
-            ? "Vui lòng chọn đợt đồ án."
+            ? "Vui lòng chọn đợt đăng ký."
             : "Không có đề tài nào khớp bộ lọc."
         }
         showExportButton={false}

@@ -39,6 +39,7 @@ export default function MyTopicsPage() {
   const [formLoading, setFormLoading] = useState(false);
   const [selectedTopic, setSelectedTopic] = useState<MyTopic | null>(null);
   const [isExceptionMode, setIsExceptionMode] = useState(false);
+  const [leaderOnlyMode, setLeaderOnlyMode] = useState(false);
 
   // Lock and Team management state
   const [lockDialogTopic, setLockDialogTopic] = useState<MyTopic | null>(null);
@@ -152,18 +153,21 @@ export default function MyTopicsPage() {
   const handleCreateTopic = () => {
     setSelectedTopic(null);
     setIsExceptionMode(false);
+    setLeaderOnlyMode(false);
     setFormDialogOpen(true);
   };
 
   const handleCreateException = () => {
     setSelectedTopic(null);
     setIsExceptionMode(true);
+    setLeaderOnlyMode(false);
     setFormDialogOpen(true);
   };
 
   const handleEditTopic = (topic: MyTopic) => {
     setSelectedTopic(topic);
     setIsExceptionMode(false);
+    setLeaderOnlyMode(topic.registrationStatus === "LOCKED");
     setFormDialogOpen(true);
   };
 
@@ -357,6 +361,7 @@ export default function MyTopicsPage() {
         onChangeLeader={handleChangeLeader}
         topic={selectedTopic}
         isException={isExceptionMode}
+        leaderOnly={leaderOnlyMode}
         loading={formLoading}
       />
 

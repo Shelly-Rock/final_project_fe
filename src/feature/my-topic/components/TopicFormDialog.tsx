@@ -58,6 +58,7 @@ interface TopicFormDialogProps {
   isException?: boolean;
   loading?: boolean;
   teacherDepartment?: string;
+  leaderOnly?: boolean;
 }
 
 export function TopicFormDialog({
@@ -69,6 +70,7 @@ export function TopicFormDialog({
   isException = false,
   loading = false,
   teacherDepartment,
+  leaderOnly = false,
 }: TopicFormDialogProps) {
   const isEdit = !!topic;
   const prevOpenRef = useRef<boolean>(open);
@@ -158,7 +160,7 @@ export function TopicFormDialog({
   useEffect(() => {
     if (open && !prevOpenRef.current) {
       // Reset tab
-      setActiveTab(0);
+      setActiveTab(leaderOnly ? 2 : 0);
 
       // Tab 1
       setName(topic?.name || "");
@@ -208,7 +210,7 @@ export function TopicFormDialog({
       setLeaderSaving(false);
     }
     prevOpenRef.current = open;
-  }, [open, topic]);
+  }, [open, topic, leaderOnly]);
 
   const approvedStudents = useMemo(
     () =>
@@ -380,14 +382,18 @@ export function TopicFormDialog({
         isException
           ? "Đề xuất ngoại lệ"
           : isEdit
-            ? "Chỉnh sửa đề tài"
+            ? leaderOnly
+              ? "Đổi trưởng nhóm"
+              : "Chỉnh sửa đề tài"
             : "Tạo đề tài mới"
       }
       description={
         isException
           ? "Đề tài ngoại lệ cần được Thư ký phê duyệt"
           : isEdit
-            ? "Cập nhật thông tin đề tài"
+            ? leaderOnly
+              ? "Cập nhật quyền nộp báo cáo cuối kỳ"
+              : "Cập nhật thông tin đề tài"
             : "Thiết lập thông tin cho đề tài mới"
       }
       size="lg"
@@ -396,16 +402,22 @@ export function TopicFormDialog({
           <Button variant="outlined" onClick={onClose} disabled={loading}>
             Hủy
           </Button>
-          <Button
-            type="submit"
-            form="topic-form"
-            variant="contained"
-            loading={loading}
-            disabled={!isFormValid && !isEdit}
-            color={isException ? "warning" : "primary"}
-          >
-            {isException ? "Gửi đề xuất" : isEdit ? "Lưu thay đổi" : "Tạo mới"}
-          </Button>
+          {!leaderOnly && (
+            <Button
+              type="submit"
+              form="topic-form"
+              variant="contained"
+              loading={loading}
+              disabled={!isFormValid && !isEdit}
+              color={isException ? "warning" : "primary"}
+            >
+              {isException
+                ? "Gửi đề xuất"
+                : isEdit
+                  ? "Lưu thay đổi"
+                  : "Tạo mới"}
+            </Button>
+          )}
         </>
       }
     >
@@ -433,6 +445,7 @@ export function TopicFormDialog({
           }}
         >
           <Tab
+            disabled={leaderOnly}
             label={
               <Box
                 component="span"
@@ -449,6 +462,7 @@ export function TopicFormDialog({
             }
           />
           <Tab
+            disabled={leaderOnly}
             label={
               <Box
                 component="span"

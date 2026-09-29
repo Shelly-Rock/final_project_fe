@@ -69,6 +69,11 @@ export interface MyTopic {
   preAssignedStudents: PreAssignedStudent[];
   registeredStudents: RegisteredStudent[];
   registrationStatus: "OPEN" | "FULL" | "LOCKED"; // Trạng thái đăng ký
+  canDelete?: boolean;
+  canEdit?: boolean;
+  canLock?: boolean;
+  canChangeLeader?: boolean;
+  locked?: boolean;
   createdAt: string;
   updatedAt: string;
 }
