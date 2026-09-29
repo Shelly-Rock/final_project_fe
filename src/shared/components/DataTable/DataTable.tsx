@@ -19,11 +19,9 @@ import {
   Button,
   Checkbox,
   useTheme,
-  Theme,
 } from "@mui/material";
 import { Search, Filter, Download, Upload, RefreshCw } from "lucide-react";
 import { DropdownMenu } from "@/shared/components";
-import { getCardBackground } from "@/shared/constants/gradients";
 import type { Order } from "@/shared/types";
 
 export interface Column<T> {
@@ -263,6 +261,8 @@ export function DataTable<T extends object>({
         fontSize: "0.8125rem",
         fontWeight: 600,
         textTransform: "none",
+        whiteSpace: "nowrap",
+        flexShrink: 0,
         "&:hover": {
           backgroundColor: "#1d4ed8",
           borderColor: "#1d4ed8",
@@ -279,6 +279,8 @@ export function DataTable<T extends object>({
       fontSize: "0.8125rem",
       fontWeight: 600,
       textTransform: "none",
+      whiteSpace: "nowrap",
+      flexShrink: 0,
       "&:hover": {
         backgroundColor: "rgba(37, 99, 235, 0.08)",
         boxShadow: "0 0 0 3px rgba(37, 99, 235, 0.15)",
@@ -352,7 +354,15 @@ export function DataTable<T extends object>({
             )}
           </Box>
 
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 1,
+              flexWrap: "wrap",
+              justifyContent: { xs: "flex-start", sm: "flex-end" },
+            }}
+          >
             {/* Primary Filter Button */}
             {showFilterButton && filterOptions.length > 0 ? (
               <DropdownMenu

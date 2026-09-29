@@ -3,6 +3,7 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { Bell } from "lucide-react";
+import { Badge, IconButton, Popover, Tooltip } from "@mui/material";
 import { useNotificationStore } from "@/shared/store/notification.store";
 import NotificationDropdown from "./NotificationDropdown";
 
@@ -11,7 +12,7 @@ const NotificationBell: React.FC = () => {
   const { unreadCount, fetchNotifications, fetchUnreadCount } =
     useNotificationStore();
   const [isOpen, setIsOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
@@ -35,24 +36,11 @@ const NotificationBell: React.FC = () => {
   }, [fetchNotifications, fetchUnreadCount, session?.accessToken, status]);
 
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
-      ) {
-        setIsOpen(false);
-      }
-    };
+    if (isOpen && status === "authenticated") fetchNotifications(1, 5);
+  }, [fetchNotifications, isOpen, status]);
 
-    if (isOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-      return () => {
-        document.removeEventListener("mousedown", handleClickOutside);
-      };
-    }
-  }, [isOpen]);
-
-  const handleToggle = useCallback(() => {
+  const handleToggle = useCallback((event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
     setIsOpen((prev) => !prev);
   }, []);
 
@@ -61,22 +49,45 @@ const NotificationBell: React.FC = () => {
   }, []);
 
   return (
-    <div className="relative" ref={dropdownRef}>
-      <button
-        onClick={handleToggle}
-        className="relative p-2 text-gray-600 hover:text-gray-900 transition-colors duration-200"
-        aria-label="Notifications"
+    <>
+      <Tooltip title="Thông báo">
+        <IconButton
+          onClick={handleToggle}
+          aria-label="Thông báo"
+          aria-expanded={isOpen}
+          aria-haspopup="dialog"
+          sx={{ width: 40, height: 40, color: "text.secondary" }}
+        >
+          <Badge badgeContent={unreadCount} max={99} color="error">
+            <Bell size={21} />
+          </Badge>
+        </IconButton>
+      </Tooltip>
+      <Popover
+        open={isOpen}
+        anchorEl={anchorEl}
+        onClose={handleClose}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+        transformOrigin={{ vertical: "top", horizontal: "right" }}
+        marginThreshold={12}
+        PaperProps={{
+          sx: {
+            mt: 1,
+            width: 420,
+            maxWidth: "calc(100vw - 24px)",
+            maxHeight: "min(70vh, 620px)",
+            borderRadius: 2,
+            border: "1px solid",
+            borderColor: "divider",
+            boxShadow: "0 16px 48px rgba(15, 23, 42, 0.18)",
+            display: "flex",
+            flexDirection: "column",
+          },
+        }}
       >
-        <Bell className="w-6 h-6" />
-        {unreadCount > 0 && (
-          <span className="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-500 rounded-full">
-            {unreadCount > 99 ? "99+" : unreadCount}
-          </span>
-        )}
-      </button>
-
-      {isOpen && <NotificationDropdown onClose={handleClose} />}
-    </div>
+        {isOpen && <NotificationDropdown onClose={handleClose} />}
+      </Popover>
+    </>
   );
 };
 

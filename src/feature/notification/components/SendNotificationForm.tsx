@@ -8,7 +8,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
-import apiClient from "@/shared/services/api-client";
+import { notificationApi } from "@/shared/services/api/notification.api";
 import {
   Bell,
   X,
@@ -48,7 +48,7 @@ const SendNotificationSchema = z.object({
       (v) => htmlToPlainText(v).length > 0,
       "Nội dung không được để trống",
     ),
-  recipientIds: z.array(z.number()).min(1, "Chọn ít nhất 1 người nhận"),
+  recipientIds: z.array(z.number()),
   requireRead24h: z.boolean(),
   pinToTop: z.boolean(),
 });
@@ -284,6 +284,8 @@ const SendNotificationForm: React.FC<SendNotificationFormProps> = ({
     reset,
     watch,
     setValue,
+    setError,
+    clearErrors,
   } = useForm<SendNotificationFormData>({
     resolver: zodResolver(SendNotificationSchema),
     defaultValues: {
@@ -402,6 +404,7 @@ const SendNotificationForm: React.FC<SendNotificationFormProps> = ({
   const [fileName, setFileName] = useState<string>("");
   const [fileSize, setFileSize] = useState<number>(0);
   const [mounted, setMounted] = useState(false);
+  const [previewTime, setPreviewTime] = useState("");
 
   useEffect(() => {
     loadDepartments();
@@ -420,6 +423,12 @@ const SendNotificationForm: React.FC<SendNotificationFormProps> = ({
 
   useEffect(() => {
     setMounted(true);
+    setPreviewTime(
+      new Date().toLocaleTimeString("vi-VN", {
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
+    );
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     return () => {
@@ -456,9 +465,7 @@ const SendNotificationForm: React.FC<SendNotificationFormProps> = ({
   const loadDepartments = async () => {
     setLoadingDepts(true);
     try {
-      const data = await apiClient.get<{ faculties: Faculty[] }>(
-        "/notifications/compose/faculties",
-      );
+      const data = await notificationApi.getFaculties();
       setDepartments(data.faculties || []);
     } catch {
       toast.error("Lỗi khi tải danh sách khoa/viện");
@@ -470,9 +477,7 @@ const SendNotificationForm: React.FC<SendNotificationFormProps> = ({
   const loadRecipientsByDept = async (deptId: string) => {
     setLoadingRecipients(true);
     try {
-      const data = await apiClient.get<{ users: Recipient[] }>(
-        `/notifications/compose/faculties/${deptId}/users`,
-      );
+      const data = await notificationApi.getUsersByFaculty(deptId);
       setRecipients(data.users || []);
     } catch {
       toast.error("Lỗi khi tải danh sách người dùng");
@@ -489,20 +494,43 @@ const SendNotificationForm: React.FC<SendNotificationFormProps> = ({
         "recipientIds",
         cur.filter((v) => v !== id),
       );
-    else setValue("recipientIds", [...cur, id]);
+    else {
+      setValue("recipientIds", [...cur, id]);
+      clearErrors("recipientIds");
+    }
   };
 
   const onSubmit = async (
     data: SendNotificationFormData,
     saveDraft = false,
   ) => {
-    try {
-      await apiClient.post("/notifications/compose/send", {
-        ...data,
-        saveDraft,
-        fileName,
-        fileSize: fileSize || undefined,
+    if (!saveDraft && data.recipientIds.length === 0) {
+      setError("recipientIds", {
+        type: "manual",
+        message: "Chọn ít nhất 1 người nhận",
       });
+      return;
+    }
+    try {
+      const payload = {
+        title: data.title.trim(),
+        message: data.message,
+        type: data.priority === "NORMAL" ? "GENERAL" : data.priority,
+        priority: data.priority,
+        recipientIds: data.recipientIds,
+      };
+      if (saveDraft) {
+        await notificationApi.saveDraft({
+          ...payload,
+          ...(fileName ? { fileName, fileSize } : {}),
+        });
+      } else {
+        await notificationApi.composeAndSend({
+          ...payload,
+          requireRead24h: data.requireRead24h,
+          pinToTop: data.pinToTop,
+        });
+      }
       toast.success(
         saveDraft ? "Đã lưu nháp" : "Phát hành thông báo thành công",
       );
@@ -512,7 +540,6 @@ const SendNotificationForm: React.FC<SendNotificationFormProps> = ({
       setFileSize(0);
       setSelectedDept(scopedFacultyId);
       onSuccess?.();
-      if (saveDraft) onClose?.();
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Lỗi khi xử lý thông báo",
@@ -890,11 +917,13 @@ const SendNotificationForm: React.FC<SendNotificationFormProps> = ({
                           onChange={() => {
                             if (selectedIds.length === recipients.length)
                               setValue("recipientIds", []);
-                            else
+                            else {
                               setValue(
                                 "recipientIds",
                                 recipients.map((r) => r.id),
                               );
+                              clearErrors("recipientIds");
+                            }
                           }}
                         />
                         <span style={{ fontSize: 12, color: t.body }}>
@@ -1349,7 +1378,7 @@ const SendNotificationForm: React.FC<SendNotificationFormProps> = ({
                     Thông báo
                   </span>
                   <span style={{ fontSize: 11, color: t.muted }}>
-                    Hôm nay, 10:24
+                    {previewTime ? `Hôm nay, ${previewTime}` : ""}
                   </span>
                 </div>
                 <span
@@ -1489,10 +1518,22 @@ const SendNotificationForm: React.FC<SendNotificationFormProps> = ({
           <button
             type="submit"
             form="compose-form"
-            disabled={isSubmitting || selectedIds.length === 0}
-            className="hidden"
-            aria-hidden="true"
-          />
+            disabled={isSubmitting || loadingRecipients}
+            className="inline-flex items-center cursor-pointer disabled:opacity-50"
+            style={{
+              height: 40,
+              padding: "0 18px",
+              borderRadius: 10,
+              border: "none",
+              background: "#166534",
+              color: "#fff",
+              fontSize: 14,
+              fontWeight: 600,
+            }}
+          >
+            <Bell size={15} style={{ marginRight: 6 }} />
+            Phát hành
+          </button>
         </div>
       </div>
     </div>

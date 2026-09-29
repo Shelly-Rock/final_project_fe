@@ -122,7 +122,6 @@ const NotificationPage: React.FC = () => {
                 <NotificationItem
                   key={notification.id}
                   notification={notification}
-                  onClose={() => {}}
                 />
               ))}
             </div>
