@@ -132,13 +132,25 @@ function FacultyManagementContent() {
     setSubmitting(true);
     try {
       if (selectedFaculty) {
-        await facultyService.update(
+        const updatedFaculty = await facultyService.update(
           selectedFaculty.id,
           data as UpdateFacultyInput,
         );
+
+        queryClient.setQueryData<Faculty[]>(FACULTIES_QUERY_KEY, (current) =>
+          current?.map((faculty) =>
+            faculty.id === updatedFaculty.id ? updatedFaculty : faculty,
+          ),
+        );
         toast.success("Cập nhật khoa thành công");
       } else {
-        await facultyService.create(data as CreateFacultyInput);
+        const createdFaculty = await facultyService.create(
+          data as CreateFacultyInput,
+        );
+
+        queryClient.setQueryData<Faculty[]>(FACULTIES_QUERY_KEY, (current) =>
+          current ? [createdFaculty, ...current] : [createdFaculty],
+        );
         toast.success("Tạo khoa thành công");
       }
       setFormDialogOpen(false);

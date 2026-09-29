@@ -29,6 +29,17 @@ function unwrapFaculties(response: unknown): FacultyApiResponse[] {
   return Array.isArray(data) ? (data as FacultyApiResponse[]) : [];
 }
 
+function unwrapFaculty(response: unknown): FacultyApiResponse {
+  if (response && typeof response === "object") {
+    const data = (response as { data?: unknown }).data;
+    if (data && typeof data === "object" && !Array.isArray(data)) {
+      return data as FacultyApiResponse;
+    }
+  }
+
+  return response as FacultyApiResponse;
+}
+
 function mapFaculty(raw: FacultyApiResponse): Faculty {
   return {
     id: raw.id,
@@ -49,26 +60,26 @@ class FacultyService {
   }
 
   async getById(id: string): Promise<Faculty> {
-    const response = await apiClient.get<FacultyApiResponse>(
+    const response = await apiClient.get<unknown>(
       `${API_BASE}/faculties/${encodeURIComponent(id)}`,
     );
-    return mapFaculty(response);
+    return mapFaculty(unwrapFaculty(response));
   }
 
   async create(data: CreateFacultyInput): Promise<Faculty> {
-    const response = await apiClient.post<FacultyApiResponse>(
+    const response = await apiClient.post<unknown>(
       `${API_BASE}/faculties`,
       data,
     );
-    return mapFaculty(response);
+    return mapFaculty(unwrapFaculty(response));
   }
 
   async update(id: string, data: UpdateFacultyInput): Promise<Faculty> {
-    const response = await apiClient.patch<FacultyApiResponse>(
+    const response = await apiClient.patch<unknown>(
       `${API_BASE}/faculties/${encodeURIComponent(id)}`,
       data,
     );
-    return mapFaculty(response);
+    return mapFaculty(unwrapFaculty(response));
   }
 
   async delete(id: string): Promise<{ message: string }> {

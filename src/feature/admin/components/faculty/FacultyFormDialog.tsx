@@ -85,7 +85,9 @@ export function FacultyFormDialog({
 
     const payload = {
       name: form.name.trim(),
-      description: form.description.trim() || undefined,
+      // Keep an empty string in update payloads so the API can clear a
+      // previously saved description (undefined means "do not change").
+      description: form.description.trim(),
       isActive: form.isActive,
     };
 
