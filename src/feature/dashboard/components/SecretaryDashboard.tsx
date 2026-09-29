@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardHeader, CardContentDiv } from "@/shared/components/Card";
 import { Tabs } from "@/shared/components/Tabs";
@@ -18,7 +19,15 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { secretaryDashboardService } from "../services/secretary-dashboard.service";
-import { Users, BookOpen, FileText, AlertCircle } from "lucide-react";
+import {
+  Users,
+  BookOpen,
+  FileText,
+  AlertCircle,
+  AlertTriangle,
+  Clock3,
+  ClipboardList,
+} from "lucide-react";
 import { Box, Skeleton, Typography } from "@mui/material";
 
 const COLORS = ["#fbbf24", "#10b981", "#ef4444"];
@@ -78,6 +87,7 @@ const StatCard = ({ label, value, icon: Icon }: StatCardProps) => (
 
 export const SecretaryDashboard: React.FC = () => {
   const [selectedTab, setSelectedTab] = useState<number>(0);
+  const router = useRouter();
 
   const { data: dashboardStats, isLoading } = useQuery({
     queryKey: ["secretary-dashboard"],
@@ -87,6 +97,11 @@ export const SecretaryDashboard: React.FC = () => {
   const { data: departmentDetails } = useQuery({
     queryKey: ["secretary-department-details"],
     queryFn: () => secretaryDashboardService.getSecretaryDepartmentDetails(),
+  });
+
+  const { data: facultyActions } = useQuery({
+    queryKey: ["secretary-faculty-actions"],
+    queryFn: () => secretaryDashboardService.getSecretaryFacultyActions(),
   });
 
   const reportStatusData = dashboardStats
@@ -164,6 +179,63 @@ export const SecretaryDashboard: React.FC = () => {
           icon={<AlertCircle size={24} style={{ color: "#f59e0b" }} />}
         />
       </div>
+
+      <Card variant="elevation">
+        <CardHeader
+          title="Việc cần xử lý hôm nay"
+          action={<ClipboardList size={22} color="#2a78d6" />}
+        />
+        <Typography
+          variant="body2"
+          color="text.secondary"
+          sx={{ px: 2, mt: -1, mb: 1 }}
+        >
+          Các mục cần thư ký xử lý trong khoa của mình
+        </Typography>
+        <CardContentDiv>
+          {!facultyActions ? (
+            <Skeleton variant="rounded" height={100} />
+          ) : (
+            <Box sx={{ display: "grid", gap: 1 }}>
+              {facultyActions.items.map((item) => {
+                const due = item.tone === "due";
+                return (
+                  <Box
+                    key={item.id}
+                    onClick={() => due && item.href && router.push(item.href)}
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 1.25,
+                      p: 1.25,
+                      borderRadius: 2,
+                      border: "1px solid",
+                      borderColor: due ? "#fed7aa" : "#e2e8f0",
+                      cursor: due && item.href ? "pointer" : "default",
+                      opacity: due ? 1 : 0.72,
+                      "&:hover": due ? { bgcolor: "#fff7ed" } : undefined,
+                    }}
+                  >
+                    {due ? (
+                      <AlertTriangle size={18} color="#eb6834" />
+                    ) : (
+                      <Clock3 size={18} color="#94a3b8" />
+                    )}
+                    <Box sx={{ minWidth: 0, flex: 1 }}>
+                      <Typography sx={{ fontWeight: 700, fontSize: 14 }}>
+                        {item.title}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        {item.subtitle}
+                      </Typography>
+                    </Box>
+                  </Box>
+                );
+              })}
+            </Box>
+          )}
+        </CardContentDiv>
+      </Card>
 
       {/* Charts Tab */}
       <Tabs

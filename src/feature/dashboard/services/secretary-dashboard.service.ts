@@ -47,6 +47,20 @@ export interface SecretaryDepartmentDetails {
   teachers: TeacherInfo[];
 }
 
+export interface SecretaryActionItem {
+  id: string;
+  title: string;
+  subtitle: string;
+  tone: "due" | "later";
+  href?: string;
+}
+
+export interface SecretaryFacultyActions {
+  faculty: { id: string; name: string };
+  periodId: number | null;
+  items: SecretaryActionItem[];
+}
+
 class SecretaryDashboardService {
   async getSecretaryStats(): Promise<SecretaryDashboardStats> {
     const response = await axios.get("/api/dashboard/secretary");
@@ -58,6 +72,13 @@ class SecretaryDashboardService {
       "/api/dashboard/secretary/department-details",
     );
     return response.data;
+  }
+
+  async getSecretaryFacultyActions(): Promise<SecretaryFacultyActions> {
+    const response = await axios.get(
+      "/api/dashboard/secretary/faculty-actions",
+    );
+    return response.data?.data ?? response.data;
   }
 }
 

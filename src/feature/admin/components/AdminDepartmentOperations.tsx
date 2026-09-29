@@ -776,6 +776,7 @@ export function AdminDepartmentOperations() {
       >
         <Box
           sx={{
+            display: "none",
             ...cardSx,
             position: "relative",
             overflow: "hidden",
@@ -939,7 +940,6 @@ export function AdminDepartmentOperations() {
             })}
           </Box>
         </Box>
-
         <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
           <Box
             sx={{

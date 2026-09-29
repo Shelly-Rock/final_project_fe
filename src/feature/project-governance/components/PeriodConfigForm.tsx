@@ -10,7 +10,6 @@ import {
   CardContent,
   Chip,
   CircularProgress,
-  Divider,
   Paper,
   TextField,
   Typography,
@@ -18,7 +17,6 @@ import {
   Theme,
 } from "@mui/material";
 import { toast } from "sonner";
-import { Switch } from "@/shared/components";
 import { DeadlineStagesForm } from "./DeadlineStagesForm";
 import { TeacherOverrideTable } from "./TeacherOverrideTable";
 import { SendAlertDialog } from "./SendAlertDialog";
@@ -26,8 +24,6 @@ import { AlertLogTable } from "./AlertLogTable";
 import { periodService } from "@/feature/registration-period/services/period.service";
 import { adminConfigService } from "../services/adminConfig.service";
 import {
-  ALERT_OFFSET_LABELS,
-  ALLOWED_ALERT_OFFSETS,
   MAX_STUDENTS_PER_TOPIC_CEILING,
   MAX_TOPIC_LIMIT_CEILING,
 } from "../constants";
@@ -455,116 +451,6 @@ export function PeriodConfigForm() {
               onChange={setDeadlines}
               disabled={saving}
             />
-          </Paper>
-
-          <Paper
-            variant="outlined"
-            sx={{
-              p: 2.5,
-              borderColor: isDark ? "#334155" : "#cbd5e1",
-              bgcolor: isDark ? "transparent" : "#ffffff",
-            }}
-          >
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                gap: 1,
-                flexWrap: "wrap",
-              }}
-            >
-              <Box>
-                <Typography
-                  sx={{
-                    fontWeight: 800,
-                    fontSize: "1rem",
-                    color: "text.primary",
-                  }}
-                >
-                  Nhắc hạn qua email
-                </Typography>
-                <Typography
-                  sx={{
-                    display: "block",
-                    mt: 0.4,
-                    fontSize: "0.8125rem",
-                    color: isDark ? "text.secondary" : "#475569",
-                  }}
-                >
-                  Bật hoặc tắt email nhắc hạn tự động cho từng đợt đồ án.
-                </Typography>
-              </Box>
-              <Switch
-                label={alertsEnabled ? "Đang bật" : "Đang tắt"}
-                checked={alertsEnabled}
-                onChange={(_, checked) => setAlertsEnabled(checked)}
-                disabled={saving}
-                size="small"
-              />
-            </Box>
-            <Divider sx={{ my: 1.5 }} />
-            <Box
-              sx={{
-                display: "flex",
-                gap: 2,
-                flexWrap: "wrap",
-                alignItems: "center",
-              }}
-            >
-              {ALLOWED_ALERT_OFFSETS.map((offset) => (
-                <Box
-                  key={offset}
-                  sx={{ display: "flex", alignItems: "center", gap: 1 }}
-                >
-                  <Switch
-                    checked={alertsEnabled && alertOffsets.includes(offset)}
-                    onChange={(_, checked) =>
-                      setAlertOffsets((values) =>
-                        checked
-                          ? [...values, offset].sort((a, b) => b - a)
-                          : values.filter((value) => value !== offset),
-                      )
-                    }
-                    disabled={saving || !alertsEnabled}
-                    size="small"
-                  />
-                  <Typography variant="body2">
-                    {ALERT_OFFSET_LABELS[offset]}
-                  </Typography>
-                </Box>
-              ))}
-            </Box>
-
-            {config.alertStats && (
-              <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", mt: 1.5 }}>
-                <Chip
-                  label={`Đang gửi: ${config.alertStats.processing}`}
-                  size="small"
-                  color="info"
-                />
-                <Chip
-                  label={`Đã gửi: ${config.alertStats.sent}`}
-                  size="small"
-                  color="success"
-                />
-                <Chip
-                  label={`Thất bại: ${config.alertStats.failed}`}
-                  size="small"
-                  color="error"
-                />
-                <Typography
-                  variant="caption"
-                  color="text.secondary"
-                  sx={{ alignSelf: "center" }}
-                >
-                  Lần chạy gần nhất:{" "}
-                  {config.alertStats.lastRunAt
-                    ? formatDateTime(config.alertStats.lastRunAt)
-                    : "—"}
-                </Typography>
-              </Box>
-            )}
           </Paper>
 
           {validationErrors.length > 0 && (
