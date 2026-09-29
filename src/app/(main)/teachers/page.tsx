@@ -112,9 +112,20 @@ export default function TeacherManagementPage() {
   const getErrorMessage = (error: unknown, fallback: string) => {
     if (typeof error === "object" && error !== null) {
       const typedError = error as {
-        response?: { data?: { message?: string | string[] } };
+        response?: {
+          data?: {
+            message?: string | string[];
+            errors?: { field: string; message: string }[];
+          };
+        };
         message?: string;
       };
+      const validationErrors = typedError.response?.data?.errors;
+      if (validationErrors?.length) {
+        return validationErrors
+          .map(({ field, message }) => `${field}: ${message}`)
+          .join("; ");
+      }
       const backendMessage = typedError.response?.data?.message;
       return Array.isArray(backendMessage)
         ? backendMessage.join("\n")
@@ -182,8 +193,15 @@ export default function TeacherManagementPage() {
       }
       refreshTeachers();
       setFormDialogOpen(false);
-    } catch {
-      toast.error(selectedTeacher ? "Cập nhật thất bại" : "Tạo mới thất bại");
+      return true;
+    } catch (error: unknown) {
+      toast.error(
+        getErrorMessage(
+          error,
+          selectedTeacher ? "Cập nhật thất bại" : "Tạo mới thất bại",
+        ),
+      );
+      return false;
     } finally {
       setFormLoading(false);
     }

@@ -42,6 +42,21 @@ export interface TeacherImportResponse {
   count: number;
 }
 
+const academicTitleToApi: Record<string, string> = {
+  "Thạc sĩ": "MASTER",
+  "Tiến sĩ": "DOCTOR",
+  "Phó Giáo sư": "ASSOC_PROF",
+  "Giáo sư": "PROF",
+};
+const academicTitleFromApi: Record<string, string> = Object.fromEntries(
+  Object.entries(academicTitleToApi).map(([label, value]) => [value, label]),
+);
+
+function mapAcademicTitleToApi(value?: string): string | undefined {
+  if (!value) return undefined;
+  return academicTitleToApi[value] || value;
+}
+
 // Map backend response to frontend Lecturer type
 function mapApiToLecturer(api: TeacherApiResponse): Lecturer {
   return {
@@ -51,7 +66,9 @@ function mapApiToLecturer(api: TeacherApiResponse): Lecturer {
     email: api.email,
     phone: api.phone,
     facultyId: api.faculty_id,
-    academicTitle: api.academic_title,
+    academicTitle: api.academic_title
+      ? academicTitleFromApi[api.academic_title] || api.academic_title
+      : undefined,
     position: api.position,
     dateOfBirth: api.date_of_birth,
     gender:
@@ -74,19 +91,25 @@ function mapLecturerToCreatePayload(input: CreateLecturerInput) {
     code: input.code,
     name: input.name,
     email: input.email,
-    phone: input.phone,
+    ...(input.phone?.trim() ? { phone: input.phone.trim() } : {}),
     facultyId: input.facultyId,
-    academicTitle: input.academicTitle,
-    position: input.position,
-    dateOfBirth: input.dateOfBirth,
-    gender:
-      input.gender === "male"
-        ? "MALE"
-        : input.gender === "female"
-          ? "FEMALE"
-          : "OTHER",
-    address: input.address,
-    extraData: input.extraData,
+    ...(input.academicTitle
+      ? { academicTitle: mapAcademicTitleToApi(input.academicTitle) }
+      : {}),
+    ...(input.position?.trim() ? { position: input.position.trim() } : {}),
+    ...(input.dateOfBirth ? { dateOfBirth: input.dateOfBirth } : {}),
+    ...(input.gender
+      ? {
+          gender:
+            input.gender === "male"
+              ? "MALE"
+              : input.gender === "female"
+                ? "FEMALE"
+                : "OTHER",
+        }
+      : {}),
+    ...(input.address?.trim() ? { address: input.address.trim() } : {}),
+    ...(input.extraData ? { extraData: input.extraData } : {}),
   };
 }
 
@@ -94,12 +117,13 @@ function mapLecturerToUpdatePayload(input: UpdateLecturerInput) {
   const payload: Record<string, unknown> = {};
   if (input.name !== undefined) payload.name = input.name;
   if (input.email !== undefined) payload.email = input.email;
-  if (input.phone !== undefined) payload.phone = input.phone;
+  if (input.phone !== undefined) payload.phone = input.phone.trim() || null;
   if (input.facultyId !== undefined) payload.facultyId = input.facultyId;
   if (input.academicTitle !== undefined)
-    payload.academicTitle = input.academicTitle;
+    payload.academicTitle = mapAcademicTitleToApi(input.academicTitle) || null;
   if (input.position !== undefined) payload.position = input.position;
-  if (input.dateOfBirth !== undefined) payload.dateOfBirth = input.dateOfBirth;
+  if (input.dateOfBirth !== undefined)
+    payload.dateOfBirth = input.dateOfBirth || null;
   if (input.gender !== undefined) {
     payload.gender =
       input.gender === "male"

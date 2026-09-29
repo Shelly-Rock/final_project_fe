@@ -42,6 +42,19 @@ export interface StudentImportRow {
   enrollment_year: number;
 }
 
+export interface StudentCreatePayload {
+  studentId: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  className: string;
+  major: string;
+  courseYear: number;
+  academicYear: string;
+  dateOfBirth?: string;
+  extraData?: Record<string, unknown>;
+}
+
 export interface StudentUpdatePayload {
   email?: string;
   phone?: string;
@@ -110,12 +123,13 @@ class StudentApiService {
   }
 
   async create(
-    payload: Omit<StudentImportRow, never>,
-  ): Promise<StudentApiResponse> {
-    const { data } = await apiClient.post<StudentApiResponse>(
-      "/students",
-      payload,
-    );
+    payload: StudentCreatePayload,
+  ): Promise<{ success: boolean; message: string; studentId: string }> {
+    const { data } = await apiClient.post<{
+      success: boolean;
+      message: string;
+      studentId: string;
+    }>("/students", payload);
     return data;
   }
 

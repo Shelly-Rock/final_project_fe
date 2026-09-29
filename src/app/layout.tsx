@@ -1,21 +1,10 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import { AuthProvider } from "@/core/providers/AuthProvider";
 import { AppProviders } from "@/core/providers/AppProviders";
 import { Sonner } from "@/shared/components/Sonner/Sonner";
 import SchoolLogo from "@/assets/image/png/logo02.png";
 import "@/styles/main.scss";
 import "bootstrap-icons/font/bootstrap-icons.css";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 export const metadata: Metadata = {
   title: "QNQ - Hệ thống quản lý đồ án sinh viên",
@@ -36,7 +25,7 @@ export default function RootLayout({
     <html
       lang="vi"
       data-scroll-behavior="smooth"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className="h-full antialiased"
     >
       <head></head>
       <body className="min-h-full">
