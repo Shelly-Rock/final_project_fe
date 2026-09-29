@@ -185,8 +185,8 @@ export function TemplateUploadDialog({
 
       toast.success(
         replaceTemplate
-          ? "Thay thế template thành công!"
-          : "Tải lên template thành công!",
+          ? "Thay thế biểu mẫu thành công!"
+          : "Tải lên biểu mẫu thành công!",
       );
       onSuccess?.(template);
       handleClose();
@@ -210,7 +210,7 @@ export function TemplateUploadDialog({
       <DialogTitle>
         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
           <UploadIcon color="primary" />
-          Tải lên Template biểu mẫu
+          Tải lên biểu mẫu
         </Box>
       </DialogTitle>
 
@@ -263,7 +263,7 @@ export function TemplateUploadDialog({
           </FormControl>
 
           <TextField
-            label="Tên template"
+            label="Tên biểu mẫu"
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="VD: Báo cáo tiến độ tháng 8/2026"
@@ -422,7 +422,7 @@ export function TemplateList({
         }}
       >
         <Typography variant="h6">
-          Danh sách Template ({templates.length})
+          Danh Sách Biểu Mẫu ({templates.length})
         </Typography>
         {showUploadButton && onUploadClick && (
           <Button
@@ -430,7 +430,7 @@ export function TemplateList({
             onClick={onUploadClick}
             variant="outlined"
           >
-            Tải lên Template mới
+            Tải lên biểu mẫu mới
           </Button>
         )}
       </Box>
@@ -441,7 +441,7 @@ export function TemplateList({
             sx={{ fontSize: 64, color: "text.disabled", mb: 2 }}
           />
           <Typography variant="h6" color="text.secondary">
-            Chưa có Template nào được tải lên
+            Chưa có biểu mẫu nào được tải lên
           </Typography>
         </Paper>
       ) : (

@@ -29,7 +29,11 @@ import dayjs from "dayjs";
 interface ProgressTimelineProps {
   studentId?: number;
   isTeacherView?: boolean;
-  onUploadClick?: (deadlineId: number, label: string) => void;
+  onUploadClick?: (
+    deadlineId: number,
+    label: string,
+    submission?: TimelineNode["submission"],
+  ) => void;
   onReviewClick?: (reportId: number) => void;
 }
 
@@ -299,7 +303,11 @@ export function ProgressTimeline({
                                 variant="outlined"
                                 sx={{ mt: 1 }}
                                 onClick={() =>
-                                  onUploadClick(node.id, node.label)
+                                  onUploadClick(
+                                    node.id,
+                                    node.label,
+                                    node.submission,
+                                  )
                                 }
                               >
                                 Cập nhật bài nộp

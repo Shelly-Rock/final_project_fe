@@ -61,6 +61,7 @@ export interface Action<T> {
         | "warning"
         | "inherit");
   disabled?: boolean | ((row: T) => boolean);
+  hidden?: boolean | ((row: T) => boolean);
 }
 
 export interface HeaderAction {
@@ -653,6 +654,11 @@ export function DataTable<T extends object>({
                         }}
                       >
                         {actions.map((action) => {
+                          const resolvedHidden =
+                            typeof action.hidden === "function"
+                              ? action.hidden(row)
+                              : action.hidden;
+                          if (resolvedHidden) return null;
                           // Resolve dynamic properties
                           const resolvedIcon =
                             typeof action.icon === "function"

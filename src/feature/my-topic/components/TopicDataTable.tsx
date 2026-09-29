@@ -191,7 +191,11 @@ export function TopicDataTable({
     {
       id: "edit",
       icon: <EditIcon fontSize="small" />,
-      label: "Sửa",
+      label: (row) =>
+        row.registrationStatus === "LOCKED" ? "Đổi trưởng nhóm" : "Sửa",
+      hidden: (row) =>
+        (row.canEdit === false && !row.canChangeLeader) ||
+        (row.registrationStatus === "LOCKED" && !row.canChangeLeader),
       color: "primary" as const,
       onClick: (row) => onEdit(row),
     },
@@ -200,7 +204,8 @@ export function TopicDataTable({
       icon: <Lock size={16} />,
       label: "Khóa",
       color: "warning" as const,
-      disabled: (row) => row.registrationStatus === "LOCKED",
+      hidden: (row) =>
+        row.canLock === false || row.registrationStatus === "LOCKED",
       onClick: (row) => {
         if (onToggleLock) onToggleLock(row);
       },
@@ -209,6 +214,7 @@ export function TopicDataTable({
       id: "delete",
       icon: <DeleteIcon fontSize="small" />,
       label: "Xóa",
+      hidden: (row) => row.canDelete === false,
       color: "error" as const,
       onClick: (row) => onDelete(row),
     },

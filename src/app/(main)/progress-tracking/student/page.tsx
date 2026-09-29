@@ -38,6 +38,7 @@ import { progressTrackingService } from "@/feature/progress-tracking/services";
 import type {
   StudentProgress,
   ProgressReport,
+  TimelineNode,
 } from "@/feature/progress-tracking/types";
 import { PageHeader } from "@/shared/components";
 import { TrendingUp } from "lucide-react";
@@ -321,6 +322,8 @@ export default function StudentProgressPage() {
   const [activeDeadlineLabel, setActiveDeadlineLabel] = useState<
     string | undefined
   >();
+  const [activeSubmission, setActiveSubmission] =
+    useState<TimelineNode["submission"]>();
   const [refreshKey, setRefreshKey] = useState(0);
 
   const [studentProgress, setStudentProgress] =
@@ -394,9 +397,14 @@ export default function StudentProgressPage() {
                 <ProgressTimeline
                   studentId={studentProgress.studentId}
                   key={`timeline-${refreshKey}`}
-                  onUploadClick={(deadlineId: number, label: string) => {
+                  onUploadClick={(
+                    deadlineId: number,
+                    label: string,
+                    submission,
+                  ) => {
                     setActiveDeadlineId(deadlineId);
                     setActiveDeadlineLabel(label);
+                    setActiveSubmission(submission);
                     setSubmitDialogOpen(true);
                   }}
                 />
@@ -420,12 +428,14 @@ export default function StudentProgressPage() {
               setSubmitDialogOpen(false);
               setActiveDeadlineId(undefined);
               setActiveDeadlineLabel(undefined);
+              setActiveSubmission(undefined);
             }}
             studentId={studentProgress.studentId}
             deadlineId={activeDeadlineId}
             deadlineLabel={activeDeadlineLabel}
+            submission={activeSubmission}
             onSuccess={() => {
-              toast.success("Nộp báo cáo thành công!");
+              toast.success("Nộp thành công!");
               handleRefresh();
             }}
           />

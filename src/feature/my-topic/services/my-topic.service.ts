@@ -70,6 +70,11 @@ interface BackendTopic {
   registrations?: BackendStudent[];
   registration_status?: string;
   registrationStatus?: string;
+  canDelete?: boolean;
+  canEdit?: boolean;
+  canLock?: boolean;
+  canChangeLeader?: boolean;
+  locked?: boolean;
   created_at: string;
   createdAt?: string;
   updated_at: string;
@@ -165,6 +170,11 @@ function mapBackendToMyTopic(backend: BackendTopic): MyTopic {
     registrationStatus: (backend.registration_status ||
       backend.registrationStatus ||
       "OPEN") as "OPEN" | "FULL" | "LOCKED",
+    canDelete: backend.canDelete,
+    canEdit: backend.canEdit,
+    canLock: backend.canLock,
+    canChangeLeader: backend.canChangeLeader,
+    locked: backend.locked,
     createdAt: backend.created_at || backend.createdAt || "",
     updatedAt: backend.updated_at || backend.updatedAt || "",
   };

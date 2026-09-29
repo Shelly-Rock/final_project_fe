@@ -314,19 +314,6 @@ function PendingReportsList({
               </Box>
             </Box>
 
-            {reviewStatus === "APPROVED" && (
-              <TextField
-                label="Điểm (1-10)"
-                type="number"
-                value={score ?? ""}
-                onChange={(e) =>
-                  setScore(parseInt(e.target.value) || undefined)
-                }
-                inputProps={{ min: 1, max: 10 }}
-                sx={{ width: 150 }}
-              />
-            )}
-
             <TextField
               label="Phản hồi / Nhận xét"
               value={feedback}
