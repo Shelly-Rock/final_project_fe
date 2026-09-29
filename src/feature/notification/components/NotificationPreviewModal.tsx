@@ -191,7 +191,6 @@ const NotificationPreviewModal: React.FC<NotificationPreviewModalProps> = ({
             ) : (
               <div className="px-6 py-4">
                 <RecipientAnalytics
-                  notificationId={notification.id}
                   analytics={{
                     id: notification.id,
                     title: notification.title,
@@ -204,36 +203,6 @@ const NotificationPreviewModal: React.FC<NotificationPreviewModalProps> = ({
                         notification.totalRecipients - notification.readCount,
                         0,
                       ),
-                    byDepartment: [
-                      {
-                        department: "Khoa CNTT",
-                        total: 10,
-                        read: 10,
-                        unread: 0,
-                        readPercentage: 100,
-                      },
-                      {
-                        department: "Khoa Điện-Điện tử",
-                        total: 12,
-                        read: 11,
-                        unread: 1,
-                        readPercentage: 92,
-                      },
-                      {
-                        department: "Khoa Cơ khí",
-                        total: 8,
-                        read: 6,
-                        unread: 2,
-                        readPercentage: 75,
-                      },
-                      {
-                        department: "Viện Sau ĐH",
-                        total: 20,
-                        read: 19,
-                        unread: 1,
-                        readPercentage: 95,
-                      },
-                    ],
                   }}
                 />
               </div>

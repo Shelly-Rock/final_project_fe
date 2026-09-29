@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import {
   Box,
@@ -19,7 +19,6 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  LinearProgress,
   CircularProgress,
   useTheme,
   Tabs,
@@ -40,113 +39,41 @@ export default function NotificationPage() {
   const theme = useTheme();
   const [notifications, setNotifications] = useState<INotification[]>([]);
   const [loading, setLoading] = useState(true);
-  const [_error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<string>("all");
   const [showModal, setShowModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
-  const [formData, setFormData] = useState({ title: "", message: "" });
 
-  const fetchNotifications = async () => {
+  const fetchNotifications = useCallback(async () => {
     try {
       setLoading(true);
-      try {
-        const data = await notificationApi.getNotifications({
-          page: 1,
-          limit: 50,
-          facultyId,
-        });
-        setNotifications(data.notifications);
-        setError(null);
-      } catch {
-        // A scoped page must never fall back to unscoped demo notifications.
-        if (facultyId) {
-          setNotifications([]);
-          setError(null);
-          return;
-        }
-        // API not implemented - use mock data for development
-        const mockNotifications: INotification[] = [
-          {
-            id: 1,
-            title:
-              "Nhắc hạn cuối nộp hồ sơ quyết toán kinh phí đề tài NCKH cấp Bộ đợt 2",
-            message:
-              "Phòng Quản lý Khoa học • Gửi tới 8 Khoa & 2 Viện trực thuộc",
-            type: "STATUS_CHANGED",
-            isRead: false,
-            recipientId: 1,
-            senderId: 2,
-            createdAt: new Date(Date.now() - 10 * 60000).toISOString(),
-          },
-          {
-            id: 2,
-            title:
-              "Kết luận cuộc họp giao ban công tác nghiệm thu đề tài NCKH Quý IV/2024",
-            message: "Ban Giám Hiệu • Trưởng Khoa & Viện trưởng",
-            type: "REPORT_APPROVED",
-            isRead: true,
-            recipientId: 1,
-            senderId: 3,
-            createdAt: new Date(Date.now() - 2 * 3600000).toISOString(),
-          },
-          {
-            id: 3,
-            title:
-              "Đôn đốc nộp báo cáo tiến độ học thuật định kỳ tháng 12/2024",
-            message:
-              "Khoa Cơ khí & Ngoại ngữ chưa gửi • Hạn chót: 17:00 chiều nay",
-            type: "REPORT_REJECTED",
-            isRead: false,
-            recipientId: 1,
-            senderId: 4,
-            createdAt: new Date(Date.now() - 1 * 86400000).toISOString(),
-          },
-          {
-            id: 4,
-            title:
-              "Lịch bảo vệ đề cương nghiên cứu sinh và học viên cao học năm học 2024-2025",
-            message: "Viện Sau Đại Học • Hội đồng chuyên môn & Giảng viên",
-            type: "REPORT_SUBMITTED",
-            isRead: true,
-            recipientId: 1,
-            senderId: 5,
-            createdAt: new Date(Date.now() - 3 * 86400000).toISOString(),
-          },
-          {
-            id: 5,
-            title:
-              "Kế hoạch phân bổ kinh phí đề tài tiềm năng khởi nghiệp đổi mới sáng tạo 2025",
-            message: "GS.TS Lê Quang Huy • Đã lưu vào bộ nhớ tạm hôm qua",
-            type: "BAN_APPLIED",
-            isRead: false,
-            recipientId: 1,
-            senderId: 6,
-            createdAt: new Date(Date.now() - 2 * 86400000).toISOString(),
-          },
-        ];
-        setNotifications(mockNotifications);
-        setError(null);
-      }
-    } catch (err) {
-      setError("Failed to load notifications");
+      const data = await notificationApi.getNotifications({
+        page: 1,
+        limit: 50,
+        facultyId,
+      });
+      setNotifications(data.notifications);
+      setError(null);
+    } catch {
+      setError("Không thể tải thông báo từ máy chủ.");
       setNotifications([]);
     } finally {
       setLoading(false);
     }
-  };
+  }, [facultyId]);
 
   useEffect(() => {
     fetchNotifications();
-  }, [facultyId]);
+  }, [fetchNotifications]);
 
   const handleDelete = async (id: number) => {
     try {
       await notificationApi.deleteNotification(id);
       setNotifications(notifications.filter((n) => n.id !== id));
-    } catch (err) {
-      console.error("Failed to delete notification");
+    } catch {
+      setError("Không thể xóa thông báo.");
     }
   };
 
@@ -154,8 +81,8 @@ export default function NotificationPage() {
     try {
       await notificationApi.markAsRead([id]);
       fetchNotifications();
-    } catch (err) {
-      console.error("Failed to mark as read");
+    } catch {
+      setError("Không thể đánh dấu đã đọc.");
     }
   };
 
@@ -275,18 +202,6 @@ export default function NotificationPage() {
     return date.toLocaleDateString("vi-VN");
   };
 
-  const handleSendNotification = async () => {
-    try {
-      if (formData.title && formData.message) {
-        setShowModal(false);
-        setFormData({ title: "", message: "" });
-        fetchNotifications();
-      }
-    } catch (err) {
-      console.error("Failed to send notification");
-    }
-  };
-
   if (loading) {
     return (
       <Box sx={{ display: "flex", justifyContent: "center", py: 8 }}>
@@ -308,9 +223,6 @@ export default function NotificationPage() {
               <Typography variant="h5" sx={{ fontWeight: 700 }}>
                 {totalCount}
               </Typography>
-              <Typography variant="caption" color="success.main">
-                +14% tháng này
-              </Typography>
             </CardContent>
           </Card>
         </Grid>
@@ -325,9 +237,6 @@ export default function NotificationPage() {
                 sx={{ fontWeight: 700, color: theme.palette.error.main }}
               >
                 {urgentCount}
-              </Typography>
-              <Typography variant="caption" color="textSecondary">
-                100% tiếp nhận
               </Typography>
             </CardContent>
           </Card>
@@ -344,9 +253,6 @@ export default function NotificationPage() {
               >
                 {readRate}%
               </Typography>
-              <Typography variant="caption" color="textSecondary">
-                ~40m phản hồi
-              </Typography>
             </CardContent>
           </Card>
         </Grid>
@@ -361,9 +267,6 @@ export default function NotificationPage() {
                 sx={{ fontWeight: 700, color: theme.palette.warning.main }}
               >
                 {pendingCount}
-              </Typography>
-              <Typography variant="caption" color="error">
-                2 đơn vị trễ
               </Typography>
             </CardContent>
           </Card>
@@ -436,7 +339,7 @@ export default function NotificationPage() {
       <TableContainer component={Paper} sx={{ mb: 3 }}>
         {paginatedNotifications.length === 0 ? (
           <Box sx={{ p: 3, textAlign: "center", color: "textSecondary" }}>
-            <Typography>No notifications found</Typography>
+            <Typography>{error || "Không có thông báo"}</Typography>
           </Box>
         ) : (
           <Table>
@@ -444,7 +347,7 @@ export default function NotificationPage() {
               <TableRow sx={{ bgcolor: theme.palette.background.default }}>
                 <TableCell>Tiêu đề thông báo & Đơn vị phát hành</TableCell>
                 <TableCell align="right">Thời gian</TableCell>
-                <TableCell align="center">Tiến độ tiếp nhận</TableCell>
+                <TableCell align="center">Trạng thái</TableCell>
                 <TableCell align="right">Thao tác</TableCell>
               </TableRow>
             </TableHead>
@@ -452,7 +355,6 @@ export default function NotificationPage() {
               {paginatedNotifications.map((notification) => {
                 const typeInfo = getTypeInfo(notification.type);
                 const isUnread = !notification.isRead;
-                const readPercent = 92; // Mock data
 
                 return (
                   <TableRow
@@ -516,30 +418,12 @@ export default function NotificationPage() {
                       </Typography>
                     </TableCell>
                     <TableCell align="center">
-                      <Box sx={{ minWidth: 120 }}>
-                        <Box
-                          sx={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            mb: 0.5,
-                          }}
-                        >
-                          <Typography variant="caption">
-                            {isUnread ? "Unread" : "Read"}
-                          </Typography>
-                          <Typography
-                            variant="caption"
-                            color={isUnread ? "error" : "success"}
-                          >
-                            {readPercent}%
-                          </Typography>
-                        </Box>
-                        <LinearProgress
-                          variant="determinate"
-                          value={readPercent}
-                          color={isUnread ? "error" : "success"}
-                        />
-                      </Box>
+                      <Chip
+                        size="small"
+                        label={isUnread ? "Chưa đọc" : "Đã đọc"}
+                        color={isUnread ? "warning" : "success"}
+                        variant="outlined"
+                      />
                     </TableCell>
                     <TableCell align="right">
                       {!notification.isRead && (

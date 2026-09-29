@@ -14,16 +14,9 @@ interface EmailTemplate {
 
 const EmailTemplateDesigner: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [templates, setTemplates] = useState<EmailTemplate[]>([
-    {
-      id: "1",
-      name: "Default Template",
-      subject: "Thông báo từ hệ thống",
-      body: "<p>Nội dung thông báo</p>",
-    },
-  ]);
+  const [templates, setTemplates] = useState<EmailTemplate[]>([]);
   const [editingTemplate, setEditingTemplate] = useState<EmailTemplate | null>(
-    null
+    null,
   );
 
   const handleSaveTemplate = () => {
@@ -32,23 +25,31 @@ const EmailTemplateDesigner: React.FC = () => {
     const exists = templates.find((t) => t.id === editingTemplate.id);
     if (exists) {
       setTemplates(
-        templates.map((t) => (t.id === editingTemplate.id ? editingTemplate : t))
+        templates.map((t) =>
+          t.id === editingTemplate.id ? editingTemplate : t,
+        ),
       );
     } else {
-      setTemplates([...templates, { ...editingTemplate, id: Date.now().toString() }]);
+      setTemplates([
+        ...templates,
+        { ...editingTemplate, id: Date.now().toString() },
+      ]);
     }
 
-    toast.success("Template đã được lưu");
+    toast.info("Mẫu email chỉ được giữ khi tab này đang mở");
     setEditingTemplate(null);
   };
 
   const handleDeleteTemplate = (id: string) => {
     setTemplates(templates.filter((t) => t.id !== id));
-    toast.success("Template đã được xóa");
+    toast.info("Đã xóa mẫu email trong tab này");
   };
 
   return (
     <>
+      <p className="mb-3 text-sm text-text-muted">
+        Backend chưa có API mẫu email. Thay đổi ở đây sẽ mất khi rời tab.
+      </p>
       <button
         onClick={() => setIsOpen(true)}
         className="flex items-center gap-2 px-3 py-2 text-sm rounded-lg bg-blue-600 text-white hover:bg-blue-700"
@@ -78,7 +79,10 @@ const EmailTemplateDesigner: React.FC = () => {
                   placeholder="Tên template"
                   value={editingTemplate.name}
                   onChange={(e) =>
-                    setEditingTemplate({ ...editingTemplate, name: e.target.value })
+                    setEditingTemplate({
+                      ...editingTemplate,
+                      name: e.target.value,
+                    })
                   }
                   className="w-full px-3 py-2 border rounded-lg"
                 />
@@ -98,7 +102,10 @@ const EmailTemplateDesigner: React.FC = () => {
                   placeholder="Nội dung email (HTML)"
                   value={editingTemplate.body}
                   onChange={(e) =>
-                    setEditingTemplate({ ...editingTemplate, body: e.target.value })
+                    setEditingTemplate({
+                      ...editingTemplate,
+                      body: e.target.value,
+                    })
                   }
                   rows={5}
                   className="w-full px-3 py-2 border rounded-lg"
@@ -128,7 +135,9 @@ const EmailTemplateDesigner: React.FC = () => {
                   >
                     <div>
                       <p className="font-semibold">{template.name}</p>
-                      <p className="text-sm text-gray-600">{template.subject}</p>
+                      <p className="text-sm text-gray-600">
+                        {template.subject}
+                      </p>
                     </div>
                     <div className="flex gap-2">
                       <button

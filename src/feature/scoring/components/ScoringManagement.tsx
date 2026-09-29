@@ -10,6 +10,7 @@ import {
   Typography,
   Chip,
   LinearProgress,
+  Button,
   useTheme,
 } from "@mui/material";
 import { GRADIENT_STYLES } from "@/shared/constants/gradients";
@@ -30,8 +31,8 @@ import {
   Users,
   UserCheck,
   ChevronRight,
-  FileCheck,
-  Megaphone,
+  BarChart3,
+  ChevronDown,
 } from "lucide-react";
 import { toast } from "sonner";
 import { DataTable } from "@/shared/components";
@@ -49,7 +50,6 @@ import {
   MeetingListItem,
   TranscriptDetail,
 } from "../services";
-import { ScoringStats, ScoringStatCard } from "./ScoringStats";
 import { ScoringTable } from "./ScoringTable";
 import { ScoringResultsTable } from "./ScoringResultsTable";
 import {
@@ -149,6 +149,7 @@ export function ScoringManagementPage() {
   const [activeTab, setActiveTab] = useState<"scores" | "results" | "teachers">(
     "scores",
   );
+  const [showAnalysis, setShowAnalysis] = useState(false);
   const [selectedResult, setSelectedResult] = useState<ScoringResult | null>(
     null,
   );
@@ -282,39 +283,34 @@ export function ScoringManagementPage() {
 
   const pipeline = [
     {
-      label: "1. Gán phiếu",
+      label: "Gán phiếu",
       value: scoreTotal || overviewScores.length,
       subtext: "phiếu đã gán",
-      icon: <ClipboardList size={18} />,
-      iconColor: C.blue,
+      color: C.blue,
     },
     {
-      label: "2. GVHD chấm",
+      label: "GVHD chấm",
       value: `${gvhdDone}/${gvhd.length}`,
-      subtext: "đã nộp / tổng phiếu GVHD",
-      icon: <UserCheck size={18} />,
-      iconColor: C.violet,
+      subtext: "phiếu đã nộp",
+      color: C.violet,
     },
     {
-      label: "3. Hội đồng chấm",
+      label: "Hội đồng chấm",
       value: `${committeeDone}/${committee.length}`,
-      subtext: "đã nộp / tổng phiếu hội đồng",
-      icon: <Users size={18} />,
-      iconColor: C.blue,
+      subtext: "phiếu đã nộp",
+      color: C.blue,
     },
     {
-      label: "4. Họp chốt",
+      label: "Họp chốt",
       value: `${meetingDoneCount}/${meetingTotalCount}`,
-      subtext: "đã chốt / tổng phiên họp",
-      icon: <FileCheck size={18} />,
-      iconColor: C.orange,
+      subtext: "phiên đã chốt",
+      color: C.orange,
     },
     {
-      label: "5. Công bố",
+      label: "Công bố",
       value: `${publishDoneCount}/${publishTotalCount}`,
-      subtext: "đã publish / tổng bảng điểm",
-      icon: <Megaphone size={18} />,
-      iconColor: C.green,
+      subtext: "bảng điểm đã công bố",
+      color: C.green,
     },
   ];
 
@@ -352,6 +348,10 @@ export function ScoringManagementPage() {
     ).length,
     fill: b.color,
   }));
+  const hasResultAnalysis = overviewResults.length > 0;
+  const hasDistributionAnalysis = distData.some((bucket) => bucket.count > 0);
+  const hasAnalysis = hasResultAnalysis || hasDistributionAnalysis;
+  const analysisVisible = showAnalysis && hasAnalysis;
 
   const teacherRows: TeacherRow[] = useMemo(() => {
     const map = new Map<string, TeacherRow & { sum: number; n: number }>();
@@ -441,7 +441,18 @@ export function ScoringManagementPage() {
       });
     });
     return items.slice(0, 6);
-  }, [overdueScores, pendingScores, readyToFinalize, readyToPublish, router]);
+  }, [
+    overdueScores,
+    pendingScores,
+    readyToFinalize,
+    readyToPublish,
+    router,
+    facultyId,
+  ]);
+  const visiblePanelCount =
+    Number(actions.length > 0) +
+    Number(analysisVisible && hasResultAnalysis) +
+    Number(analysisVisible && hasDistributionAnalysis);
 
   const filteredScores = scores.filter((s) => {
     if (!searchQuery) return true;
@@ -564,242 +575,370 @@ export function ScoringManagementPage() {
     <>
       <Box
         sx={{
-          display: "grid",
-          gridTemplateColumns: {
-            xs: "1fr",
-            sm: "repeat(2, 1fr)",
-            md: "repeat(5, 1fr)",
-          },
-          gap: 2,
-          mb: 2.5,
+          borderBottom: "1px solid",
+          borderColor: "divider",
+          pb: 1.5,
+          mb: 1.5,
         }}
       >
-        {pipeline.map((step) => (
-          <ScoringStatCard
-            key={step.label}
-            label={step.label}
-            value={step.value}
-            subtext={step.subtext}
-            icon={step.icon}
-            iconColor={step.iconColor}
-          />
-        ))}
+        <Typography
+          variant="caption"
+          sx={{
+            color: "text.secondary",
+            fontWeight: 700,
+            display: "block",
+            mb: 1,
+          }}
+        >
+          Tiến trình chấm điểm
+        </Typography>
+        <Box
+          sx={{
+            display: "grid",
+            gridTemplateColumns: {
+              xs: "repeat(2, minmax(0, 1fr))",
+              sm: "repeat(3, minmax(0, 1fr))",
+              lg: "repeat(5, minmax(0, 1fr))",
+            },
+            rowGap: 1.25,
+          }}
+        >
+          {pipeline.map((step, index) => (
+            <Box
+              key={step.label}
+              sx={{
+                minWidth: 0,
+                px: { xs: 0, lg: 1.5 },
+                borderRight: {
+                  xs: 0,
+                  lg: index < pipeline.length - 1 ? "1px solid" : 0,
+                },
+                borderColor: "divider",
+                "&:first-of-type": { pl: 0 },
+                "&:last-child": { gridColumn: { xs: "1 / -1", sm: "auto" } },
+              }}
+            >
+              <Typography variant="caption" sx={{ color: "text.secondary" }}>
+                {index + 1}. {step.label}
+              </Typography>
+              <Box sx={{ display: "flex", alignItems: "baseline", gap: 0.75 }}>
+                <Typography
+                  sx={{
+                    fontSize: 21,
+                    lineHeight: 1.3,
+                    fontWeight: 700,
+                    color: step.color,
+                  }}
+                >
+                  {step.value}
+                </Typography>
+                <Typography variant="caption" color="text.secondary" noWrap>
+                  {step.subtext}
+                </Typography>
+              </Box>
+            </Box>
+          ))}
+        </Box>
       </Box>
-
-      <ScoringStats stats={stats} />
 
       <Box
         sx={{
-          display: "grid",
-          gridTemplateColumns: { xs: "1fr", md: "1.2fr 0.9fr 1fr" },
-          gap: 2,
-          mb: 2.5,
+          display: "flex",
+          flexWrap: "wrap",
+          alignItems: "center",
+          gap: { xs: 1.5, md: 2.5 },
+          pb: 1.5,
+          mb: 2,
+          borderBottom: "1px solid",
+          borderColor: "divider",
         }}
       >
-        <Paper elevation={0} sx={cardSx}>
-          <Typography
-            sx={{ fontWeight: 700, fontSize: 15, mb: 1.5, color: ink }}
-          >
-            Việc cần làm hôm nay
-          </Typography>
-          {actions.length === 0 ? (
-            <Typography variant="body2" color="text.secondary">
-              Không có phiếu quá hạn hay bước nào đang chờ.
-            </Typography>
-          ) : (
-            actions.map((a) => {
-              const k = kindStyle[a.kind];
-              return (
-                <Box
-                  key={a.id}
-                  onClick={a.onClick}
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 1,
-                    py: 1,
-                    borderBottom: "1px solid",
-                    borderColor: "divider",
-                    cursor: "pointer",
-                    "&:hover": { bgcolor: "action.hover" },
-                  }}
-                >
-                  <Box
-                    sx={{
-                      px: 0.75,
-                      py: 0.25,
-                      borderRadius: 1,
-                      bgcolor: k.bg,
-                      color: k.color,
-                      fontSize: 10,
-                      fontWeight: 800,
-                      letterSpacing: 0.4,
-                      flexShrink: 0,
-                    }}
-                  >
-                    {k.label}
-                  </Box>
-                  <Box sx={{ minWidth: 0, flex: 1 }}>
-                    <Typography variant="body2" fontWeight={600} noWrap>
-                      {a.title}
-                    </Typography>
-                    <Typography variant="caption" color="text.secondary" noWrap>
-                      {a.subtitle}
-                    </Typography>
-                  </Box>
-                  <ChevronRight size={14} color={muted} />
-                </Box>
-              );
-            })
-          )}
-        </Paper>
-
-        <Paper elevation={0} sx={cardSx}>
-          <Typography
-            sx={{ fontWeight: 700, fontSize: 15, mb: 0.5, color: ink }}
-          >
-            Kết quả bảo vệ
-          </Typography>
-          <Typography sx={{ fontSize: 12, color: muted, mb: 1 }}>
-            Tỷ lệ đạt trên đề tài đã có kết quả
-          </Typography>
-          <Box sx={{ position: "relative", height: 180 }}>
-            <ResponsiveContainer width="100%" height={180}>
-              <PieChart>
-                <Pie
-                  data={
-                    donutData.length
-                      ? donutData
-                      : [{ name: "Trống", value: 1, color: line }]
-                  }
-                  dataKey="value"
-                  innerRadius={52}
-                  outerRadius={74}
-                  paddingAngle={2}
-                  stroke={paper}
-                  strokeWidth={2}
-                >
-                  {(donutData.length ? donutData : [{ color: line }]).map(
-                    (d, i) => (
-                      <Cell key={i} fill={d.color} />
-                    ),
-                  )}
-                </Pie>
-                <Tooltip
-                  formatter={(v, n) => [`${v ?? 0} đề tài`, String(n)]}
-                  contentStyle={{
-                    borderRadius: 8,
-                    border: `1px solid ${line}`,
-                    fontSize: 12,
-                    background: paper,
-                    color: ink,
-                  }}
-                />
-              </PieChart>
-            </ResponsiveContainer>
-            <Box
-              sx={{
-                position: "absolute",
-                inset: 0,
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                justifyContent: "center",
-                pointerEvents: "none",
-              }}
-            >
-              <Typography
-                sx={{
-                  fontSize: 22,
-                  fontWeight: 800,
-                  color: ink,
-                  lineHeight: 1,
-                }}
-              >
-                {donutData.length ? `${passRate}%` : "—"}
-              </Typography>
-              <Typography sx={{ fontSize: 11, color: muted }}>Đạt</Typography>
-            </Box>
-          </Box>
+        {[
+          { label: "Chưa chấm", value: stats.pending, color: C.yellow },
+          { label: "Quá hạn", value: stats.overdue, color: C.red },
+          {
+            label: "Chờ họp chốt",
+            value: stats.waitingMeeting,
+            color: C.orange,
+          },
+          {
+            label: "Chờ công bố",
+            value: stats.waitingPublish,
+            color: C.violet,
+          },
+        ].map((item) => (
           <Box
+            key={item.label}
             sx={{
               display: "flex",
-              gap: 1,
-              flexWrap: "wrap",
-              justifyContent: "center",
+              alignItems: "baseline",
+              gap: 0.75,
+              minWidth: 120,
             }}
           >
-            {[
-              { name: "Đạt", color: C.green, value: passedCount },
-              { name: "Loại", color: C.red, value: eliminatedCount },
-              { name: "Đang chấm", color: C.yellow, value: scoringInProgress },
-            ].map((l) => (
-              <Box
-                key={l.name}
-                sx={{ display: "flex", alignItems: "center", gap: 0.5 }}
+            <Typography
+              sx={{ fontWeight: 700, fontSize: 19, color: item.color }}
+            >
+              {item.value}
+            </Typography>
+            <Typography variant="body2" color="text.secondary" noWrap>
+              {item.label}
+            </Typography>
+          </Box>
+        ))}
+        {hasAnalysis && (
+          <Button
+            size="small"
+            onClick={() => setShowAnalysis((current) => !current)}
+            startIcon={<BarChart3 size={16} />}
+            endIcon={
+              <ChevronDown
+                size={15}
+                style={{
+                  transform: analysisVisible ? "rotate(180deg)" : undefined,
+                }}
+              />
+            }
+            sx={{ ml: { md: "auto" }, textTransform: "none" }}
+          >
+            {analysisVisible ? "Ẩn phân tích" : "Xem phân tích"}
+          </Button>
+        )}
+      </Box>
+
+      {(actions.length > 0 || analysisVisible) && (
+        <Box
+          sx={{
+            display: "grid",
+            gridTemplateColumns: {
+              xs: "1fr",
+              md: `repeat(${visiblePanelCount}, minmax(0, 1fr))`,
+            },
+            gap: 2,
+            mb: 2.5,
+          }}
+        >
+          {actions.length > 0 && (
+            <Paper elevation={0} sx={cardSx}>
+              <Typography
+                sx={{ fontWeight: 700, fontSize: 15, mb: 1.5, color: ink }}
               >
+                Việc cần làm hôm nay
+              </Typography>
+              {actions.length === 0 ? (
+                <Typography variant="body2" color="text.secondary">
+                  Không có phiếu quá hạn hay bước nào đang chờ.
+                </Typography>
+              ) : (
+                actions.map((a) => {
+                  const k = kindStyle[a.kind];
+                  return (
+                    <Box
+                      key={a.id}
+                      onClick={a.onClick}
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 1,
+                        py: 1,
+                        borderBottom: "1px solid",
+                        borderColor: "divider",
+                        cursor: "pointer",
+                        "&:hover": { bgcolor: "action.hover" },
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          px: 0.75,
+                          py: 0.25,
+                          borderRadius: 1,
+                          bgcolor: k.bg,
+                          color: k.color,
+                          fontSize: 10,
+                          fontWeight: 800,
+                          letterSpacing: 0.4,
+                          flexShrink: 0,
+                        }}
+                      >
+                        {k.label}
+                      </Box>
+                      <Box sx={{ minWidth: 0, flex: 1 }}>
+                        <Typography variant="body2" fontWeight={600} noWrap>
+                          {a.title}
+                        </Typography>
+                        <Typography
+                          variant="caption"
+                          color="text.secondary"
+                          noWrap
+                        >
+                          {a.subtitle}
+                        </Typography>
+                      </Box>
+                      <ChevronRight size={14} color={muted} />
+                    </Box>
+                  );
+                })
+              )}
+            </Paper>
+          )}
+
+          {analysisVisible && hasResultAnalysis && (
+            <Paper elevation={0} sx={cardSx}>
+              <Typography
+                sx={{ fontWeight: 700, fontSize: 15, mb: 0.5, color: ink }}
+              >
+                Kết quả bảo vệ
+              </Typography>
+              <Typography sx={{ fontSize: 12, color: muted, mb: 1 }}>
+                Tỷ lệ đạt trên đề tài đã có kết quả
+              </Typography>
+              <Box sx={{ position: "relative", height: 180 }}>
+                <ResponsiveContainer width="100%" height={180}>
+                  <PieChart>
+                    <Pie
+                      data={
+                        donutData.length
+                          ? donutData
+                          : [{ name: "Trống", value: 1, color: line }]
+                      }
+                      dataKey="value"
+                      innerRadius={52}
+                      outerRadius={74}
+                      paddingAngle={2}
+                      stroke={paper}
+                      strokeWidth={2}
+                    >
+                      {(donutData.length ? donutData : [{ color: line }]).map(
+                        (d, i) => (
+                          <Cell key={i} fill={d.color} />
+                        ),
+                      )}
+                    </Pie>
+                    <Tooltip
+                      formatter={(v, n) => [`${v ?? 0} đề tài`, String(n)]}
+                      contentStyle={{
+                        borderRadius: 8,
+                        border: `1px solid ${line}`,
+                        fontSize: 12,
+                        background: paper,
+                        color: ink,
+                      }}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
                 <Box
                   sx={{
-                    width: 8,
-                    height: 8,
-                    borderRadius: "50%",
-                    bgcolor: l.color,
+                    position: "absolute",
+                    inset: 0,
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    pointerEvents: "none",
                   }}
-                />
-                <Typography sx={{ fontSize: 12, color: ink }}>
-                  {l.name} {l.value}
-                </Typography>
+                >
+                  <Typography
+                    sx={{
+                      fontSize: 22,
+                      fontWeight: 800,
+                      color: ink,
+                      lineHeight: 1,
+                    }}
+                  >
+                    {donutData.length ? `${passRate}%` : "—"}
+                  </Typography>
+                  <Typography sx={{ fontSize: 11, color: muted }}>
+                    Đạt
+                  </Typography>
+                </Box>
               </Box>
-            ))}
-          </Box>
-        </Paper>
+              <Box
+                sx={{
+                  display: "flex",
+                  gap: 1,
+                  flexWrap: "wrap",
+                  justifyContent: "center",
+                }}
+              >
+                {[
+                  { name: "Đạt", color: C.green, value: passedCount },
+                  { name: "Loại", color: C.red, value: eliminatedCount },
+                  {
+                    name: "Đang chấm",
+                    color: C.yellow,
+                    value: scoringInProgress,
+                  },
+                ].map((l) => (
+                  <Box
+                    key={l.name}
+                    sx={{ display: "flex", alignItems: "center", gap: 0.5 }}
+                  >
+                    <Box
+                      sx={{
+                        width: 8,
+                        height: 8,
+                        borderRadius: "50%",
+                        bgcolor: l.color,
+                      }}
+                    />
+                    <Typography sx={{ fontSize: 12, color: ink }}>
+                      {l.name} {l.value}
+                    </Typography>
+                  </Box>
+                ))}
+              </Box>
+            </Paper>
+          )}
 
-        <Paper elevation={0} sx={cardSx}>
-          <Typography
-            sx={{ fontWeight: 700, fontSize: 15, mb: 0.5, color: ink }}
-          >
-            Phân bố điểm phiếu
-          </Typography>
-          <Typography sx={{ fontSize: 12, color: muted, mb: 1 }}>
-            Số phiếu theo khoảng điểm (thang 10)
-          </Typography>
-          <Box sx={{ height: 200 }}>
-            <ResponsiveContainer width="100%" height={200}>
-              <BarChart data={distData} barCategoryGap="18%">
-                <CartesianGrid vertical={false} stroke={line} />
-                <XAxis
-                  dataKey="name"
-                  tick={{ fontSize: 11, fill: muted }}
-                  axisLine={false}
-                  tickLine={false}
-                />
-                <YAxis
-                  allowDecimals={false}
-                  tick={{ fontSize: 11, fill: muted }}
-                  axisLine={false}
-                  tickLine={false}
-                  width={28}
-                />
-                <Tooltip
-                  formatter={(v) => [`${v ?? 0} phiếu`, "Số phiếu"]}
-                  contentStyle={{
-                    borderRadius: 8,
-                    border: `1px solid ${line}`,
-                    fontSize: 12,
-                    background: paper,
-                    color: ink,
-                  }}
-                />
-                <Bar dataKey="count" radius={[4, 4, 0, 0]} maxBarSize={36}>
-                  {distData.map((d) => (
-                    <Cell key={d.name} fill={d.fill} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </Box>
-        </Paper>
-      </Box>
+          {analysisVisible && hasDistributionAnalysis && (
+            <Paper elevation={0} sx={cardSx}>
+              <Typography
+                sx={{ fontWeight: 700, fontSize: 15, mb: 0.5, color: ink }}
+              >
+                Phân bố điểm phiếu
+              </Typography>
+              <Typography sx={{ fontSize: 12, color: muted, mb: 1 }}>
+                Số phiếu theo khoảng điểm (thang 10)
+              </Typography>
+              <Box sx={{ height: 200 }}>
+                <ResponsiveContainer width="100%" height={200}>
+                  <BarChart data={distData} barCategoryGap="18%">
+                    <CartesianGrid vertical={false} stroke={line} />
+                    <XAxis
+                      dataKey="name"
+                      tick={{ fontSize: 11, fill: muted }}
+                      axisLine={false}
+                      tickLine={false}
+                    />
+                    <YAxis
+                      allowDecimals={false}
+                      tick={{ fontSize: 11, fill: muted }}
+                      axisLine={false}
+                      tickLine={false}
+                      width={28}
+                    />
+                    <Tooltip
+                      formatter={(v) => [`${v ?? 0} phiếu`, "Số phiếu"]}
+                      contentStyle={{
+                        borderRadius: 8,
+                        border: `1px solid ${line}`,
+                        fontSize: 12,
+                        background: paper,
+                        color: ink,
+                      }}
+                    />
+                    <Bar dataKey="count" radius={[4, 4, 0, 0]} maxBarSize={36}>
+                      {distData.map((d) => (
+                        <Cell key={d.name} fill={d.fill} />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </Box>
+            </Paper>
+          )}
+        </Box>
+      )}
 
       <Paper
         elevation={0}

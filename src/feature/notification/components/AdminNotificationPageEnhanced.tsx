@@ -3,7 +3,7 @@
 import React, { useState, useCallback, useMemo } from "react";
 import { Download, Search, Sun, Moon } from "lucide-react";
 import { toast } from "sonner";
-import apiClient from "@/shared/services/api-client";
+import { notificationApi } from "@/shared/services/api/notification.api";
 import { INotification } from "@/shared/types/notification.types";
 
 import NotificationScheduler from "./NotificationScheduler";
@@ -17,25 +17,6 @@ import EmailTemplateDesigner from "./EmailTemplateDesigner";
 import SendNotificationForm from "./SendNotificationForm";
 import { downloadAsCSV, downloadAsJSON } from "../utils/export";
 import { announceToScreenReader } from "../utils/accessibility";
-import { memoize, debounce } from "../utils/performance";
-
-interface AdminNotification {
-  id: number;
-  title: string;
-  message: string;
-  type: "URGENT" | "DIRECTIVE" | "GENERAL" | "REMINDER";
-  status: "PUBLISHED" | "DRAFT" | "SCHEDULED";
-  readCount: number;
-  totalRecipients: number;
-  recipients: string;
-  isRead?: boolean;
-  unreadCount?: number;
-  createdAt: string;
-  updatedAt: string;
-  scheduledAt?: string;
-  isPinned?: boolean;
-  requiresSignature?: boolean;
-}
 
 interface NotificationStats {
   total: number;
@@ -80,29 +61,27 @@ const AdminNotificationPageEnhanced: React.FC = () => {
   const fetchNotifications = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await apiClient.get<{
-        notifications: INotification[];
-        stats: NotificationStats;
-      }>("/notification/admin/list", {
-        params: {
-          page: 1,
-          limit: 10,
-          filter,
-          search: searchTerm,
-        },
+      const [summary, draftResult] = await Promise.all([
+        notificationApi.getNotificationStats(),
+        notificationApi.getDrafts(),
+      ]);
+      setStats({
+        total: summary.total,
+        urgent: summary.urgent,
+        readRate: summary.avgReadRate,
+        pending: summary.pending,
+        scheduled: 0,
+        drafts: draftResult.drafts?.length ?? 0,
       });
-      setNotifications(response.notifications);
-      setStats(response.stats);
-      announceToScreenReader(
-        `${response.notifications.length} notifications loaded`,
-      );
+      setNotifications([]);
+      announceToScreenReader("Đã tải thống kê thông báo");
     } catch {
-      toast.error("Lỗi khi tải danh sách thông báo");
-      announceToScreenReader("Error loading notifications", "assertive");
+      toast.error("Không thể tải thống kê thông báo");
+      announceToScreenReader("Không thể tải thống kê thông báo", "assertive");
     } finally {
       setLoading(false);
     }
-  }, [filter, searchTerm]);
+  }, []);
 
   const handleExport = async (format: "csv" | "json") => {
     try {
@@ -191,6 +170,11 @@ const AdminNotificationPageEnhanced: React.FC = () => {
               value: stats.pending,
               icon: "⏰",
             },
+            {
+              label: "Bản nháp",
+              value: stats.drafts,
+              icon: "📝",
+            },
           ].map((card) => (
             <div
               key={card.label}
@@ -263,6 +247,7 @@ const AdminNotificationPageEnhanced: React.FC = () => {
                 />
                 <input
                   type="text"
+                  disabled
                   placeholder="Tìm kiếm thông báo..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
@@ -275,6 +260,7 @@ const AdminNotificationPageEnhanced: React.FC = () => {
                 />
               </div>
               <select
+                disabled
                 value={filter}
                 onChange={(e) =>
                   setFilter(
@@ -293,6 +279,7 @@ const AdminNotificationPageEnhanced: React.FC = () => {
                 <option value="scheduled">Đã lên lịch</option>
               </select>
               <button
+                disabled
                 onClick={() => handleExport("csv")}
                 className={`px-4 py-2 rounded-lg border font-medium flex items-center gap-2 transition-colors ${
                   theme === "dark"
@@ -303,6 +290,7 @@ const AdminNotificationPageEnhanced: React.FC = () => {
                 <Download size={18} /> CSV
               </button>
               <button
+                disabled
                 onClick={() => handleExport("json")}
                 className={`px-4 py-2 rounded-lg border font-medium flex items-center gap-2 transition-colors ${
                   theme === "dark"
@@ -339,7 +327,9 @@ const AdminNotificationPageEnhanced: React.FC = () => {
                 </div>
               ) : filteredNotifications.length === 0 ? (
                 <div className="p-8 text-center">
-                  <p className="opacity-70">Không có thông báo</p>
+                  <p className="opacity-70">
+                    Backend chưa cung cấp API danh sách thông báo đã phát hành.
+                  </p>
                 </div>
               ) : (
                 <NotificationDragDrop
