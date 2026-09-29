@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import {
   Table,
   TableBody,
@@ -96,6 +96,8 @@ export interface DataTableProps<T> {
   onSearchChange?: (value: string) => void;
   showExportButton?: boolean;
   showImportButton?: boolean;
+  onExport?: () => void;
+  onImport?: (file: File) => void | Promise<void>;
   loading?: boolean;
   emptyMessage?: string;
   totalCount?: number;
@@ -162,6 +164,8 @@ export function DataTable<T extends object>({
   onSearchChange,
   showExportButton = true,
   showImportButton = true,
+  onExport,
+  onImport,
   loading = false,
   emptyMessage = "Không có dữ liệu",
   totalCount,
@@ -175,6 +179,7 @@ export function DataTable<T extends object>({
   belowToolbar,
 }: DataTableProps<T>) {
   const theme = useTheme();
+  const importInputRef = useRef<HTMLInputElement>(null);
   const [order, setOrder] = useState<Order>("asc");
   const [orderBy, setOrderBy] = useState<string | null>(null);
   const [filterOpen, setFilterOpen] = useState(false);
@@ -456,23 +461,39 @@ export function DataTable<T extends object>({
               />
             )}
 
-            {showExportButton && (
+            {showExportButton && onExport && (
               <Button
                 size="small"
                 startIcon={<Download size={16} />}
                 sx={getButtonSx("outlined")}
+                onClick={onExport}
               >
                 Export
               </Button>
             )}
-            {showImportButton && (
-              <Button
-                size="small"
-                startIcon={<Upload size={16} />}
-                sx={getButtonSx("outlined")}
-              >
-                Import
-              </Button>
+            {showImportButton && onImport && (
+              <>
+                <Button
+                  size="small"
+                  startIcon={<Upload size={16} />}
+                  sx={getButtonSx("outlined")}
+                  onClick={() => importInputRef.current?.click()}
+                >
+                  Import
+                </Button>
+                <Box
+                  component="input"
+                  ref={importInputRef}
+                  type="file"
+                  accept=".xlsx,.xls,.csv"
+                  hidden
+                  onChange={async (event) => {
+                    const file = event.target.files?.[0];
+                    event.target.value = "";
+                    if (file) await onImport(file);
+                  }}
+                />
+              </>
             )}
             {extraToolbarActions}
             {headerActions.map((action) => (

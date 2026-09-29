@@ -63,6 +63,11 @@ import {
   type FilterOption,
 } from "@/shared/components";
 import { TrendingUp } from "lucide-react";
+import {
+  exportProgressReportsToExcel,
+  exportStudentProgressToExcel,
+  parseStudentProgressImport,
+} from "@/feature/progress-tracking/utils";
 
 // Mock admin data - replace with actual auth
 const MOCK_ADMIN = {
@@ -265,6 +270,11 @@ function AllReportsReview({ facultyId }: { facultyId?: string }) {
         onFilterChange={(v) => setStatusFilter(v as ReportStatus | "ALL")}
         showFilterButton={true}
         loading={loading}
+        onExport={() => {
+          exportProgressReportsToExcel(filteredReports);
+          toast.success("Đã xuất danh sách báo cáo");
+        }}
+        showImportButton={false}
         emptyMessage="Không có báo cáo nào"
         headerActions={[
           {
@@ -429,6 +439,29 @@ function AllStudentsProgress({ facultyId }: { facultyId?: string }) {
     loadProgress();
   }, [loadProgress]);
 
+  const handleImport = async (file: File) => {
+    const rows = await parseStudentProgressImport(file);
+    const updatedRows = await Promise.all(
+      rows.map((row) =>
+        progressTrackingService.updateStudentProgress(row.studentId, {
+          status: row.status,
+          banReason: row.banReason,
+          totalReportsRequired: row.totalReportsRequired,
+          nextDeadline: row.nextDeadline,
+        }),
+      ),
+    );
+
+    setProgressList((current) => {
+      const byStudentId = new Map(
+        updatedRows.map((row) => [row.studentId, row]),
+      );
+      return current.map((row) => byStudentId.get(row.studentId) ?? row);
+    });
+    toast.success(`Đã import ${updatedRows.length} dòng tiến độ`);
+    await loadProgress();
+  };
+
   const filteredList = progressList.filter((p) => {
     if (statusFilter === "ALL") return true;
     return p.status === statusFilter;
@@ -562,6 +595,19 @@ function AllStudentsProgress({ facultyId }: { facultyId?: string }) {
         onFilterChange={(v) => setStatusFilter(v as ProgressStatus | "ALL")}
         showFilterButton={true}
         loading={loading}
+        onExport={() => {
+          exportStudentProgressToExcel(filteredList);
+          toast.success("Đã xuất danh sách tiến độ");
+        }}
+        onImport={async (file) => {
+          try {
+            await handleImport(file);
+          } catch (error) {
+            toast.error(
+              error instanceof Error ? error.message : "Import thất bại",
+            );
+          }
+        }}
         emptyMessage="Không có sinh viên nào"
         headerActions={[
           {
