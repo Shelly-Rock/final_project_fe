@@ -10,6 +10,8 @@ export interface Student {
   hoTen: string;
   gmail: string;
   khoa: string;
+  facultyId?: string | null;
+  facultyName?: string | null;
   khoaHoc: string;
   lop: string;
   soDienThoai?: string;

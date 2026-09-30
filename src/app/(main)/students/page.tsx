@@ -121,10 +121,8 @@ export default function StudentManagementPage() {
     () => faculties.filter((faculty) => !facultyId || faculty.id === facultyId),
     [faculties, facultyId],
   );
-  const scopedFacultyName = facultyId ? availableFaculties[0]?.name : undefined;
-
   const filteredStudents = students.filter((student) => {
-    if (facultyId && student.khoa !== scopedFacultyName) return false;
+    if (facultyId && student.facultyId !== facultyId) return false;
     if (filters.search) {
       const searchLower = filters.search.toLowerCase();
       const matchSearch =

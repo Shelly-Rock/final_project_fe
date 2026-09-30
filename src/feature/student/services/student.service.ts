@@ -25,6 +25,8 @@ function mapApiToStudent(apiStudent: {
   gender?: string;
   className?: string;
   major?: string;
+  facultyId?: string | null;
+  facultyName?: string | null;
   courseYear?: number;
   academicYear?: string;
   extraData?: unknown;
@@ -38,6 +40,8 @@ function mapApiToStudent(apiStudent: {
       `${apiStudent.lastName} ${apiStudent.middleName || ""} ${apiStudent.firstName}`.trim(),
     gmail: apiStudent.email,
     khoa: apiStudent.major || "",
+    facultyId: apiStudent.facultyId,
+    facultyName: apiStudent.facultyName,
     khoaHoc: apiStudent.academicYear || String(apiStudent.courseYear || ""),
     lop: apiStudent.className || "",
     soDienThoai:
