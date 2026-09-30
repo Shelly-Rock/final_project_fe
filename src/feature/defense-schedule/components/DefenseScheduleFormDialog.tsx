@@ -465,6 +465,29 @@ export function DefenseScheduleFormDialog({
           <MultiSelect
             placeholder="Chọn các đề tài để bảo vệ..."
             value={topicIds.map(String)}
+            menuProps={{
+              anchorOrigin: {
+                vertical: "bottom",
+                horizontal: "left",
+              },
+              transformOrigin: {
+                vertical: "top",
+                horizontal: "left",
+              },
+              PaperProps: {
+                sx: {
+                  maxHeight: 280,
+                  width: "min(650px, calc(100vw - 48px))",
+                  minWidth: 0,
+                  maxWidth: "calc(100vw - 48px)",
+                  "& .MuiMenuItem-root": {
+                    whiteSpace: "normal",
+                    overflowWrap: "anywhere",
+                    minWidth: 0,
+                  },
+                },
+              },
+            }}
             onChange={(v) => handleTopicChange(v as string[])}
             options={visibleGroups.map((g) => ({
               value: String(g.id),

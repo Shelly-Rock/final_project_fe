@@ -1,7 +1,13 @@
 "use client";
 
 import { forwardRef } from "react";
-import { TextField, TextFieldProps, MenuItem, Checkbox } from "@mui/material";
+import {
+  TextField,
+  TextFieldProps,
+  MenuItem,
+  Checkbox,
+  type MenuProps,
+} from "@mui/material";
 import type { SelectOption } from "@/shared/types";
 
 export interface SelectProps extends Omit<
@@ -75,6 +81,7 @@ export interface MultiSelectProps {
   error?: boolean;
   helperText?: string;
   size?: "small" | "medium";
+  menuProps?: Partial<MenuProps>;
 }
 
 export function MultiSelect({
@@ -87,6 +94,7 @@ export function MultiSelect({
   error,
   helperText,
   size = "medium",
+  menuProps,
 }: MultiSelectProps) {
   const handleChange = (selectedValue: string | number, checked: boolean) => {
     if (checked) {
@@ -108,6 +116,7 @@ export function MultiSelect({
       SelectProps={{
         multiple: true,
         value: value || [],
+        MenuProps: menuProps,
         renderValue: (selected) => {
           if ((selected as string[]).length === 0) {
             return placeholder || "Chọn...";

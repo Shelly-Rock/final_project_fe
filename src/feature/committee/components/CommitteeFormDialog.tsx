@@ -347,10 +347,10 @@ export function CommitteeFormDialog({
         <Grid container spacing={2} sx={{ mb: 3 }}>
           <Grid item xs={6}>
             <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>
-              Phản biện trong 1
+              Giảng viên phản biện trong 1
             </Typography>
             <Select
-              placeholder="Chọn phản biện trong 1"
+              placeholder="Chọn giảng viên phản biện trong 1"
               value={
                 formData.internal1Id ? String(formData.internal1Id) : undefined
               }
@@ -367,10 +367,10 @@ export function CommitteeFormDialog({
 
           <Grid item xs={6}>
             <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>
-              Phản biện trong 2
+              Giảng viên phản biện trong 2
             </Typography>
             <Select
-              placeholder="Chọn phản biện trong 2"
+              placeholder="Chọn giảng viên phản biện trong 2"
               value={
                 formData.internal2Id ? String(formData.internal2Id) : undefined
               }
@@ -389,7 +389,7 @@ export function CommitteeFormDialog({
         {/* Phản biện ngoài */}
         <Box sx={{ mb: 3 }}>
           <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 0.5 }}>
-            Phản biện ngoài
+            Giảng viên phản biện ngoài
           </Typography>
           <Typography
             variant="caption"
@@ -415,19 +415,19 @@ export function CommitteeFormDialog({
         {/* Quy tắc nghiệp vụ */}
         <Alert severity="info">
           <Typography variant="body2" component="div">
-            <strong>Quy tắc thành viên Hội đồng:</strong>
+            <strong>Quy định thành viên Hội đồng:</strong>
             <ul style={{ margin: "4px 0 0 16px", paddingLeft: 0 }}>
               <li>
-                Chủ tịch, Thư ký HĐ và Phản biện trong chỉ được thuộc{" "}
-                <strong>một</strong> Hội đồng.
+                Chủ tịch, Thư ký HĐ và Phản biện trong chỉ được thuộc một Hội
+                đồng.
               </li>
               <li>
-                Phản biện ngoài có thể tham gia <strong>nhiều Hội đồng</strong>{" "}
-                khác nhau.
+                Giảng viên phản biện ngoài có thể tham gia nhiều Hội đồng. khác
+                nhau.
               </li>
               <li>
-                GVHD của đề tài trong Hội đồng <strong>không được</strong> ngồi
-                ghế giám khảo (tránh xung đột lợi ích).
+                GVHD của đề tài không được tham gia vào hội đồng chấm đề tài của
+                mình.
               </li>
             </ul>
           </Typography>
