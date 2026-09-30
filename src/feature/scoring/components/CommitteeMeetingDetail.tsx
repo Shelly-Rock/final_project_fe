@@ -153,10 +153,10 @@ export function CommitteeMeetingDetailPage({
     <Box>
       <Button
         variant="text"
-        onClick={() => router.push("/scoring/meeting")}
+        onClick={() => router.push("/scoring/admin")}
         sx={{ mb: 2 }}
       >
-        ← Danh sách họp hội đồng
+        {"Quay lại quản lý chấm điểm"}
       </Button>
 
       <Grid container spacing={2} sx={{ mb: 3 }}>

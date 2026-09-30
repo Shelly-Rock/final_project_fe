@@ -27,7 +27,8 @@ import {
   exportMyScoreWord,
   ScoringStats,
   Score,
-  ScoringTypeLabels,
+  type CommitteeRole,
+  getScoreSheetLabel,
 } from "../services";
 import { toast } from "sonner";
 import ScoringGroupDialog, {
@@ -314,9 +315,10 @@ export default function TeacherScoringPage() {
                 id: "scoringType",
                 label: "Loại chấm",
                 format: (_, row) =>
-                  `${ScoringTypeLabels[row.scoringType as keyof typeof ScoringTypeLabels]}${
-                    row.role ? ` - ${row.role}` : ""
-                  }`,
+                  getScoreSheetLabel(
+                    row.scoringType as "GVHD" | "COMMITTEE",
+                    row.role as CommitteeRole | null,
+                  ),
               },
               {
                 id: "students",

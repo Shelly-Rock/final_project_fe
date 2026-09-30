@@ -28,6 +28,7 @@ import {
 } from "recharts";
 import {
   ClipboardList,
+  FileText,
   Users,
   UserCheck,
   ChevronRight,
@@ -56,6 +57,7 @@ import {
   ScoringResultDetailsDialog,
   ScoreDetailDialog,
 } from "./ScoringResultDetailsDialog";
+import { ScoreIssuancePanel } from "./ScoreIssuancePanel";
 
 const C = {
   blue: "#2a78d6",
@@ -146,9 +148,9 @@ export function ScoringManagementPage() {
   const [scoreTotal, setScoreTotal] = useState(0);
 
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<"scores" | "results" | "teachers">(
-    "scores",
-  );
+  const [activeTab, setActiveTab] = useState<
+    "issuance" | "scores" | "results" | "teachers"
+  >("issuance");
   const [showAnalysis, setShowAnalysis] = useState(false);
   const [selectedResult, setSelectedResult] = useState<ScoringResult | null>(
     null,
@@ -953,13 +955,35 @@ export function ScoringManagementPage() {
         }}
       >
         <Tabs
-          value={activeTab === "scores" ? 0 : activeTab === "results" ? 1 : 2}
+          value={
+            activeTab === "issuance"
+              ? 0
+              : activeTab === "scores"
+                ? 1
+                : activeTab === "results"
+                  ? 2
+                  : 3
+          }
           onChange={(_, v) => {
-            setActiveTab(v === 0 ? "scores" : v === 1 ? "results" : "teachers");
+            setActiveTab(
+              v === 0
+                ? "issuance"
+                : v === 1
+                  ? "scores"
+                  : v === 2
+                    ? "results"
+                    : "teachers",
+            );
             setPage(1);
           }}
           sx={{ px: 1, minHeight: 48 }}
         >
+          <Tab
+            icon={<FileText size={16} />}
+            iconPosition="start"
+            label="Cấp phiếu chấm"
+            sx={{ textTransform: "none", fontWeight: 600, minHeight: 48 }}
+          />
           <Tab
             icon={<ClipboardList size={16} />}
             iconPosition="start"
@@ -980,6 +1004,8 @@ export function ScoringManagementPage() {
           />
         </Tabs>
       </Paper>
+
+      {activeTab === "issuance" && <ScoreIssuancePanel facultyId={facultyId} />}
 
       {activeTab === "scores" && (
         <ScoringTable

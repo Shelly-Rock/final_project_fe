@@ -18,7 +18,6 @@ import { Box, Typography, Grid, Alert, Tooltip } from "@mui/material";
 import { Dialog } from "@/shared/components";
 import { Input } from "@/shared/components";
 import { Select } from "@/shared/components";
-import { MultiSelect } from "@/shared/components";
 import { Button } from "@/shared/components";
 import { ShieldAlert } from "lucide-react";
 import type { Committee, TeacherBasic } from "../services";
@@ -113,9 +112,9 @@ export function CommitteeFormDialog({
           secretaryId: committee.secretaryId,
           internal1Id: committee.internal1Id,
           internal2Id: committee.internal2Id,
-          externalReviewerIds: committee.externalReviewers.map(
-            (er: { id: number }) => er.id,
-          ),
+          externalReviewerIds: committee.externalReviewers
+            .slice(0, 1)
+            .map((er: { id: number }) => er.id),
         });
       } else {
         setFormData({
@@ -190,12 +189,16 @@ export function CommitteeFormDialog({
   const externalOptions = useMemo(
     () =>
       allTeachers
-        .filter((t) => !excludedTeacherIds.includes(t.id))
+        .filter(
+          (t) =>
+            !excludedTeacherIds.includes(t.id) &&
+            !selectedFixedIds.includes(t.id),
+        )
         .map((t) => ({
           value: String(t.id),
           label: `${t.name} (${t.teacherId})${t.department ? ` — ${t.department}` : ""}`,
         })),
-    [allTeachers, excludedTeacherIds],
+    [allTeachers, excludedTeacherIds, selectedFixedIds],
   );
 
   // ---- Validation trước khi submit ----
@@ -208,7 +211,7 @@ export function CommitteeFormDialog({
       chairmanId: formData.chairmanId ?? undefined,
       secretaryId: formData.secretaryId ?? undefined,
       internal1Id: formData.internal1Id ?? undefined,
-      internal2Id: formData.internal2Id ?? undefined,
+      internal2Id: undefined,
       externalReviewerIds: formData.externalReviewerIds,
     });
   };
@@ -217,6 +220,10 @@ export function CommitteeFormDialog({
     loading ||
     !formData.name.trim() ||
     (!isEdit && !periodId) ||
+    !formData.chairmanId ||
+    !formData.secretaryId ||
+    !formData.internal1Id ||
+    formData.externalReviewerIds.length !== 1 ||
     Boolean(chairmanConflict);
 
   return (
@@ -343,14 +350,14 @@ export function CommitteeFormDialog({
           </Grid>
         </Grid>
 
-        {/* Hàng 2: Phản biện trong 1 + 2 */}
+        {/* Hàng 2: Phản biện trong */}
         <Grid container spacing={2} sx={{ mb: 3 }}>
-          <Grid item xs={6}>
+          <Grid item xs={12}>
             <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>
-              Giảng viên phản biện trong 1
+              Giảng viên phản biện trong
             </Typography>
             <Select
-              placeholder="Chọn giảng viên phản biện trong 1"
+              placeholder="Chọn giảng viên phản biện trong"
               value={
                 formData.internal1Id ? String(formData.internal1Id) : undefined
               }
@@ -361,26 +368,6 @@ export function CommitteeFormDialog({
                 })
               }
               options={getFixedOptions(formData.internal1Id)}
-              fullWidth
-            />
-          </Grid>
-
-          <Grid item xs={6}>
-            <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>
-              Giảng viên phản biện trong 2
-            </Typography>
-            <Select
-              placeholder="Chọn giảng viên phản biện trong 2"
-              value={
-                formData.internal2Id ? String(formData.internal2Id) : undefined
-              }
-              onChange={(v) =>
-                setFormData({
-                  ...formData,
-                  internal2Id: v ? Number(v) : null,
-                })
-              }
-              options={getFixedOptions(formData.internal2Id)}
               fullWidth
             />
           </Grid>
@@ -396,19 +383,24 @@ export function CommitteeFormDialog({
             color="text.secondary"
             sx={{ mb: 1, display: "block" }}
           >
-            Có thể chọn nhiều người. Phản biện ngoài được phép tham gia nhiều
-            Hội đồng.
+            Mỗi hội đồng có đúng một phản biện ngoài. Giảng viên này có thể tham
+            gia nhiều hội đồng khác nhau.
           </Typography>
-          <MultiSelect
-            placeholder="Chọn phản biện ngoài..."
-            value={formData.externalReviewerIds.map(String)}
-            onChange={(v) =>
+          <Select
+            placeholder="Chọn phản biện ngoài"
+            value={
+              formData.externalReviewerIds[0]
+                ? String(formData.externalReviewerIds[0])
+                : undefined
+            }
+            onChange={(value) =>
               setFormData({
                 ...formData,
-                externalReviewerIds: v.map(Number),
+                externalReviewerIds: value ? [Number(value)] : [],
               })
             }
             options={externalOptions}
+            fullWidth
           />
         </Box>
 

@@ -132,6 +132,32 @@ export interface ScoringStats {
   passed: number;
 }
 
+export interface ScoreSheetRecipient {
+  teacherId: number;
+  scoringType: ScoringType;
+  role: CommitteeRole | null;
+  label: string;
+  teacherName: string;
+  issued: boolean;
+  status: ScoringStatus | null;
+  deadline: string | null;
+}
+
+export interface ScoreIssuanceCandidate {
+  projectId: number;
+  projectCode: string;
+  projectName: string;
+  student: { studentId: string; name: string };
+  supervisor: { id: number; code: string; name: string };
+  finalSubmissionStatus: string | null;
+  committeeName: string | null;
+  eligible: boolean;
+  reason: string | null;
+  sheets: ScoreSheetRecipient[];
+  issuedCount: number;
+  requiredCount: number;
+}
+
 export interface PaginatedResponse<T> {
   data: T[];
   meta: {
@@ -253,6 +279,36 @@ export const getAllScores = async (
   if (params?.facultyId) queryParams.set("facultyId", params.facultyId);
 
   return apiClient.get(`${API_BASE}?${queryParams.toString()}`);
+};
+
+export const getScoreSheetLabel = (
+  scoringType: ScoringType,
+  role: CommitteeRole | null,
+) => {
+  if (scoringType === "GVHD") return "Phiếu GVHD";
+  if (role === "EXTERNAL_REVIEWER") return "Phiếu GVPB ngoài";
+  if (role === "CHAIRMAN") return "Phiếu Chủ tịch hội đồng";
+  if (role === "SECRETARY") return "Phiếu Thư ký hội đồng";
+  return "Phiếu Phản biện trong";
+};
+
+export const getScoreIssuanceCandidates = async (
+  params?: Partial<{ page: number; limit: number; facultyId: string }>,
+): Promise<PaginatedResponse<ScoreIssuanceCandidate>> => {
+  const queryParams = new URLSearchParams();
+  if (params?.page) queryParams.set("page", String(params.page));
+  if (params?.limit) queryParams.set("limit", String(params.limit));
+  if (params?.facultyId) queryParams.set("facultyId", params.facultyId);
+  return apiClient.get(
+    `${API_BASE}/issuance-candidates?${queryParams.toString()}`,
+  );
+};
+
+export const issueScoreSheets = async (data: {
+  projectIds: number[];
+  deadline: string;
+}): Promise<{ projectIds: number[]; issuedCount: number }> => {
+  return apiClient.post(`${API_BASE}/issuance`, data);
 };
 
 // Get all scoring results

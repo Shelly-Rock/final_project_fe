@@ -80,11 +80,6 @@ export const BREADCRUMB_NODES = {
     href: "/scoring/teacher",
     icon: <ClipboardCheckIcon size={16} />,
   },
-  COMMITTEE_MEETING: {
-    label: "Họp & chốt điểm hội đồng",
-    href: "/scoring/meeting",
-    icon: <ClipboardCheckIcon size={16} />,
-  },
   SCORE_PUBLICATION: {
     label: "Tính điểm & công bố",
     href: "/scoring/transcript",

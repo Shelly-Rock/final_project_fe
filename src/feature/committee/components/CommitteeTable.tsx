@@ -65,8 +65,7 @@ export function CommitteeTable({
         <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.75 }}>
           {renderMemberTag(row.chairmanId, row.chairmanName, "Chủ tịch")}
           {renderMemberTag(row.secretaryId, row.secretaryName, "Thư ký")}
-          {renderMemberTag(row.internal1Id, row.internal1Name, "PB trong 1")}
-          {renderMemberTag(row.internal2Id, row.internal2Name, "PB trong 2")}
+          {renderMemberTag(row.internal1Id, row.internal1Name, "PB trong")}
           {row.externalReviewers.map((er: { id: number; name: string }) => (
             <Chip
               key={er.id}
@@ -86,14 +85,13 @@ export function CommitteeTable({
         if (row.chairmanId) count++;
         if (row.secretaryId) count++;
         if (row.internal1Id) count++;
-        if (row.internal2Id) count++;
         count += row.externalReviewers.length;
 
         return (
           <Chip
-            label={`${count}/4+ thành viên`}
+            label={`${count}/4 thành viên`}
             size="small"
-            color={count >= 4 ? "success" : "warning"}
+            color={count === 4 ? "success" : "warning"}
           />
         );
       },

@@ -14,7 +14,6 @@ const SCOPED_MENU_KEYS = new Set([
   "committees",
   "defense-schedule",
   "scoring-management",
-  "committee-meeting",
   "score-publication",
   "post-defense",
   "statistics",

@@ -1,11 +1,11 @@
 export * from "./TeacherScoring";
 export { ScoringManagementPage } from "./ScoringManagement";
+export { ScoreIssuancePanel } from "./ScoreIssuancePanel";
 export { ScoringStats, ScoringStatCard } from "./ScoringStats";
 export { ScoringTable } from "./ScoringTable";
 export { ScoringResultsTable } from "./ScoringResultsTable";
 export { ScoringFilterCard } from "./ScoringFilterCard";
 export { ScoringResultDetailsDialog } from "./ScoringResultDetailsDialog";
-export { CommitteeMeetingPage } from "./CommitteeMeeting";
 export { CommitteeMeetingDetailPage } from "./CommitteeMeetingDetail";
 export { ScorePublicationPage } from "./ScorePublication";
 export { ScorePublicationDetailPage } from "./ScorePublicationDetail";

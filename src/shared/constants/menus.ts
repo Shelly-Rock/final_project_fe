@@ -154,13 +154,6 @@ export const MENU_SECTIONS: MenuSection[] = [
         roles: ["admin", "secretary"],
       },
       {
-        key: "committee-meeting",
-        label: "Họp & chốt điểm hội đồng",
-        icon: Icon.chatDots,
-        path: "/scoring/meeting",
-        roles: ["admin", "secretary"],
-      },
-      {
         key: "score-publication",
         label: "Tính điểm & công bố",
         icon: Icon.scorecard,
