@@ -33,6 +33,7 @@ import {
   FacultyProgressStats,
 } from "@/feature/dashboard/services/department.service";
 import { FacultyDetailSecretary } from "@/feature/dashboard/components/DepartmentDetailSecretary";
+import { FacultyUpcomingEvents } from "@/feature/dashboard/components/FacultyUpcomingEvents";
 
 const SYSTEM_BLUE = "#2563eb";
 
@@ -469,6 +470,7 @@ export default function DepartmentDetailPage() {
             </Box>
           </MuiCard>
         )}
+        <FacultyUpcomingEvents facultyId={facultyId} />
       </Box>
     </RoleGate>
   );
