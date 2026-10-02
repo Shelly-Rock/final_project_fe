@@ -6,7 +6,6 @@ export { ScoringTable } from "./ScoringTable";
 export { ScoringResultsTable } from "./ScoringResultsTable";
 export { ScoringFilterCard } from "./ScoringFilterCard";
 export { ScoringResultDetailsDialog } from "./ScoringResultDetailsDialog";
-export { CommitteeMeetingDetailPage } from "./CommitteeMeetingDetail";
 export { ScorePublicationPage } from "./ScorePublication";
 export { ScorePublicationDetailPage } from "./ScorePublicationDetail";
 export { StudentScoreSheetPage } from "./StudentScoreSheet";

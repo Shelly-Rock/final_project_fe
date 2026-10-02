@@ -102,7 +102,8 @@ export function StudentRevisionPage() {
   if (error || !detail) {
     return (
       <Alert severity="info">
-        {error || "Bảng điểm chưa được công bố nên chưa mở chỉnh sửa hồ sơ."}
+        {error ||
+          "Bảng điểm chưa được công bố nên chưa mở chỉnh sửa sau bảo vệ."}
       </Alert>
     );
   }
@@ -256,7 +257,7 @@ export function StudentRevisionPage() {
               </Box>
             </>
           ) : (
-            <Alert severity="warning">Đã hết hạn chỉnh sửa hồ sơ.</Alert>
+            <Alert severity="warning">Đã hết hạn chỉnh sửa sau bảo vệ.</Alert>
           )}
         </CardContentDiv>
       </Card>

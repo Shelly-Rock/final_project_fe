@@ -102,6 +102,12 @@ export interface AvailableGroupForDefense {
   studentNames: string;
   studentMssvs: string;
   students: { name: string; mssv: string }[];
+  conflictingTeacherNames?: string[];
+}
+
+export interface AvailableProjectsResponse {
+  available: AvailableGroupForDefense[];
+  excluded: AvailableGroupForDefense[];
 }
 
 interface AvailableGroupRaw {
@@ -115,6 +121,11 @@ interface AvailableGroupRaw {
   studentNames: string;
   studentMssvs: string;
   students: { name: string; mssv: string }[];
+}
+
+interface AvailableProjectsRaw {
+  available?: AvailableGroupRaw[];
+  excluded?: AvailableGroupRaw[];
 }
 
 interface DefenseSessionsEnvelope {
@@ -273,7 +284,7 @@ class DefenseService {
     facultyId?: string,
     periodId?: number,
     committeeId?: number,
-  ): Promise<AvailableGroupForDefense[]> {
+  ): Promise<AvailableProjectsResponse> {
     try {
       const searchParams = new URLSearchParams();
       if (facultyId) searchParams.set("faculty_id", facultyId);
@@ -281,12 +292,15 @@ class DefenseService {
       if (committeeId) searchParams.set("committee_id", String(committeeId));
       const query = searchParams.toString();
       const response = await apiClient.get<
-        AvailableGroupRaw[] | AvailableGroupRaw
+        AvailableProjectsRaw | AvailableGroupRaw[]
       >(`/defense-sessions/projects/available${query ? `?${query}` : ""}`);
-      if (Array.isArray(response)) return response;
-      return response ? [response] : [];
+      if (Array.isArray(response)) return { available: response, excluded: [] };
+      return {
+        available: response?.available ?? [],
+        excluded: response?.excluded ?? [],
+      };
     } catch {
-      return [];
+      return { available: [], excluded: [] };
     }
   }
 

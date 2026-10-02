@@ -313,7 +313,7 @@ export function PostDefenseRankingPage() {
     },
     {
       id: "revision",
-      label: "Chỉnh sửa hồ sơ",
+      label: "Chỉnh sửa sau bảo vệ",
       minWidth: 200,
       format: (_, row) => (
         <Box>
@@ -644,7 +644,7 @@ export function PostDefenseRankingPage() {
             onChange={(e) => setRankNote(e.target.value)}
           />
           <TextField
-            label="Hạn chỉnh sửa hồ sơ"
+            label="Hạn chỉnh sửa báo cáo"
             type="datetime-local"
             value={deadline}
             onChange={(e) => setDeadline(e.target.value)}

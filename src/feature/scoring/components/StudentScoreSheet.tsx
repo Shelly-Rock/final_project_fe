@@ -17,6 +17,12 @@ import {
   type TranscriptDetail,
 } from "../services";
 
+const INTERNAL_COMMITTEE_ROLES: CommitteeRole[] = [
+  "CHAIRMAN",
+  "SECRETARY",
+  "INTERNAL_REVIEWER",
+];
+
 function studentName(detail: TranscriptDetail) {
   if (!detail.student) return "-";
   return [
@@ -106,6 +112,16 @@ export function StudentScoreSheetPage() {
                 label={detail.isFinalPassed ? "Đạt" : "Không đạt"}
                 sx={{ mt: 1 }}
               />
+              {detail.isPublished && detail.publishedAt && (
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  sx={{ display: "block", mt: 1 }}
+                >
+                  Công bố:{" "}
+                  {new Date(detail.publishedAt).toLocaleString("vi-VN")}
+                </Typography>
+              )}
             </CardContentDiv>
           </Card>
         </Grid>
@@ -154,10 +170,67 @@ export function StudentScoreSheetPage() {
         </Grid>
       </Grid>
 
+      <Card sx={{ mb: 3 }}>
+        <CardHeader
+          title="Điểm từng thành viên hội đồng"
+          subtitle="Ba phiếu Chủ tịch, Thư ký hội đồng và Phản biện trong được tính trung bình với trọng số 40%."
+        />
+        <CardContentDiv padding={2}>
+          <Box>
+            {INTERNAL_COMMITTEE_ROLES.map((role, index, roles) => {
+              const score = detail.otherScores.find((row) => row.role === role);
+              return (
+                <Box
+                  key={role}
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    gap: 2,
+                    py: 1.5,
+                    borderBottom:
+                      index < roles.length - 1 ? "1px solid" : undefined,
+                    borderColor: "divider",
+                  }}
+                >
+                  <Box sx={{ minWidth: 0 }}>
+                    <Typography variant="body2" fontWeight={600}>
+                      {CommitteeRoleLabels[role]}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      {score?.teacherName ?? "Chưa có thông tin giảng viên"}
+                    </Typography>
+                  </Box>
+                  <Typography variant="body1" fontWeight={700}>
+                    {score?.score == null ? "—" : score.score.toFixed(2)}
+                  </Typography>
+                </Box>
+              );
+            })}
+          </Box>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "baseline",
+              gap: 2,
+              pt: 1.5,
+            }}
+          >
+            <Typography variant="body2" color="text.secondary">
+              Trung bình ba thành viên nội bộ
+            </Typography>
+            <Typography variant="body1" fontWeight={700}>
+              {detail.othersAverage.toFixed(2)}
+            </Typography>
+          </Box>
+        </CardContentDiv>
+      </Card>
+
       <Card>
         <CardHeader
-          title="Nhận xét hội đồng"
-          subtitle="Ba cột: ưu điểm, nhược điểm, nhận xét"
+          title="Nhận xét phản biện và hội đồng"
+          subtitle="Ý kiến từ phản biện ngoài và từng thành viên nội bộ"
         />
         <CardContentDiv padding={2}>
           <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
@@ -206,6 +279,16 @@ export function StudentScoreSheetPage() {
           </Box>
         </CardContentDiv>
       </Card>
+
+      {detail.bonusNote && (
+        <Typography
+          variant="caption"
+          color="text.secondary"
+          sx={{ mt: 1, display: "block" }}
+        >
+          Lý do cộng điểm: {detail.bonusNote}
+        </Typography>
+      )}
     </Box>
   );
 }

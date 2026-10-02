@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
+  Alert,
   Box,
   Chip,
   CircularProgress,
@@ -19,13 +20,40 @@ import {
   DataTable,
 } from "@/shared/components";
 import type { Action, Column } from "@/shared/components";
-import { getTranscripts, type TranscriptDetail } from "../services";
+import {
+  getTranscripts,
+  type TranscriptListItem,
+  type TranscriptReadinessStatus,
+} from "../services";
 
-function studentName(row: TranscriptDetail) {
+const readinessLabels: Record<TranscriptReadinessStatus, string> = {
+  IN_PROGRESS: "Đang chờ phiếu chấm",
+  BLOCKED_GVHD: "Không đạt GVHD",
+  AWAITING_FINALIZATION: "Chờ chốt hội đồng",
+  READY: "Sẵn sàng tổng hợp",
+  PUBLISHED: "Đã công bố",
+};
+
+const readinessColors: Record<
+  TranscriptReadinessStatus,
+  "default" | "error" | "warning" | "info" | "success"
+> = {
+  IN_PROGRESS: "warning",
+  BLOCKED_GVHD: "error",
+  AWAITING_FINALIZATION: "warning",
+  READY: "info",
+  PUBLISHED: "success",
+};
+
+function studentName(row: TranscriptListItem) {
   if (!row.student) return "-";
   return [row.student.lastName, row.student.middleName, row.student.firstName]
     .filter(Boolean)
     .join(" ");
+}
+
+function formatScore(score: number | null) {
+  return score === null ? "—" : score.toFixed(2);
 }
 
 export function ScorePublicationPage() {
@@ -33,7 +61,7 @@ export function ScorePublicationPage() {
   const searchParams = useSearchParams();
   const facultyId = searchParams.get("facultyId") || undefined;
   const [loading, setLoading] = useState(true);
-  const [rows, setRows] = useState<TranscriptDetail[]>([]);
+  const [rows, setRows] = useState<TranscriptListItem[]>([]);
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
   const [tab, setTab] = useState<"draft" | "published">("draft");
@@ -45,12 +73,13 @@ export function ScorePublicationPage() {
         page,
         limit: 20,
         published: tab === "published",
+        includeInProgress: true,
         facultyId,
       });
       setRows(data.data);
       setTotal(data.meta.total);
     } catch {
-      toast.error("Không thể tải danh sách bảng điểm");
+      toast.error("Không thể tải danh sách tổng hợp điểm");
     } finally {
       setLoading(false);
     }
@@ -60,11 +89,11 @@ export function ScorePublicationPage() {
     fetchRows();
   }, [fetchRows]);
 
-  const columns: Column<TranscriptDetail>[] = [
+  const columns: Column<TranscriptListItem>[] = [
     {
       id: "projectCode",
       label: "Đề tài",
-      minWidth: 220,
+      minWidth: 190,
       format: (_, row) => (
         <Box>
           <Typography variant="body2" sx={{ fontWeight: 600 }}>
@@ -79,52 +108,83 @@ export function ScorePublicationPage() {
     {
       id: "student",
       label: "Sinh viên",
+      minWidth: 180,
       format: (_, row) => (
         <Box>
           <Typography variant="body2">{studentName(row)}</Typography>
           <Typography variant="caption" color="text.secondary">
-            {row.student?.studentId}
+            {row.student?.studentId ?? "Không có mã sinh viên"}
           </Typography>
+        </Box>
+      ),
+    },
+    {
+      id: "progress",
+      label: "Phiếu đã nộp",
+      align: "center",
+      minWidth: 120,
+      format: (_, row) => `${row.submittedCount}/${row.requiredCount}`,
+    },
+    {
+      id: "readinessStatus",
+      label: "Trạng thái",
+      minWidth: 175,
+      format: (_, row) => (
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 0.75 }}>
+          <Chip
+            label={readinessLabels[row.readinessStatus]}
+            color={readinessColors[row.readinessStatus]}
+            size="small"
+          />
+          {row.missingItems.length > 0 && (
+            <Typography variant="caption" color="text.secondary">
+              {row.missingItems.slice(0, 2).join("; ")}
+              {row.missingItems.length > 2
+                ? `; còn ${row.missingItems.length - 2} mục`
+                : ""}
+            </Typography>
+          )}
         </Box>
       ),
     },
     {
       id: "weightedScore",
       label: "Điểm trọng số",
-      format: (_, row) => row.weightedScore.toFixed(2),
+      align: "center",
+      format: (_, row) => formatScore(row.weightedScore),
     },
     {
       id: "bonusScore",
       label: "Điểm cộng",
-      format: (_, row) => row.bonusScore.toFixed(2),
+      align: "center",
+      format: (_, row) => formatScore(row.bonusScore),
     },
     {
       id: "finalScore",
       label: "Điểm tổng",
+      align: "center",
       format: (_, row) => (
         <Typography sx={{ fontWeight: 700 }}>
-          {row.finalScore.toFixed(2)}
+          {formatScore(row.finalScore)}
         </Typography>
       ),
     },
-    {
-      id: "isPublished",
-      label: "Công bố",
-      format: (_, row) =>
-        row.isPublished ? (
-          <Chip label="Đã công bố" color="success" size="small" />
-        ) : (
-          <Chip label="Chưa công bố" color="warning" size="small" />
-        ),
-    },
   ];
 
-  const actions: Action<TranscriptDetail>[] = [
+  const actions: Action<TranscriptListItem>[] = [
     {
       id: "open",
       icon: <FileText size={16} />,
-      label: (row) => (row.isPublished ? "Xem bảng điểm" : "Tính & công bố"),
+      label: (row) => {
+        if (row.readinessStatus === "AWAITING_FINALIZATION")
+          return "Review & Chốt điểm";
+        if (row.readinessStatus === "PUBLISHED") return "Xem bảng điểm";
+        return "Tính & Công bố";
+      },
       color: "primary",
+      hidden: (row) =>
+        row.readinessStatus === "IN_PROGRESS" ||
+        row.readinessStatus === "BLOCKED_GVHD",
       onClick: (row) =>
         router.push(
           `/scoring/transcript/${row.projectId}${facultyId ? `?facultyId=${encodeURIComponent(facultyId)}` : ""}`,
@@ -134,11 +194,11 @@ export function ScorePublicationPage() {
 
   return (
     <>
-      <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 3 }}>
+      <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 2 }}>
         <Tabs
           value={tab === "draft" ? 0 : 1}
-          onChange={(_, v) => {
-            setTab(v === 0 ? "draft" : "published");
+          onChange={(_, value) => {
+            setTab(value === 0 ? "draft" : "published");
             setPage(1);
           }}
         >
@@ -149,10 +209,14 @@ export function ScorePublicationPage() {
 
       <Card>
         <CardHeader
-          title="Bảng điểm tổng hợp"
-          subtitle="GVHD 40% + Phản biện ngoài 20% + 3 thành viên hội đồng 40%, cộng điểm thưởng rồi công bố"
+          title="Tổng hợp điểm theo sinh viên"
+          subtitle="Mỗi sinh viên có một bảng điểm riêng; điểm hội đồng lấy trung bình đúng ba thành viên nội bộ."
         />
         <CardContentDiv padding={2}>
+          <Alert severity="info" sx={{ mb: 2 }}>
+            Đủ điều kiện khi đã nộp phiếu giảng viên hướng dẫn, phản biện ngoài
+            và ba thành viên hội đồng; sau đó thư ký hội đồng phải chốt điểm.
+          </Alert>
           {loading ? (
             <Box sx={{ display: "flex", justifyContent: "center", py: 8 }}>
               <CircularProgress />
@@ -168,7 +232,7 @@ export function ScorePublicationPage() {
               showFilterButton={false}
               showExportButton={false}
               showImportButton={false}
-              emptyMessage="Không có bảng điểm sau khi chốt hội đồng"
+              emptyMessage="Chưa có sinh viên được cấp phiếu chấm"
               totalCount={total}
               page={page - 1}
               rowsPerPage={20}

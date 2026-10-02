@@ -10,13 +10,21 @@
 // ============================================================
 
 import { useState, useEffect, useRef, useMemo } from "react";
-import { Box, Typography, Grid, TextField, Paper, Chip } from "@mui/material";
+import {
+  Alert,
+  Box,
+  Typography,
+  Grid,
+  TextField,
+  Paper,
+  Chip,
+} from "@mui/material";
 import { Dialog } from "@/shared/components";
 import { Select, MultiSelect } from "@/shared/components";
 import { Input } from "@/shared/components";
 import { Button } from "@/shared/components";
 import { Clock } from "lucide-react";
-import type { DefenseSession } from "../services";
+import type { AvailableProjectsResponse, DefenseSession } from "../services";
 import type { Committee } from "../../committee/services";
 import dayjs from "dayjs";
 
@@ -62,7 +70,11 @@ export function DefenseScheduleFormDialog({
       supervisorIds?: number[];
       studentNames?: string;
       students?: { name: string; mssv: string }[];
+      conflictingTeacherNames?: string[];
     }[]
+  >([]);
+  const [excludedGroups, setExcludedGroups] = useState<
+    AvailableProjectsResponse["excluded"]
   >([]);
 
   const [topicIds, setTopicIds] = useState<number[]>([]);
@@ -115,24 +127,20 @@ export function DefenseScheduleFormDialog({
     [availableGroups, excludedSupervisorIds],
   );
 
-  const topicIdToProjectIds = useMemo(() => {
-    const m = new Map<number, number[]>();
-    for (const g of availableGroups)
-      if (g.topicId != null) m.set(g.topicId, g.projectIds);
-    return m;
-  }, [availableGroups]);
+  const conflictingCurrentGroups = useMemo(
+    () =>
+      isEdit
+        ? availableGroups.filter((group) =>
+            group.supervisorIds?.some((id) => excludedSupervisorIds.has(id)),
+          )
+        : [],
+    [availableGroups, excludedSupervisorIds, isEdit],
+  );
 
   const visibleGroupIds = useMemo(
     () => new Set(visibleGroups.map((group) => group.id)),
     [visibleGroups],
   );
-
-  const projectIdToTopicKey = useMemo(() => {
-    const m = new Map<number, number>();
-    for (const g of availableGroups)
-      for (const pid of g.projectIds) m.set(pid, g.id);
-    return m;
-  }, [availableGroups]);
 
   // ---- Fetch available topics/groups ----
   useEffect(() => {
@@ -141,19 +149,6 @@ export function DefenseScheduleFormDialog({
       session?.committeeId ?? formData.committeeId ?? undefined;
     let cancelled = false;
 
-    type RawAvailableGroup = {
-      key?: string;
-      topicId?: number | null;
-      id?: number;
-      projectCode?: string;
-      name?: string;
-      projectIds?: number[];
-      supervisorIds?: (number | null)[];
-      studentNames?: string;
-      studentName?: string;
-      students?: { name: string; mssv: string }[];
-    };
-
     import("../services").then(({ defenseService }) => {
       defenseService
         .getAvailableProjects(
@@ -161,8 +156,10 @@ export function DefenseScheduleFormDialog({
           periodId,
           activeCommitteeId ?? undefined,
         )
-        .then((groups: RawAvailableGroup[]) => {
+        .then((response: AvailableProjectsResponse) => {
           if (cancelled) return;
+          const groups = response.available || [];
+          setExcludedGroups(response.excluded || []);
           const normalized: typeof availableGroups = (groups || []).map(
             (g) => ({
               key:
@@ -181,7 +178,7 @@ export function DefenseScheduleFormDialog({
                     )
                     .map((supervisorId) => Number(supervisorId))
                 : [],
-              studentNames: g.studentNames ?? g.studentName ?? "",
+              studentNames: g.studentNames ?? "",
               students: g.students ?? [],
             }),
           );
@@ -462,6 +459,25 @@ export function DefenseScheduleFormDialog({
           <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>
             Đề tài bảo vệ
           </Typography>
+          {(excludedGroups.length > 0 ||
+            conflictingCurrentGroups.length > 0) && (
+            <Alert severity="warning" sx={{ mb: 1.5 }}>
+              <Typography variant="body2" fontWeight={600}>
+                {excludedGroups.length + conflictingCurrentGroups.length} đề tài
+                bị loại do xung đột lợi ích.
+              </Typography>
+              <Typography variant="caption">
+                Giảng viên hướng dẫn không được tham gia hội đồng chấm đề tài
+                của mình.
+                {[...excludedGroups, ...conflictingCurrentGroups]
+                  .slice(0, 3)
+                  .map(
+                    (group) =>
+                      ` ${group.projectCode || group.name} (${group.conflictingTeacherNames?.join(", ") || "giảng viên trong hội đồng"}).`,
+                  )}
+              </Typography>
+            </Alert>
+          )}
           <MultiSelect
             placeholder="Chọn các đề tài để bảo vệ..."
             value={topicIds.map(String)}

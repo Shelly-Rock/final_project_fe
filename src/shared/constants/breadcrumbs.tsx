@@ -71,7 +71,7 @@ export const BREADCRUMB_NODES = {
   },
   // Stage 4 - Scoring
   SCORING_MANAGEMENT: {
-    label: "Quản lý chấm điểm",
+    label: "Quản lý phiếu chấm",
     href: "/scoring/admin",
     icon: <ClipboardCheckIcon size={16} />,
   },
@@ -81,7 +81,7 @@ export const BREADCRUMB_NODES = {
     icon: <ClipboardCheckIcon size={16} />,
   },
   SCORE_PUBLICATION: {
-    label: "Tính điểm & công bố",
+    label: "Tổng hợp điểm",
     href: "/scoring/transcript",
     icon: <ClipboardCheckIcon size={16} />,
   },
@@ -101,7 +101,7 @@ export const BREADCRUMB_NODES = {
     icon: <ClipboardCheckIcon size={16} />,
   },
   STUDENT_REVISION: {
-    label: "Chỉnh sửa hồ sơ",
+    label: "Chỉnh sửa sau bảo vệ",
     href: "/scoring/revision",
     icon: <ClipboardCheckIcon size={16} />,
   },

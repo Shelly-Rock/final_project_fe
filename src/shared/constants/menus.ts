@@ -148,14 +148,14 @@ export const MENU_SECTIONS: MenuSection[] = [
     items: [
       {
         key: "scoring-management",
-        label: "Quản lý chấm điểm",
+        label: "Quản lý phiếu chấm",
         icon: Icon.scorecard,
         path: "/scoring/admin",
         roles: ["admin", "secretary"],
       },
       {
         key: "score-publication",
-        label: "Tính điểm & công bố",
+        label: "Tổng hợp điểm",
         icon: Icon.scorecard,
         path: "/scoring/transcript",
         roles: ["admin", "secretary"],
@@ -191,7 +191,7 @@ export const MENU_SECTIONS: MenuSection[] = [
         label: "Nhật ký Audit",
         icon: Icon.clipboardCheck,
         path: "/audit",
-        roles: ["admin", "secretary"],
+        roles: ["admin"],
       },
     ],
   },
@@ -254,7 +254,7 @@ export const MENU_SECTIONS: MenuSection[] = [
       },
       {
         key: "student-revision",
-        label: "Chỉnh sửa hồ sơ",
+        label: "Chỉnh sửa sau bảo vệ",
         icon: Icon.upload,
         path: "/scoring/revision",
         roles: ["student"],

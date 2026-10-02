@@ -285,8 +285,8 @@ export const getScoreSheetLabel = (
   scoringType: ScoringType,
   role: CommitteeRole | null,
 ) => {
-  if (scoringType === "GVHD") return "Phiếu GVHD";
-  if (role === "EXTERNAL_REVIEWER") return "Phiếu GVPB ngoài";
+  if (scoringType === "GVHD") return "Phiếu giảng viên hướng dẫn";
+  if (role === "EXTERNAL_REVIEWER") return "Phiếu giảng viên phản biện ngoài";
   if (role === "CHAIRMAN") return "Phiếu Chủ tịch hội đồng";
   if (role === "SECRETARY") return "Phiếu Thư ký hội đồng";
   return "Phiếu Phản biện trong";
@@ -370,114 +370,6 @@ export const assignScoresToCommittee = async (
   });
 };
 
-export type MeetingFinalStatus =
-  | "PASSED"
-  | "REJECTED_DEFENSE"
-  | "REJECTED_GVHD";
-
-export interface MeetingListItem {
-  projectId: number;
-  projectCode: string;
-  projectName: string;
-  student: {
-    studentId: string;
-    firstName: string;
-    middleName: string;
-    lastName: string;
-    className: string;
-  } | null;
-  scoredCount: number;
-  totalCount: number;
-  defenseAverage: number | null;
-  finalScore: number | null;
-  finalStatus: string | null;
-  isFinalized: boolean;
-}
-
-export interface MeetingCommitteeScore {
-  id: number;
-  teacherId: number;
-  teacherName: string;
-  teacherCode: string;
-  role: CommitteeRole | null;
-  score: number | null;
-  maxScore: number;
-  criteriaScores: Record<string, number> | null;
-  status: ScoringStatus;
-  notes: string | null;
-  strengths: string | null;
-  weaknesses: string | null;
-  submittedAt: string | null;
-  canEdit: boolean;
-}
-
-export interface MeetingDetail {
-  projectId: number;
-  projectCode: string;
-  projectName: string;
-  student: {
-    studentId: string;
-    firstName: string;
-    middleName: string;
-    lastName: string;
-    className: string;
-  } | null;
-  gvhdScore: {
-    id: number;
-    teacherId: number;
-    teacherName: string;
-    score: number | null;
-    status: ScoringStatus;
-    notes: string | null;
-  } | null;
-  committeeScores: MeetingCommitteeScore[];
-  defenseAverage: number | null;
-  finalScorePreview: number | null;
-  gvhdPassed: boolean | null;
-  finalStatus: string | null;
-  isFinalPassed: boolean;
-  isFinalized: boolean;
-  canEditAll: boolean;
-  canFinalize: boolean;
-  currentTeacherId: number | null;
-}
-
-export const getMeetings = async (
-  params?: Partial<{
-    page: number;
-    limit: number;
-    finalized: boolean;
-    facultyId: string;
-  }>,
-): Promise<PaginatedResponse<MeetingListItem>> => {
-  const queryParams = new URLSearchParams();
-  if (params?.page) queryParams.set("page", params.page.toString());
-  if (params?.limit) queryParams.set("limit", params.limit.toString());
-  if (params?.finalized !== undefined) {
-    queryParams.set("finalized", String(params.finalized));
-  }
-  if (params?.facultyId) queryParams.set("facultyId", params.facultyId);
-  return apiClient.get(`${API_BASE}/meetings?${queryParams.toString()}`);
-};
-
-export const getMeeting = async (projectId: number): Promise<MeetingDetail> => {
-  return apiClient.get(`${API_BASE}/meetings/${projectId}`);
-};
-
-export const adjustMeetingScore = async (
-  scoreId: number,
-  data: {
-    score: number;
-    maxScore?: number;
-    criteriaScores?: Record<string, number>;
-    notes?: string;
-    strengths?: string;
-    weaknesses?: string;
-  },
-): Promise<MeetingCommitteeScore> => {
-  return apiClient.put(`${API_BASE}/meetings/${scoreId}`, data);
-};
-
 export const finalizeMeeting = async (
   projectId: number,
 ): Promise<{
@@ -539,19 +431,51 @@ export interface TranscriptDetail {
   canPublish?: boolean;
 }
 
+export type TranscriptReadinessStatus =
+  | "IN_PROGRESS"
+  | "BLOCKED_GVHD"
+  | "AWAITING_FINALIZATION"
+  | "READY"
+  | "PUBLISHED";
+
+export interface TranscriptListItem {
+  projectId: number;
+  projectCode: string;
+  projectName: string;
+  student: TranscriptDetail["student"];
+  readinessStatus: TranscriptReadinessStatus;
+  submittedCount: number;
+  requiredCount: number;
+  missingItems: string[];
+  gvhdScore: number | null;
+  externalScore: number | null;
+  committeeAverage: number | null;
+  weightedScore: number | null;
+  bonusScore: number | null;
+  finalScore: number | null;
+  finalStatus: string | null;
+  isFinalized: boolean;
+  isPublished: boolean;
+  publishedAt: string | null;
+}
+
 export const getTranscripts = async (
   params?: Partial<{
     page: number;
     limit: number;
     published: boolean;
+    includeInProgress: boolean;
     facultyId: string;
   }>,
-): Promise<PaginatedResponse<TranscriptDetail>> => {
+): Promise<PaginatedResponse<TranscriptListItem>> => {
   const queryParams = new URLSearchParams();
   if (params?.page) queryParams.set("page", params.page.toString());
   if (params?.limit) queryParams.set("limit", params.limit.toString());
   if (params?.published !== undefined) {
     queryParams.set("published", String(params.published));
+  }
+  if (params?.includeInProgress !== undefined) {
+    queryParams.set("includeInProgress", String(params.includeInProgress));
   }
   if (params?.facultyId) queryParams.set("facultyId", params.facultyId);
   return apiClient.get(`${API_BASE}/transcripts?${queryParams.toString()}`);
@@ -669,4 +593,60 @@ export const submitRevision = async (data: {
   note?: string;
 }): Promise<unknown> => {
   return apiClient.post(`${API_BASE}/revisions/me`, data);
+};
+
+// ============ TRANSCRIPT REVIEW (pre/post finalize) ============
+
+export interface ScoreSheetDetail {
+  id: number;
+  teacherId: number;
+  teacherName: string;
+  teacherCode: string;
+  score: number | null;
+  maxScore: number;
+  status: ScoringStatus;
+  notes: string | null;
+  strengths: string | null;
+  weaknesses: string | null;
+  submittedAt: string | null;
+}
+
+export interface GvhdSheetDetail extends ScoreSheetDetail {
+  gvhdPassed: boolean | null;
+}
+
+export interface CommitteeSheetDetail extends ScoreSheetDetail {
+  role: CommitteeRole | null;
+}
+
+export interface TranscriptReview {
+  projectId: number;
+  projectCode: string;
+  projectName: string;
+  student: {
+    studentId: string;
+    firstName: string;
+    middleName: string;
+    lastName: string;
+    className: string;
+  } | null;
+  supervisor: { id: number; code: string; name: string };
+  readinessStatus: TranscriptReadinessStatus;
+  isFinalized: boolean;
+  isPublished: boolean;
+  finalStatus: string | null;
+  gvhdSheet: GvhdSheetDetail | null;
+  externalSheet: ScoreSheetDetail | null;
+  committeeSheets: CommitteeSheetDetail[];
+  internalAverage: number | null;
+  weightedScore: number | null;
+  bonusScore: number;
+  bonusNote: string | null;
+  finalScore: number | null;
+}
+
+export const getTranscriptReview = async (
+  projectId: number,
+): Promise<TranscriptReview> => {
+  return apiClient.get(`${API_BASE}/transcripts/${projectId}/review`);
 };

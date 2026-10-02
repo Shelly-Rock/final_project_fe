@@ -30,6 +30,17 @@ const defaultDeadline = () => {
   return date.toISOString().slice(0, 16);
 };
 
+const areAllScoreSheetsIssued = (row: ScoreIssuanceCandidate) =>
+  row.requiredCount > 0 && row.issuedCount >= row.requiredCount;
+
+const getIssueButtonLabel = (row: ScoreIssuanceCandidate) => {
+  if (!row.eligible) {
+    return row.issuedCount > 0 ? "Chưa đủ điều kiện" : "Chưa được cấp phiếu";
+  }
+  if (areAllScoreSheetsIssued(row)) return "Đã cấp phiếu";
+  return row.issuedCount > 0 ? "Cấp phiếu còn thiếu" : "Cấp phiếu";
+};
+
 export function ScoreIssuancePanel({ facultyId }: { facultyId?: string }) {
   const [rows, setRows] = useState<ScoreIssuanceCandidate[]>([]);
   const [loading, setLoading] = useState(true);
@@ -59,7 +70,7 @@ export function ScoreIssuancePanel({ facultyId }: { facultyId?: string }) {
 
   const issuedLabel = useMemo(
     () => (row: ScoreIssuanceCandidate) =>
-      `${row.issuedCount}/${row.requiredCount}`,
+      row.requiredCount > 0 ? `${row.issuedCount}/${row.requiredCount}` : "—",
     [],
   );
 
@@ -109,7 +120,13 @@ export function ScoreIssuancePanel({ facultyId }: { facultyId?: string }) {
         <Chip
           label={issuedLabel(row)}
           size="small"
-          color={row.issuedCount === row.requiredCount ? "success" : "warning"}
+          color={
+            row.requiredCount > 0 && row.issuedCount >= row.requiredCount
+              ? "success"
+              : row.eligible
+                ? "warning"
+                : "default"
+          }
         />
       ),
     },
@@ -135,14 +152,10 @@ export function ScoreIssuancePanel({ facultyId }: { facultyId?: string }) {
           size="small"
           variant="contained"
           leftIcon={<FilePlus2 size={16} />}
-          disabled={!row.eligible || row.issuedCount === row.requiredCount}
+          disabled={!row.eligible || areAllScoreSheetsIssued(row)}
           onClick={() => openIssueDialog(row)}
         >
-          {row.issuedCount === row.requiredCount
-            ? "Đã cấp đủ"
-            : row.issuedCount
-              ? "Cấp phiếu còn thiếu"
-              : "Cấp phiếu"}
+          {getIssueButtonLabel(row)}
         </Button>
       ),
     },

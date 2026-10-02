@@ -33,10 +33,8 @@ import { committeeService } from "@/feature/committee/services";
 import { defenseService } from "@/feature/defense-schedule/services";
 import { submissionService } from "@/feature/submission/services";
 import {
-  getMeetings,
   getTranscripts,
-  type MeetingListItem,
-  type TranscriptDetail,
+  type TranscriptListItem,
 } from "@/feature/scoring/services";
 import type { GovernanceStage } from "@/feature/project-governance/types";
 import type { ManagedTopicRow } from "@/feature/project-governance/types";
@@ -171,7 +169,6 @@ async function loadOperations() {
       status: "SCHEDULED",
     }),
     submissionService.getStats(),
-    getMeetings({ page: 1, limit: 100, finalized: false }),
     getTranscripts({ page: 1, limit: 100, published: false }),
   ]);
 
@@ -266,12 +263,8 @@ async function loadOperations() {
     total: 0,
     totalPages: 0,
   };
-  const meetings = settled(results[9], {
-    data: [] as MeetingListItem[],
-    meta: emptyPage,
-  });
-  const transcripts = settled(results[10], {
-    data: [] as TranscriptDetail[],
+  const transcripts = settled(results[9], {
+    data: [] as TranscriptListItem[],
     meta: emptyPage,
   });
 
@@ -286,7 +279,10 @@ async function loadOperations() {
     defense,
     sessions: sessionsPage.data ?? [],
     submission,
-    meetingsOpen: meetings.meta?.total ?? meetings.data?.length ?? 0,
+    meetingsOpen:
+      transcripts.data?.filter(
+        (t) => t.readinessStatus === "AWAITING_FINALIZATION",
+      ).length ?? 0,
     unpublished: transcripts.meta?.total ?? transcripts.data?.length ?? 0,
     defaultQuota:
       teacherPage.config?.defaultTopicLimit ??
