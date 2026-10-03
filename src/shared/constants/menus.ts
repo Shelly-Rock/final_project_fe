@@ -72,7 +72,7 @@ export const MENU_SECTIONS: MenuSection[] = [
       },
       {
         key: "admin-progress",
-        label: "Theo dõi tiến trình",
+        label: "Theo dõi tiến độ.",
         icon: Icon.graphUp,
         path: "/progress-tracking/admin",
         roles: ["admin", "secretary"],
@@ -207,7 +207,7 @@ export const MENU_SECTIONS: MenuSection[] = [
       },
       {
         key: "teacher-progress",
-        label: "Theo dõi tiến trình",
+        label: "Theo dõi tiến độ",
         icon: Icon.graphUp,
         path: "/progress-tracking/teacher",
         roles: ["teacher"],
@@ -233,7 +233,7 @@ export const MENU_SECTIONS: MenuSection[] = [
       },
       {
         key: "student-progress",
-        label: "Theo dõi tiến trình",
+        label: "Theo dõi tiến độ",
         icon: Icon.fileEarmarkText,
         path: "/progress-tracking/student",
         roles: ["student"],

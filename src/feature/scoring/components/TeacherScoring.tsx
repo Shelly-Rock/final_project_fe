@@ -258,19 +258,18 @@ export default function TeacherScoringPage() {
       {/* Rules Alert */}
       <Alert severity="warning" sx={{ mb: 4 }}>
         <Box sx={{ display: "flex", alignItems: "flex-start", gap: 1 }}>
-          <AlertTriangle size={20} color="#ed6c02" />
           <Box>
             <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
               Quy tắc điểm liệt:
             </Typography>
             <Typography variant="body2" component="ul" sx={{ pl: 2, mt: 0.5 }}>
               <Typography component="li" variant="body2">
-                <strong>GVHD:</strong> Nếu chấm dưới 4 điểm, đề tài bị loại ngay
-                lập tức
+                <strong>Giảng viên hướng dẫn:</strong> Nếu chấm dưới 4 điểm, đề
+                tài sẽ bị đánh rớt.
               </Typography>
               <Typography component="li" variant="body2">
-                <strong>Hội đồng:</strong> Nếu bất kỳ thành viên nào chấm dưới 4
-                điểm, sinh viên bị loại
+                <strong>Giảng viên phản biện ngoài</strong> Nếu chấm dưới 4
+                điểm, đề tài sẽ bị đánh rớt.
               </Typography>
             </Typography>
           </Box>

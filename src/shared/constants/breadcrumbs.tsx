@@ -39,12 +39,12 @@ export const BREADCRUMB_NODES = {
   },
   // Progress Tracking Breadcrumbs
   TEACHER_PROGRESS: {
-    label: "Theo dõi tiến trình (GV)",
+    label: "Theo dõi tiến độ (GV)",
     href: "/progress-tracking/teacher",
     icon: <ChartLineIcon size={16} />,
   },
   STUDENT_PROGRESS: {
-    label: "Theo dõi tiến trình (SV)",
+    label: "Theo dõi tiến độ (SV)",
     href: "/progress-tracking/student",
     icon: <FileTextIcon size={16} />,
   },
